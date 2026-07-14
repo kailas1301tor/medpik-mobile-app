@@ -75,8 +75,8 @@ class AppTheme {
   static ThemeData get darkTheme {
     final colorScheme = _buildColorScheme(
       brightness: Brightness.dark,
-      surface: AppColors.dark.background,
-      surfaceVariant: AppColors.dark.surface,
+      surface: AppColors.dark.surface,
+      surfaceVariant: AppColors.dark.cardBackground,
     );
 
     return ThemeData(

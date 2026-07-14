@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tsuite/data/models/prescription_selected_product_model.dart';
+import 'package:tsuite/res/constants/medpik_svg_assets.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
@@ -78,7 +80,14 @@ class CheckoutScreen extends ConsumerWidget {
                   borderRadius: 16.r,
                   color: colors.surface,
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      SvgPicture.asset(
+                        MedpikSvgAssets.location,
+                        width: 22.r,
+                        height: 22.r,
+                      ),
+                      12.horizontalSpace,
                       Expanded(
                         child: Text(
                           address?.fullAddress ?? Strings.noAddressSaved,

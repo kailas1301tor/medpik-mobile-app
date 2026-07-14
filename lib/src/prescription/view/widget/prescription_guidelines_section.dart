@@ -9,14 +9,16 @@ class PrescriptionGuidelinesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       decoration: BoxDecoration(
-        color: ColorPalette.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: ColorPalette.prescriptionUploadDashedBorder,
+          color: colors.cardBorder,
           width: 1.w,
         ),
       ),

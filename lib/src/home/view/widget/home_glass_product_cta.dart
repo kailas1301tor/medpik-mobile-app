@@ -61,8 +61,8 @@ class _AddButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = compact ? 26.r : 34.r;
-    final iconSize = compact ? 14.r : 18.r;
+    final size = compact ? 32.r : 34.r;
+    final iconSize = compact ? 16.r : 18.r;
 
     return GestureDetector(
       onTap: onTap,

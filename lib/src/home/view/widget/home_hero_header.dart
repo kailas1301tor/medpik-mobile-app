@@ -1,13 +1,13 @@
 // lib/src/home/view/widget/home_hero_header.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tsuite/res/constants/medpik_image_assets.dart';
 import 'package:tsuite/res/constants/medpik_svg_assets.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/src/home/view/widget/home_header_shared.dart';
+import 'package:tsuite/utils/routes/route_constants.dart';
 
 class HomeHeroHeader extends StatelessWidget {
   const HomeHeroHeader({
@@ -74,29 +74,19 @@ class HomeHeroHeader extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Material(
-                          color: ColorPalette.transparent,
-                          child: InkWell(
-                            onTap: () {},
-                            borderRadius: BorderRadius.circular(24.r),
-                            child: Ink(
-                              width: 45.r,
-                              height: 45.r,
-                              decoration: BoxDecoration(
-                                color: ColorPalette.white.withValues(
-                                  alpha: 0.2,
-                                ),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: SvgPicture.asset(
-                                  MedpikSvgAssets.bell,
-                                  width: 24.w,
-                                  height: 24.w,
-                                ),
-                              ),
-                            ),
-                          ),
+                        HomeHeaderIconButton(
+                          iconAsset: MedpikSvgAssets.heart,
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              RouteConstants.routeWishlistScreen,
+                            );
+                          },
+                        ),
+                        8.horizontalSpace,
+                        HomeHeaderIconButton(
+                          iconAsset: MedpikSvgAssets.notification,
+                          onTap: () {},
                         ),
                       ],
                     ),

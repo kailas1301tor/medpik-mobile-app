@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tsuite/data/models/address_model.dart';
+import 'package:tsuite/res/constants/medpik_svg_assets.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
@@ -11,6 +13,7 @@ import 'package:tsuite/src/address/notifier/address_notifier.dart';
 import 'package:tsuite/src/address/view/widget/address_form_sheet.dart';
 import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
 import 'package:tsuite/utils/common_widgets/common_container.dart';
+import 'package:tsuite/utils/common_widgets/common_delete_icon.dart';
 import 'package:tsuite/utils/common_widgets/common_dialog_box.dart';
 import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
 import 'package:tsuite/utils/common_widgets/common_loader.dart';
@@ -117,49 +120,85 @@ class _AddressTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                address.label,
-                style: FontPalette.base700(16, color: colors.primaryText),
+              SvgPicture.asset(
+                MedpikSvgAssets.location,
+                width: 22.r,
+                height: 22.r,
               ),
-              if (address.isDefault) ...[
-                8.horizontalSpace,
-                CommonContainer(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                  borderRadius: 8.r,
-                  color: colors.primary.withValues(alpha: 0.12),
-                  child: Text(
-                    Strings.defaultAddress,
-                    style: FontPalette.base600(11, color: colors.primary),
-                  ),
+              12.horizontalSpace,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          address.label,
+                          style: FontPalette.base700(
+                            16,
+                            color: colors.primaryText,
+                          ),
+                        ),
+                        if (address.isDefault) ...[
+                          8.horizontalSpace,
+                          CommonContainer(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 4.h,
+                            ),
+                            borderRadius: 8.r,
+                            color: colors.primary.withValues(alpha: 0.12),
+                            child: Text(
+                              Strings.defaultAddress,
+                              style: FontPalette.base600(
+                                11,
+                                color: colors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    8.verticalSpace,
+                    Text(
+                      address.fullAddress,
+                      style: FontPalette.base400(
+                        14,
+                        color: colors.secondaryText,
+                      ),
+                    ),
+                    if (!address.isDefault) ...[
+                      12.verticalSpace,
+                      GestureDetector(
+                        onTap: onSetDefault,
+                        child: Text(
+                          Strings.setAsDefault,
+                          style: FontPalette.base600(
+                            13,
+                            color: colors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ],
-              const Spacer(),
+              ),
               IconButton(
                 onPressed: onEdit,
-                icon: Icon(Icons.edit_outlined, size: 20.r, color: colors.primary),
+                icon: Icon(
+                  Icons.edit_outlined,
+                  size: 20.r,
+                  color: colors.primary,
+                ),
               ),
               IconButton(
                 onPressed: onDelete,
-                icon: Icon(Icons.delete_outline, size: 20.r, color: colors.primary),
+                icon: CommonDeleteIcon(size: 20.r),
               ),
             ],
           ),
-          8.verticalSpace,
-          Text(
-            address.fullAddress,
-            style: FontPalette.base400(14, color: colors.secondaryText),
-          ),
-          if (!address.isDefault) ...[
-            12.verticalSpace,
-            GestureDetector(
-              onTap: onSetDefault,
-              child: Text(
-                Strings.setAsDefault,
-                style: FontPalette.base600(13, color: colors.primary),
-              ),
-            ),
-          ],
         ],
       ),
     );

@@ -8,8 +8,10 @@ import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/src/home/view/widget/home_glass_product_cta.dart';
 import 'package:tsuite/src/home/view/widget/home_glass_product_image_hero.dart';
 import 'package:tsuite/src/home/view/widget/home_glass_product_wishlist_button.dart';
+import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
+import 'package:tsuite/utils/helpers/product_pack_label_helper.dart';
 
-class HomeGlassProductCard extends ConsumerStatefulWidget {
+class HomeGlassProductCard extends ConsumerWidget {
   const HomeGlassProductCard({
     super.key,
     required this.product,
@@ -22,63 +24,72 @@ class HomeGlassProductCard extends ConsumerStatefulWidget {
   final bool intrinsic;
 
   @override
-  ConsumerState<HomeGlassProductCard> createState() =>
-      _HomeGlassProductCardState();
-}
-
-class _HomeGlassProductCardState extends ConsumerState<HomeGlassProductCard> {
-  bool _isWishlisted = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final product = widget.product;
-    final radius = BorderRadius.circular(16.r);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
+    final radius = 20.r;
+    final imageHeight = 118.h;
+    final isWishlisted = ref.watch(
+      wishlistNotifierProvider.select(
+        (s) => s.items.any((item) => item.id == product.id),
+      ),
+    );
 
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: ColorPalette.productCardBg,
-          borderRadius: radius,
-          border: Border.all(color: ColorPalette.productCardBorder, width: 1.w),
+          color: colors.cardBackground,
+          borderRadius: BorderRadius.circular(radius),
+          border: Border.all(
+            color: colors.cardBorder,
+            width: 1.w,
+          ),
         ),
         child: ClipRRect(
-          borderRadius: radius,
-          child: Column(
-            mainAxisSize: widget.intrinsic
-                ? MainAxisSize.min
-                : MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          borderRadius: BorderRadius.circular(radius),
+          child: Stack(
+            clipBehavior: Clip.none,
             children: [
-              Stack(
+              Column(
+                mainAxisSize: intrinsic ? MainAxisSize.min : MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  HomeGlassProductImageHero(product: product, height: 96.h),
-                  Positioned(
-                    top: 6.h,
-                    right: 6.w,
-                    child: HomeGlassProductWishlistButton(
-                      isWishlisted: _isWishlisted,
-                      onTap: () =>
-                          setState(() => _isWishlisted = !_isWishlisted),
+                  Stack(
+                    children: [
+                      HomeGlassProductImageHero(
+                        product: product,
+                        height: imageHeight,
+                        topRadius: radius,
+                      ),
+                      Positioned(
+                        top: 8.h,
+                        right: 8.w,
+                        child: HomeGlassProductWishlistButton(
+                          isWishlisted: isWishlisted,
+                          onTap: () => ref
+                              .read(wishlistNotifierProvider.notifier)
+                              .toggle(product),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
+                    child: _CardInfo(
+                      product: product,
+                      intrinsic: intrinsic,
                     ),
                   ),
                 ],
               ),
-              if (widget.intrinsic)
-                Padding(
-                  padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 8.h),
-                  child: _CardInfo(
-                    product: product,
-                    intrinsic: true,
-                  ),
-                )
-              else
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 8.h),
-                    child: _CardInfo(product: product),
-                  ),
+              Positioned(
+                right: 10.w,
+                bottom: 10.h,
+                child: HomeGlassProductCta(
+                  product: product,
+                  compact: true,
                 ),
+              ),
             ],
           ),
         ),
@@ -99,30 +110,46 @@ class _CardInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final hasPack = product.packSize.isNotEmpty;
+    final packLabel = productPackDisplayLabel(product);
 
     return Column(
       mainAxisSize: intrinsic ? MainAxisSize.min : MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          product.name,
-          style: FontPalette.base700(13, color: colors.primaryText),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+        Padding(
+          padding: EdgeInsets.only(right: 40.w),
+          child: Text(
+            product.name,
+            style: FontPalette.base700(14, color: colors.primaryText),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
-        if (hasPack) ...[
-          2.verticalSpace,
+        6.verticalSpace,
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+          decoration: BoxDecoration(
+            color: ColorPalette.productAccentTeal.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(999.r),
+          ),
+          child: Text(
+            product.category,
+            style: FontPalette.base600(
+              10,
+              color: ColorPalette.productAccentTeal,
+            ),
+          ),
+        ),
+        if (packLabel.isNotEmpty) ...[
+          6.verticalSpace,
           Text(
-            product.packSize,
+            packLabel,
             style: FontPalette.base400(11, color: colors.secondaryText),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
-        if (intrinsic) 4.verticalSpace else const Spacer(),
-        Align(
-          alignment: Alignment.centerRight,
-          child: HomeGlassProductCta(product: product),
-        ),
+        28.verticalSpace,
       ],
     );
   }

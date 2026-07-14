@@ -41,7 +41,7 @@ class CommonEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final content = Column(
-      mainAxisSize: fillAvailableSpace ? MainAxisSize.max : MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: mainAxisAlignment,
       children: [
         if (topSpacing != null) SizedBox(height: topSpacing),
@@ -77,10 +77,19 @@ class CommonEmptyState extends StatelessWidget {
       ],
     );
 
-    return Container(
-      width: double.maxFinite,
-      color: backgroundColor ?? Colors.transparent,
-      child: fillAvailableSpace ? Center(child: content) : content,
+    if (!fillAvailableSpace) {
+      return Container(
+        width: double.maxFinite,
+        color: backgroundColor ?? Colors.transparent,
+        child: content,
+      );
+    }
+
+    return SizedBox.expand(
+      child: ColoredBox(
+        color: backgroundColor ?? Colors.transparent,
+        child: Center(child: content),
+      ),
     );
   }
 }
@@ -105,7 +114,7 @@ class _StateIllustration extends StatelessWidget {
         dimension: 190.r,
         child: Lottie.asset(
           assetPath!,
-          repeat: false,
+          repeat: true,
           errorBuilder: (_, __, ___) => Icon(
             Icons.inbox_outlined,
             size: 82.r,

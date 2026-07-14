@@ -19,6 +19,9 @@ class RouteConstants {
   static const String routeConfirmationScreen = '/confirmation';
   static const String routeOrdersScreen = '/orders';
   static const String routeOrderDetailScreen = '/order-detail';
+  static const String routeOrderReviewBillScreen = '/order-review-bill';
+  static const String routeOrderReviewPayScreen = '/order-review-pay';
   static const String routeTrackingScreen = '/tracking';
   static const String routeAddressBookScreen = '/address-book';
+  static const String routeWishlistScreen = '/wishlist';
 }

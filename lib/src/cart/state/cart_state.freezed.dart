@@ -19,6 +19,9 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$CartState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   List<CartItemModel> get items => throw _privateConstructorUsedError;
+  AddressModel? get selectedAddress => throw _privateConstructorUsedError;
+  String get pharmacistInstructions => throw _privateConstructorUsedError;
+  String? get submittedOrderId => throw _privateConstructorUsedError;
 
   /// Create a copy of CartState
   /// with the given fields replaced by the non-null parameter values.
@@ -32,7 +35,13 @@ abstract class $CartStateCopyWith<$Res> {
   factory $CartStateCopyWith(CartState value, $Res Function(CartState) then) =
       _$CartStateCopyWithImpl<$Res, CartState>;
   @useResult
-  $Res call({LoaderState loaderState, List<CartItemModel> items});
+  $Res call({
+    LoaderState loaderState,
+    List<CartItemModel> items,
+    AddressModel? selectedAddress,
+    String pharmacistInstructions,
+    String? submittedOrderId,
+  });
 }
 
 /// @nodoc
@@ -49,7 +58,13 @@ class _$CartStateCopyWithImpl<$Res, $Val extends CartState>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? loaderState = null, Object? items = null}) {
+  $Res call({
+    Object? loaderState = null,
+    Object? items = null,
+    Object? selectedAddress = freezed,
+    Object? pharmacistInstructions = null,
+    Object? submittedOrderId = freezed,
+  }) {
     return _then(
       _value.copyWith(
             loaderState: null == loaderState
@@ -60,6 +75,18 @@ class _$CartStateCopyWithImpl<$Res, $Val extends CartState>
                 ? _value.items
                 : items // ignore: cast_nullable_to_non_nullable
                       as List<CartItemModel>,
+            selectedAddress: freezed == selectedAddress
+                ? _value.selectedAddress
+                : selectedAddress // ignore: cast_nullable_to_non_nullable
+                      as AddressModel?,
+            pharmacistInstructions: null == pharmacistInstructions
+                ? _value.pharmacistInstructions
+                : pharmacistInstructions // ignore: cast_nullable_to_non_nullable
+                      as String,
+            submittedOrderId: freezed == submittedOrderId
+                ? _value.submittedOrderId
+                : submittedOrderId // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -75,7 +102,13 @@ abstract class _$$CartStateImplCopyWith<$Res>
   ) = __$$CartStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({LoaderState loaderState, List<CartItemModel> items});
+  $Res call({
+    LoaderState loaderState,
+    List<CartItemModel> items,
+    AddressModel? selectedAddress,
+    String pharmacistInstructions,
+    String? submittedOrderId,
+  });
 }
 
 /// @nodoc
@@ -91,7 +124,13 @@ class __$$CartStateImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? loaderState = null, Object? items = null}) {
+  $Res call({
+    Object? loaderState = null,
+    Object? items = null,
+    Object? selectedAddress = freezed,
+    Object? pharmacistInstructions = null,
+    Object? submittedOrderId = freezed,
+  }) {
     return _then(
       _$CartStateImpl(
         loaderState: null == loaderState
@@ -102,6 +141,18 @@ class __$$CartStateImplCopyWithImpl<$Res>
             ? _value._items
             : items // ignore: cast_nullable_to_non_nullable
                   as List<CartItemModel>,
+        selectedAddress: freezed == selectedAddress
+            ? _value.selectedAddress
+            : selectedAddress // ignore: cast_nullable_to_non_nullable
+                  as AddressModel?,
+        pharmacistInstructions: null == pharmacistInstructions
+            ? _value.pharmacistInstructions
+            : pharmacistInstructions // ignore: cast_nullable_to_non_nullable
+                  as String,
+        submittedOrderId: freezed == submittedOrderId
+            ? _value.submittedOrderId
+            : submittedOrderId // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -113,6 +164,9 @@ class _$CartStateImpl implements _CartState {
   const _$CartStateImpl({
     this.loaderState = LoaderState.loaded,
     final List<CartItemModel> items = const [],
+    this.selectedAddress,
+    this.pharmacistInstructions = '',
+    this.submittedOrderId,
   }) : _items = items;
 
   @override
@@ -128,8 +182,16 @@ class _$CartStateImpl implements _CartState {
   }
 
   @override
+  final AddressModel? selectedAddress;
+  @override
+  @JsonKey()
+  final String pharmacistInstructions;
+  @override
+  final String? submittedOrderId;
+
+  @override
   String toString() {
-    return 'CartState(loaderState: $loaderState, items: $items)';
+    return 'CartState(loaderState: $loaderState, items: $items, selectedAddress: $selectedAddress, pharmacistInstructions: $pharmacistInstructions, submittedOrderId: $submittedOrderId)';
   }
 
   @override
@@ -139,7 +201,13 @@ class _$CartStateImpl implements _CartState {
             other is _$CartStateImpl &&
             (identical(other.loaderState, loaderState) ||
                 other.loaderState == loaderState) &&
-            const DeepCollectionEquality().equals(other._items, _items));
+            const DeepCollectionEquality().equals(other._items, _items) &&
+            (identical(other.selectedAddress, selectedAddress) ||
+                other.selectedAddress == selectedAddress) &&
+            (identical(other.pharmacistInstructions, pharmacistInstructions) ||
+                other.pharmacistInstructions == pharmacistInstructions) &&
+            (identical(other.submittedOrderId, submittedOrderId) ||
+                other.submittedOrderId == submittedOrderId));
   }
 
   @override
@@ -147,6 +215,9 @@ class _$CartStateImpl implements _CartState {
     runtimeType,
     loaderState,
     const DeepCollectionEquality().hash(_items),
+    selectedAddress,
+    pharmacistInstructions,
+    submittedOrderId,
   );
 
   /// Create a copy of CartState
@@ -162,12 +233,21 @@ abstract class _CartState implements CartState {
   const factory _CartState({
     final LoaderState loaderState,
     final List<CartItemModel> items,
+    final AddressModel? selectedAddress,
+    final String pharmacistInstructions,
+    final String? submittedOrderId,
   }) = _$CartStateImpl;
 
   @override
   LoaderState get loaderState;
   @override
   List<CartItemModel> get items;
+  @override
+  AddressModel? get selectedAddress;
+  @override
+  String get pharmacistInstructions;
+  @override
+  String? get submittedOrderId;
 
   /// Create a copy of CartState
   /// with the given fields replaced by the non-null parameter values.

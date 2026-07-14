@@ -52,7 +52,7 @@ class HomeContentWidget extends ConsumerWidget {
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
+                padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
                 child: HomePrescriptionCard(
                   onUploadTap: () {
                     Navigator.pushNamed(

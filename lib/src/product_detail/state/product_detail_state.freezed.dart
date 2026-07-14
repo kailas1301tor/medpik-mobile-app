@@ -18,8 +18,9 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$ProductDetailState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
-  ProductModel? get product => throw _privateConstructorUsedError;
+  ProductDetailModel? get detail => throw _privateConstructorUsedError;
   int get quantity => throw _privateConstructorUsedError;
+  bool get isWishlisted => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of ProductDetailState
@@ -38,8 +39,9 @@ abstract class $ProductDetailStateCopyWith<$Res> {
   @useResult
   $Res call({
     LoaderState loaderState,
-    ProductModel? product,
+    ProductDetailModel? detail,
     int quantity,
+    bool isWishlisted,
     String? errorMessage,
   });
 }
@@ -60,8 +62,9 @@ class _$ProductDetailStateCopyWithImpl<$Res, $Val extends ProductDetailState>
   @override
   $Res call({
     Object? loaderState = null,
-    Object? product = freezed,
+    Object? detail = freezed,
     Object? quantity = null,
+    Object? isWishlisted = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -70,14 +73,18 @@ class _$ProductDetailStateCopyWithImpl<$Res, $Val extends ProductDetailState>
                 ? _value.loaderState
                 : loaderState // ignore: cast_nullable_to_non_nullable
                       as LoaderState,
-            product: freezed == product
-                ? _value.product
-                : product // ignore: cast_nullable_to_non_nullable
-                      as ProductModel?,
+            detail: freezed == detail
+                ? _value.detail
+                : detail // ignore: cast_nullable_to_non_nullable
+                      as ProductDetailModel?,
             quantity: null == quantity
                 ? _value.quantity
                 : quantity // ignore: cast_nullable_to_non_nullable
                       as int,
+            isWishlisted: null == isWishlisted
+                ? _value.isWishlisted
+                : isWishlisted // ignore: cast_nullable_to_non_nullable
+                      as bool,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -99,8 +106,9 @@ abstract class _$$ProductDetailStateImplCopyWith<$Res>
   @useResult
   $Res call({
     LoaderState loaderState,
-    ProductModel? product,
+    ProductDetailModel? detail,
     int quantity,
+    bool isWishlisted,
     String? errorMessage,
   });
 }
@@ -120,8 +128,9 @@ class __$$ProductDetailStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? loaderState = null,
-    Object? product = freezed,
+    Object? detail = freezed,
     Object? quantity = null,
+    Object? isWishlisted = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -130,14 +139,18 @@ class __$$ProductDetailStateImplCopyWithImpl<$Res>
             ? _value.loaderState
             : loaderState // ignore: cast_nullable_to_non_nullable
                   as LoaderState,
-        product: freezed == product
-            ? _value.product
-            : product // ignore: cast_nullable_to_non_nullable
-                  as ProductModel?,
+        detail: freezed == detail
+            ? _value.detail
+            : detail // ignore: cast_nullable_to_non_nullable
+                  as ProductDetailModel?,
         quantity: null == quantity
             ? _value.quantity
             : quantity // ignore: cast_nullable_to_non_nullable
                   as int,
+        isWishlisted: null == isWishlisted
+            ? _value.isWishlisted
+            : isWishlisted // ignore: cast_nullable_to_non_nullable
+                  as bool,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -152,8 +165,9 @@ class __$$ProductDetailStateImplCopyWithImpl<$Res>
 class _$ProductDetailStateImpl implements _ProductDetailState {
   const _$ProductDetailStateImpl({
     this.loaderState = LoaderState.loaded,
-    this.product,
+    this.detail,
     this.quantity = 1,
+    this.isWishlisted = false,
     this.errorMessage,
   });
 
@@ -161,16 +175,19 @@ class _$ProductDetailStateImpl implements _ProductDetailState {
   @JsonKey()
   final LoaderState loaderState;
   @override
-  final ProductModel? product;
+  final ProductDetailModel? detail;
   @override
   @JsonKey()
   final int quantity;
+  @override
+  @JsonKey()
+  final bool isWishlisted;
   @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'ProductDetailState(loaderState: $loaderState, product: $product, quantity: $quantity, errorMessage: $errorMessage)';
+    return 'ProductDetailState(loaderState: $loaderState, detail: $detail, quantity: $quantity, isWishlisted: $isWishlisted, errorMessage: $errorMessage)';
   }
 
   @override
@@ -180,16 +197,24 @@ class _$ProductDetailStateImpl implements _ProductDetailState {
             other is _$ProductDetailStateImpl &&
             (identical(other.loaderState, loaderState) ||
                 other.loaderState == loaderState) &&
-            (identical(other.product, product) || other.product == product) &&
+            (identical(other.detail, detail) || other.detail == detail) &&
             (identical(other.quantity, quantity) ||
                 other.quantity == quantity) &&
+            (identical(other.isWishlisted, isWishlisted) ||
+                other.isWishlisted == isWishlisted) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, loaderState, product, quantity, errorMessage);
+  int get hashCode => Object.hash(
+    runtimeType,
+    loaderState,
+    detail,
+    quantity,
+    isWishlisted,
+    errorMessage,
+  );
 
   /// Create a copy of ProductDetailState
   /// with the given fields replaced by the non-null parameter values.
@@ -206,17 +231,20 @@ class _$ProductDetailStateImpl implements _ProductDetailState {
 abstract class _ProductDetailState implements ProductDetailState {
   const factory _ProductDetailState({
     final LoaderState loaderState,
-    final ProductModel? product,
+    final ProductDetailModel? detail,
     final int quantity,
+    final bool isWishlisted,
     final String? errorMessage,
   }) = _$ProductDetailStateImpl;
 
   @override
   LoaderState get loaderState;
   @override
-  ProductModel? get product;
+  ProductDetailModel? get detail;
   @override
   int get quantity;
+  @override
+  bool get isWishlisted;
   @override
   String? get errorMessage;
 

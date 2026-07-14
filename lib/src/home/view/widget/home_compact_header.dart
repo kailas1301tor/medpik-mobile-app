@@ -26,6 +26,7 @@ class HomeCompactHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     if (progress <= 0) return const SizedBox.shrink();
 
+    final colors = context.appColors;
     final slideOffset = lerpDouble(-16, 0, progress)!;
     final shadowOpacity = progress * 0.12;
 
@@ -37,7 +38,12 @@ class HomeCompactHeader extends StatelessWidget {
           offset: Offset(0, slideOffset),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: ColorPalette.white,
+              color: colors.background,
+              border: Border(
+                bottom: BorderSide(
+                  color: colors.divider.withValues(alpha: progress),
+                ),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: ColorPalette.black.withValues(alpha: shadowOpacity),

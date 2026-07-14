@@ -8,12 +8,15 @@ import '../../src/checkout/view/checkout_screen.dart';
 import '../../src/checkout/view/order_confirmation_screen.dart';
 import '../../src/main/main_screen.dart';
 import '../../src/orders/view/order_detail_screen.dart';
+import '../../src/orders/view/order_review_bill_screen.dart';
+import '../../src/orders/view/order_review_pay_screen.dart';
 import '../../src/orders/view/order_tracking_screen.dart';
 import '../../src/prescription/view/prescription_upload_screen.dart';
 import '../../src/product_detail/view/product_detail_screen.dart';
 import '../../src/search/view/search_results_screen.dart';
 import '../../src/search/view/search_screen.dart';
 import '../../src/splash/view/splash_screen.dart';
+import '../../src/wishlist/view/wishlist_screen.dart';
 import 'route_constants.dart';
 
 /// Global navigator key for accessing navigation from anywhere.
@@ -100,6 +103,20 @@ class RouteGenerator {
           settings: settings,
         );
 
+      case RouteConstants.routeOrderReviewBillScreen:
+        final reviewBillOrderId = settings.arguments as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => OrderReviewBillScreen(orderId: reviewBillOrderId),
+          settings: settings,
+        );
+
+      case RouteConstants.routeOrderReviewPayScreen:
+        final reviewPayOrderId = settings.arguments as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => OrderReviewPayScreen(orderId: reviewPayOrderId),
+          settings: settings,
+        );
+
       case RouteConstants.routeTrackingScreen:
         final orderId = settings.arguments as String? ?? '';
         return MaterialPageRoute(
@@ -110,6 +127,12 @@ class RouteGenerator {
       case RouteConstants.routeAddressBookScreen:
         return MaterialPageRoute(
           builder: (_) => const AddressBookScreen(),
+          settings: settings,
+        );
+
+      case RouteConstants.routeWishlistScreen:
+        return MaterialPageRoute(
+          builder: (_) => const WishlistScreen(),
           settings: settings,
         );
 

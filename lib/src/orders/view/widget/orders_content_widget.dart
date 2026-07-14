@@ -1,0 +1,34 @@
+// lib/src/orders/view/widget/orders_content_widget.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tsuite/data/models/order_model.dart';
+import 'package:tsuite/src/orders/view/widget/order_tile.dart';
+import 'package:tsuite/utils/routes/route_constants.dart';
+
+class OrdersContentWidget extends StatelessWidget {
+  const OrdersContentWidget({
+    super.key,
+    required this.orders,
+  });
+
+  final List<OrderModel> orders;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 24.h),
+      itemCount: orders.length,
+      itemBuilder: (context, index) {
+        final order = orders[index];
+        return OrderTile(
+          order: order,
+          onTap: () => Navigator.pushNamed(
+            context,
+            RouteConstants.routeOrderDetailScreen,
+            arguments: order.id,
+          ),
+        );
+      },
+    );
+  }
+}

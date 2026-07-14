@@ -18,9 +18,11 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$OrdersState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
-  List<OrderModel> get activeOrders => throw _privateConstructorUsedError;
-  List<OrderModel> get pastOrders => throw _privateConstructorUsedError;
+  LoaderState get detailLoaderState => throw _privateConstructorUsedError;
+  List<OrderModel> get orders => throw _privateConstructorUsedError;
   OrderModel? get selectedOrder => throw _privateConstructorUsedError;
+  OrderPaymentMethod get selectedPaymentMethod =>
+      throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of OrdersState
@@ -39,9 +41,10 @@ abstract class $OrdersStateCopyWith<$Res> {
   @useResult
   $Res call({
     LoaderState loaderState,
-    List<OrderModel> activeOrders,
-    List<OrderModel> pastOrders,
+    LoaderState detailLoaderState,
+    List<OrderModel> orders,
     OrderModel? selectedOrder,
+    OrderPaymentMethod selectedPaymentMethod,
     String? errorMessage,
   });
 }
@@ -62,9 +65,10 @@ class _$OrdersStateCopyWithImpl<$Res, $Val extends OrdersState>
   @override
   $Res call({
     Object? loaderState = null,
-    Object? activeOrders = null,
-    Object? pastOrders = null,
+    Object? detailLoaderState = null,
+    Object? orders = null,
     Object? selectedOrder = freezed,
+    Object? selectedPaymentMethod = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -73,18 +77,22 @@ class _$OrdersStateCopyWithImpl<$Res, $Val extends OrdersState>
                 ? _value.loaderState
                 : loaderState // ignore: cast_nullable_to_non_nullable
                       as LoaderState,
-            activeOrders: null == activeOrders
-                ? _value.activeOrders
-                : activeOrders // ignore: cast_nullable_to_non_nullable
-                      as List<OrderModel>,
-            pastOrders: null == pastOrders
-                ? _value.pastOrders
-                : pastOrders // ignore: cast_nullable_to_non_nullable
+            detailLoaderState: null == detailLoaderState
+                ? _value.detailLoaderState
+                : detailLoaderState // ignore: cast_nullable_to_non_nullable
+                      as LoaderState,
+            orders: null == orders
+                ? _value.orders
+                : orders // ignore: cast_nullable_to_non_nullable
                       as List<OrderModel>,
             selectedOrder: freezed == selectedOrder
                 ? _value.selectedOrder
                 : selectedOrder // ignore: cast_nullable_to_non_nullable
                       as OrderModel?,
+            selectedPaymentMethod: null == selectedPaymentMethod
+                ? _value.selectedPaymentMethod
+                : selectedPaymentMethod // ignore: cast_nullable_to_non_nullable
+                      as OrderPaymentMethod,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -106,9 +114,10 @@ abstract class _$$OrdersStateImplCopyWith<$Res>
   @useResult
   $Res call({
     LoaderState loaderState,
-    List<OrderModel> activeOrders,
-    List<OrderModel> pastOrders,
+    LoaderState detailLoaderState,
+    List<OrderModel> orders,
     OrderModel? selectedOrder,
+    OrderPaymentMethod selectedPaymentMethod,
     String? errorMessage,
   });
 }
@@ -128,9 +137,10 @@ class __$$OrdersStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? loaderState = null,
-    Object? activeOrders = null,
-    Object? pastOrders = null,
+    Object? detailLoaderState = null,
+    Object? orders = null,
     Object? selectedOrder = freezed,
+    Object? selectedPaymentMethod = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -139,18 +149,22 @@ class __$$OrdersStateImplCopyWithImpl<$Res>
             ? _value.loaderState
             : loaderState // ignore: cast_nullable_to_non_nullable
                   as LoaderState,
-        activeOrders: null == activeOrders
-            ? _value._activeOrders
-            : activeOrders // ignore: cast_nullable_to_non_nullable
-                  as List<OrderModel>,
-        pastOrders: null == pastOrders
-            ? _value._pastOrders
-            : pastOrders // ignore: cast_nullable_to_non_nullable
+        detailLoaderState: null == detailLoaderState
+            ? _value.detailLoaderState
+            : detailLoaderState // ignore: cast_nullable_to_non_nullable
+                  as LoaderState,
+        orders: null == orders
+            ? _value._orders
+            : orders // ignore: cast_nullable_to_non_nullable
                   as List<OrderModel>,
         selectedOrder: freezed == selectedOrder
             ? _value.selectedOrder
             : selectedOrder // ignore: cast_nullable_to_non_nullable
                   as OrderModel?,
+        selectedPaymentMethod: null == selectedPaymentMethod
+            ? _value.selectedPaymentMethod
+            : selectedPaymentMethod // ignore: cast_nullable_to_non_nullable
+                  as OrderPaymentMethod,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -165,42 +179,39 @@ class __$$OrdersStateImplCopyWithImpl<$Res>
 class _$OrdersStateImpl implements _OrdersState {
   const _$OrdersStateImpl({
     this.loaderState = LoaderState.loaded,
-    final List<OrderModel> activeOrders = const [],
-    final List<OrderModel> pastOrders = const [],
+    this.detailLoaderState = LoaderState.loaded,
+    final List<OrderModel> orders = const [],
     this.selectedOrder,
+    this.selectedPaymentMethod = OrderPaymentMethod.online,
     this.errorMessage,
-  }) : _activeOrders = activeOrders,
-       _pastOrders = pastOrders;
+  }) : _orders = orders;
 
   @override
   @JsonKey()
   final LoaderState loaderState;
-  final List<OrderModel> _activeOrders;
   @override
   @JsonKey()
-  List<OrderModel> get activeOrders {
-    if (_activeOrders is EqualUnmodifiableListView) return _activeOrders;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_activeOrders);
-  }
-
-  final List<OrderModel> _pastOrders;
+  final LoaderState detailLoaderState;
+  final List<OrderModel> _orders;
   @override
   @JsonKey()
-  List<OrderModel> get pastOrders {
-    if (_pastOrders is EqualUnmodifiableListView) return _pastOrders;
+  List<OrderModel> get orders {
+    if (_orders is EqualUnmodifiableListView) return _orders;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_pastOrders);
+    return EqualUnmodifiableListView(_orders);
   }
 
   @override
   final OrderModel? selectedOrder;
   @override
+  @JsonKey()
+  final OrderPaymentMethod selectedPaymentMethod;
+  @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'OrdersState(loaderState: $loaderState, activeOrders: $activeOrders, pastOrders: $pastOrders, selectedOrder: $selectedOrder, errorMessage: $errorMessage)';
+    return 'OrdersState(loaderState: $loaderState, detailLoaderState: $detailLoaderState, orders: $orders, selectedOrder: $selectedOrder, selectedPaymentMethod: $selectedPaymentMethod, errorMessage: $errorMessage)';
   }
 
   @override
@@ -210,16 +221,13 @@ class _$OrdersStateImpl implements _OrdersState {
             other is _$OrdersStateImpl &&
             (identical(other.loaderState, loaderState) ||
                 other.loaderState == loaderState) &&
-            const DeepCollectionEquality().equals(
-              other._activeOrders,
-              _activeOrders,
-            ) &&
-            const DeepCollectionEquality().equals(
-              other._pastOrders,
-              _pastOrders,
-            ) &&
+            (identical(other.detailLoaderState, detailLoaderState) ||
+                other.detailLoaderState == detailLoaderState) &&
+            const DeepCollectionEquality().equals(other._orders, _orders) &&
             (identical(other.selectedOrder, selectedOrder) ||
                 other.selectedOrder == selectedOrder) &&
+            (identical(other.selectedPaymentMethod, selectedPaymentMethod) ||
+                other.selectedPaymentMethod == selectedPaymentMethod) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -228,9 +236,10 @@ class _$OrdersStateImpl implements _OrdersState {
   int get hashCode => Object.hash(
     runtimeType,
     loaderState,
-    const DeepCollectionEquality().hash(_activeOrders),
-    const DeepCollectionEquality().hash(_pastOrders),
+    detailLoaderState,
+    const DeepCollectionEquality().hash(_orders),
     selectedOrder,
+    selectedPaymentMethod,
     errorMessage,
   );
 
@@ -246,20 +255,23 @@ class _$OrdersStateImpl implements _OrdersState {
 abstract class _OrdersState implements OrdersState {
   const factory _OrdersState({
     final LoaderState loaderState,
-    final List<OrderModel> activeOrders,
-    final List<OrderModel> pastOrders,
+    final LoaderState detailLoaderState,
+    final List<OrderModel> orders,
     final OrderModel? selectedOrder,
+    final OrderPaymentMethod selectedPaymentMethod,
     final String? errorMessage,
   }) = _$OrdersStateImpl;
 
   @override
   LoaderState get loaderState;
   @override
-  List<OrderModel> get activeOrders;
+  LoaderState get detailLoaderState;
   @override
-  List<OrderModel> get pastOrders;
+  List<OrderModel> get orders;
   @override
   OrderModel? get selectedOrder;
+  @override
+  OrderPaymentMethod get selectedPaymentMethod;
   @override
   String? get errorMessage;
 

@@ -2,6 +2,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:smooth_corner/smooth_corner.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
 
@@ -41,13 +42,12 @@ class CommonCachedNetworkImage extends StatelessWidget {
 
     final fallback =
         errorWidget ??
-        Container(
+        SmoothContainer(
           width: width,
           height: height,
-          decoration: BoxDecoration(
-            color: context.appColors.inputBackground,
-            borderRadius: BorderRadius.circular((borderRadius ?? 16).r),
-          ),
+          smoothness: 2,
+          borderRadius: BorderRadius.circular((borderRadius ?? 16).r),
+          color: context.appColors.inputBackground,
           child: Icon(
             Icons.image_outlined,
             size: 24.r,
@@ -59,10 +59,15 @@ class CommonCachedNetworkImage extends StatelessWidget {
       return fallback;
     }
 
-    return ClipRRect(
+    return SmoothClipRRect(
+      smoothness: 2,
+      side: BorderSide(
+        color: ColorPalette.grey.withValues(alpha: 0.2),
+        width: 1.w,
+      ),
       borderRadius: BorderRadius.circular((borderRadius ?? 16).r),
       child: CachedNetworkImage(
-        imageUrl: imageUrl!,
+        imageUrl: imageUrl ?? "",
         width: width,
         height: height,
         fit: fit,

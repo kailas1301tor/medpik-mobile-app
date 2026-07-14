@@ -24,7 +24,7 @@ class CommonShimmerBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: baseColor ?? context.appColors.inputBackground,
-      highlightColor: highlightColor ?? ColorPalette.white,
+      highlightColor: highlightColor ?? context.appColors.shimmerHighlight,
       child: Container(
         width: width,
         height: height ?? 16.h,

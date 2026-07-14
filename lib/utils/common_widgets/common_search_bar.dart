@@ -72,7 +72,7 @@ class CommonSearchBar extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
                 child: SvgPicture.asset(
-                  MedpikSvgAssets.magnifier,
+                  MedpikSvgAssets.search,
                   width: 18.r,
                   height: 18.r,
                 ),

@@ -9,6 +9,43 @@ import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/utils/common_widgets/common_search_bar.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
 
+class HomeHeaderIconButton extends StatelessWidget {
+  const HomeHeaderIconButton({
+    super.key,
+    required this.iconAsset,
+    required this.onTap,
+  });
+
+  final String iconAsset;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: ColorPalette.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24.r),
+        child: Ink(
+          width: 45.r,
+          height: 45.r,
+          decoration: BoxDecoration(
+            color: ColorPalette.white.withValues(alpha: 0.2),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: SvgPicture.asset(
+              iconAsset,
+              width: 24.w,
+              height: 24.w,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class HomeHeaderLocationRow extends StatelessWidget {
   const HomeHeaderLocationRow({
     super.key,
@@ -34,7 +71,7 @@ class HomeHeaderLocationRow extends StatelessWidget {
       child: Row(
         children: [
           SvgPicture.asset(
-            MedpikSvgAssets.locationPin,
+            MedpikSvgAssets.location,
             width: 32.w,
             height: 32.w,
           ),

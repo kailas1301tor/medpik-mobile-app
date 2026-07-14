@@ -51,35 +51,126 @@ class MockStore {
     final address = defaultAddress;
     if (address == null) return;
 
+    final products = MockCatalog.allProducts;
+
+    final billBreakdown1245 = const OrderBillBreakdown(
+      itemTotal: 1185,
+      deliveryCharges: 40,
+      packagingCharges: 20,
+    );
+    final billBreakdown890 = const OrderBillBreakdown(
+      itemTotal: 830,
+      deliveryCharges: 40,
+      packagingCharges: 20,
+    );
+    final billBreakdown560 = const OrderBillBreakdown(
+      itemTotal: 500,
+      deliveryCharges: 40,
+      packagingCharges: 20,
+    );
+
     orders.addAll([
       OrderModel(
         id: 'MPK1001',
         items: [
-          OrderItemModel(
-            product: MockCatalog.allProducts.first,
-            quantity: 2,
-          ),
+          OrderItemModel(product: products[0], quantity: 1),
+          OrderItemModel(product: products[1], quantity: 1),
+          OrderItemModel(product: products[2], quantity: 1),
+          OrderItemModel(product: products[3], quantity: 1),
+          OrderItemModel(product: products[4], quantity: 1),
+          OrderItemModel(product: products[5], quantity: 1),
         ],
-        amount: 90,
+        amount: 1245,
+        status: OrderStatus.awaitingBillApproval,
+        address: address,
+        createdAt: DateTime(2025, 5, 10, 10, 30),
+        hasPrescription: true,
+        billBreakdown: billBreakdown1245,
+      ),
+      OrderModel(
+        id: 'MPK1002',
+        items: [
+          OrderItemModel(product: products[1], quantity: 2),
+          OrderItemModel(product: products[6], quantity: 1),
+        ],
+        amount: 430,
         status: OrderStatus.outForDelivery,
         address: address,
-        createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-        etaText: 'Arriving in 25 mins',
+        createdAt: DateTime(2025, 5, 9, 14, 15),
+        etaText: 'Arriving today by 08:00 PM',
         hasPrescription: false,
       ),
       OrderModel(
-        id: 'MPK0999',
+        id: 'MPK1003',
         items: [
-          OrderItemModel(
-            product: MockCatalog.allProducts[3],
-            quantity: 1,
-          ),
+          OrderItemModel(product: products[2], quantity: 2),
+          OrderItemModel(product: products[7], quantity: 1),
         ],
-        amount: 120,
+        amount: 890,
+        status: OrderStatus.billGenerated,
+        address: address,
+        createdAt: DateTime(2025, 5, 8, 9, 0),
+        hasPrescription: true,
+        billBreakdown: billBreakdown890,
+      ),
+      OrderModel(
+        id: 'MPK1004',
+        items: [
+          OrderItemModel(product: products[3], quantity: 2),
+          OrderItemModel(product: products[4], quantity: 1),
+        ],
+        amount: 1100,
         status: OrderStatus.delivered,
         address: address,
-        createdAt: DateTime.now().subtract(const Duration(days: 3)),
+        createdAt: DateTime(2025, 5, 5, 18, 45),
+        hasPrescription: false,
+      ),
+      OrderModel(
+        id: 'MPK1005',
+        items: [
+          OrderItemModel(product: products[0], quantity: 1),
+        ],
+        amount: 0,
+        status: OrderStatus.underReview,
+        address: address,
+        createdAt: DateTime(2025, 5, 11, 8, 20),
         hasPrescription: true,
+      ),
+      OrderModel(
+        id: 'MPK1006',
+        items: [
+          OrderItemModel(product: products[5], quantity: 1),
+        ],
+        amount: 0,
+        status: OrderStatus.prescriptionRejected,
+        address: address,
+        createdAt: DateTime(2025, 5, 7, 11, 0),
+        hasPrescription: true,
+        rejectionReason:
+            'Prescription is not clear. Please upload a clear prescription and try again.',
+      ),
+      OrderModel(
+        id: 'MPK1007',
+        items: [
+          OrderItemModel(product: products[6], quantity: 2),
+        ],
+        amount: 560,
+        status: OrderStatus.paymentPending,
+        address: address,
+        createdAt: DateTime(2025, 5, 6, 16, 30),
+        hasPrescription: false,
+        billBreakdown: billBreakdown560,
+      ),
+      OrderModel(
+        id: 'MPK1008',
+        items: [
+          OrderItemModel(product: products[7], quantity: 1),
+        ],
+        amount: 0,
+        status: OrderStatus.cancelled,
+        address: address,
+        createdAt: DateTime(2025, 5, 4, 12, 0),
+        hasPrescription: false,
       ),
     ]);
   }

@@ -61,6 +61,7 @@ class Strings {
   static const String logIn = "Login";
   static const String noGiftCards = "No Gift Cards";
   static const String noGiftCardsDesc = "You don't have any gift cards yet.";
+  static const String wishlistTitle = "Wishlist";
   static const String noFavoriteProducts = "No Favorites";
   static const String noFavoriteProductsDesc =
       "You haven't favorited any products.";
@@ -159,6 +160,8 @@ class Strings {
   static const String shopByCategory = "Shop by category";
   static const String popularProducts = "Popular products";
   static const String seeAll = "See all";
+  static const String painRelief = "Pain Relief";
+  static const String feverReducer = "Fever Reducer";
   static const String firstOrderOffer = "FIRST ORDER OFFER";
   static const String useCode = "Use code:";
   static const String categories = "Categories";
@@ -171,6 +174,49 @@ class Strings {
   static const String addToCart = "Add to Cart";
   static const String addedToCart = "Added to cart";
   static const String productDetails = "Product Details";
+  static const String aboutThisMedicine = "About this medicine";
+  static const String readMore = "Read more";
+  static const String readLess = "Read less";
+  static const String howToUse = "How to use";
+  static const String safetyInformation = "Safety information";
+  static const String otcMedicine = "OTC Medicine";
+  static const String prescriptionMedicine = "Prescription Medicine";
+  static const String safeToUseAsDirected = "Safe to use as directed";
+  static const String categoryLabel = "Category";
+  static const String trustedAndEffective = "Trusted & Effective";
+  static const String clinicallyProven = "Clinically Proven";
+  static const String clinicallyProvenSubtitle =
+      "Safe and effective formulation";
+  static const String recommendedUse = "Recommended Use";
+  static const String keyBenefits = "Key Benefits";
+  static const String trustedBrand = "Trusted Brand";
+  static const String trustedBrandSubtitle = "From the makers of Crocin";
+  static const String safetyInformationBody =
+      "Read the label carefully before use. Keep out of reach of children.";
+  static const String howToUseBody =
+      "Take as directed by the physician. Do not exceed the recommended dose.";
+  static const String quantityLabel = "Quantity";
+  static const String safeAndEffective = "Safe & Effective";
+  static const String safeAndEffectiveSubtitle = "Clinically proven ingredients";
+  static const String qualityAssured = "Quality Assured";
+  static const String qualityAssuredSubtitle = "100% genuine medicine";
+  static const String relievesPain = "Relieves Pain";
+  static const String relievesPainSubtitle =
+      "Effective relief from mild to moderate pain.";
+  static const String reducesFever = "Reduces Fever";
+  static const String reducesFeverSubtitle =
+      "Helps reduce fever and brings comfort.";
+  static const String fastActing = "Fast Acting";
+  static const String fastActingSubtitle =
+      "Starts working quickly for faster relief.";
+  static const String dailyWellness = "Daily Wellness";
+  static const String dailyWellnessSubtitle =
+      "Supports everyday health and immunity.";
+  static const String yourInformationIsSafe = "Your information is safe with us";
+  static const String asDirectedByPhysician = "As directed by the physician.";
+  static const String standardPack = "Standard pack";
+  static String genericProductAbout(String name) =>
+      '$name is a trusted medicine available on Medpik.';
   static const String prescriptionRequired = "Prescription required";
   static const String proceedToCheckout = "Proceed to Checkout";
   static const String quantity = "Qty";
@@ -191,8 +237,64 @@ class Strings {
   static const String cartTitle = "Cart";
   static const String cartEmptyMessage =
       "Your cart is empty. Add medicines to get started.";
+  static const String cartPricingDisclaimer =
+      "Final pricing will be shared after our pharmacist reviews your order. You can review and approve the bill before making any payment.";
+  static const String clearAll = "Clear All";
+  static const String addInstructionsForPharmacist =
+      "Add instructions for the pharmacist";
+  static const String pharmacistInstructionsHint =
+      "E.g. deliver after 6 PM, call before delivery...";
+  static const String submitOrder = "Submit Order";
+  static const String secureAndPrivate = "Secure & Private";
+  static const String orderSubmittedSuccessTitle = "Order Submitted Successfully!";
+  static const String orderSubmittedSuccessMessage =
+      "Your order has been sent to our pharmacist for review. We'll notify you when your bill is ready.";
+  static const String viewOrders = "View Orders";
+  static const String estimatedDeliveryAfterBillApproval =
+      "After bill approval";
+  static const String estimatedDelivery = "Estimated Delivery";
+  static const String totalAmountSharedAfterReview = "Will be shared after review";
+  static const String clearCartTitle = "Clear cart?";
+  static const String clearCartMessage =
+      "All selected medicines will be removed from your cart.";
+  static const String selectDeliveryAddress = "Select Delivery Address";
+  static String selectedMedicinesWithCount(int count) =>
+      'Selected Medicines ($count)';
+  static String selectedItemsSummary(int count) => '$count items';
   static const String profileTitle = "Profile";
   static const String profileEmptyMessage = "Manage your account details here.";
+  static const String activeMember = "Active member";
+  static const String myAccountSection = "My account";
+  static const String accountSection = "Account";
+  static const String supportSection = "Support";
+  static const String legalSection = "Legal";
+  static const String personalInformation = "Personal Information";
+  static const String personalInformationSubtitle =
+      "Manage your personal details";
+  static const String notifications = "Notifications";
+  static const String notificationsSubtitle = "Manage your alerts & updates";
+  static const String privacyAndSecurity = "Privacy & Security";
+  static const String privacyAndSecuritySubtitle =
+      "Manage your privacy settings";
+  static const String darkMode = "Dark mode";
+  static const String darkModeSubtitle =
+      "Use dark appearance across the app";
+  static const String helpAndSupport = "Help & Support";
+  static const String helpAndSupportSubtitle = "FAQs, chat, and assistance";
+  static const String contactSupport = "Contact Support";
+  static const String contactSupportSubtitle = "Reach our pharmacy team";
+  static const String aboutUs = "About Us";
+  static const String aboutUsSubtitle = "Learn more about our pharmacy";
+  static const String privacyPolicy = "Privacy Policy";
+  static const String privacyPolicySubtitle = "How we protect your data";
+  static const String termsSubtitle = "Usage guidelines for Medpik";
+  static const String signOutTitle = "Sign out?";
+  static const String signOutMessage =
+      "You will need to sign in again to access your account.";
+  static const String ordersStatLabel = "Orders";
+  static const String addressesStatLabel = "Addresses";
+  static const String cartStatLabel = "Cart Items";
+  static String appVersionLabel(String version) => 'Medpik v$version';
   static const String addAddress = "Add Address";
   static const String signOut = "Sign Out";
   static const String savedAddresses = "Saved Addresses";
@@ -282,10 +384,24 @@ class Strings {
   static const String orderDetails = "Order Details";
   static const String orderStatus = "Order Status";
   static const String orderItems = "Items";
-  static const String orderStatusPlaced = "Placed";
-  static const String orderStatusConfirmed = "Confirmed";
+  static const String totalLabel = "Total";
+  static const String orderStatusPrescriptionUploaded = "Prescription Uploaded";
+  static const String orderStatusUnderReview = "Under Review";
+  static const String orderStatusPrescriptionAccepted = "Prescription Accepted";
+  static const String orderStatusPrescriptionRejected = "Prescription Rejected";
+  static const String orderStatusBillGenerated = "Bill Generated";
+  static const String orderStatusAwaitingBillApproval = "Awaiting Bill Approval";
+  static const String orderStatusBillAccepted = "Bill Accepted";
+  static const String orderStatusBillRejected = "Bill Rejected";
+  static const String orderStatusPaymentPending = "Payment Pending";
+  static const String orderStatusPaymentCompleted = "Payment Completed";
+  static const String orderStatusCashOnDelivery = "Cash on Delivery";
+  static const String orderStatusOrderConfirmed = "Order Confirmed";
+  static const String orderStatusPreparingOrder = "Preparing Order";
   static const String orderStatusPacked = "Packed";
-  static const String orderStatusOutForDelivery = "Out for delivery";
+  static const String orderStatusDeliveryPartnerAssigned =
+      "Delivery Partner Assigned";
+  static const String orderStatusOutForDelivery = "Out for Delivery";
   static const String orderStatusDelivered = "Delivered";
   static const String orderStatusCancelled = "Cancelled";
   static const String estimatedArrival = "Estimated arrival";
@@ -293,6 +409,69 @@ class Strings {
   static const String liveTracking = "Live Tracking";
   static const String mapPlaceholder = "Map preview will appear here";
   static const String viewDetails = "View Details";
+  static const String reviewOrderAndBill = "Review Order & Bill";
+  static const String reviewAndPay = "Review & Pay";
+  static const String reviewAndPayCta = "Review & Pay";
+  static const String totalAmount = "Total Amount";
+  static const String orderedItems = "Ordered Items";
+  static const String itemTotal = "Item Total";
+  static const String deliveryCharges = "Delivery Charges";
+  static const String packagingCharges = "Packaging Charges";
+  static const String grandTotal = "Grand Total";
+  static const String orderStatusBillReceived = "Bill Received";
+  static const String orderStatusRejectedByAdmin = "Rejected by Admin";
+  static const String billGeneratedBannerTitle =
+      "Bill has been generated by admin";
+  static const String billGeneratedBannerSubtitle =
+      "Review your bill and proceed to payment";
+  static const String deliveryBannerTitle = "Your order is out for delivery";
+  static const String prescriptionRejectedBannerTitle =
+      "Prescription rejected by admin";
+  static const String prescriptionRejectedReasonPrefix = "Reason:";
+  static const String billReviewInstructionTitle = "Please review your bill";
+  static const String billReviewInstructionSubtitle =
+      "Review the items and total amount. You can accept or reject the bill.";
+  static const String billAcceptedBannerTitle = "Bill accepted!";
+  static const String billAcceptedBannerSubtitle =
+      "Choose a payment method to complete your order.";
+  static const String securePaymentTitle = "Secure Payment";
+  static const String securePaymentSubtitle =
+      "Your payment details are 100% secure and encrypted.";
+  static const String rejectBill = "Reject Bill";
+  static const String acceptBill = "Accept Bill";
+  static const String acceptAndContinue = "Accept & Continue";
+  static const String rejectBillHint =
+      "You can reject the bill if you find any issue or items not required.";
+  static const String uploadNewPrescription = "Upload New Prescription";
+  static const String payNow = "Pay Now";
+  static const String choosePaymentMethod = "Choose Payment Method";
+  static const String payNowOnline = "Pay Now (Online)";
+  static const String payNowOnlineSubtitle =
+      "Pay securely using UPI, Cards, Netbanking";
+  static const String cashOnDelivery = "Cash on Delivery";
+  static const String cashOnDeliverySubtitle =
+      "Pay in cash when your order is delivered";
+  static const String orderSummaryTitle = "Order Summary";
+  static const String termsAndConditions = "Terms & Conditions";
+  static const String termsAgreementPrefix = "By proceeding, you agree to our";
+  static const String qtyLabel = "Qty:";
+  static const String stepperUploaded = "Uploaded";
+  static const String stepperAccepted = "Accepted";
+  static const String stepperReviewed = "Reviewed";
+  static const String stepperRejected = "Rejected";
+  static const String stepperBillReceived = "Bill Received";
+  static const String stepperBill = "Bill";
+  static const String stepperPayment = "Payment";
+  static const String stepperPacked = "Packed";
+  static const String stepperDelivery = "Delivery";
+  static const String stepperOutForDelivery = "Out for Delivery";
+  static const String supportComingSoon = "Support will be available soon";
+  static const String billAcceptedToast = "Bill accepted successfully";
+  static const String billRejectedToast = "Bill rejected";
+  static const String paymentSuccessToast = "Payment initiated successfully";
+  static String itemTotalWithCount(int count) => 'Item Total ($count items)';
+  static String orderedItemsWithCount(int count) => 'Ordered Items ($count)';
+  static String payNowWithAmount(String amount) => 'Pay Now $amount';
 
   // Address
   static const String addressBook = "Address Book";

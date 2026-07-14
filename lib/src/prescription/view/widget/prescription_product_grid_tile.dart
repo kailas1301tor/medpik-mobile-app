@@ -37,7 +37,6 @@ class PrescriptionProductGridTile extends ConsumerWidget {
         child: ClipRRect(
           borderRadius: radius,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Stack(
@@ -50,28 +49,37 @@ class PrescriptionProductGridTile extends ConsumerWidget {
                   ),
                 ],
               ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 8.h),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      style: FontPalette.base700(11, color: colors.primaryText),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (hasPack) ...[
-                      2.verticalSpace,
-                      Text(
-                        product.packSize,
-                        style: FontPalette.base400(9, color: colors.secondaryText),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 8.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          product.name,
+                          style: FontPalette.base700(
+                            11,
+                            color: colors.primaryText,
+                          ).copyWith(height: 1.2),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
+                      if (hasPack) ...[
+                        2.verticalSpace,
+                        Text(
+                          product.packSize,
+                          style: FontPalette.base400(
+                            9,
+                            color: colors.secondaryText,
+                          ).copyWith(height: 1.2),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ],
