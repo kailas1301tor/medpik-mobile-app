@@ -71,3 +71,10 @@ enum OrderStatusBannerType {
   billAccepted,
   securePayment,
 }
+
+enum NotificationType {
+  order,
+  prescription,
+  offer,
+  system,
+}

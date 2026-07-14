@@ -7,6 +7,7 @@ class Assets {
   static const String svgHomeNav = "assets/icons/home_nav_icon.svg";
   static const String iconsNoDataFound = "assets/icons/no_data.svg";
   static const String iconsNoFavorite = "assets/icons/no_favorite.svg";
+  static const String iconsNoNotification = "assets/icons/no_notification.svg";
   static const String iconsServorError = "assets/icons/server_error.svg";
   static const String iconsNoNetwork = "assets/icons/no_network.svg";
   static const String iconsBackButton = "assets/icons/back_button.svg";

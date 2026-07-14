@@ -17,6 +17,7 @@ import '../../src/search/view/search_results_screen.dart';
 import '../../src/search/view/search_screen.dart';
 import '../../src/splash/view/splash_screen.dart';
 import '../../src/wishlist/view/wishlist_screen.dart';
+import '../../src/notifications/view/notifications_screen.dart';
 import 'route_constants.dart';
 
 /// Global navigator key for accessing navigation from anywhere.
@@ -133,6 +134,12 @@ class RouteGenerator {
       case RouteConstants.routeWishlistScreen:
         return MaterialPageRoute(
           builder: (_) => const WishlistScreen(),
+          settings: settings,
+        );
+
+      case RouteConstants.routeNotificationsScreen:
+        return MaterialPageRoute(
+          builder: (_) => const NotificationsScreen(),
           settings: settings,
         );
 

@@ -70,6 +70,24 @@ class Strings {
       "You don't have any past transactions.";
   static const String noNotifications = "No Notifications";
   static const String noNotificationsDesc = "You are all caught up.";
+  static const String markAllAsRead = "Mark all read";
+  static const String notificationOrderOutForDeliveryTitle =
+      "Order out for delivery";
+  static const String notificationOrderOutForDeliveryBody =
+      "Your medicines are on the way. Track delivery from Orders.";
+  static const String notificationPrescriptionReviewedTitle =
+      "Prescription reviewed";
+  static const String notificationPrescriptionReviewedBody =
+      "Our pharmacist has reviewed your prescription. Check next steps.";
+  static const String notificationOfferTitle = "Weekend health offer";
+  static const String notificationOfferBody =
+      "Save up to 20% on wellness essentials this weekend.";
+  static const String notificationBillReadyTitle = "Bill ready to review";
+  static const String notificationBillReadyBody =
+      "Your order bill is ready. Review and pay to continue.";
+  static const String notificationWelcomeTitle = "Welcome to Medpik";
+  static const String notificationWelcomeBody =
+      "Upload a prescription or browse medicines to get started.";
   static const String noActiveSchemes = "No Active Schemes";
   static const String noActiveSchemesDesc =
       "You aren't enrolled in any schemes.";

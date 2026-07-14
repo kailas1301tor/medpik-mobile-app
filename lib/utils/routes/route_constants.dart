@@ -24,4 +24,5 @@ class RouteConstants {
   static const String routeTrackingScreen = '/tracking';
   static const String routeAddressBookScreen = '/address-book';
   static const String routeWishlistScreen = '/wishlist';
+  static const String routeNotificationsScreen = '/notifications';
 }

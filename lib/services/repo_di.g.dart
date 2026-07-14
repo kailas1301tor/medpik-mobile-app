@@ -147,5 +147,24 @@ final ordersRepositoryProvider = AutoDisposeProvider<OrdersRepo>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef OrdersRepositoryRef = AutoDisposeProviderRef<OrdersRepo>;
+String _$notificationsRepositoryHash() =>
+    r'57aa631f9659e1b71d93d15e13bc3cc7e8dd0de4';
+
+/// See also [notificationsRepository].
+@ProviderFor(notificationsRepository)
+final notificationsRepositoryProvider =
+    AutoDisposeProvider<NotificationsRepo>.internal(
+      notificationsRepository,
+      name: r'notificationsRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$notificationsRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef NotificationsRepositoryRef = AutoDisposeProviderRef<NotificationsRepo>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -12,6 +12,8 @@ class AppConstants {
   /// Mock phone number that simulates a suspended account.
   static const String suspendedTestPhone = '9999999999';
 
+  static const googleApiKey = "AIzaSyAPZEeHsI9charU3rhO1erT9HI1DcgO90I";
+
   static String api = "/api";
   static String version = "/v1";
   static String user = "/user";

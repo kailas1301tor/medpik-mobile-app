@@ -86,7 +86,12 @@ class HomeHeroHeader extends StatelessWidget {
                         8.horizontalSpace,
                         HomeHeaderIconButton(
                           iconAsset: MedpikSvgAssets.notification,
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              RouteConstants.routeNotificationsScreen,
+                            );
+                          },
                         ),
                       ],
                     ),
