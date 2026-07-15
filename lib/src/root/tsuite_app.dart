@@ -19,7 +19,7 @@ class TSuiteApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeAsync = ref.watch(themeNotifierProvider);
-    final themeMode = themeAsync.valueOrNull ?? ThemeMode.system;
+    final themeMode = themeAsync.valueOrNull ?? ThemeMode.light;
     final navigatorKey = ref.watch(navigatorKeyProvider);
 
     return ScreenUtilInit(

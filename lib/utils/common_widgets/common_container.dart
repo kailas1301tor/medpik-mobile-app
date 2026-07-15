@@ -17,6 +17,8 @@ class CommonContainer extends StatelessWidget {
     this.width,
     this.height,
     this.boxShadow,
+    this.side,
+    this.smoothness,
   });
 
   final Widget child;
@@ -29,6 +31,8 @@ class CommonContainer extends StatelessWidget {
   final double? width;
   final double? height;
   final List<BoxShadow>? boxShadow;
+  final BorderSide? side;
+  final double? smoothness;
 
   @override
   Widget build(BuildContext context) {
@@ -36,25 +40,22 @@ class CommonContainer extends StatelessWidget {
     final shape = SmoothRectangleBorder(
       borderRadius: BorderRadius.circular(borderRadiusValue),
       side: border?.top ?? BorderSide.none,
-      smoothness: 0.6,
+      smoothness: smoothness ?? 2,
     );
 
-    return Container(
+    return SmoothContainer(
       width: width,
       height: height,
       margin: margin,
-      decoration: ShapeDecoration(
-        shape: shape,
-        color: color ?? context.appColors.surface,
-        shadows: boxShadow ??
-            [
-              BoxShadow(
-                color: ColorPalette.black.withValues(alpha: 0.04),
-                blurRadius: 18.r,
-                offset: Offset(0, 8.h),
-              ),
-            ],
-      ),
+      smoothness: smoothness ?? 2,
+      borderRadius: BorderRadius.circular(borderRadiusValue),
+      side:
+          side ??
+          BorderSide(
+            color: context.appColors.cardBorder.withValues(alpha: 0.6),
+            width: 1.w,
+          ),
+      color: color ?? context.appColors.surface,
       child: Material(
         color: Colors.transparent,
         child: InkWell(

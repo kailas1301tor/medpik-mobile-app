@@ -29,10 +29,10 @@ class BottomNavigationSection extends ConsumerWidget {
         padding: EdgeInsets.symmetric(vertical: 10.h),
         // height: 80.h,
         decoration: BoxDecoration(
-          color: colors.surface,
+          color: colors.cardBackground,
           borderRadius: BorderRadius.circular(100.r),
           border: Border.all(
-            color: colors.inputBorder.withValues(alpha: 0.5),
+            color: colors.cardBorder.withValues(alpha: 0.7),
             width: 1.w,
           ),
         ),
@@ -51,7 +51,7 @@ class BottomNavigationSection extends ConsumerWidget {
               index: 1,
               selectedIndex: selectedTab,
               label: Strings.navOrders,
-              icon: MedpikSvgAssets.calendar,
+              icon: MedpikSvgAssets.orders,
               onTap: () =>
                   ref.read(mainShellNotifierProvider.notifier).setTab(1),
             ),
@@ -59,7 +59,7 @@ class BottomNavigationSection extends ConsumerWidget {
               index: 2,
               selectedIndex: selectedTab,
               label: Strings.navCart,
-              icon: MedpikSvgAssets.cart,
+              icon: MedpikSvgAssets.shopping,
               badgeCount: cartCount,
               onTap: () =>
                   ref.read(mainShellNotifierProvider.notifier).setTab(2),
@@ -114,10 +114,18 @@ class BottomNavTile extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                AnimatedOpacity(
+                AnimatedScale(
                   duration: const Duration(milliseconds: 200),
-                  opacity: isSelected ? 1 : 0.55,
-                  child: SvgPicture.asset(icon, width: 32.r, height: 32.r),
+                  scale: isSelected ? 1.06 : 1,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 200),
+                    opacity: isSelected ? 1 : 0.88,
+                    child: SvgPicture.asset(
+                      icon,
+                      width: isSelected ? 34.r : 32.r,
+                      height: isSelected ? 34.r : 32.r,
+                    ),
+                  ),
                 ),
                 if (badgeCount > 0)
                   Positioned(
@@ -143,10 +151,9 @@ class BottomNavTile extends StatelessWidget {
             6.verticalSpace,
             Text(
               label,
-              style: FontPalette.base500(
-                10,
-                color: isSelected ? colors.primary : colors.secondaryText,
-              ),
+              style: isSelected
+                  ? FontPalette.base600(11, color: colors.primary)
+                  : FontPalette.base500(10, color: colors.secondaryText),
             ),
           ],
         ),

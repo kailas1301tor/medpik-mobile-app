@@ -21,13 +21,10 @@ class PrescriptionProductGrid extends StatelessWidget {
         crossAxisCount: 3,
         crossAxisSpacing: 8.w,
         mainAxisSpacing: 8.h,
-        childAspectRatio: 0.82,
+        mainAxisExtent: 142.h,
       ),
       itemBuilder: (context, index) {
-        return Align(
-          alignment: Alignment.topCenter,
-          child: PrescriptionProductGridTile(product: products[index]),
-        );
+        return PrescriptionProductGridTile(product: products[index]);
       },
     );
   }

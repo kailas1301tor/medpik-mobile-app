@@ -77,7 +77,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
 
       // ✅ Always auto-computed — never null
       systemOverlayStyle: _resolveOverlayStyle(effectiveBgColor),
-
+      actionsPadding: EdgeInsets.only(right: 16.w),
       leading:
           leading ??
           (showBackButton

@@ -43,7 +43,7 @@ class CommonErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final content = Column(
-      mainAxisSize: fillAvailableSpace ? MainAxisSize.max : MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: mainAxisAlignment,
       children: [
         if (topSpacing != null) SizedBox(height: topSpacing),
@@ -80,10 +80,19 @@ class CommonErrorState extends StatelessWidget {
       ],
     );
 
-    return Container(
-      width: double.maxFinite,
-      color: backgroundColor ?? Colors.transparent,
-      child: fillAvailableSpace ? Center(child: content) : content,
+    if (!fillAvailableSpace) {
+      return Container(
+        width: double.maxFinite,
+        color: backgroundColor ?? Colors.transparent,
+        child: content,
+      );
+    }
+
+    return SizedBox.expand(
+      child: ColoredBox(
+        color: backgroundColor ?? Colors.transparent,
+        child: Center(child: content),
+      ),
     );
   }
 }

@@ -71,7 +71,8 @@ class _CategoryTile extends StatelessWidget {
             DecoratedBox(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: ColorPalette.productCardBorder),
+                color: colors.inputBackground,
+                border: Border.all(color: colors.cardBorder),
                 boxShadow: ColorPalette.productCardShadow,
               ),
               child: ClipOval(
@@ -121,12 +122,14 @@ class _CategoryFallbackIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: ColorPalette.productImageBg,
+        color: colors.inputBackground,
       ),
       child: Icon(
         icon,

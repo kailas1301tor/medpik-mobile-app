@@ -11,6 +11,10 @@ class AddressModel {
     required this.state,
     required this.pincode,
     this.isDefault = false,
+    this.latitude,
+    this.longitude,
+    this.placeId,
+    this.formattedAddress,
   });
 
   final int id;
@@ -21,8 +25,31 @@ class AddressModel {
   final String state;
   final String pincode;
   final bool isDefault;
+  final double? latitude;
+  final double? longitude;
+  final String? placeId;
+  final String? formattedAddress;
 
-  String get fullAddress => '$line1, $line2, $city, $state - $pincode';
+  String get fullAddress {
+    final parts = <String>[
+      line1,
+      if (line2.trim().isNotEmpty) line2,
+      city,
+      state,
+      if (pincode.trim().isNotEmpty) pincode,
+    ];
+    return parts.join(', ');
+  }
+
+  String get deliveryHint {
+    final place = formattedAddress?.trim();
+    if (place != null && place.isNotEmpty) {
+      return '$label · $place';
+    }
+    return '$label · $city, $pincode';
+  }
+
+  bool get hasCoordinates => latitude != null && longitude != null;
 
   AddressModel copyWith({
     int? id,
@@ -33,6 +60,10 @@ class AddressModel {
     String? state,
     String? pincode,
     bool? isDefault,
+    double? latitude,
+    double? longitude,
+    String? placeId,
+    String? formattedAddress,
   }) =>
       AddressModel(
         id: id ?? this.id,
@@ -43,6 +74,10 @@ class AddressModel {
         state: state ?? this.state,
         pincode: pincode ?? this.pincode,
         isDefault: isDefault ?? this.isDefault,
+        latitude: latitude ?? this.latitude,
+        longitude: longitude ?? this.longitude,
+        placeId: placeId ?? this.placeId,
+        formattedAddress: formattedAddress ?? this.formattedAddress,
       );
 
   factory AddressModel.fromJson(Map<String, dynamic> json) => AddressModel(
@@ -54,5 +89,17 @@ class AddressModel {
         state: convertToString(json['state']),
         pincode: convertToString(json['pincode']),
         isDefault: convertToBool(json['is_default']),
+        latitude: json['latitude'] == null
+            ? null
+            : convertToDouble(json['latitude']),
+        longitude: json['longitude'] == null
+            ? null
+            : convertToDouble(json['longitude']),
+        placeId: convertToString(json['place_id']).isEmpty
+            ? null
+            : convertToString(json['place_id']),
+        formattedAddress: convertToString(json['formatted_address']).isEmpty
+            ? null
+            : convertToString(json['formatted_address']),
       );
 }

@@ -1,6 +1,5 @@
 // lib/src/home/view/home_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
@@ -10,6 +9,7 @@ import 'package:tsuite/src/home/view/widget/home_shimmer_widget.dart';
 import 'package:tsuite/utils/common_widgets/common_refresh_indicator.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
+import 'package:tsuite/utils/extensions/context_extensions.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -25,7 +25,8 @@ class HomeScreen extends ConsumerWidget {
       homeNotifierProvider.select((s) => s.compactHeaderProgress),
     );
     final notifier = ref.read(homeNotifierProvider.notifier);
-    final useDarkStatusIcons = compactProgress > 0.5;
+    final useDarkStatusIcons =
+        compactProgress > 0.5 && !context.isDarkMode;
 
     return CommonScaffold(
       backgroundColor: colors.background,

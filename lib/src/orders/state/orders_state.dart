@@ -9,9 +9,10 @@ part 'orders_state.freezed.dart';
 sealed class OrdersState with _$OrdersState {
   const factory OrdersState({
     @Default(LoaderState.loaded) LoaderState loaderState,
-    @Default([]) List<OrderModel> activeOrders,
-    @Default([]) List<OrderModel> pastOrders,
+    @Default(LoaderState.loaded) LoaderState detailLoaderState,
+    @Default([]) List<OrderModel> orders,
     OrderModel? selectedOrder,
+    @Default(OrderPaymentMethod.online) OrderPaymentMethod selectedPaymentMethod,
     String? errorMessage,
   }) = _OrdersState;
 }

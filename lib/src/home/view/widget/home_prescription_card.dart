@@ -21,119 +21,190 @@ class HomePrescriptionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final radius = BorderRadius.circular(20.r);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final glassSurface = isDark
+        ? colors.cardBackground.withValues(alpha: 0.92)
+        : ColorPalette.glassSurface;
+    final glassBorder = isDark
+        ? colors.primary.withValues(alpha: 0.22)
+        : ColorPalette.prescriptionGlassBorder;
+    final cardShadow = isDark
+        ? [
+            ...ColorPalette.glassCardShadow,
+            ...ColorPalette.prescriptionCardShadow,
+            ...ColorPalette.productGlassCardShadow(depth: 0.85),
+          ]
+        : [
+            ...ColorPalette.productCardShadow,
+            ...ColorPalette.prescriptionCardShadow,
+            BoxShadow(
+              color: ColorPalette.black.withValues(alpha: 0.07),
+              blurRadius: 28.r,
+              offset: Offset(0, 12.h),
+            ),
+          ];
 
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: radius,
-        boxShadow: ColorPalette.glassCardShadow,
+        boxShadow: cardShadow,
       ),
       child: SmoothClipRRect(
         smoothness: 2,
         borderRadius: radius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: ColorPalette.glassSurface,
-              borderRadius: radius,
-              gradient: LinearGradient(
+        child: isDark
+            ? BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
+                child: _CardSurface(
+                  radius: radius,
+                  isDark: isDark,
+                  glassSurface: glassSurface,
+                  glassBorder: glassBorder,
+                  onUploadTap: onUploadTap,
+                ),
+              )
+            : _CardSurface(
+                radius: radius,
+                isDark: isDark,
+                glassSurface: glassSurface,
+                glassBorder: glassBorder,
+                onUploadTap: onUploadTap,
+              ),
+      ),
+    );
+  }
+}
+
+class _CardSurface extends StatelessWidget {
+  const _CardSurface({
+    required this.radius,
+    required this.isDark,
+    required this.glassSurface,
+    required this.glassBorder,
+    this.onUploadTap,
+  });
+
+  final BorderRadius radius;
+  final bool isDark;
+  final Color glassSurface;
+  final Color glassBorder;
+  final VoidCallback? onUploadTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: isDark ? glassSurface : ColorPalette.white,
+        borderRadius: radius,
+        gradient: isDark
+            ? LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  ColorPalette.white.withValues(alpha: 0.28),
-                  ColorPalette.white.withValues(alpha: 0.02),
+                  colors.primary.withValues(alpha: 0.08),
+                  colors.cardBackground.withValues(alpha: 0.0),
                 ],
+              )
+            : ColorPalette.prescriptionCardGradient,
+        border: Border.all(
+          color: glassBorder,
+          width: isDark ? 1 : 1.2,
+        ),
+      ),
+      child: Stack(
+        children: [
+          if (isDark) ...[
+            Positioned(
+              top: -40.r,
+              left: -30.r,
+              child: _RadialGlow(
+                size: 150.r,
+                color: ColorPalette.glassHighlightWarm,
               ),
-              border: Border.all(color: ColorPalette.glassBorderTop, width: 1),
             ),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: -40.r,
-                  left: -30.r,
-                  child: _RadialGlow(
-                    size: 150.r,
-                    color: ColorPalette.glassHighlightWarm,
-                  ),
-                ),
-                Positioned(
-                  bottom: -50.r,
-                  right: -20.r,
-                  child: _RadialGlow(
-                    size: 170.r,
-                    color: ColorPalette.glassHighlightTeal,
-                  ),
-                ),
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: radius,
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.center,
-                        colors: [
-                          ColorPalette.glassInnerHighlight,
+            Positioned(
+              bottom: -50.r,
+              right: -20.r,
+              child: _RadialGlow(
+                size: 170.r,
+                color: ColorPalette.glassHighlightTeal,
+              ),
+            ),
+          ],
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: radius,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.center,
+                  colors: isDark
+                      ? [
+                          colors.primary.withValues(alpha: 0.06),
+                          colors.cardBackground.withValues(alpha: 0.0),
+                        ]
+                      : [
+                          ColorPalette.white.withValues(alpha: 0.72),
                           ColorPalette.white.withValues(alpha: 0.0),
                         ],
-                      ),
-                    ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: -8.w,
+            bottom: 0.h,
+            child: IgnorePointer(
+              child: Lottie.asset(
+                Assets.lottieFoodCourier,
+                width: 140.w,
+                height: 120.h,
+                fit: BoxFit.contain,
+                repeat: true,
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(16.r),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  Strings.uploadPrescription,
+                  style: FontPalette.base700(
+                    18,
+                    color: colors.primaryText,
                   ),
                 ),
-                Positioned(
-                  right: -8.w,
-                  bottom: 0.h,
-                  child: IgnorePointer(
-                    child: Lottie.asset(
-                      Assets.lottieFoodCourier,
-                      width: 140.w,
-                      height: 120.h,
-                      fit: BoxFit.contain,
-                      repeat: true,
-                    ),
+                3.verticalSpace,
+                Text(
+                  Strings.uploadPrescriptionSubtitle,
+                  style: FontPalette.base400(
+                    12,
+                    color: colors.secondaryText,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Padding(
-                  padding: EdgeInsets.all(16.r),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        Strings.uploadPrescription,
-                        style: FontPalette.base700(
-                          18,
-                          color: colors.primaryText,
-                        ),
-                      ),
-                      3.verticalSpace,
-                      Text(
-                        Strings.uploadPrescriptionSubtitle,
-                        style: FontPalette.base400(
-                          12,
-                          color: colors.secondaryText,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      8.verticalSpace,
-                      Wrap(
-                        spacing: 10.w,
-                        runSpacing: 8.h,
-                        children: const [
-                          _GlassChip(label: Strings.quick),
-                          _GlassChip(label: Strings.safe),
-                          _GlassChip(label: Strings.reliable),
-                        ],
-                      ),
-                      10.verticalSpace,
-                      _UploadButton(onTap: onUploadTap),
-                    ],
-                  ),
+                8.verticalSpace,
+                Wrap(
+                  spacing: 10.w,
+                  runSpacing: 8.h,
+                  children: const [
+                    _GlassChip(label: Strings.quick),
+                    _GlassChip(label: Strings.safe),
+                    _GlassChip(label: Strings.reliable),
+                  ],
                 ),
+                10.verticalSpace,
+                _UploadButton(onTap: onUploadTap),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -169,6 +240,8 @@ class _UploadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final radius = BorderRadius.circular(100.r);
 
     return DecoratedBox(
@@ -176,7 +249,7 @@ class _UploadButton extends StatelessWidget {
         borderRadius: radius,
         boxShadow: [
           BoxShadow(
-            color: ColorPalette.black.withValues(alpha: 0.08),
+            color: ColorPalette.black.withValues(alpha: isDark ? 0.24 : 0.08),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -189,17 +262,23 @@ class _UploadButton extends StatelessWidget {
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: radius,
-              color: ColorPalette.white.withValues(alpha: 0.88),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  ColorPalette.white.withValues(alpha: 0.95),
-                  ColorPalette.white.withValues(alpha: 0.72),
-                ],
-              ),
+              color: isDark
+                  ? colors.inputBackground
+                  : ColorPalette.white.withValues(alpha: 0.88),
+              gradient: isDark
+                  ? null
+                  : LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        ColorPalette.white.withValues(alpha: 0.95),
+                        ColorPalette.white.withValues(alpha: 0.72),
+                      ],
+                    ),
               border: Border.all(
-                color: ColorPalette.white.withValues(alpha: 0.9),
+                color: isDark
+                    ? colors.cardBorder
+                    : ColorPalette.white.withValues(alpha: 0.9),
                 width: 1,
               ),
             ),
@@ -216,27 +295,28 @@ class _UploadButton extends StatelessWidget {
                 ),
                 child: Stack(
                   children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 14.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(19.r),
-                          ),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              ColorPalette.white,
-                              ColorPalette.white.withValues(alpha: 0.0),
-                            ],
+                    if (!isDark)
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          height: 14.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(19.r),
+                            ),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                ColorPalette.white,
+                                ColorPalette.white.withValues(alpha: 0.0),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12.w),
                       child: SizedBox(
@@ -254,7 +334,9 @@ class _UploadButton extends StatelessWidget {
                               Strings.uploadNow,
                               style: FontPalette.base600(
                                 12,
-                                color: ColorPalette.black,
+                                color: isDark
+                                    ? colors.primaryText
+                                    : ColorPalette.black,
                               ),
                             ),
                           ],
@@ -280,6 +362,13 @@ class _GlassChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final chipFill = isDark
+        ? colors.inputBackground
+        : ColorPalette.glassChipFill;
+    final chipBorder = isDark
+        ? colors.cardBorder
+        : ColorPalette.white.withValues(alpha: 0.55);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(100.r),
@@ -288,19 +377,19 @@ class _GlassChip extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
           decoration: BoxDecoration(
-            color: ColorPalette.glassChipFill,
+            color: chipFill,
             borderRadius: BorderRadius.circular(100.r),
             border: Border.all(
-              color: ColorPalette.white.withValues(alpha: 0.55),
+              color: chipBorder,
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.check_circle,
-                size: 11.r,
-                color: ColorPalette.prescriptionIconTeal,
+              SvgPicture.asset(
+                MedpikSvgAssets.check,
+                width: 11.r,
+                height: 11.r,
               ),
               3.horizontalSpace,
               Text(

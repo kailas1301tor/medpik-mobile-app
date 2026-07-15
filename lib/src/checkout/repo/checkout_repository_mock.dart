@@ -31,7 +31,9 @@ class CheckoutRepoMock implements CheckoutRepo {
       id: _store.nextOrderId(),
       items: orderItems,
       amount: amount,
-      status: OrderStatus.placed,
+      status: hasPrescription
+          ? OrderStatus.prescriptionUploaded
+          : OrderStatus.orderConfirmed,
       address: address,
       createdAt: DateTime.now(),
       etaText: 'Arriving in 35 mins',

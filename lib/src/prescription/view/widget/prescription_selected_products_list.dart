@@ -8,6 +8,7 @@ import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
 import 'package:tsuite/src/prescription/view/widget/prescription_product_quantity_sheet.dart';
 import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
+import 'package:tsuite/utils/common_widgets/common_delete_icon.dart';
 
 class PrescriptionSelectedProductsList extends ConsumerWidget {
   const PrescriptionSelectedProductsList({super.key});
@@ -123,10 +124,9 @@ class _SelectedProductCard extends StatelessWidget {
                   GestureDetector(
                     onTap: onRemove,
                     behavior: HitTestBehavior.opaque,
-                    child: Icon(
-                      Icons.close_rounded,
-                      size: 18.r,
-                      color: colors.secondaryText,
+                    child: Padding(
+                      padding: EdgeInsets.all(2.r),
+                      child: CommonDeleteIcon(size: 18.r),
                     ),
                   ),
                 ],

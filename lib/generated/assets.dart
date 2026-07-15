@@ -33,13 +33,13 @@ class Assets {
       'assets/icons/big_arrow_backward_icon.svg';
   static const String iconsBigArrowForwardIcon =
       'assets/icons/big_arrow_forward_icon.svg';
-  static const String iconsCalendar = 'assets/icons/calendar.svg';
+  static const String iconsCalendar = 'assets/images/svg/calendar.svg';
   static const String iconsCallHelpAndSupport =
-      'assets/icons/call_help_and_support.svg';
+      'assets/images/svg/phone.svg';
   static const String iconsCamera = 'assets/icons/camera.svg';
   static const String iconsChatHelpAndSupport =
       'assets/icons/chat_help_and_support.svg';
-  static const String iconsClock = 'assets/icons/clock.svg';
+  static const String iconsClock = 'assets/images/svg/calendar.svg';
   static const String iconsCloseFaq = 'assets/icons/close_faq.svg';
   static const String iconsCloseIcon = 'assets/icons/close_icon.svg';
   static const String iconsCoin = 'assets/icons/coin.svg';
@@ -99,7 +99,7 @@ class Assets {
   static const String iconsLoyalityCoin1 = 'assets/icons/loyality_coin1.svg';
   static const String iconsLoyaltyMyAccount =
       'assets/icons/loyalty_my_account.svg';
-  static const String iconsMapPin = 'assets/icons/map-pin.svg';
+  static const String iconsMapPin = 'assets/images/svg/location.svg';
   static const String iconsMenuGuestHome = 'assets/icons/menu_guest_home.svg';
   static const String iconsMonthplan = 'assets/icons/monthplan.svg';
   static const String iconsMyAccountFavorite =
@@ -119,12 +119,13 @@ class Assets {
   static const String iconsNoOffers = 'assets/icons/no_offers.svg';
   static const String iconsNoTransaction = 'assets/icons/no_transaction.svg';
   static const String iconsNomineeInfo = 'assets/icons/nominee_info.svg';
-  static const String iconsNotification = 'assets/icons/notification.svg';
+  static const String iconsNotification =
+      'assets/images/svg/notification_icon.svg';
   static const String iconsNotificationMyAccount =
-      'assets/icons/notification_my_account.svg';
+      'assets/images/svg/notification_icon.svg';
   static const String iconsOffersNavIcon = 'assets/icons/offers_nav_icon.svg';
   static const String iconsOpenFaq = 'assets/icons/open_faq.svg';
-  static const String iconsPhone = 'assets/icons/phone.svg';
+  static const String iconsPhone = 'assets/images/svg/phone.svg';
   static const String iconsPointsHomeScreen =
       'assets/icons/points_home_screen.svg';
   static const String iconsPrivacyPolicy = 'assets/icons/privacy_policy.svg';

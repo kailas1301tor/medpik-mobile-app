@@ -2,33 +2,48 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/services/repo_di.dart';
 import 'package:tsuite/src/cart/notifier/cart_notifier.dart';
 import 'package:tsuite/src/product_detail/repo/product_detail_repository.dart';
 import 'package:tsuite/src/product_detail/state/product_detail_state.dart';
+import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
 import 'package:tsuite/utils/common_widgets/custom_toast.dart';
 import 'package:tsuite/utils/helpers/api_error_handler.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
 
 part 'product_detail_notifier.g.dart';
 
 @Riverpod(keepAlive: false)
 class ProductDetailNotifier extends _$ProductDetailNotifier {
   late ProductDetailRepo productDetailRepo;
+  late final ScrollController scrollController;
   int? _productId;
 
   @override
   ProductDetailState build() {
     productDetailRepo = ref.read(productDetailRepositoryProvider);
+    scrollController = ScrollController();
+
+    ref.onDispose(() {
+      scrollController.dispose();
+    });
+
     return const ProductDetailState();
   }
 
   Future<void> loadProduct(int productId) async {
-    if (_productId == productId && state.product != null) return;
+    if (_productId == productId && state.detail != null) return;
     _productId = productId;
 
-    state = state.copyWith(loaderState: LoaderState.loading, errorMessage: null);
+    final isWishlisted =
+        ref.read(wishlistNotifierProvider.notifier).isWishlisted(productId);
+
+    state = state.copyWith(
+      loaderState: LoaderState.loading,
+      errorMessage: null,
+      isWishlisted: isWishlisted,
+    );
 
     return await productDetailRepo
         .getProductById(productId)
@@ -41,12 +56,16 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
               errorMessage: error.message,
             );
           },
-          (product) {
-            debugPrint("🟢 PRODUCT SUCCESS: ${product.name}");
+          (detail) {
+            debugPrint("🟢 PRODUCT SUCCESS: ${detail.product.name}");
+            final wishlisted = ref
+                .read(wishlistNotifierProvider.notifier)
+                .isWishlisted(detail.product.id);
             state = state.copyWith(
               loaderState: LoaderState.loaded,
-              product: product,
+              detail: detail,
               quantity: 1,
+              isWishlisted: wishlisted,
             );
           },
         )
@@ -54,6 +73,18 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
           debugPrint("🔴 UNEXPECTED PRODUCT ERROR: $error");
           state = state.copyWith(loaderState: LoaderState.error);
         });
+  }
+
+  void toggleWishlist() {
+    final product = state.detail?.product;
+    if (product == null) return;
+
+    ref.read(wishlistNotifierProvider.notifier).toggle(product);
+    state = state.copyWith(
+      isWishlisted: ref
+          .read(wishlistNotifierProvider.notifier)
+          .isWishlisted(product.id),
+    );
   }
 
   void incrementQuantity() {
@@ -66,7 +97,7 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
   }
 
   Future<bool> addToCart() async {
-    final product = state.product;
+    final product = state.detail?.product;
     if (product == null) return false;
 
     ref.read(cartNotifierProvider.notifier).addItem(

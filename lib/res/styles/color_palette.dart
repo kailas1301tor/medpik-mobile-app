@@ -10,10 +10,14 @@ class ColorPalette {
   static const successColor = Color(0xFF34C759);
   static const warningColor = Color(0xFFFF9F0A);
 
+  /// Soft CTA sheen — stays within brand teal; avoids the muddy dark right edge.
+  static const primaryGradientStart = Color(0xFF1AADAD);
+  static const primaryGradientEnd = Color(0xFF007F7F);
+
   static const primaryGradient = LinearGradient(
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-    colors: [primaryColor, primaryColorDark],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [primaryGradientStart, primaryGradientEnd],
   );
 
   // Basic colors
@@ -135,6 +139,31 @@ class ColorPalette {
   static const productImageBg = Color(0xFFF4F7F8);
   static const productSavingsGreen = Color(0xFF22A06D);
 
+  // Order status badge tones
+  static const orderStatusWarningBg = Color(0xFFFFF4E5);
+  static const orderStatusWarningText = Color(0xFFE67E22);
+  static const orderStatusInfoBg = Color(0xFFE8F7F7);
+  static const orderStatusInfoText = Color(0xFF0E8B8F);
+  static const orderStatusSuccessBg = Color(0xFFE8F8EF);
+  static const orderStatusSuccessText = Color(0xFF22A06D);
+  static const orderStatusErrorBg = Color(0xFFFDEEEE);
+  static const orderStatusErrorText = Color(0xFFE74C3C);
+  static const orderStatusNeutralBg = Color(0xFFF4F5F7);
+  static const orderStatusNeutralText = Color(0xFF6B7280);
+  static const orderPreviewOverflowBg = Color(0xFFF0F2F4);
+  static const orderBannerSuccessBg = Color(0xFFE8F8EF);
+  static const orderBannerSuccessBorder = Color(0xFFB8E6CC);
+  static const orderBannerErrorBg = Color(0xFFFDEEEE);
+  static const orderBannerErrorBorder = Color(0xFFF5C6C6);
+  static const orderBannerWarningBg = Color(0xFFFFF4E5);
+  static const orderBannerWarningBorder = Color(0xFFF5D9B8);
+  static const orderBannerInfoBg = Color(0xFFE8F7F7);
+  static const orderBannerInfoBorder = Color(0xFFB8E0E2);
+  static const orderBannerSecureBg = Color(0xFFE8F0FE);
+  static const orderBannerSecureBorder = Color(0xFFB8D4F5);
+  static const orderBillDivider = Color(0xFFD1D5DB);
+  static const orderRejectButtonBorder = Color(0xFFE74C3C);
+
   static List<BoxShadow> get productCardShadow => [
     BoxShadow(
       color: ColorPalette.black.withValues(alpha: 0.06),
@@ -234,6 +263,30 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color primaryDark;
   final Color secondary;
   final Color accent;
+  final Color cardBackground;
+  final Color cardBorder;
+  final Color shimmerHighlight;
+  final Color divider;
+  final Color statusWarningBg;
+  final Color statusWarningText;
+  final Color statusInfoBg;
+  final Color statusInfoText;
+  final Color statusSuccessBg;
+  final Color statusSuccessText;
+  final Color statusErrorBg;
+  final Color statusErrorText;
+  final Color statusNeutralBg;
+  final Color statusNeutralText;
+  final Color bannerSuccessBg;
+  final Color bannerSuccessBorder;
+  final Color bannerErrorBg;
+  final Color bannerErrorBorder;
+  final Color bannerWarningBg;
+  final Color bannerWarningBorder;
+  final Color bannerInfoBg;
+  final Color bannerInfoBorder;
+  final Color bannerSecureBg;
+  final Color bannerSecureBorder;
 
   const AppColors({
     required this.primaryText,
@@ -248,13 +301,40 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.primaryDark,
     required this.secondary,
     required this.accent,
+    required this.cardBackground,
+    required this.cardBorder,
+    required this.shimmerHighlight,
+    required this.divider,
+    required this.statusWarningBg,
+    required this.statusWarningText,
+    required this.statusInfoBg,
+    required this.statusInfoText,
+    required this.statusSuccessBg,
+    required this.statusSuccessText,
+    required this.statusErrorBg,
+    required this.statusErrorText,
+    required this.statusNeutralBg,
+    required this.statusNeutralText,
+    required this.bannerSuccessBg,
+    required this.bannerSuccessBorder,
+    required this.bannerErrorBg,
+    required this.bannerErrorBorder,
+    required this.bannerWarningBg,
+    required this.bannerWarningBorder,
+    required this.bannerInfoBg,
+    required this.bannerInfoBorder,
+    required this.bannerSecureBg,
+    required this.bannerSecureBorder,
   });
 
   LinearGradient get primaryGradient => LinearGradient(
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-    colors: [primary, primaryDark],
-  );
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color.lerp(primary, ColorPalette.white, 0.22)!,
+          primary,
+        ],
+      );
 
   @override
   AppColors copyWith({
@@ -270,6 +350,30 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? primaryDark,
     Color? secondary,
     Color? accent,
+    Color? cardBackground,
+    Color? cardBorder,
+    Color? shimmerHighlight,
+    Color? divider,
+    Color? statusWarningBg,
+    Color? statusWarningText,
+    Color? statusInfoBg,
+    Color? statusInfoText,
+    Color? statusSuccessBg,
+    Color? statusSuccessText,
+    Color? statusErrorBg,
+    Color? statusErrorText,
+    Color? statusNeutralBg,
+    Color? statusNeutralText,
+    Color? bannerSuccessBg,
+    Color? bannerSuccessBorder,
+    Color? bannerErrorBg,
+    Color? bannerErrorBorder,
+    Color? bannerWarningBg,
+    Color? bannerWarningBorder,
+    Color? bannerInfoBg,
+    Color? bannerInfoBorder,
+    Color? bannerSecureBg,
+    Color? bannerSecureBorder,
   }) {
     return AppColors(
       primaryText: primaryText ?? this.primaryText,
@@ -284,6 +388,30 @@ class AppColors extends ThemeExtension<AppColors> {
       primaryDark: primaryDark ?? this.primaryDark,
       secondary: secondary ?? this.secondary,
       accent: accent ?? this.accent,
+      cardBackground: cardBackground ?? this.cardBackground,
+      cardBorder: cardBorder ?? this.cardBorder,
+      shimmerHighlight: shimmerHighlight ?? this.shimmerHighlight,
+      divider: divider ?? this.divider,
+      statusWarningBg: statusWarningBg ?? this.statusWarningBg,
+      statusWarningText: statusWarningText ?? this.statusWarningText,
+      statusInfoBg: statusInfoBg ?? this.statusInfoBg,
+      statusInfoText: statusInfoText ?? this.statusInfoText,
+      statusSuccessBg: statusSuccessBg ?? this.statusSuccessBg,
+      statusSuccessText: statusSuccessText ?? this.statusSuccessText,
+      statusErrorBg: statusErrorBg ?? this.statusErrorBg,
+      statusErrorText: statusErrorText ?? this.statusErrorText,
+      statusNeutralBg: statusNeutralBg ?? this.statusNeutralBg,
+      statusNeutralText: statusNeutralText ?? this.statusNeutralText,
+      bannerSuccessBg: bannerSuccessBg ?? this.bannerSuccessBg,
+      bannerSuccessBorder: bannerSuccessBorder ?? this.bannerSuccessBorder,
+      bannerErrorBg: bannerErrorBg ?? this.bannerErrorBg,
+      bannerErrorBorder: bannerErrorBorder ?? this.bannerErrorBorder,
+      bannerWarningBg: bannerWarningBg ?? this.bannerWarningBg,
+      bannerWarningBorder: bannerWarningBorder ?? this.bannerWarningBorder,
+      bannerInfoBg: bannerInfoBg ?? this.bannerInfoBg,
+      bannerInfoBorder: bannerInfoBorder ?? this.bannerInfoBorder,
+      bannerSecureBg: bannerSecureBg ?? this.bannerSecureBg,
+      bannerSecureBorder: bannerSecureBorder ?? this.bannerSecureBorder,
     );
   }
 
@@ -305,6 +433,39 @@ class AppColors extends ThemeExtension<AppColors> {
       primaryDark: Color.lerp(primaryDark, other.primaryDark, t)!,
       secondary: Color.lerp(secondary, other.secondary, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
+      cardBackground: Color.lerp(cardBackground, other.cardBackground, t)!,
+      cardBorder: Color.lerp(cardBorder, other.cardBorder, t)!,
+      shimmerHighlight:
+          Color.lerp(shimmerHighlight, other.shimmerHighlight, t)!,
+      divider: Color.lerp(divider, other.divider, t)!,
+      statusWarningBg: Color.lerp(statusWarningBg, other.statusWarningBg, t)!,
+      statusWarningText:
+          Color.lerp(statusWarningText, other.statusWarningText, t)!,
+      statusInfoBg: Color.lerp(statusInfoBg, other.statusInfoBg, t)!,
+      statusInfoText: Color.lerp(statusInfoText, other.statusInfoText, t)!,
+      statusSuccessBg: Color.lerp(statusSuccessBg, other.statusSuccessBg, t)!,
+      statusSuccessText:
+          Color.lerp(statusSuccessText, other.statusSuccessText, t)!,
+      statusErrorBg: Color.lerp(statusErrorBg, other.statusErrorBg, t)!,
+      statusErrorText: Color.lerp(statusErrorText, other.statusErrorText, t)!,
+      statusNeutralBg: Color.lerp(statusNeutralBg, other.statusNeutralBg, t)!,
+      statusNeutralText:
+          Color.lerp(statusNeutralText, other.statusNeutralText, t)!,
+      bannerSuccessBg: Color.lerp(bannerSuccessBg, other.bannerSuccessBg, t)!,
+      bannerSuccessBorder:
+          Color.lerp(bannerSuccessBorder, other.bannerSuccessBorder, t)!,
+      bannerErrorBg: Color.lerp(bannerErrorBg, other.bannerErrorBg, t)!,
+      bannerErrorBorder:
+          Color.lerp(bannerErrorBorder, other.bannerErrorBorder, t)!,
+      bannerWarningBg: Color.lerp(bannerWarningBg, other.bannerWarningBg, t)!,
+      bannerWarningBorder:
+          Color.lerp(bannerWarningBorder, other.bannerWarningBorder, t)!,
+      bannerInfoBg: Color.lerp(bannerInfoBg, other.bannerInfoBg, t)!,
+      bannerInfoBorder:
+          Color.lerp(bannerInfoBorder, other.bannerInfoBorder, t)!,
+      bannerSecureBg: Color.lerp(bannerSecureBg, other.bannerSecureBg, t)!,
+      bannerSecureBorder:
+          Color.lerp(bannerSecureBorder, other.bannerSecureBorder, t)!,
     );
   }
 
@@ -322,22 +483,70 @@ class AppColors extends ThemeExtension<AppColors> {
     primaryDark: ColorPalette.primaryColorDark,
     secondary: ColorPalette.secondaryColor,
     accent: ColorPalette.primaryColor,
+    cardBackground: ColorPalette.productCardBg,
+    cardBorder: ColorPalette.productCardBorder,
+    shimmerHighlight: ColorPalette.white,
+    divider: Color(0xFFE5E5EA),
+    statusWarningBg: ColorPalette.orderStatusWarningBg,
+    statusWarningText: ColorPalette.orderStatusWarningText,
+    statusInfoBg: ColorPalette.orderStatusInfoBg,
+    statusInfoText: ColorPalette.orderStatusInfoText,
+    statusSuccessBg: ColorPalette.orderStatusSuccessBg,
+    statusSuccessText: ColorPalette.orderStatusSuccessText,
+    statusErrorBg: ColorPalette.orderStatusErrorBg,
+    statusErrorText: ColorPalette.orderStatusErrorText,
+    statusNeutralBg: ColorPalette.orderStatusNeutralBg,
+    statusNeutralText: ColorPalette.orderStatusNeutralText,
+    bannerSuccessBg: ColorPalette.orderBannerSuccessBg,
+    bannerSuccessBorder: ColorPalette.orderBannerSuccessBorder,
+    bannerErrorBg: ColorPalette.orderBannerErrorBg,
+    bannerErrorBorder: ColorPalette.orderBannerErrorBorder,
+    bannerWarningBg: ColorPalette.orderBannerWarningBg,
+    bannerWarningBorder: ColorPalette.orderBannerWarningBorder,
+    bannerInfoBg: ColorPalette.orderBannerInfoBg,
+    bannerInfoBorder: ColorPalette.orderBannerInfoBorder,
+    bannerSecureBg: ColorPalette.orderBannerSecureBg,
+    bannerSecureBorder: ColorPalette.orderBannerSecureBorder,
   );
 
-  /// Preset for Dark Mode — Premium Slate & Indigo
+  /// Preset for Dark Mode — Midnight Slate (teal-tinted, soft elevation)
   static const AppColors dark = AppColors(
-    primaryText: Color(0xFFF5F5F7),
-    secondaryText: Color(0xFF86868B),
-    background: Color(0xFF0A0B0F),
-    authBackground: Color(0xFF12131A),
-    surface: Color(0xFF16171D),
-    errorText: Color(0xFFFF6961),
-    inputBorder: Color(0xFF2C2C2E),
-    inputBackground: Color(0xFF1C1C1E),
-    primary: ColorPalette.primaryColor,
-    primaryDark: ColorPalette.primaryColorDark,
-    secondary: ColorPalette.secondaryColor,
-    accent: ColorPalette.primaryColor,
+    primaryText: Color(0xFFEDEFF2),
+    secondaryText: Color(0xFF9AA3AE),
+    background: Color(0xFF0F1419),
+    authBackground: Color(0xFF131920),
+    surface: Color(0xFF181E26),
+    errorText: Color(0xFFFF7B72),
+    inputBorder: Color(0xFF3A4553),
+    inputBackground: Color(0xFF252E38),
+    primary: Color(0xFF26A3A3),
+    primaryDark: Color(0xFF007F7F),
+    secondary: Color(0xFF2DD4BF),
+    accent: Color(0xFF3DBFBF),
+    cardBackground: Color(0xFF1F2730),
+    cardBorder: Color(0xFF2F3844),
+    shimmerHighlight: Color(0xFF323C48),
+    divider: Color(0xFF282F38),
+    statusWarningBg: Color(0xFF2A2318),
+    statusWarningText: Color(0xFFF5A962),
+    statusInfoBg: Color(0xFF142628),
+    statusInfoText: Color(0xFF5BCFD4),
+    statusSuccessBg: Color(0xFF152620),
+    statusSuccessText: Color(0xFF5FD68A),
+    statusErrorBg: Color(0xFF2A1818),
+    statusErrorText: Color(0xFFFF8A84),
+    statusNeutralBg: Color(0xFF252C35),
+    statusNeutralText: Color(0xFF9AA3AE),
+    bannerSuccessBg: Color(0xFF152620),
+    bannerSuccessBorder: Color(0xFF1E3D2E),
+    bannerErrorBg: Color(0xFF2A1818),
+    bannerErrorBorder: Color(0xFF4A2828),
+    bannerWarningBg: Color(0xFF2A2318),
+    bannerWarningBorder: Color(0xFF4A3820),
+    bannerInfoBg: Color(0xFF142628),
+    bannerInfoBorder: Color(0xFF1E3A3D),
+    bannerSecureBg: Color(0xFF152030),
+    bannerSecureBorder: Color(0xFF1E3348),
   );
 }
 

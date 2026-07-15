@@ -6,6 +6,7 @@ import 'package:tsuite/res/constants/medpik_svg_assets.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
+import 'package:tsuite/src/home/view/widget/home_header_shared.dart';
 import 'package:tsuite/utils/common_widgets/common_search_bar.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
 
@@ -34,10 +35,9 @@ class HomeHeaderSection extends StatelessWidget {
     final secondaryColor = isOnDarkBackground
         ? ColorPalette.white.withValues(alpha: 0.8)
         : colors.secondaryText;
-    final bellSurface = ColorPalette.white.withValues(alpha: 0.2);
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 22.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -49,50 +49,24 @@ class HomeHeaderSection extends StatelessWidget {
                   style: FontPalette.base700(22, color: titleColor),
                 ),
               ),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {},
-                  borderRadius: BorderRadius.circular(24.r),
-                  child: Ink(
-                    width: 45.r,
-                    height: 45.r,
-                    decoration: BoxDecoration(
-                      color: bellSurface,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Center(
-                          child: SvgPicture.asset(
-                            MedpikSvgAssets.bell,
-                            width: 24.w,
-                            height: 24.w,
-                          ),
-                        ),
-                        // Positioned(
-                        //   right: 13.w,
-                        //   top: 13.h,
-                        //   child: Container(
-                        //     width: 9.r,
-                        //     height: 9.r,
-                        //     decoration: BoxDecoration(
-                        //       color: colors.primary,
-                        //       shape: BoxShape.circle,
-                        //       border: Border.all(
-                        //         color: isOnDarkBackground
-                        //             ? bellSurface
-                        //             : colors.surface,
-                        //         width: 1.5.w,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
-                    ),
-                  ),
-                ),
+              HomeHeaderIconButton(
+                iconAsset: MedpikSvgAssets.heart,
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    RouteConstants.routeWishlistScreen,
+                  );
+                },
+              ),
+              8.horizontalSpace,
+              HomeHeaderIconButton(
+                iconAsset: MedpikSvgAssets.notification,
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    RouteConstants.routeNotificationsScreen,
+                  );
+                },
               ),
             ],
           ),
@@ -109,16 +83,18 @@ class HomeHeaderSection extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SvgPicture.asset(
-                  MedpikSvgAssets.mapPin,
+                  MedpikSvgAssets.location,
                   width: 30.w,
                   height: 30.w,
                 ),
                 4.horizontalSpace,
-                Text(
-                  deliveryHint,
-                  style: FontPalette.base700(13, color: secondaryColor),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Expanded(
+                  child: Text(
+                    deliveryHint,
+                    style: FontPalette.base700(13, color: secondaryColor),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 6.horizontalSpace,
                 Icon(

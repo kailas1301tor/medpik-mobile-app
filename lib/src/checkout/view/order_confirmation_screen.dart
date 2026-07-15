@@ -5,6 +5,7 @@ import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
+import 'package:tsuite/utils/common_widgets/common_success_lottie.dart';
 import 'package:tsuite/utils/common_widgets/primary_button.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
 
@@ -21,12 +22,13 @@ class OrderConfirmationScreen extends StatelessWidget {
       backgroundColor: colors.background,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(24.r),
+          padding: EdgeInsets.all(16.w),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.check_circle, size: 80.r, color: colors.primary),
-              24.verticalSpace,
+              const CommonSuccessLottie(),
+              8.verticalSpace,
               Text(
                 Strings.orderPlacedSuccess,
                 style: FontPalette.base700(24, color: colors.primaryText),
@@ -46,7 +48,8 @@ class OrderConfirmationScreen extends StatelessWidget {
                     Navigator.pushNamedAndRemoveUntil(
                       context,
                       RouteConstants.routeTrackingScreen,
-                      (route) => route.settings.name == RouteConstants.mainScreen,
+                      (route) =>
+                          route.settings.name == RouteConstants.mainScreen,
                       arguments: orderId,
                     );
                   },

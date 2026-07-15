@@ -9,6 +9,15 @@ class AppConstants {
   /// Max file size for prescription uploads (images and documents).
   static const int maxImageSizeMb = 10;
 
+  /// Google Maps / Places / Geocoding key used as Dart HTTP fallback.
+  /// Prefer `--dart-define=GOOGLE_MAPS_API_KEY=...` and platform keys in
+  /// AndroidManifest / AppDelegate. Restrict this key in Google Cloud Console.
+  /// Empty default avoids REQUEST_DENIED spam when no Cloud project is wired.
+  static const String googleApiKey = String.fromEnvironment(
+    'GOOGLE_MAPS_API_KEY',
+    defaultValue: '',
+  );
+
   /// Mock phone number that simulates a suspended account.
   static const String suspendedTestPhone = '9999999999';
 

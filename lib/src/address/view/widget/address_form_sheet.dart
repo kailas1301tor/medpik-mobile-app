@@ -11,10 +11,13 @@ import 'package:tsuite/utils/common_widgets/primary_button.dart';
 class AddressFormSheet extends ConsumerWidget {
   const AddressFormSheet({super.key});
 
-  static Future<void> show({required BuildContext context}) {
+  static Future<void> show({
+    required BuildContext context,
+    String? title,
+  }) {
     return CommonBottomSheet.show(
       context: context,
-      title: Strings.addAddress,
+      title: title ?? Strings.completeAddressDetails,
       child: const AddressFormSheet(),
     );
   }

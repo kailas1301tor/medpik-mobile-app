@@ -51,6 +51,8 @@
 	<string>Medpik needs camera access to capture prescription photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Medpik needs photo library access to upload prescription images.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Medpik needs your location to set delivery address accurately.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

@@ -13,6 +13,8 @@ import 'package:tsuite/src/home/repo/home_repository.dart';
 import 'package:tsuite/src/home/repo/home_repository_mock.dart';
 import 'package:tsuite/src/orders/repo/orders_repository.dart';
 import 'package:tsuite/src/orders/repo/orders_repository_mock.dart';
+import 'package:tsuite/src/notifications/repo/notifications_repository.dart';
+import 'package:tsuite/src/notifications/repo/notifications_repository_mock.dart';
 import 'package:tsuite/src/prescription/repo/prescription_repository.dart';
 import 'package:tsuite/src/prescription/repo/prescription_repository_mock.dart';
 import 'package:tsuite/src/product_detail/repo/product_detail_repository.dart';
@@ -92,4 +94,13 @@ OrdersRepo ordersRepository(Ref ref) {
   }
   final services = ref.watch(networkServicesProvider);
   return OrdersRepoImpl(services);
+}
+
+@Riverpod(keepAlive: false)
+NotificationsRepo notificationsRepository(Ref ref) {
+  if (AppConstants.useMockData) {
+    return NotificationsRepoMock();
+  }
+  final services = ref.watch(networkServicesProvider);
+  return NotificationsRepoImpl(services);
 }

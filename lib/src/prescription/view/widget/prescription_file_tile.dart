@@ -10,6 +10,7 @@ import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/src/prescription/view/widget/prescription_full_preview.dart';
+import 'package:tsuite/utils/common_widgets/common_delete_icon.dart';
 import 'package:tsuite/utils/helpers/file_picker.dart';
 
 class PrescriptionFileTile extends StatelessWidget {
@@ -94,15 +95,7 @@ class PrescriptionFileTile extends StatelessWidget {
                   customBorder: const CircleBorder(),
                   child: Padding(
                     padding: EdgeInsets.all(4.r),
-                    child: SvgPicture.asset(
-                      MedpikSvgAssets.trash,
-                      width: 14.r,
-                      height: 14.r,
-                      colorFilter: ColorFilter.mode(
-                        colors.primaryText,
-                        BlendMode.srcIn,
-                      ),
-                    ),
+                    child: CommonDeleteIcon(size: 14.r),
                   ),
                 ),
               ),

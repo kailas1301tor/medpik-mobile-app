@@ -1,6 +1,8 @@
 // /Users/wac/Documents/wac projects/tsuite/lib/src/empty/empty_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tsuite/res/constants/medpik_svg_assets.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
@@ -31,10 +33,10 @@ class EmptyScreen extends StatelessWidget {
         showBackButton: false,
         actions: [
           CommonNavBarButton(
-            icon: Icon(
-              Icons.notifications_none_rounded,
-              size: 18.r,
-              color: colors.primaryText,
+            icon: SvgPicture.asset(
+              MedpikSvgAssets.notification,
+              width: 18.r,
+              height: 18.r,
             ),
             badgeCount: 2,
             onTap: () {},

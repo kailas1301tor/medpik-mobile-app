@@ -1,5 +1,6 @@
 // lib/src/cart/state/cart_state.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:tsuite/data/models/address_model.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/src/cart/model/cart_item_model.dart';
 
@@ -10,5 +11,8 @@ sealed class CartState with _$CartState {
   const factory CartState({
     @Default(LoaderState.loaded) LoaderState loaderState,
     @Default([]) List<CartItemModel> items,
+    AddressModel? selectedAddress,
+    @Default('') String pharmacistInstructions,
+    String? submittedOrderId,
   }) = _CartState;
 }
