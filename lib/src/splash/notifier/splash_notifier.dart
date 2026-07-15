@@ -5,6 +5,7 @@ import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/src/auth/notifier/auth_notifier.dart';
 import 'package:tsuite/src/splash/state/splash_state.dart';
+import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
 
 part 'splash_notifier.g.dart';
 
@@ -23,6 +24,10 @@ class SplashNotifier extends _$SplashNotifier {
 
     await ref.read(authNotifierProvider.notifier).restoreSessionToState();
     final hasSession = AppConstants.hasSession;
+
+    if (hasSession) {
+      await ref.read(wishlistNotifierProvider.notifier).fetchWishlist();
+    }
 
     debugPrint('🔵 SPLASH: hasSession=$hasSession');
     state = state.copyWith(

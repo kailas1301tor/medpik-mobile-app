@@ -6,6 +6,7 @@ plugins {
 }
 
 import java.util.Properties
+import org.gradle.api.GradleException
 
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
@@ -14,9 +15,25 @@ if (localPropertiesFile.exists()) {
 }
 
 val googleMapsApiKey: String =
-    localProperties.getProperty("GOOGLE_MAPS_API_KEY")
+    (localProperties.getProperty("GOOGLE_MAPS_API_KEY")
         ?: System.getenv("GOOGLE_MAPS_API_KEY")
-        ?: ""
+        ?: "")
+        .trim()
+
+if (googleMapsApiKey.isEmpty()) {
+    throw GradleException(
+        """
+        GOOGLE_MAPS_API_KEY is missing. The Android build cannot inject an empty
+        Maps SDK key into AndroidManifest.xml (maps would fail silently at runtime).
+
+        Set it in android/local.properties:
+          GOOGLE_MAPS_API_KEY=your_key_here
+        Or export the GOOGLE_MAPS_API_KEY environment variable for CI.
+
+        See docs/location_maps_quota.md.
+        """.trimIndent(),
+    )
+}
 
 android {
     namespace = "com.example.tsuite"

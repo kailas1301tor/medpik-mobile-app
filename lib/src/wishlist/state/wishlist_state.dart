@@ -8,7 +8,7 @@ part 'wishlist_state.freezed.dart';
 @freezed
 sealed class WishlistState with _$WishlistState {
   const factory WishlistState({
-    @Default(LoaderState.loaded) LoaderState loaderState,
+    @Default(LoaderState.noData) LoaderState loaderState,
     @Default([]) List<ProductModel> items,
   }) = _WishlistState;
 }

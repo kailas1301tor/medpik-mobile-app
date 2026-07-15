@@ -11,7 +11,6 @@ import 'package:tsuite/src/address/notifier/address_notifier.dart';
 import 'package:tsuite/src/cart/model/cart_item_model.dart';
 import 'package:tsuite/src/cart/state/cart_state.dart';
 import 'package:tsuite/src/checkout/repo/checkout_repository.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
 import 'package:tsuite/utils/common_widgets/custom_toast.dart';
 import 'package:tsuite/utils/helpers/api_error_handler.dart';
 
@@ -140,14 +139,11 @@ class CartNotifier extends _$CartNotifier {
     }
 
     state = state.copyWith(loaderState: LoaderState.loading);
-    final prescription = ref.read(prescriptionNotifierProvider).draft;
-    final hasPrescription = prescription != null;
 
     return await checkoutRepo
         .placeOrder(
           items: state.items,
           address: address,
-          hasPrescription: hasPrescription,
           amount: subtotal,
         )
         .fold(
@@ -163,7 +159,6 @@ class CartNotifier extends _$CartNotifier {
           (order) async {
             debugPrint("🟢 CART ORDER PLACED: ${order.id}");
             clearCart();
-            await ref.read(prescriptionNotifierProvider.notifier).loadDraft();
             state = state.copyWith(
               loaderState: LoaderState.loaded,
               submittedOrderId: order.id,

@@ -76,26 +76,45 @@ final productDetailRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ProductDetailRepositoryRef = AutoDisposeProviderRef<ProductDetailRepo>;
-String _$prescriptionRepositoryHash() =>
-    r'51b563b8b9550740bb85b7f8b4293a4b0661a3b7';
+String _$customerProductsRepositoryHash() =>
+    r'842ac943109b25a17b597a398521391af50a5560';
 
-/// See also [prescriptionRepository].
-@ProviderFor(prescriptionRepository)
-final prescriptionRepositoryProvider =
-    AutoDisposeProvider<PrescriptionRepo>.internal(
-      prescriptionRepository,
-      name: r'prescriptionRepositoryProvider',
+/// See also [customerProductsRepository].
+@ProviderFor(customerProductsRepository)
+final customerProductsRepositoryProvider =
+    AutoDisposeProvider<CustomerProductsRepo>.internal(
+      customerProductsRepository,
+      name: r'customerProductsRepositoryProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
           ? null
-          : _$prescriptionRepositoryHash,
+          : _$customerProductsRepositoryHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef PrescriptionRepositoryRef = AutoDisposeProviderRef<PrescriptionRepo>;
-String _$addressRepositoryHash() => r'd66d9530708f8a005eacd7864956d7fda6685e48';
+typedef CustomerProductsRepositoryRef =
+    AutoDisposeProviderRef<CustomerProductsRepo>;
+String _$prescriptionRepositoryHash() =>
+    r'3f4ae64a7ec2e501f512bee3a6041f928690efef';
+
+/// See also [prescriptionRepository].
+@ProviderFor(prescriptionRepository)
+final prescriptionRepositoryProvider = Provider<PrescriptionRepo>.internal(
+  prescriptionRepository,
+  name: r'prescriptionRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$prescriptionRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef PrescriptionRepositoryRef = ProviderRef<PrescriptionRepo>;
+String _$addressRepositoryHash() => r'd5999a4b8979fcd9a814ed7c5f3f9743a2298d32';
 
 /// See also [addressRepository].
 @ProviderFor(addressRepository)
@@ -113,7 +132,7 @@ final addressRepositoryProvider = AutoDisposeProvider<AddressRepo>.internal(
 // ignore: unused_element
 typedef AddressRepositoryRef = AutoDisposeProviderRef<AddressRepo>;
 String _$checkoutRepositoryHash() =>
-    r'28a8595fba3045844658058d344a7781f6d7622a';
+    r'd05dbd2d84cee33734501afe8ff774009992ed09';
 
 /// See also [checkoutRepository].
 @ProviderFor(checkoutRepository)
@@ -166,5 +185,23 @@ final notificationsRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef NotificationsRepositoryRef = AutoDisposeProviderRef<NotificationsRepo>;
+String _$wishlistRepositoryHash() =>
+    r'6e07493c124978abf81ac698980b0487d978006e';
+
+/// See also [wishlistRepository].
+@ProviderFor(wishlistRepository)
+final wishlistRepositoryProvider = AutoDisposeProvider<WishlistRepo>.internal(
+  wishlistRepository,
+  name: r'wishlistRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$wishlistRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef WishlistRepositoryRef = AutoDisposeProviderRef<WishlistRepo>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

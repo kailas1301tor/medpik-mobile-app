@@ -14,6 +14,7 @@ class ProductModel {
     this.discountPercent,
     this.packSize = '',
     this.manufacturerName = '',
+    this.isWishlisted = false,
   });
 
   final int id;
@@ -27,6 +28,7 @@ class ProductModel {
   final int? discountPercent;
   final String packSize;
   final String manufacturerName;
+  final bool isWishlisted;
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     final categoryDetail = convertToMap(json['category_detail']);
@@ -71,6 +73,37 @@ class ProductModel {
           : convertToInt(json['discount_percent']),
       packSize: convertToString(json['pack_size']),
       manufacturerName: manufacturerName,
+      isWishlisted: convertToBool(json['is_wishlisted']),
+    );
+  }
+
+  ProductModel copyWith({
+    int? id,
+    String? name,
+    String? category,
+    double? price,
+    String? imageUrl,
+    bool? requiresPrescription,
+    String? description,
+    double? mrp,
+    int? discountPercent,
+    String? packSize,
+    String? manufacturerName,
+    bool? isWishlisted,
+  }) {
+    return ProductModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      category: category ?? this.category,
+      price: price ?? this.price,
+      imageUrl: imageUrl ?? this.imageUrl,
+      requiresPrescription: requiresPrescription ?? this.requiresPrescription,
+      description: description ?? this.description,
+      mrp: mrp ?? this.mrp,
+      discountPercent: discountPercent ?? this.discountPercent,
+      packSize: packSize ?? this.packSize,
+      manufacturerName: manufacturerName ?? this.manufacturerName,
+      isWishlisted: isWishlisted ?? this.isWishlisted,
     );
   }
 }

@@ -109,7 +109,7 @@ class PrescriptionUploadScreen extends ConsumerWidget {
                         if (ok && context.mounted) {
                           Navigator.pushNamed(
                             context,
-                            RouteConstants.routeCheckoutScreen,
+                            RouteConstants.routePrescriptionCheckoutScreen,
                           );
                         }
                       },

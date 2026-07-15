@@ -19,6 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$AddressState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   List<AddressModel> get addresses => throw _privateConstructorUsedError;
+  bool get isSaving => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of AddressState
@@ -38,6 +39,7 @@ abstract class $AddressStateCopyWith<$Res> {
   $Res call({
     LoaderState loaderState,
     List<AddressModel> addresses,
+    bool isSaving,
     String? errorMessage,
   });
 }
@@ -59,6 +61,7 @@ class _$AddressStateCopyWithImpl<$Res, $Val extends AddressState>
   $Res call({
     Object? loaderState = null,
     Object? addresses = null,
+    Object? isSaving = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -71,6 +74,10 @@ class _$AddressStateCopyWithImpl<$Res, $Val extends AddressState>
                 ? _value.addresses
                 : addresses // ignore: cast_nullable_to_non_nullable
                       as List<AddressModel>,
+            isSaving: null == isSaving
+                ? _value.isSaving
+                : isSaving // ignore: cast_nullable_to_non_nullable
+                      as bool,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -93,6 +100,7 @@ abstract class _$$AddressStateImplCopyWith<$Res>
   $Res call({
     LoaderState loaderState,
     List<AddressModel> addresses,
+    bool isSaving,
     String? errorMessage,
   });
 }
@@ -113,6 +121,7 @@ class __$$AddressStateImplCopyWithImpl<$Res>
   $Res call({
     Object? loaderState = null,
     Object? addresses = null,
+    Object? isSaving = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -125,6 +134,10 @@ class __$$AddressStateImplCopyWithImpl<$Res>
             ? _value._addresses
             : addresses // ignore: cast_nullable_to_non_nullable
                   as List<AddressModel>,
+        isSaving: null == isSaving
+            ? _value.isSaving
+            : isSaving // ignore: cast_nullable_to_non_nullable
+                  as bool,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -140,6 +153,7 @@ class _$AddressStateImpl implements _AddressState {
   const _$AddressStateImpl({
     this.loaderState = LoaderState.loaded,
     final List<AddressModel> addresses = const [],
+    this.isSaving = false,
     this.errorMessage,
   }) : _addresses = addresses;
 
@@ -156,11 +170,14 @@ class _$AddressStateImpl implements _AddressState {
   }
 
   @override
+  @JsonKey()
+  final bool isSaving;
+  @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'AddressState(loaderState: $loaderState, addresses: $addresses, errorMessage: $errorMessage)';
+    return 'AddressState(loaderState: $loaderState, addresses: $addresses, isSaving: $isSaving, errorMessage: $errorMessage)';
   }
 
   @override
@@ -174,6 +191,8 @@ class _$AddressStateImpl implements _AddressState {
               other._addresses,
               _addresses,
             ) &&
+            (identical(other.isSaving, isSaving) ||
+                other.isSaving == isSaving) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -183,6 +202,7 @@ class _$AddressStateImpl implements _AddressState {
     runtimeType,
     loaderState,
     const DeepCollectionEquality().hash(_addresses),
+    isSaving,
     errorMessage,
   );
 
@@ -199,6 +219,7 @@ abstract class _AddressState implements AddressState {
   const factory _AddressState({
     final LoaderState loaderState,
     final List<AddressModel> addresses,
+    final bool isSaving,
     final String? errorMessage,
   }) = _$AddressStateImpl;
 
@@ -206,6 +227,8 @@ abstract class _AddressState implements AddressState {
   LoaderState get loaderState;
   @override
   List<AddressModel> get addresses;
+  @override
+  bool get isSaving;
   @override
   String? get errorMessage;
 

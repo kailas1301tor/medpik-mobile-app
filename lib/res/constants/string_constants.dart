@@ -58,6 +58,8 @@ class Strings {
   static const String noFavoriteProducts = "No Favorites";
   static const String noFavoriteProductsDesc =
       "You haven't favorited any products.";
+  static const String wishlistUpdateFailed =
+      "Couldn't update wishlist. Please try again.";
   static const String noTransactionsFound = "No Transactions";
   static const String noTransactionsDesc =
       "You don't have any past transactions.";
@@ -363,6 +365,7 @@ class Strings {
   static const String mostBoughtProducts = "Most bought products";
   static const String prescriptionProducts = "Prescription products";
   static const String searchProductsHint = "Search products to add";
+  static const String loadMore = "Load more";
   static const String addToPrescriptionRequest = "Add to prescription request";
   static const String selectQuantity = "Select quantity";
   static const String addToOrder = "Add to order";
@@ -391,6 +394,23 @@ class Strings {
   static const String cartAndPrescriptionEmpty =
       "Add items to cart or upload a prescription";
   static const String prescriptionAttached = "Prescription attached";
+  static const String attachedPrescriptions = "Attached prescriptions";
+  static const String attachPrescriptionToContinue =
+      "Attach at least one prescription to continue";
+  static const String searchProductsEmpty =
+      "Search to find products for your prescription";
+  static const String productsLoadFailed =
+      "Could not load products. Please try again.";
+  static const String cartCheckoutUnavailable =
+      "Cart checkout is not available yet";
+  static const String addressUpdateUnavailable =
+      "Address update is not available yet";
+  static const String addressDeleteUnavailable =
+      "Address delete is not available yet";
+  static const String setDefaultAddressUnavailable =
+      "Set default address is not available yet";
+
+  static String quantityTimes(int quantity) => 'x$quantity';
   static const String orderPlacedSuccess = "Order placed successfully!";
   static const String orderIdLabel = "Order ID";
   static const String trackOrder = "Track Order";

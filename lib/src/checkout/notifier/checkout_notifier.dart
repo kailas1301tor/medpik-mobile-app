@@ -10,9 +10,7 @@ import 'package:tsuite/src/address/notifier/address_notifier.dart';
 import 'package:tsuite/src/cart/notifier/cart_notifier.dart';
 import 'package:tsuite/src/checkout/repo/checkout_repository.dart';
 import 'package:tsuite/src/checkout/state/checkout_state.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
 import 'package:tsuite/utils/common_widgets/custom_toast.dart';
-import 'package:tsuite/utils/helpers/api_error_handler.dart';
 
 part 'checkout_notifier.g.dart';
 
@@ -29,36 +27,43 @@ class CheckoutNotifier extends _$CheckoutNotifier {
 
   Future<void> prepareCheckout() async {
     final cartItems = ref.read(cartNotifierProvider).items;
-    final prescription = ref.read(prescriptionNotifierProvider).draft;
+
+    await ref.read(addressNotifierProvider.notifier).fetchAddresses();
     final addresses = ref.read(addressNotifierProvider).addresses;
 
-    if (cartItems.isEmpty && prescription == null) {
+    if (cartItems.isEmpty) {
       state = state.copyWith(
         loaderState: LoaderState.error,
-        errorMessage: Strings.cartAndPrescriptionEmpty,
+        errorMessage: Strings.cartEmptyMessage,
       );
       return;
     }
 
     final subtotal = cartItems.fold<double>(0, (sum, i) => sum + i.lineTotal);
-    AddressModel? selected;
-    for (final address in addresses) {
-      if (address.isDefault) {
-        selected = address;
-        break;
-      }
-    }
-    selected ??= addresses.isNotEmpty ? addresses.first : null;
 
     state = state.copyWith(
       loaderState: LoaderState.loaded,
-      selectedAddress: selected,
+      selectedAddress: _resolveDefaultAddress(addresses),
       payableTotal: subtotal,
-      hasPrescription: prescription != null,
+      isPlacingOrder: false,
     );
   }
 
+  Future<void> refreshSelectedAddress() async {
+    await ref.read(addressNotifierProvider.notifier).fetchAddresses();
+    final addresses = ref.read(addressNotifierProvider).addresses;
+    state = state.copyWith(
+      selectedAddress: _resolveSelectedAddress(addresses),
+    );
+  }
+
+  void selectAddress(AddressModel address) {
+    state = state.copyWith(selectedAddress: address);
+  }
+
   Future<String?> placeOrder() async {
+    if (state.isPlacingOrder) return null;
+
     final cartItems = ref.read(cartNotifierProvider).items;
     final address = state.selectedAddress;
 
@@ -67,36 +72,33 @@ class CheckoutNotifier extends _$CheckoutNotifier {
       return null;
     }
 
-    if (cartItems.isEmpty && !state.hasPrescription) {
-      showCustomToast(
-        message: Strings.cartAndPrescriptionEmpty,
-        isSuccess: false,
-      );
+    if (cartItems.isEmpty) {
+      showCustomToast(message: Strings.cartEmptyMessage, isSuccess: false);
       return null;
     }
 
-    state = state.copyWith(loaderState: LoaderState.loading);
-
+    state = state.copyWith(isPlacingOrder: true);
     return await checkoutRepo
         .placeOrder(
           items: cartItems,
           address: address,
-          hasPrescription: state.hasPrescription,
           amount: state.payableTotal,
         )
         .fold(
           (error) {
-            final loaderState = handleResponseError(error.key);
             debugPrint("🔴 PLACE ORDER ERROR: ${error.message}");
-            state = state.copyWith(loaderState: loaderState);
+            state = state.copyWith(isPlacingOrder: false);
+            showCustomToast(
+              message: error.message ?? Strings.somethingWentWrong,
+              isSuccess: false,
+            );
             return null;
           },
           (order) async {
             debugPrint("🟢 ORDER PLACED: ${order.id}");
             ref.read(cartNotifierProvider.notifier).clearCart();
-            await ref.read(prescriptionNotifierProvider.notifier).loadDraft();
             state = state.copyWith(
-              loaderState: LoaderState.loaded,
+              isPlacingOrder: false,
               placedOrderId: order.id,
             );
             return order.id;
@@ -104,8 +106,29 @@ class CheckoutNotifier extends _$CheckoutNotifier {
         )
         .catchError((error) {
           debugPrint("🔴 UNEXPECTED PLACE ORDER ERROR: $error");
-          state = state.copyWith(loaderState: LoaderState.error);
+          state = state.copyWith(isPlacingOrder: false);
+          showCustomToast(
+            message: Strings.somethingWentWrong,
+            isSuccess: false,
+          );
           return null;
         });
+  }
+
+  AddressModel? _resolveSelectedAddress(List<AddressModel> addresses) {
+    final selectedId = state.selectedAddress?.id;
+    if (selectedId != null) {
+      for (final address in addresses) {
+        if (address.id == selectedId) return address;
+      }
+    }
+    return _resolveDefaultAddress(addresses);
+  }
+
+  AddressModel? _resolveDefaultAddress(List<AddressModel> addresses) {
+    for (final address in addresses) {
+      if (address.isDefault) return address;
+    }
+    return addresses.isNotEmpty ? addresses.first : null;
   }
 }

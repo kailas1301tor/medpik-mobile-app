@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tsuite/data/models/address_model.dart';
 
+import '../../src/address/model/address_book_args.dart';
 import '../../src/address/model/location_picker_args.dart';
 import '../../src/address/model/picked_location_model.dart';
 import '../../src/address/view/address_book_screen.dart';
@@ -13,6 +15,7 @@ import '../../src/orders/view/order_detail_screen.dart';
 import '../../src/orders/view/order_review_bill_screen.dart';
 import '../../src/orders/view/order_review_pay_screen.dart';
 import '../../src/orders/view/order_tracking_screen.dart';
+import '../../src/prescription/view/prescription_checkout_screen.dart';
 import '../../src/prescription/view/prescription_upload_screen.dart';
 import '../../src/product_detail/view/product_detail_screen.dart';
 import '../../src/search/view/search_results_screen.dart';
@@ -77,6 +80,12 @@ class RouteGenerator {
           settings: settings,
         );
 
+      case RouteConstants.routePrescriptionCheckoutScreen:
+        return MaterialPageRoute(
+          builder: (_) => const PrescriptionCheckoutScreen(),
+          settings: settings,
+        );
+
       case RouteConstants.routeCheckoutScreen:
         return MaterialPageRoute(
           builder: (_) => const CheckoutScreen(),
@@ -119,8 +128,11 @@ class RouteGenerator {
         );
 
       case RouteConstants.routeAddressBookScreen:
-        return MaterialPageRoute(
-          builder: (_) => const AddressBookScreen(),
+        final args = settings.arguments is AddressBookArgs
+            ? settings.arguments as AddressBookArgs
+            : const AddressBookArgs();
+        return MaterialPageRoute<AddressModel>(
+          builder: (_) => AddressBookScreen(args: args),
           settings: settings,
         );
 

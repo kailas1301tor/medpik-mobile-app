@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/src/product_detail/notifier/product_detail_notifier.dart';
@@ -14,6 +15,7 @@ import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
 import 'package:tsuite/utils/common_widgets/common_wishlist_button.dart';
 import 'package:tsuite/utils/extensions/context_extensions.dart';
+import 'package:tsuite/utils/routes/route_constants.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({super.key, required this.productId});
@@ -84,7 +86,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         const Spacer(),
                         CommonWishlistButton(
                           isWishlisted: isWishlisted,
-                          onTap: notifier.toggleWishlist,
+                          onTap: () {
+                            if (!AppConstants.hasSession) {
+                              Navigator.pushNamed(
+                                context,
+                                RouteConstants.routeLoginScreen,
+                              );
+                              return;
+                            }
+                            notifier.toggleWishlist();
+                          },
                           size: 40.r,
                           iconSize: 20.r,
                           backgroundColor: context.isDarkMode

@@ -113,7 +113,7 @@ class __$$WishlistStateImplCopyWithImpl<$Res>
 
 class _$WishlistStateImpl implements _WishlistState {
   const _$WishlistStateImpl({
-    this.loaderState = LoaderState.loaded,
+    this.loaderState = LoaderState.noData,
     final List<ProductModel> items = const [],
   }) : _items = items;
 

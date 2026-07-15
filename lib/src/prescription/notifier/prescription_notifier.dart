@@ -48,6 +48,13 @@ class PrescriptionNotifier extends _$PrescriptionNotifier {
                   draft.selectedProducts,
                 ),
               );
+            } else {
+              notesController.clear();
+              state = state.copyWith(
+                draft: null,
+                pickedPaths: const [],
+                selectedProducts: const [],
+              );
             }
           },
         );
@@ -202,10 +209,6 @@ class PrescriptionNotifier extends _$PrescriptionNotifier {
             state = state.copyWith(
               loaderState: LoaderState.loaded,
               draft: draft,
-            );
-            showCustomToast(
-              message: Strings.prescriptionUploaded,
-              isSuccess: true,
             );
             return true;
           },

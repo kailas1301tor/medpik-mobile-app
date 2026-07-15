@@ -15,33 +15,31 @@ class CheckoutRepoMock implements CheckoutRepo {
   Future<Either<ResponseError, OrderModel>> placeOrder({
     required List<CartItemModel> items,
     required AddressModel address,
-    required bool hasPrescription,
     required double amount,
   }) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
     final orderItems = items
-        .map((item) => OrderItemModel(
-              product: item.product,
-              quantity: item.quantity,
-            ))
+        .map(
+          (item) => OrderItemModel(
+            product: item.product,
+            quantity: item.quantity,
+          ),
+        )
         .toList();
 
     final order = OrderModel(
       id: _store.nextOrderId(),
       items: orderItems,
       amount: amount,
-      status: hasPrescription
-          ? OrderStatus.prescriptionUploaded
-          : OrderStatus.orderConfirmed,
+      status: OrderStatus.orderConfirmed,
       address: address,
       createdAt: DateTime.now(),
       etaText: 'Arriving in 35 mins',
-      hasPrescription: hasPrescription,
+      hasPrescription: false,
     );
 
     _store.orders.insert(0, order);
-    _store.prescriptionDraft = null;
     return Right(order);
   }
 }

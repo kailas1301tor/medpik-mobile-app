@@ -18,6 +18,7 @@ class AddressFormSheet extends ConsumerWidget {
     return CommonBottomSheet.show(
       context: context,
       title: title ?? Strings.completeAddressDetails,
+      isScrollControlled: true,
       child: const AddressFormSheet(),
     );
   }
@@ -25,15 +26,25 @@ class AddressFormSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(addressNotifierProvider.notifier);
+    final isSaving = ref.watch(
+      addressNotifierProvider.select((s) => s.isSaving),
+    );
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 24.h),
+    return IgnorePointer(
+      ignoring: isSaving,
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           CommonTextFormField(
             controller: notifier.labelController,
             hintText: Strings.addressLabel,
+          ),
+          12.verticalSpace,
+          CommonTextFormField(
+            controller: notifier.phoneController,
+            hintText: Strings.phoneNumber,
+            inputType: TextInputType.phone,
           ),
           12.verticalSpace,
           CommonTextFormField(
@@ -62,17 +73,15 @@ class AddressFormSheet extends ConsumerWidget {
             inputType: TextInputType.number,
           ),
           20.verticalSpace,
-          SizedBox(
-            width: double.infinity,
-            child: PrimaryButton(
-              text: Strings.save,
-              onPressed: () async {
-                final saved = await notifier.saveCurrent();
-                if (saved && context.mounted) {
-                  Navigator.pop(context);
-                }
-              },
-            ),
+          PrimaryButton(
+            text: Strings.save,
+            isLoading: isSaving,
+            onPressed: () async {
+              final saved = await notifier.saveCurrent();
+              if (saved && context.mounted) {
+                Navigator.pop(context);
+              }
+            },
           ),
         ],
       ),
