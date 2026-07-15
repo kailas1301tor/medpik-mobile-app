@@ -18,6 +18,7 @@ Never commit real API keys. Inject them via local/CI config:
 1. **Android Maps SDK key** — `AndroidManifest` uses `${GOOGLE_MAPS_API_KEY}`
    - Set in gitignored `android/local.properties`: `GOOGLE_MAPS_API_KEY=...`
    - Or export env var `GOOGLE_MAPS_API_KEY` for CI
+   - The Android Gradle build **fails** if this key is missing/blank (avoids shipping an empty Maps SDK key)
    - Restrict to: Maps SDK for Android + app package / SHA-1
 2. **iOS Maps SDK key** — `AppDelegate` reads `GMSApiKey` from Info.plist
    - Copy `ios/Flutter/Secrets.xcconfig.example` → `Secrets.xcconfig` (gitignored)

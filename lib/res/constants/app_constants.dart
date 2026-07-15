@@ -41,11 +41,15 @@ class AppConstants {
   static String products = '$prefix$user/products';
   static String categories = '$prefix$user/categories';
   static String homeFeed = '$api/customer-home';
+  static String customerProducts = '$api/customer-products';
   static String customerProductDetail = '$api/customer-products/detail';
 
+  /// GET wishlist list / POST toggle (`product_id`).
+  static String wishlist = '$api/wishlist';
+
   // Orders & addresses
-  static String orders = '$prefix$user/orders';
-  static String addresses = '$prefix$user/addresses';
+  static String orders = '$api/orders';
+  static String addresses = '$api/addresses';
   static String prescriptions = '$prefix$user/prescriptions';
 
   // Profile endpoints

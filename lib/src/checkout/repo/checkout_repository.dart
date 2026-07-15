@@ -4,13 +4,13 @@ import 'package:tsuite/data/models/address_model.dart';
 import 'package:tsuite/data/models/order_model.dart';
 import 'package:tsuite/data/remote/network_base_services.dart';
 import 'package:tsuite/data/remote/network_services.dart';
+import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/src/cart/model/cart_item_model.dart';
 
 abstract class CheckoutRepo {
   Future<Either<ResponseError, OrderModel>> placeOrder({
     required List<CartItemModel> items,
     required AddressModel address,
-    required bool hasPrescription,
     required double amount,
   });
 }
@@ -24,11 +24,14 @@ class CheckoutRepoImpl implements CheckoutRepo {
   Future<Either<ResponseError, OrderModel>> placeOrder({
     required List<CartItemModel> items,
     required AddressModel address,
-    required bool hasPrescription,
     required double amount,
   }) async {
+    _networkServices.hashCode;
     return const Left(
-      ResponseError(key: ApiErrorTypes.oops, message: 'Not implemented'),
+      ResponseError(
+        key: ApiErrorTypes.oops,
+        message: Strings.cartCheckoutUnavailable,
+      ),
     );
   }
 }

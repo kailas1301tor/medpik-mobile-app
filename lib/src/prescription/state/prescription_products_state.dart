@@ -9,10 +9,13 @@ part 'prescription_products_state.freezed.dart';
 sealed class PrescriptionProductsState with _$PrescriptionProductsState {
   const factory PrescriptionProductsState({
     @Default(LoaderState.loading) LoaderState loaderState,
-    @Default(<ProductModel>[]) List<ProductModel> mostBoughtProducts,
-    @Default(<ProductModel>[]) List<ProductModel> searchResults,
+    @Default(<ProductModel>[]) List<ProductModel> products,
     @Default('') String searchQuery,
     @Default(false) bool hasSearched,
+    @Default(1) int currentPage,
+    @Default(1) int totalPages,
+    @Default(false) bool hasMore,
+    @Default(false) bool isLoadingMore,
     String? errorMessage,
   }) = _PrescriptionProductsState;
 }

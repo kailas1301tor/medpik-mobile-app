@@ -18,11 +18,13 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$PrescriptionProductsState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
-  List<ProductModel> get mostBoughtProducts =>
-      throw _privateConstructorUsedError;
-  List<ProductModel> get searchResults => throw _privateConstructorUsedError;
+  List<ProductModel> get products => throw _privateConstructorUsedError;
   String get searchQuery => throw _privateConstructorUsedError;
   bool get hasSearched => throw _privateConstructorUsedError;
+  int get currentPage => throw _privateConstructorUsedError;
+  int get totalPages => throw _privateConstructorUsedError;
+  bool get hasMore => throw _privateConstructorUsedError;
+  bool get isLoadingMore => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of PrescriptionProductsState
@@ -41,10 +43,13 @@ abstract class $PrescriptionProductsStateCopyWith<$Res> {
   @useResult
   $Res call({
     LoaderState loaderState,
-    List<ProductModel> mostBoughtProducts,
-    List<ProductModel> searchResults,
+    List<ProductModel> products,
     String searchQuery,
     bool hasSearched,
+    int currentPage,
+    int totalPages,
+    bool hasMore,
+    bool isLoadingMore,
     String? errorMessage,
   });
 }
@@ -68,10 +73,13 @@ class _$PrescriptionProductsStateCopyWithImpl<
   @override
   $Res call({
     Object? loaderState = null,
-    Object? mostBoughtProducts = null,
-    Object? searchResults = null,
+    Object? products = null,
     Object? searchQuery = null,
     Object? hasSearched = null,
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? hasMore = null,
+    Object? isLoadingMore = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -80,13 +88,9 @@ class _$PrescriptionProductsStateCopyWithImpl<
                 ? _value.loaderState
                 : loaderState // ignore: cast_nullable_to_non_nullable
                       as LoaderState,
-            mostBoughtProducts: null == mostBoughtProducts
-                ? _value.mostBoughtProducts
-                : mostBoughtProducts // ignore: cast_nullable_to_non_nullable
-                      as List<ProductModel>,
-            searchResults: null == searchResults
-                ? _value.searchResults
-                : searchResults // ignore: cast_nullable_to_non_nullable
+            products: null == products
+                ? _value.products
+                : products // ignore: cast_nullable_to_non_nullable
                       as List<ProductModel>,
             searchQuery: null == searchQuery
                 ? _value.searchQuery
@@ -95,6 +99,22 @@ class _$PrescriptionProductsStateCopyWithImpl<
             hasSearched: null == hasSearched
                 ? _value.hasSearched
                 : hasSearched // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            currentPage: null == currentPage
+                ? _value.currentPage
+                : currentPage // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalPages: null == totalPages
+                ? _value.totalPages
+                : totalPages // ignore: cast_nullable_to_non_nullable
+                      as int,
+            hasMore: null == hasMore
+                ? _value.hasMore
+                : hasMore // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isLoadingMore: null == isLoadingMore
+                ? _value.isLoadingMore
+                : isLoadingMore // ignore: cast_nullable_to_non_nullable
                       as bool,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
@@ -117,10 +137,13 @@ abstract class _$$PrescriptionProductsStateImplCopyWith<$Res>
   @useResult
   $Res call({
     LoaderState loaderState,
-    List<ProductModel> mostBoughtProducts,
-    List<ProductModel> searchResults,
+    List<ProductModel> products,
     String searchQuery,
     bool hasSearched,
+    int currentPage,
+    int totalPages,
+    bool hasMore,
+    bool isLoadingMore,
     String? errorMessage,
   });
 }
@@ -144,10 +167,13 @@ class __$$PrescriptionProductsStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? loaderState = null,
-    Object? mostBoughtProducts = null,
-    Object? searchResults = null,
+    Object? products = null,
     Object? searchQuery = null,
     Object? hasSearched = null,
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? hasMore = null,
+    Object? isLoadingMore = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -156,13 +182,9 @@ class __$$PrescriptionProductsStateImplCopyWithImpl<$Res>
             ? _value.loaderState
             : loaderState // ignore: cast_nullable_to_non_nullable
                   as LoaderState,
-        mostBoughtProducts: null == mostBoughtProducts
-            ? _value._mostBoughtProducts
-            : mostBoughtProducts // ignore: cast_nullable_to_non_nullable
-                  as List<ProductModel>,
-        searchResults: null == searchResults
-            ? _value._searchResults
-            : searchResults // ignore: cast_nullable_to_non_nullable
+        products: null == products
+            ? _value._products
+            : products // ignore: cast_nullable_to_non_nullable
                   as List<ProductModel>,
         searchQuery: null == searchQuery
             ? _value.searchQuery
@@ -171,6 +193,22 @@ class __$$PrescriptionProductsStateImplCopyWithImpl<$Res>
         hasSearched: null == hasSearched
             ? _value.hasSearched
             : hasSearched // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        currentPage: null == currentPage
+            ? _value.currentPage
+            : currentPage // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalPages: null == totalPages
+            ? _value.totalPages
+            : totalPages // ignore: cast_nullable_to_non_nullable
+                  as int,
+        hasMore: null == hasMore
+            ? _value.hasMore
+            : hasMore // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isLoadingMore: null == isLoadingMore
+            ? _value.isLoadingMore
+            : isLoadingMore // ignore: cast_nullable_to_non_nullable
                   as bool,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
@@ -186,34 +224,26 @@ class __$$PrescriptionProductsStateImplCopyWithImpl<$Res>
 class _$PrescriptionProductsStateImpl implements _PrescriptionProductsState {
   const _$PrescriptionProductsStateImpl({
     this.loaderState = LoaderState.loading,
-    final List<ProductModel> mostBoughtProducts = const <ProductModel>[],
-    final List<ProductModel> searchResults = const <ProductModel>[],
+    final List<ProductModel> products = const <ProductModel>[],
     this.searchQuery = '',
     this.hasSearched = false,
+    this.currentPage = 1,
+    this.totalPages = 1,
+    this.hasMore = false,
+    this.isLoadingMore = false,
     this.errorMessage,
-  }) : _mostBoughtProducts = mostBoughtProducts,
-       _searchResults = searchResults;
+  }) : _products = products;
 
   @override
   @JsonKey()
   final LoaderState loaderState;
-  final List<ProductModel> _mostBoughtProducts;
+  final List<ProductModel> _products;
   @override
   @JsonKey()
-  List<ProductModel> get mostBoughtProducts {
-    if (_mostBoughtProducts is EqualUnmodifiableListView)
-      return _mostBoughtProducts;
+  List<ProductModel> get products {
+    if (_products is EqualUnmodifiableListView) return _products;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_mostBoughtProducts);
-  }
-
-  final List<ProductModel> _searchResults;
-  @override
-  @JsonKey()
-  List<ProductModel> get searchResults {
-    if (_searchResults is EqualUnmodifiableListView) return _searchResults;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_searchResults);
+    return EqualUnmodifiableListView(_products);
   }
 
   @override
@@ -223,11 +253,23 @@ class _$PrescriptionProductsStateImpl implements _PrescriptionProductsState {
   @JsonKey()
   final bool hasSearched;
   @override
+  @JsonKey()
+  final int currentPage;
+  @override
+  @JsonKey()
+  final int totalPages;
+  @override
+  @JsonKey()
+  final bool hasMore;
+  @override
+  @JsonKey()
+  final bool isLoadingMore;
+  @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'PrescriptionProductsState(loaderState: $loaderState, mostBoughtProducts: $mostBoughtProducts, searchResults: $searchResults, searchQuery: $searchQuery, hasSearched: $hasSearched, errorMessage: $errorMessage)';
+    return 'PrescriptionProductsState(loaderState: $loaderState, products: $products, searchQuery: $searchQuery, hasSearched: $hasSearched, currentPage: $currentPage, totalPages: $totalPages, hasMore: $hasMore, isLoadingMore: $isLoadingMore, errorMessage: $errorMessage)';
   }
 
   @override
@@ -237,18 +279,18 @@ class _$PrescriptionProductsStateImpl implements _PrescriptionProductsState {
             other is _$PrescriptionProductsStateImpl &&
             (identical(other.loaderState, loaderState) ||
                 other.loaderState == loaderState) &&
-            const DeepCollectionEquality().equals(
-              other._mostBoughtProducts,
-              _mostBoughtProducts,
-            ) &&
-            const DeepCollectionEquality().equals(
-              other._searchResults,
-              _searchResults,
-            ) &&
+            const DeepCollectionEquality().equals(other._products, _products) &&
             (identical(other.searchQuery, searchQuery) ||
                 other.searchQuery == searchQuery) &&
             (identical(other.hasSearched, hasSearched) ||
                 other.hasSearched == hasSearched) &&
+            (identical(other.currentPage, currentPage) ||
+                other.currentPage == currentPage) &&
+            (identical(other.totalPages, totalPages) ||
+                other.totalPages == totalPages) &&
+            (identical(other.hasMore, hasMore) || other.hasMore == hasMore) &&
+            (identical(other.isLoadingMore, isLoadingMore) ||
+                other.isLoadingMore == isLoadingMore) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -257,10 +299,13 @@ class _$PrescriptionProductsStateImpl implements _PrescriptionProductsState {
   int get hashCode => Object.hash(
     runtimeType,
     loaderState,
-    const DeepCollectionEquality().hash(_mostBoughtProducts),
-    const DeepCollectionEquality().hash(_searchResults),
+    const DeepCollectionEquality().hash(_products),
     searchQuery,
     hasSearched,
+    currentPage,
+    totalPages,
+    hasMore,
+    isLoadingMore,
     errorMessage,
   );
 
@@ -279,23 +324,32 @@ class _$PrescriptionProductsStateImpl implements _PrescriptionProductsState {
 abstract class _PrescriptionProductsState implements PrescriptionProductsState {
   const factory _PrescriptionProductsState({
     final LoaderState loaderState,
-    final List<ProductModel> mostBoughtProducts,
-    final List<ProductModel> searchResults,
+    final List<ProductModel> products,
     final String searchQuery,
     final bool hasSearched,
+    final int currentPage,
+    final int totalPages,
+    final bool hasMore,
+    final bool isLoadingMore,
     final String? errorMessage,
   }) = _$PrescriptionProductsStateImpl;
 
   @override
   LoaderState get loaderState;
   @override
-  List<ProductModel> get mostBoughtProducts;
-  @override
-  List<ProductModel> get searchResults;
+  List<ProductModel> get products;
   @override
   String get searchQuery;
   @override
   bool get hasSearched;
+  @override
+  int get currentPage;
+  @override
+  int get totalPages;
+  @override
+  bool get hasMore;
+  @override
+  bool get isLoadingMore;
   @override
   String? get errorMessage;
 

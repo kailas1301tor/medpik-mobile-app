@@ -3,12 +3,14 @@ import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tsuite/data/models/address_model.dart';
+import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/services/repo_di.dart';
 import 'package:tsuite/src/address/notifier/address_notifier.dart';
 import 'package:tsuite/src/home/repo/home_repository.dart';
 import 'package:tsuite/src/home/state/home_state.dart';
+import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
 import 'package:tsuite/utils/helpers/api_error_handler.dart';
 import 'package:tsuite/utils/helpers/time_of_day_greeting_helper.dart';
 import 'package:tsuite/utils/helpers/toast_helper.dart';
@@ -88,6 +90,11 @@ class HomeNotifier extends _$HomeNotifier {
               loaderState: LoaderState.loaded,
               data: feed,
             );
+            if (AppConstants.hasSession) {
+              ref
+                  .read(wishlistNotifierProvider.notifier)
+                  .syncFromProducts(feed.featuredProducts);
+            }
           },
         )
         .catchError((error) {

@@ -66,14 +66,14 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
             }
             debugPrint("🟢 PRODUCT SUCCESS: ${product.name}");
             final detail = ProductDetailModel.fromApiProduct(product);
-            final wishlisted = ref
+            ref
                 .read(wishlistNotifierProvider.notifier)
-                .isWishlisted(product.id);
+                .syncFromProducts([product]);
             state = state.copyWith(
               loaderState: LoaderState.loaded,
               detail: detail,
               quantity: 1,
-              isWishlisted: wishlisted,
+              isWishlisted: product.isWishlisted,
             );
           },
         )
@@ -83,11 +83,18 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
         });
   }
 
-  void toggleWishlist() {
+  Future<void> toggleWishlist() async {
     final product = state.detail?.product;
     if (product == null) return;
 
-    ref.read(wishlistNotifierProvider.notifier).toggle(product);
+    final toggleFuture =
+        ref.read(wishlistNotifierProvider.notifier).toggle(product);
+    state = state.copyWith(
+      isWishlisted: ref
+          .read(wishlistNotifierProvider.notifier)
+          .isWishlisted(product.id),
+    );
+    await toggleFuture;
     state = state.copyWith(
       isWishlisted: ref
           .read(wishlistNotifierProvider.notifier)

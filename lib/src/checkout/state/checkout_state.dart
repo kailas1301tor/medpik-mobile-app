@@ -11,7 +11,7 @@ sealed class CheckoutState with _$CheckoutState {
     @Default(LoaderState.loaded) LoaderState loaderState,
     AddressModel? selectedAddress,
     @Default(0) double payableTotal,
-    @Default(false) bool hasPrescription,
+    @Default(false) bool isPlacingOrder,
     String? errorMessage,
     String? placedOrderId,
   }) = _CheckoutState;

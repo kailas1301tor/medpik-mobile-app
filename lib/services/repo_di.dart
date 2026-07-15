@@ -4,20 +4,19 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tsuite/data/remote/network_services.dart';
 import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/src/address/repo/address_repository.dart';
-import 'package:tsuite/src/address/repo/address_repository_mock.dart';
 import 'package:tsuite/src/auth/repo/auth_repo.dart';
 import 'package:tsuite/src/checkout/repo/checkout_repository.dart';
-import 'package:tsuite/src/checkout/repo/checkout_repository_mock.dart';
 import 'package:tsuite/src/home/repo/home_repository.dart';
 import 'package:tsuite/src/orders/repo/orders_repository.dart';
 import 'package:tsuite/src/orders/repo/orders_repository_mock.dart';
 import 'package:tsuite/src/notifications/repo/notifications_repository.dart';
 import 'package:tsuite/src/notifications/repo/notifications_repository_mock.dart';
+import 'package:tsuite/src/prescription/repo/customer_products_repository.dart';
 import 'package:tsuite/src/prescription/repo/prescription_repository.dart';
-import 'package:tsuite/src/prescription/repo/prescription_repository_mock.dart';
 import 'package:tsuite/src/product_detail/repo/product_detail_repository.dart';
 import 'package:tsuite/src/search/repo/search_repository.dart';
 import 'package:tsuite/src/search/repo/search_repository_mock.dart';
+import 'package:tsuite/src/wishlist/repo/wishlist_repository.dart';
 
 part 'repo_di.g.dart';
 
@@ -49,28 +48,25 @@ ProductDetailRepo productDetailRepository(Ref ref) {
 }
 
 @Riverpod(keepAlive: false)
+CustomerProductsRepo customerProductsRepository(Ref ref) {
+  final services = ref.watch(networkServicesProvider);
+  return CustomerProductsRepoImpl(services);
+}
+
+@Riverpod(keepAlive: true)
 PrescriptionRepo prescriptionRepository(Ref ref) {
-  if (AppConstants.useMockData) {
-    return PrescriptionRepoMock();
-  }
   final services = ref.watch(networkServicesProvider);
   return PrescriptionRepoImpl(services);
 }
 
 @Riverpod(keepAlive: false)
 AddressRepo addressRepository(Ref ref) {
-  if (AppConstants.useMockData) {
-    return AddressRepoMock();
-  }
   final services = ref.watch(networkServicesProvider);
   return AddressRepoImpl(services);
 }
 
 @Riverpod(keepAlive: false)
 CheckoutRepo checkoutRepository(Ref ref) {
-  if (AppConstants.useMockData) {
-    return CheckoutRepoMock();
-  }
   final services = ref.watch(networkServicesProvider);
   return CheckoutRepoImpl(services);
 }
@@ -91,4 +87,10 @@ NotificationsRepo notificationsRepository(Ref ref) {
   }
   final services = ref.watch(networkServicesProvider);
   return NotificationsRepoImpl(services);
+}
+
+@Riverpod(keepAlive: false)
+WishlistRepo wishlistRepository(Ref ref) {
+  final services = ref.watch(networkServicesProvider);
+  return WishlistRepoImpl(services);
 }

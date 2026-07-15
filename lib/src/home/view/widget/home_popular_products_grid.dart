@@ -61,7 +61,6 @@ abstract final class HomePopularProductsGrid {
   static Widget _productCard(BuildContext context, ProductModel product) {
     return HomeGlassProductCard(
       product: product,
-      intrinsic: true,
       onTap: () {
         Navigator.pushNamed(
           context,

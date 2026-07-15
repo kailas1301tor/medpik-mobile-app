@@ -1,4 +1,4 @@
-// /Users/wac/Documents/wac projects/tsuite/lib/utils/common_widgets/common_bottom_sheet.dart
+// lib/utils/common_widgets/common_bottom_sheet.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
@@ -25,7 +25,7 @@ class CommonBottomSheet extends StatelessWidget {
       context: context,
       isScrollControlled: isScrollControlled,
       useSafeArea: false,
-      backgroundColor: Colors.transparent,
+      backgroundColor: ColorPalette.transparent,
       builder: (_) => CommonBottomSheet(title: title, child: child),
     );
   }
@@ -34,47 +34,58 @@ class CommonBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    final maxHeight = MediaQuery.sizeOf(context).height * 0.9;
 
-    return Container(
-      width: double.maxFinite,
-      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h + bottomInset),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 44.w,
-            height: 5.h,
-            decoration: BoxDecoration(
-              color: colors.inputBorder,
-              borderRadius: BorderRadius.circular(999.r),
+    return Padding(
+      padding: EdgeInsets.only(bottom: keyboardInset),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        child: Container(
+          width: double.maxFinite,
+          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h + bottomInset),
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
+          ),
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 44.w,
+                  height: 5.h,
+                  decoration: BoxDecoration(
+                    color: colors.inputBorder,
+                    borderRadius: BorderRadius.circular(999.r),
+                  ),
+                ),
+                16.verticalSpace,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: FontPalette.base700(18, color: colors.primaryText),
+                      ),
+                    ),
+                    CommonNavBarButton(
+                      icon: Icon(
+                        Icons.close_rounded,
+                        size: 18.r,
+                        color: colors.primaryText,
+                      ),
+                      onTap: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+                16.verticalSpace,
+                child,
+              ],
             ),
           ),
-          16.verticalSpace,
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: FontPalette.base700(18, color: colors.primaryText),
-                ),
-              ),
-              CommonNavBarButton(
-                icon: Icon(
-                  Icons.close_rounded,
-                  size: 18.r,
-                  color: colors.primaryText,
-                ),
-                onTap: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          16.verticalSpace,
-          child,
-        ],
+        ),
       ),
     );
   }

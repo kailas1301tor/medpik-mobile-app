@@ -13,6 +13,8 @@ class RouteConstants {
   static const String routeSearchResultsScreen = '/search-results';
   static const String routeProductDetailScreen = '/product-detail';
   static const String routePrescriptionUploadScreen = '/prescription-upload';
+  static const String routePrescriptionCheckoutScreen =
+      '/prescription-checkout';
   static const String routeCartScreen = '/cart';
   static const String routeCheckoutScreen = '/checkout';
   static const String routeConfirmationScreen = '/confirmation';

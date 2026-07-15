@@ -20,7 +20,7 @@ mixin _$CheckoutState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   AddressModel? get selectedAddress => throw _privateConstructorUsedError;
   double get payableTotal => throw _privateConstructorUsedError;
-  bool get hasPrescription => throw _privateConstructorUsedError;
+  bool get isPlacingOrder => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
   String? get placedOrderId => throw _privateConstructorUsedError;
 
@@ -42,7 +42,7 @@ abstract class $CheckoutStateCopyWith<$Res> {
     LoaderState loaderState,
     AddressModel? selectedAddress,
     double payableTotal,
-    bool hasPrescription,
+    bool isPlacingOrder,
     String? errorMessage,
     String? placedOrderId,
   });
@@ -66,7 +66,7 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
     Object? loaderState = null,
     Object? selectedAddress = freezed,
     Object? payableTotal = null,
-    Object? hasPrescription = null,
+    Object? isPlacingOrder = null,
     Object? errorMessage = freezed,
     Object? placedOrderId = freezed,
   }) {
@@ -84,9 +84,9 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
                 ? _value.payableTotal
                 : payableTotal // ignore: cast_nullable_to_non_nullable
                       as double,
-            hasPrescription: null == hasPrescription
-                ? _value.hasPrescription
-                : hasPrescription // ignore: cast_nullable_to_non_nullable
+            isPlacingOrder: null == isPlacingOrder
+                ? _value.isPlacingOrder
+                : isPlacingOrder // ignore: cast_nullable_to_non_nullable
                       as bool,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
@@ -115,7 +115,7 @@ abstract class _$$CheckoutStateImplCopyWith<$Res>
     LoaderState loaderState,
     AddressModel? selectedAddress,
     double payableTotal,
-    bool hasPrescription,
+    bool isPlacingOrder,
     String? errorMessage,
     String? placedOrderId,
   });
@@ -138,7 +138,7 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
     Object? loaderState = null,
     Object? selectedAddress = freezed,
     Object? payableTotal = null,
-    Object? hasPrescription = null,
+    Object? isPlacingOrder = null,
     Object? errorMessage = freezed,
     Object? placedOrderId = freezed,
   }) {
@@ -156,9 +156,9 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
             ? _value.payableTotal
             : payableTotal // ignore: cast_nullable_to_non_nullable
                   as double,
-        hasPrescription: null == hasPrescription
-            ? _value.hasPrescription
-            : hasPrescription // ignore: cast_nullable_to_non_nullable
+        isPlacingOrder: null == isPlacingOrder
+            ? _value.isPlacingOrder
+            : isPlacingOrder // ignore: cast_nullable_to_non_nullable
                   as bool,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
@@ -180,7 +180,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
     this.loaderState = LoaderState.loaded,
     this.selectedAddress,
     this.payableTotal = 0,
-    this.hasPrescription = false,
+    this.isPlacingOrder = false,
     this.errorMessage,
     this.placedOrderId,
   });
@@ -195,7 +195,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
   final double payableTotal;
   @override
   @JsonKey()
-  final bool hasPrescription;
+  final bool isPlacingOrder;
   @override
   final String? errorMessage;
   @override
@@ -203,7 +203,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
 
   @override
   String toString() {
-    return 'CheckoutState(loaderState: $loaderState, selectedAddress: $selectedAddress, payableTotal: $payableTotal, hasPrescription: $hasPrescription, errorMessage: $errorMessage, placedOrderId: $placedOrderId)';
+    return 'CheckoutState(loaderState: $loaderState, selectedAddress: $selectedAddress, payableTotal: $payableTotal, isPlacingOrder: $isPlacingOrder, errorMessage: $errorMessage, placedOrderId: $placedOrderId)';
   }
 
   @override
@@ -217,8 +217,8 @@ class _$CheckoutStateImpl implements _CheckoutState {
                 other.selectedAddress == selectedAddress) &&
             (identical(other.payableTotal, payableTotal) ||
                 other.payableTotal == payableTotal) &&
-            (identical(other.hasPrescription, hasPrescription) ||
-                other.hasPrescription == hasPrescription) &&
+            (identical(other.isPlacingOrder, isPlacingOrder) ||
+                other.isPlacingOrder == isPlacingOrder) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage) &&
             (identical(other.placedOrderId, placedOrderId) ||
@@ -231,7 +231,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
     loaderState,
     selectedAddress,
     payableTotal,
-    hasPrescription,
+    isPlacingOrder,
     errorMessage,
     placedOrderId,
   );
@@ -250,7 +250,7 @@ abstract class _CheckoutState implements CheckoutState {
     final LoaderState loaderState,
     final AddressModel? selectedAddress,
     final double payableTotal,
-    final bool hasPrescription,
+    final bool isPlacingOrder,
     final String? errorMessage,
     final String? placedOrderId,
   }) = _$CheckoutStateImpl;
@@ -262,7 +262,7 @@ abstract class _CheckoutState implements CheckoutState {
   @override
   double get payableTotal;
   @override
-  bool get hasPrescription;
+  bool get isPlacingOrder;
   @override
   String? get errorMessage;
   @override

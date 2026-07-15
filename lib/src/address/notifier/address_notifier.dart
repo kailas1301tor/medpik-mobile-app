@@ -17,6 +17,7 @@ part 'address_notifier.g.dart';
 @Riverpod(keepAlive: true)
 class AddressNotifier extends _$AddressNotifier {
   late final TextEditingController labelController;
+  late final TextEditingController phoneController;
   late final TextEditingController line1Controller;
   late final TextEditingController line2Controller;
   late final TextEditingController cityController;
@@ -33,6 +34,7 @@ class AddressNotifier extends _$AddressNotifier {
   @override
   AddressState build() {
     labelController = TextEditingController();
+    phoneController = TextEditingController();
     line1Controller = TextEditingController();
     line2Controller = TextEditingController();
     cityController = TextEditingController();
@@ -42,6 +44,7 @@ class AddressNotifier extends _$AddressNotifier {
 
     ref.onDispose(() {
       labelController.dispose();
+      phoneController.dispose();
       line1Controller.dispose();
       line2Controller.dispose();
       cityController.dispose();
@@ -80,6 +83,7 @@ class AddressNotifier extends _$AddressNotifier {
   void startAdd({PickedLocationModel? pick}) {
     _editingId = null;
     labelController.clear();
+    phoneController.clear();
     line1Controller.clear();
     line2Controller.clear();
     cityController.clear();
@@ -94,6 +98,7 @@ class AddressNotifier extends _$AddressNotifier {
   void startEdit(AddressModel address) {
     _editingId = address.id;
     labelController.text = address.label;
+    phoneController.text = address.phoneNumber;
     line1Controller.text = address.line1;
     line2Controller.text = address.line2;
     cityController.text = address.city;
@@ -136,9 +141,12 @@ class AddressNotifier extends _$AddressNotifier {
   }
 
   Future<bool> saveCurrent({bool isDefault = false}) async {
+    if (state.isSaving) return false;
+
     final address = AddressModel(
       id: _editingId ?? 0,
       label: labelController.text.trim(),
+      phoneNumber: phoneController.text.trim(),
       line1: line1Controller.text.trim(),
       line2: line2Controller.text.trim(),
       city: cityController.text.trim(),
@@ -152,15 +160,21 @@ class AddressNotifier extends _$AddressNotifier {
     );
 
     if (address.label.isEmpty ||
+        address.phoneNumber.isEmpty ||
         address.line1.isEmpty ||
         address.city.isEmpty ||
+        address.state.isEmpty ||
         address.pincode.isEmpty) {
       showCustomToast(message: Strings.fieldRequired, isSuccess: false);
       return false;
     }
 
-    return await addressRepo.saveAddress(address).fold(
+    state = state.copyWith(isSaving: true);
+    return await addressRepo
+        .saveAddress(address)
+        .fold(
           (error) {
+            state = state.copyWith(isSaving: false);
             showCustomToast(
               message: error.message ?? Strings.somethingWentWrong,
               isSuccess: false,
@@ -170,9 +184,19 @@ class AddressNotifier extends _$AddressNotifier {
           (saved) async {
             showCustomToast(message: Strings.addressSaved, isSuccess: true);
             await fetchAddresses();
+            state = state.copyWith(isSaving: false);
             return true;
           },
-        );
+        )
+        .catchError((error) {
+          debugPrint("🔴 UNEXPECTED ADDRESS SAVE ERROR: $error");
+          state = state.copyWith(isSaving: false);
+          showCustomToast(
+            message: Strings.somethingWentWrong,
+            isSuccess: false,
+          );
+          return false;
+        });
   }
 
   Future<void> deleteAddress(int id) async {
