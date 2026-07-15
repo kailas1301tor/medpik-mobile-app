@@ -75,12 +75,14 @@ class HomeHeaderLocationRow extends StatelessWidget {
             width: 32.w,
             height: 32.w,
           ),
-
-          Text(
-            deliveryHint,
-            style: FontPalette.base700(13, color: textColor),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          8.horizontalSpace,
+          Expanded(
+            child: Text(
+              deliveryHint,
+              style: FontPalette.base700(13, color: textColor),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           Icon(Icons.keyboard_arrow_down_rounded, size: 20.r, color: textColor),
         ],

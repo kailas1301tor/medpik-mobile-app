@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../src/address/model/location_picker_args.dart';
+import '../../src/address/model/picked_location_model.dart';
 import '../../src/address/view/address_book_screen.dart';
+import '../../src/address/view/location_picker_screen.dart';
 import '../../src/auth/view/login_screen.dart';
 import '../../src/auth/view/otp_screen.dart';
 import '../../src/auth/view/register_screen.dart';
@@ -128,6 +131,18 @@ class RouteGenerator {
       case RouteConstants.routeAddressBookScreen:
         return MaterialPageRoute(
           builder: (_) => const AddressBookScreen(),
+          settings: settings,
+        );
+
+      case RouteConstants.routeLocationPickerScreen:
+        final args = settings.arguments is LocationPickerArgs
+            ? settings.arguments as LocationPickerArgs
+            : null;
+        return MaterialPageRoute<PickedLocationModel>(
+          builder: (_) => LocationPickerScreen(
+            initialLatitude: args?.initialLatitude,
+            initialLongitude: args?.initialLongitude,
+          ),
           settings: settings,
         );
 

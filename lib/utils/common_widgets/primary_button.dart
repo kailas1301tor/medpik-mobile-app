@@ -49,8 +49,6 @@ class PrimaryButton extends StatelessWidget {
   final double? loadingRadius;
   final BorderSide? borderSide;
 
-  static const LinearGradient _defaultGradient = ColorPalette.primaryGradient;
-
   bool get _isDisabled => onPressed == null;
 
   @override
@@ -72,7 +70,7 @@ class PrimaryButton extends StatelessWidget {
               context.appColors.primary.withValues(alpha: 0.12),
             ],
           )
-        : gradient ?? _defaultGradient;
+        : gradient ?? context.appColors.primaryGradient;
 
     return SizedBox(
       width: width,

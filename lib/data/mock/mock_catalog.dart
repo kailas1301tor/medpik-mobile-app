@@ -193,10 +193,22 @@ class MockCatalog {
       requiresPrescription: false,
       description: 'Paracetamol tablets for fever and pain relief.',
     ),
+    ProductModel(
+      id: 110,
+      name: 'Volini Spray',
+      category: 'Pain Relief',
+      price: 189,
+      mrp: 230,
+      discountPercent: 18,
+      packSize: '60g',
+      imageUrl: 'https://picsum.photos/seed/medpik-volini/400/400',
+      requiresPrescription: false,
+      description: 'Topical pain relief spray for muscle aches.',
+    ),
   ];
 
   static List<ProductModel> get featuredProducts {
-    const ids = [101, 109, 102, 104, 107, 103];
+    const ids = [101, 109, 102, 104, 107, 103, 105, 106, 108, 110];
     return ids
         .map((id) => productById(id))
         .whereType<ProductModel>()

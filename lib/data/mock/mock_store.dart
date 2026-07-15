@@ -22,6 +22,9 @@ class MockStore {
       state: 'Maharashtra',
       pincode: '400001',
       isDefault: true,
+      latitude: 19.1136,
+      longitude: 72.8697,
+      formattedAddress: 'Andheri West, Mumbai, Maharashtra 400001',
     ),
   ];
 

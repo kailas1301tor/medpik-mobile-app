@@ -14,7 +14,6 @@ part 'home_notifier.g.dart';
 class HomeNotifier extends _$HomeNotifier {
   late final TextEditingController searchController;
   late final ScrollController scrollController;
-  late PageController popularProductsPageController;
   late HomeRepo homeRepo;
 
   static const double _compactThreshold = 72;
@@ -24,13 +23,11 @@ class HomeNotifier extends _$HomeNotifier {
   HomeState build() {
     searchController = TextEditingController();
     scrollController = ScrollController()..addListener(_onScroll);
-    popularProductsPageController = PageController(viewportFraction: 0.48);
 
     ref.onDispose(() {
       scrollController.removeListener(_onScroll);
       searchController.dispose();
       scrollController.dispose();
-      popularProductsPageController.dispose();
     });
 
     homeRepo = ref.read(homeRepositoryProvider);

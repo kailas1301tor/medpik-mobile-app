@@ -10,10 +10,14 @@ class ColorPalette {
   static const successColor = Color(0xFF34C759);
   static const warningColor = Color(0xFFFF9F0A);
 
+  /// Soft CTA sheen — stays within brand teal; avoids the muddy dark right edge.
+  static const primaryGradientStart = Color(0xFF1AADAD);
+  static const primaryGradientEnd = Color(0xFF007F7F);
+
   static const primaryGradient = LinearGradient(
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-    colors: [primaryColor, primaryColorDark],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [primaryGradientStart, primaryGradientEnd],
   );
 
   // Basic colors
@@ -324,10 +328,13 @@ class AppColors extends ThemeExtension<AppColors> {
   });
 
   LinearGradient get primaryGradient => LinearGradient(
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-    colors: [primary, primaryDark],
-  );
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color.lerp(primary, ColorPalette.white, 0.22)!,
+          primary,
+        ],
+      );
 
   @override
   AppColors copyWith({

@@ -9,6 +9,8 @@ import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
+import 'package:tsuite/src/address/model/location_picker_args.dart';
+import 'package:tsuite/src/address/model/picked_location_model.dart';
 import 'package:tsuite/src/address/notifier/address_notifier.dart';
 import 'package:tsuite/src/address/view/widget/address_form_sheet.dart';
 import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
@@ -19,6 +21,7 @@ import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
 import 'package:tsuite/utils/common_widgets/common_loader.dart';
 import 'package:tsuite/utils/common_widgets/common_nav_bar_button.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
+import 'package:tsuite/utils/routes/route_constants.dart';
 
 class AddressBookScreen extends ConsumerWidget {
   const AddressBookScreen({super.key});
@@ -40,7 +43,7 @@ class AddressBookScreen extends ConsumerWidget {
         actions: [
           CommonNavBarButton(
             icon: Icon(Icons.add, size: 20.r, color: colors.primaryText),
-            onTap: () => _openForm(context, ref),
+            onTap: () => _openAddFlow(context, ref),
           ),
         ],
       ),
@@ -51,7 +54,7 @@ class AddressBookScreen extends ConsumerWidget {
             title: Strings.noAddressSaved,
             message: Strings.addAddressToContinue,
             buttonText: Strings.addAddress,
-            onPressed: () => _openForm(context, ref),
+            onPressed: () => _openAddFlow(context, ref),
           ),
         LoaderState.loaded => ListView.builder(
             padding: EdgeInsets.all(20.r),
@@ -60,10 +63,7 @@ class AddressBookScreen extends ConsumerWidget {
               final address = addresses[index];
               return _AddressTile(
                 address: address,
-                onEdit: () {
-                  notifier.startEdit(address);
-                  _openForm(context, ref, isEdit: true);
-                },
+                onEdit: () => _openEditFlow(context, ref, address),
                 onDelete: () => CommonDialogBox.show(
                   context: context,
                   title: Strings.deleteAddressTitle,
@@ -86,11 +86,47 @@ class AddressBookScreen extends ConsumerWidget {
     );
   }
 
-  void _openForm(BuildContext context, WidgetRef ref, {bool isEdit = false}) {
-    if (!isEdit) {
-      ref.read(addressNotifierProvider.notifier).startAdd();
+  Future<void> _openAddFlow(BuildContext context, WidgetRef ref) async {
+    final pick = await Navigator.pushNamed<PickedLocationModel>(
+      context,
+      RouteConstants.routeLocationPickerScreen,
+    );
+    if (pick == null || !context.mounted) return;
+
+    ref.read(addressNotifierProvider.notifier).startAdd(pick: pick);
+    await AddressFormSheet.show(context: context);
+  }
+
+  Future<void> _openEditFlow(
+    BuildContext context,
+    WidgetRef ref,
+    AddressModel address,
+  ) async {
+    final notifier = ref.read(addressNotifierProvider.notifier);
+
+    if (address.hasCoordinates) {
+      final pick = await Navigator.pushNamed<PickedLocationModel>(
+        context,
+        RouteConstants.routeLocationPickerScreen,
+        arguments: LocationPickerArgs(
+          initialLatitude: address.latitude,
+          initialLongitude: address.longitude,
+        ),
+      );
+      if (!context.mounted) return;
+      notifier.startEdit(address);
+      if (pick != null) {
+        notifier.applyPickedLocation(pick);
+      }
+    } else {
+      notifier.startEdit(address);
     }
-    AddressFormSheet.show(context: context);
+
+    if (!context.mounted) return;
+    await AddressFormSheet.show(
+      context: context,
+      title: Strings.editAddress,
+    );
   }
 }
 

@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/data/models/product_model.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/home/view/widget/home_glass_product_cta.dart';
 import 'package:tsuite/src/home/view/widget/home_glass_product_image_hero.dart';
 import 'package:tsuite/src/home/view/widget/home_glass_product_wishlist_button.dart';
 import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
@@ -40,55 +39,36 @@ class HomeGlassProductCard extends ConsumerWidget {
         decoration: BoxDecoration(
           color: colors.cardBackground,
           borderRadius: BorderRadius.circular(radius),
-          border: Border.all(
-            color: colors.cardBorder,
-            width: 1.w,
-          ),
+          border: Border.all(color: colors.cardBorder, width: 1.w),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(radius),
-          child: Stack(
-            clipBehavior: Clip.none,
+          child: Column(
+            mainAxisSize: intrinsic ? MainAxisSize.min : MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                mainAxisSize: intrinsic ? MainAxisSize.min : MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Stack(
                 children: [
-                  Stack(
-                    children: [
-                      HomeGlassProductImageHero(
-                        product: product,
-                        height: imageHeight,
-                        topRadius: radius,
-                      ),
-                      Positioned(
-                        top: 8.h,
-                        right: 8.w,
-                        child: HomeGlassProductWishlistButton(
-                          isWishlisted: isWishlisted,
-                          onTap: () => ref
-                              .read(wishlistNotifierProvider.notifier)
-                              .toggle(product),
-                        ),
-                      ),
-                    ],
+                  HomeGlassProductImageHero(
+                    product: product,
+                    height: imageHeight,
+                    topRadius: radius,
                   ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
-                    child: _CardInfo(
-                      product: product,
-                      intrinsic: intrinsic,
+                  Positioned(
+                    top: 8.h,
+                    right: 8.w,
+                    child: HomeGlassProductWishlistButton(
+                      isWishlisted: isWishlisted,
+                      onTap: () => ref
+                          .read(wishlistNotifierProvider.notifier)
+                          .toggle(product),
                     ),
                   ),
                 ],
               ),
-              Positioned(
-                right: 10.w,
-                bottom: 10.h,
-                child: HomeGlassProductCta(
-                  product: product,
-                  compact: true,
-                ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
+                child: _CardInfo(product: product, intrinsic: intrinsic),
               ),
             ],
           ),
@@ -99,10 +79,7 @@ class HomeGlassProductCard extends ConsumerWidget {
 }
 
 class _CardInfo extends StatelessWidget {
-  const _CardInfo({
-    required this.product,
-    this.intrinsic = false,
-  });
+  const _CardInfo({required this.product, this.intrinsic = false});
 
   final ProductModel product;
   final bool intrinsic;
@@ -116,14 +93,11 @@ class _CardInfo extends StatelessWidget {
       mainAxisSize: intrinsic ? MainAxisSize.min : MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.only(right: 40.w),
-          child: Text(
-            product.name,
-            style: FontPalette.base700(14, color: colors.primaryText),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
+        Text(
+          product.name,
+          style: FontPalette.base700(14, color: colors.primaryText),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
         6.verticalSpace,
         Container(
@@ -149,7 +123,6 @@ class _CardInfo extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ],
-        28.verticalSpace,
       ],
     );
   }

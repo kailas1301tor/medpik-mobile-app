@@ -33,7 +33,7 @@ class HomeHeroHeader extends StatelessWidget {
     );
 
     return SizedBox(
-      height: topInset + 190.h,
+      height: topInset + 210.h,
       child: ClipRRect(
         borderRadius: radius,
         child: Stack(
@@ -59,7 +59,7 @@ class HomeHeroHeader extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(top: topInset),
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 22.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -100,7 +100,7 @@ class HomeHeroHeader extends StatelessWidget {
                       deliveryHint: deliveryHint,
                       isOnDarkBackground: true,
                     ),
-                    14.verticalSpace,
+                    20.verticalSpace,
                     HomeHeaderSearchRow(
                       searchController: searchController,
                       onSearchTap: onSearchTap,

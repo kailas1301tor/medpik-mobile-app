@@ -9,7 +9,7 @@ import 'package:tsuite/src/home/view/widget/home_category_row.dart';
 import 'package:tsuite/src/home/view/widget/home_compact_header.dart';
 import 'package:tsuite/src/home/view/widget/home_hero_header.dart';
 import 'package:tsuite/src/home/view/widget/home_offer_carousel.dart';
-import 'package:tsuite/src/home/view/widget/home_popular_products_carousel.dart';
+import 'package:tsuite/src/home/view/widget/home_popular_products_grid.dart';
 import 'package:tsuite/src/home/view/widget/home_prescription_card.dart';
 import 'package:tsuite/src/home/view/widget/home_section_header.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
@@ -106,10 +106,8 @@ class HomeContentWidget extends ConsumerWidget {
                 },
               ),
             ),
-            SliverToBoxAdapter(
-              child: HomePopularProductsCarousel(
-                products: data?.featuredProducts ?? [],
-              ),
+            HomePopularProductsGrid.sliver(
+              products: data?.featuredProducts ?? [],
             ),
             SliverToBoxAdapter(child: 140.verticalSpace),
           ],

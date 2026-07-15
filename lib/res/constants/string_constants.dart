@@ -215,7 +215,8 @@ class Strings {
       "Take as directed by the physician. Do not exceed the recommended dose.";
   static const String quantityLabel = "Quantity";
   static const String safeAndEffective = "Safe & Effective";
-  static const String safeAndEffectiveSubtitle = "Clinically proven ingredients";
+  static const String safeAndEffectiveSubtitle =
+      "Clinically proven ingredients";
   static const String qualityAssured = "Quality Assured";
   static const String qualityAssuredSubtitle = "100% genuine medicine";
   static const String relievesPain = "Relieves Pain";
@@ -230,7 +231,8 @@ class Strings {
   static const String dailyWellness = "Daily Wellness";
   static const String dailyWellnessSubtitle =
       "Supports everyday health and immunity.";
-  static const String yourInformationIsSafe = "Your information is safe with us";
+  static const String yourInformationIsSafe =
+      "Your information is safe with us";
   static const String asDirectedByPhysician = "As directed by the physician.";
   static const String standardPack = "Standard pack";
   static String genericProductAbout(String name) =>
@@ -264,14 +266,16 @@ class Strings {
       "E.g. deliver after 6 PM, call before delivery...";
   static const String submitOrder = "Submit Order";
   static const String secureAndPrivate = "Secure & Private";
-  static const String orderSubmittedSuccessTitle = "Order Submitted Successfully!";
+  static const String orderSubmittedSuccessTitle =
+      "Order Submitted Successfully!";
   static const String orderSubmittedSuccessMessage =
       "Your order has been sent to our pharmacist for review. We'll notify you when your bill is ready.";
   static const String viewOrders = "View Orders";
   static const String estimatedDeliveryAfterBillApproval =
       "After bill approval";
   static const String estimatedDelivery = "Estimated Delivery";
-  static const String totalAmountSharedAfterReview = "Will be shared after review";
+  static const String totalAmountSharedAfterReview =
+      "Will be shared after review";
   static const String clearCartTitle = "Clear cart?";
   static const String clearCartMessage =
       "All selected medicines will be removed from your cart.";
@@ -295,8 +299,7 @@ class Strings {
   static const String privacyAndSecuritySubtitle =
       "Manage your privacy settings";
   static const String darkMode = "Dark mode";
-  static const String darkModeSubtitle =
-      "Use dark appearance across the app";
+  static const String darkModeSubtitle = "Use dark appearance across the app";
   static const String helpAndSupport = "Help & Support";
   static const String helpAndSupportSubtitle = "FAQs, chat, and assistance";
   static const String contactSupport = "Contact Support";
@@ -408,7 +411,8 @@ class Strings {
   static const String orderStatusPrescriptionAccepted = "Prescription Accepted";
   static const String orderStatusPrescriptionRejected = "Prescription Rejected";
   static const String orderStatusBillGenerated = "Bill Generated";
-  static const String orderStatusAwaitingBillApproval = "Awaiting Bill Approval";
+  static const String orderStatusAwaitingBillApproval =
+      "Awaiting Bill Approval";
   static const String orderStatusBillAccepted = "Bill Accepted";
   static const String orderStatusBillRejected = "Bill Rejected";
   static const String orderStatusPaymentPending = "Payment Pending";
@@ -495,9 +499,9 @@ class Strings {
   static const String addressBook = "Address Book";
   static const String defaultAddress = "Default";
   static const String setAsDefault = "Set as default";
-  static const String addressLabel = "Label";
-  static const String addressLine1 = "Address line 1";
-  static const String addressLine2 = "Address line 2";
+  static const String addressLabel = "Label (Home / Work / Other)";
+  static const String addressLine1 = "House / Flat / Floor";
+  static const String addressLine2 = "Landmark";
   static const String city = "City";
   static const String stateLabel = "State";
   static const String pincode = "Pincode";
@@ -506,6 +510,23 @@ class Strings {
       "This address will be removed from your saved list.";
   static const String addressSaved = "Address saved";
   static const String addressDeleted = "Address deleted";
+  static const String editAddress = "Edit Address";
+  static const String completeAddressDetails = "Complete address details";
+  static const String searchDeliveryLocation =
+      "Search for area, street name...";
+  static const String useCurrentLocation = "Use current location";
+  static const String deliveryLocation = "Delivery location";
+  static const String selectLocationOnMap = "Move the map to select a location";
+  static const String fetchingAddress = "Fetching address...";
+  static const String confirmLocation = "Confirm location";
+  static const String locationNotServiceable =
+      "Sorry, we don't deliver to this location yet.";
+  static const String locationPermissionDenied =
+      "Location permission denied. Showing a default area — move the pin or search.";
+  static const String locationLookupFailed =
+      "Couldn't fetch this address. Try moving the pin or searching again.";
+  static const String locationMockMapHint =
+      "Dev mode: search or use current location works without Google billing. Map tiles need a billed API key.";
   static const String phoneNumber = "Phone Number";
   static const String signedOut = "Signed out successfully";
 }

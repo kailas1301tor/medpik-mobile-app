@@ -3,13 +3,14 @@ import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tsuite/data/models/address_model.dart';
+import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/services/repo_di.dart';
+import 'package:tsuite/src/address/model/picked_location_model.dart';
 import 'package:tsuite/src/address/repo/address_repository.dart';
 import 'package:tsuite/src/address/state/address_state.dart';
 import 'package:tsuite/utils/common_widgets/custom_toast.dart';
 import 'package:tsuite/utils/helpers/api_error_handler.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
 
 part 'address_notifier.g.dart';
 
@@ -24,6 +25,10 @@ class AddressNotifier extends _$AddressNotifier {
 
   late AddressRepo addressRepo;
   int? _editingId;
+  double? _pickedLatitude;
+  double? _pickedLongitude;
+  String? _pickedPlaceId;
+  String? _pickedFormattedAddress;
 
   @override
   AddressState build() {
@@ -60,7 +65,8 @@ class AddressNotifier extends _$AddressNotifier {
           },
           (addresses) {
             state = state.copyWith(
-              loaderState: addresses.isEmpty ? LoaderState.noData : LoaderState.loaded,
+              loaderState:
+                  addresses.isEmpty ? LoaderState.noData : LoaderState.loaded,
               addresses: addresses,
             );
           },
@@ -71,7 +77,7 @@ class AddressNotifier extends _$AddressNotifier {
         });
   }
 
-  void startAdd() {
+  void startAdd({PickedLocationModel? pick}) {
     _editingId = null;
     labelController.clear();
     line1Controller.clear();
@@ -79,6 +85,10 @@ class AddressNotifier extends _$AddressNotifier {
     cityController.clear();
     stateController.clear();
     pincodeController.clear();
+    _clearPickMeta();
+    if (pick != null) {
+      applyPickedLocation(pick);
+    }
   }
 
   void startEdit(AddressModel address) {
@@ -89,6 +99,40 @@ class AddressNotifier extends _$AddressNotifier {
     cityController.text = address.city;
     stateController.text = address.state;
     pincodeController.text = address.pincode;
+    _pickedLatitude = address.latitude;
+    _pickedLongitude = address.longitude;
+    _pickedPlaceId = address.placeId;
+    _pickedFormattedAddress = address.formattedAddress;
+  }
+
+  void applyPickedLocation(PickedLocationModel pick) {
+    _pickedLatitude = pick.latitude;
+    _pickedLongitude = pick.longitude;
+    _pickedPlaceId = pick.placeId;
+    _pickedFormattedAddress = pick.formattedAddress;
+
+    if (pick.line1.isNotEmpty) {
+      line1Controller.text = pick.line1;
+    }
+    if (pick.line2.isNotEmpty) {
+      line2Controller.text = pick.line2;
+    }
+    if (pick.city.isNotEmpty) {
+      cityController.text = pick.city;
+    }
+    if (pick.state.isNotEmpty) {
+      stateController.text = pick.state;
+    }
+    if (pick.pincode.isNotEmpty) {
+      pincodeController.text = pick.pincode;
+    }
+  }
+
+  void _clearPickMeta() {
+    _pickedLatitude = null;
+    _pickedLongitude = null;
+    _pickedPlaceId = null;
+    _pickedFormattedAddress = null;
   }
 
   Future<bool> saveCurrent({bool isDefault = false}) async {
@@ -101,6 +145,10 @@ class AddressNotifier extends _$AddressNotifier {
       state: stateController.text.trim(),
       pincode: pincodeController.text.trim(),
       isDefault: isDefault || state.addresses.isEmpty,
+      latitude: _pickedLatitude,
+      longitude: _pickedLongitude,
+      placeId: _pickedPlaceId,
+      formattedAddress: _pickedFormattedAddress,
     );
 
     if (address.label.isEmpty ||

@@ -37,7 +37,7 @@ class HomeHeaderSection extends StatelessWidget {
         : colors.secondaryText;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 22.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -88,11 +88,13 @@ class HomeHeaderSection extends StatelessWidget {
                   height: 30.w,
                 ),
                 4.horizontalSpace,
-                Text(
-                  deliveryHint,
-                  style: FontPalette.base700(13, color: secondaryColor),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Expanded(
+                  child: Text(
+                    deliveryHint,
+                    style: FontPalette.base700(13, color: secondaryColor),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 6.horizontalSpace,
                 Icon(

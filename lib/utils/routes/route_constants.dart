@@ -23,6 +23,7 @@ class RouteConstants {
   static const String routeOrderReviewPayScreen = '/order-review-pay';
   static const String routeTrackingScreen = '/tracking';
   static const String routeAddressBookScreen = '/address-book';
+  static const String routeLocationPickerScreen = '/location-picker';
   static const String routeWishlistScreen = '/wishlist';
   static const String routeNotificationsScreen = '/notifications';
 }

@@ -20,7 +20,7 @@ class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
   final TextEditingController searchController;
   final VoidCallback onSearchTap;
 
-  double get _contentHeight => 200.h;
+  double get _contentHeight => 210.h;
 
   @override
   double get minExtent => topInset + _contentHeight;
