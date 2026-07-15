@@ -16,7 +16,6 @@ import 'package:tsuite/src/notifications/repo/notifications_repository_mock.dart
 import 'package:tsuite/src/prescription/repo/prescription_repository.dart';
 import 'package:tsuite/src/prescription/repo/prescription_repository_mock.dart';
 import 'package:tsuite/src/product_detail/repo/product_detail_repository.dart';
-import 'package:tsuite/src/product_detail/repo/product_detail_repository_mock.dart';
 import 'package:tsuite/src/search/repo/search_repository.dart';
 import 'package:tsuite/src/search/repo/search_repository_mock.dart';
 
@@ -45,9 +44,6 @@ SearchRepo searchRepository(Ref ref) {
 
 @Riverpod(keepAlive: false)
 ProductDetailRepo productDetailRepository(Ref ref) {
-  if (AppConstants.useMockData) {
-    return ProductDetailRepoMock();
-  }
   final services = ref.watch(networkServicesProvider);
   return ProductDetailRepoImpl(services);
 }

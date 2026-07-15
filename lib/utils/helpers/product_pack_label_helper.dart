@@ -5,27 +5,23 @@ String productPackDisplayLabel(ProductModel product) {
   final packSize = product.packSize.trim();
   if (packSize.isEmpty) return '';
 
-  if (product.id == 101) return 'Strip of 15 tablets';
-
   final lower = packSize.toLowerCase();
   if (lower.contains('ml')) return '$packSize • Oral Drops';
-  if (lower.endsWith('s')) {
+  if (lower.endsWith('s') && !lower.endsWith('g')) {
     final count = packSize.substring(0, packSize.length - 1);
     return 'Strip of $count tablets';
   }
 
-  return 'Pack of $packSize';
+  return packSize;
 }
 
 String productPackBadgeLabel(ProductModel product) {
   final packSize = product.packSize.trim();
   if (packSize.isEmpty) return '';
 
-  if (product.id == 101) return '15 Tablets';
-
   final lower = packSize.toLowerCase();
   if (lower.contains('ml')) return packSize;
-  if (lower.endsWith('s')) {
+  if (lower.endsWith('s') && !lower.endsWith('g')) {
     return '${packSize.substring(0, packSize.length - 1)} Tablets';
   }
 

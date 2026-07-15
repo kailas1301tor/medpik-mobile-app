@@ -23,7 +23,7 @@ final authRepositoryProvider = AutoDisposeProvider<AuthRepo>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthRepositoryRef = AutoDisposeProviderRef<AuthRepo>;
-String _$homeRepositoryHash() => r'0a4c6b0bedea452fab2224f7510d303ca33976c6';
+String _$homeRepositoryHash() => r'2faba056fd222c0682a46a942b08605ec055b643';
 
 /// See also [homeRepository].
 @ProviderFor(homeRepository)
@@ -58,7 +58,7 @@ final searchRepositoryProvider = AutoDisposeProvider<SearchRepo>.internal(
 // ignore: unused_element
 typedef SearchRepositoryRef = AutoDisposeProviderRef<SearchRepo>;
 String _$productDetailRepositoryHash() =>
-    r'51c6fb59256e954d516eb73bb363c181c98ead19';
+    r'8c4297441abf06d1b418ab17761c14481c8727a6';
 
 /// See also [productDetailRepository].
 @ProviderFor(productDetailRepository)

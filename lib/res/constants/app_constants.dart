@@ -41,6 +41,7 @@ class AppConstants {
   static String products = '$prefix$user/products';
   static String categories = '$prefix$user/categories';
   static String homeFeed = '$api/customer-home';
+  static String customerProductDetail = '$api/customer-products/detail';
 
   // Orders & addresses
   static String orders = '$prefix$user/orders';

@@ -131,6 +131,8 @@ class ColorPalette {
   static const productWishlistGlass = Color(
     0x73FFFFFF,
   ); // rgba(255,255,255,0.45)
+  /// Active wishlist / favorite heart (standard app red).
+  static const wishlistHeart = Color(0xFFE53935);
   static const productCtaGlass = Color(0x8CFFFFFF); // rgba(255,255,255,0.55)
 
   // Clean product card tokens

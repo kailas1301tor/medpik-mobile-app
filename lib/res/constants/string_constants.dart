@@ -195,6 +195,7 @@ class Strings {
   static const String safetyInformation = "Safety information";
   static const String otcMedicine = "OTC Medicine";
   static const String prescriptionMedicine = "Prescription Medicine";
+  static const String manufacturer = "Manufacturer";
   static const String safeToUseAsDirected = "Safe to use as directed";
   static const String categoryLabel = "Category";
   static const String trustedAndEffective = "Trusted & Effective";

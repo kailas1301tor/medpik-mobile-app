@@ -32,6 +32,12 @@ class ProductDetailContentWidget extends ConsumerWidget {
     final scrollController =
         ref.read(productDetailNotifierProvider.notifier).scrollController;
 
+    final hasAbout = detail.aboutText.isNotEmpty;
+    final hasTrust = detail.trustBadges.isNotEmpty;
+    final hasBenefits = detail.keyBenefits.isNotEmpty;
+    final hasHowToUse = detail.howToUse.isNotEmpty;
+    final hasSafety = detail.safetyInformation.isNotEmpty;
+
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -75,20 +81,28 @@ class ProductDetailContentWidget extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ProductDetailTitleSection(detail: detail),
-                            24.verticalSpace,
-                            ProductDetailAboutSection(detail: detail),
-                            if (detail.trustBadges.isNotEmpty) ...[
+                            if (hasAbout) ...[
+                              24.verticalSpace,
+                              ProductDetailAboutSection(detail: detail),
+                            ],
+                            if (hasTrust) ...[
                               24.verticalSpace,
                               ProductDetailTrustGrid(
                                 badges: detail.trustBadges,
                               ),
                             ],
-                            24.verticalSpace,
-                            ProductDetailBenefitsSection(detail: detail),
-                            24.verticalSpace,
-                            ProductDetailHowToUseSection(detail: detail),
-                            24.verticalSpace,
-                            ProductDetailSafetySection(detail: detail),
+                            if (hasBenefits) ...[
+                              24.verticalSpace,
+                              ProductDetailBenefitsSection(detail: detail),
+                            ],
+                            if (hasHowToUse) ...[
+                              24.verticalSpace,
+                              ProductDetailHowToUseSection(detail: detail),
+                            ],
+                            if (hasSafety) ...[
+                              24.verticalSpace,
+                              ProductDetailSafetySection(detail: detail),
+                            ],
                           ],
                         ),
                       ),
