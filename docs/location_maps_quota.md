@@ -13,18 +13,23 @@ Do **not** enable Distance Matrix, Roads, or Static Maps for this flow.
 
 ## Key strategy
 
-1. **Android Maps SDK key** — AndroidManifest `com.google.android.geo.API_KEY`
-   - Restrict to: Maps SDK for Android
-   - Application restriction: package name + SHA-1 fingerprint(s)
-2. **iOS Maps SDK key** — `GMSServices.provideAPIKey` in AppDelegate
-   - Restrict to: Maps SDK for iOS
-   - Application restriction: bundle ID
+Never commit real API keys. Inject them via local/CI config:
+
+1. **Android Maps SDK key** — `AndroidManifest` uses `${GOOGLE_MAPS_API_KEY}`
+   - Set in gitignored `android/local.properties`: `GOOGLE_MAPS_API_KEY=...`
+   - Or export env var `GOOGLE_MAPS_API_KEY` for CI
+   - Restrict to: Maps SDK for Android + app package / SHA-1
+2. **iOS Maps SDK key** — `AppDelegate` reads `GMSApiKey` from Info.plist
+   - Copy `ios/Flutter/Secrets.xcconfig.example` → `Secrets.xcconfig` (gitignored)
+   - Set `GOOGLE_MAPS_API_KEY=...`
+   - Restrict to: Maps SDK for iOS + bundle ID
 3. **Dart HTTP key** (Places Autocomplete / Details + Geocoding)
    - Prefer `--dart-define=GOOGLE_MAPS_API_KEY=...` (see `LocationConfig.googleMapsApiKey`)
    - Restrict to: Places API + Geocoding API
    - Prefer IP / API restriction; rotate if the key was ever unrestricted in source
 
 Never ship an unrestricted key. Treat any key embedded in the binary as public.
+If a key was previously committed, rotate it in Google Cloud Console.
 
 ## Quotas & billing alerts
 

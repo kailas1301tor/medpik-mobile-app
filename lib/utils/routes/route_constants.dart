@@ -6,7 +6,6 @@ class RouteConstants {
   static const String routeSplash = '/splash';
   static const String routeLoginScreen = '/login';
   static const String mainScreen = '/main';
-  static const String routeRegisterScreen = '/register';
   static const String routeHomeScreen = '/home';
   static const String routeOtpScreen = '/otp';
   static const String routeProfileScreen = '/profile';

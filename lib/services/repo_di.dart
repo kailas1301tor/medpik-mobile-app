@@ -6,7 +6,6 @@ import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/src/address/repo/address_repository.dart';
 import 'package:tsuite/src/address/repo/address_repository_mock.dart';
 import 'package:tsuite/src/auth/repo/auth_repo.dart';
-import 'package:tsuite/src/auth/repo/auth_repo_mock.dart';
 import 'package:tsuite/src/checkout/repo/checkout_repository.dart';
 import 'package:tsuite/src/checkout/repo/checkout_repository_mock.dart';
 import 'package:tsuite/src/home/repo/home_repository.dart';
@@ -26,9 +25,6 @@ part 'repo_di.g.dart';
 
 @Riverpod(keepAlive: false)
 AuthRepo authRepository(Ref ref) {
-  if (AppConstants.useMockData) {
-    return AuthRepoMock();
-  }
   final services = ref.watch(networkServicesProvider);
   return AuthRepoImpl(services);
 }

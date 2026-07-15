@@ -7,9 +7,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
+import 'package:tsuite/services/auth_session_service.dart';
 import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/services/token_service.dart';
-import 'package:tsuite/src/auth/model/auth_model.dart';
 import 'package:tsuite/src/auth/repo/auth_repo.dart';
 import 'package:tsuite/src/auth/state/auth_state.dart';
 import 'package:tsuite/utils/common_widgets/custom_toast.dart';
@@ -18,13 +17,9 @@ import 'package:tsuite/utils/helpers/validators.dart';
 
 part 'auth_notifier.g.dart';
 
-@Riverpod(keepAlive: false)
+@Riverpod(keepAlive: true)
 class AuthNotifier extends _$AuthNotifier {
   late final TextEditingController phoneController;
-  late final TextEditingController fullNameController;
-  late final TextEditingController registerPhoneController;
-  late final TextEditingController ageController;
-  late final TextEditingController addressController;
 
   late AuthRepo authRepo;
   Timer? _resendTimer;
@@ -32,23 +27,13 @@ class AuthNotifier extends _$AuthNotifier {
   @override
   AuthState build() {
     phoneController = TextEditingController();
-    fullNameController = TextEditingController();
-    registerPhoneController = TextEditingController();
-    ageController = TextEditingController();
-    addressController = TextEditingController();
-
     authRepo = ref.read(authRepositoryProvider);
-
     phoneController.addListener(_onPhoneChanged);
 
     ref.onDispose(() {
       _resendTimer?.cancel();
       phoneController.removeListener(_onPhoneChanged);
       phoneController.dispose();
-      fullNameController.dispose();
-      registerPhoneController.dispose();
-      ageController.dispose();
-      addressController.dispose();
     });
 
     return const AuthState();
@@ -72,41 +57,73 @@ class AuthNotifier extends _$AuthNotifier {
     state = state.copyWith(phoneErrorText: null);
   }
 
+  void _toastError(String? message) {
+    showCustomToast(
+      message: (message == null || message.trim().isEmpty)
+          ? Strings.somethingWentWrong
+          : message,
+      isSuccess: false,
+    );
+  }
+
+  void _toastSuccess(String? message, {String fallback = ''}) {
+    final text = (message == null || message.trim().isEmpty)
+        ? fallback
+        : message;
+    if (text.isEmpty) return;
+    showCustomToast(message: text, isSuccess: true);
+  }
+
+  Future<void> restoreSessionToState() async {
+    final session = await ref.read(authSessionServiceProvider).restore();
+    if (session == null) {
+      state = const AuthState();
+      return;
+    }
+    state = state.copyWith(
+      authModel: session.authModel,
+      isNewUser: session.isNewUser,
+      loaderState: LoaderState.loaded,
+    );
+    debugPrint('🟢 AUTH: session restored to state');
+  }
+
   Future<bool> requestOtp() async {
     if (!validatePhoneField()) {
       return false;
     }
 
-    state = state.copyWith(loaderState: LoaderState.loading, errorMessage: null);
+    state = state.copyWith(loaderState: LoaderState.loading);
     final phone = phoneController.text.trim();
 
     return await authRepo
-        .requestOtp(phone: phone)
+        .requestOtp(
+          phone: phone,
+          countryCode: AppConstants.defaultCountryCode,
+        )
         .fold(
           (error) {
             final loaderState = handleResponseError(error.key);
-            debugPrint("🔴 REQUEST OTP ERROR: ${error.message}");
-            state = state.copyWith(
-              loaderState: loaderState,
-              errorMessage: error.message,
-            );
-            showCustomToast(
-              message: error.message ?? Strings.otpVerificationFailed,
-              isSuccess: false,
-            );
+            debugPrint('🔴 REQUEST OTP ERROR: ${error.message}');
+            state = state.copyWith(loaderState: loaderState);
+            _toastError(error.message);
             return false;
           },
           (response) {
-            debugPrint("🟢 REQUEST OTP SUCCESS: ${response.message}");
+            debugPrint('🟢 REQUEST OTP SUCCESS: ${response.message}');
             state = state.copyWith(loaderState: LoaderState.loaded);
-            showCustomToast(message: response.message, isSuccess: true);
+            _toastSuccess(
+              response.message,
+              fallback: Strings.otpSentSuccess,
+            );
             startResendTimer();
             return true;
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED REQUEST OTP ERROR: $error");
+          debugPrint('🔴 UNEXPECTED REQUEST OTP ERROR: $error');
           state = state.copyWith(loaderState: LoaderState.error);
+          _toastError(Strings.somethingWentWrong);
           return false;
         });
   }
@@ -116,82 +133,92 @@ class AuthNotifier extends _$AuthNotifier {
     state = state.copyWith(loaderState: LoaderState.loading);
 
     return await authRepo
-        .resendOtp(phone: phone)
+        .resendOtp(
+          phone: phone,
+          countryCode: AppConstants.defaultCountryCode,
+        )
         .fold(
           (error) {
             final loaderState = handleResponseError(error.key);
-            debugPrint("🔴 RESEND OTP ERROR: ${error.message}");
+            debugPrint('🔴 RESEND OTP ERROR: ${error.message}');
             state = state.copyWith(loaderState: loaderState);
-            showCustomToast(
-              message: error.message ?? Strings.otpVerificationFailed,
-              isSuccess: false,
-            );
+            _toastError(error.message);
             return false;
           },
           (response) {
-            debugPrint("🟢 RESEND OTP SUCCESS: ${response.message}");
+            debugPrint('🟢 RESEND OTP SUCCESS: ${response.message}');
             state = state.copyWith(loaderState: LoaderState.loaded);
-            showCustomToast(message: response.message, isSuccess: true);
+            _toastSuccess(
+              response.message,
+              fallback: Strings.otpSentSuccess,
+            );
             startResendTimer();
             return true;
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED RESEND OTP ERROR: $error");
+          debugPrint('🔴 UNEXPECTED RESEND OTP ERROR: $error');
           state = state.copyWith(loaderState: LoaderState.error);
+          _toastError(Strings.somethingWentWrong);
           return false;
         });
   }
 
   Future<bool> verifyOtpCode(String code) async {
-    state = state.copyWith(loaderState: LoaderState.loading, errorMessage: null);
+    state = state.copyWith(loaderState: LoaderState.loading);
     final phone = phoneController.text.trim();
 
     return await authRepo
-        .verifyOtp(phone: phone, otp: code)
+        .verifyOtp(
+          phone: phone,
+          otp: code,
+          countryCode: AppConstants.defaultCountryCode,
+        )
         .fold(
           (error) {
             final loaderState = handleResponseError(error.key);
-            debugPrint("🔴 VERIFY OTP ERROR: ${error.message}");
-            state = state.copyWith(
-              loaderState: loaderState,
-              errorMessage: error.message,
-            );
-            showCustomToast(
-              message: error.message ?? Strings.otpVerificationFailed,
-              isSuccess: false,
-            );
+            debugPrint('🔴 VERIFY OTP ERROR: ${error.message}');
+            state = state.copyWith(loaderState: loaderState);
+            _toastError(error.message ?? Strings.otpVerificationFailed);
             return false;
           },
-          (authModel) async {
-            if (authModel.isSuspended) {
-              debugPrint("🔴 ACCOUNT SUSPENDED: ${authModel.phone}");
-              state = state.copyWith(
-                loaderState: LoaderState.error,
-                errorMessage: Strings.accountSuspended,
-              );
-              showCustomToast(
-                message: Strings.accountSuspended,
-                isSuccess: false,
-              );
+          (result) async {
+            if (!result.verified) {
+              debugPrint('🔴 VERIFY OTP: verified=false');
+              state = state.copyWith(loaderState: LoaderState.error);
+              _toastError(Strings.otpVerificationFailed);
               return false;
             }
 
-            await ref.read(tokenServiceProvider).saveTokens(
-                  accessToken: authModel.accessToken ?? '',
-                  refreshToken: authModel.refreshToken ?? '',
-                );
-            debugPrint("🟢 VERIFY OTP SUCCESS: ${authModel.name}");
+            if (result.authModel.isSuspended) {
+              debugPrint('🔴 ACCOUNT SUSPENDED: ${result.authModel.phone}');
+              state = state.copyWith(loaderState: LoaderState.error);
+              _toastError(Strings.accountSuspended);
+              return false;
+            }
+
+            final authModel =
+                await ref.read(authSessionServiceProvider).save(result);
+            debugPrint(
+              '🟢 VERIFY OTP SUCCESS: phone=${authModel.phone} '
+              'isNewUser=${result.isNewUser}',
+            );
             state = state.copyWith(
               loaderState: LoaderState.loaded,
               authModel: authModel,
+              isNewUser: result.isNewUser,
+            );
+            _toastSuccess(
+              result.message,
+              fallback: Strings.otpVerifiedSuccess,
             );
             return true;
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED VERIFY OTP ERROR: $error");
+          debugPrint('🔴 UNEXPECTED VERIFY OTP ERROR: $error');
           state = state.copyWith(loaderState: LoaderState.error);
+          _toastError(Strings.somethingWentWrong);
           return false;
         });
   }
@@ -209,75 +236,19 @@ class AuthNotifier extends _$AuthNotifier {
     });
   }
 
-  void setGender(String? gender) {
-    state = state.copyWith(selectedGender: gender);
-  }
-
-  void setProfilePhoto(String? path) {
-    state = state.copyWith(profilePhotoUrl: path);
-  }
-
-  Future<bool> registerUser() async {
-    state = state.copyWith(
-      loaderState: LoaderState.loading,
-      registerErrorText: null,
-    );
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    final name = fullNameController.text.trim();
-    final phone = registerPhoneController.text.trim();
-    final age = ageController.text.trim();
-    final address = addressController.text.trim();
-
-    if (name.isEmpty ||
-        phone.isEmpty ||
-        age.isEmpty ||
-        address.isEmpty ||
-        state.selectedGender == null) {
-      state = state.copyWith(
-        loaderState: LoaderState.loaded,
-        registerErrorText: Strings.fieldRequired,
-      );
-      showCustomToast(
-        message: Strings.fieldRequired,
-        isSuccess: false,
-      );
-      return false;
-    }
-
-    await ref.read(tokenServiceProvider).saveTokens(
-          accessToken: 'mock_access_token',
-          refreshToken: 'mock_refresh_token',
-        );
-
-    state = state.copyWith(
-      loaderState: LoaderState.loaded,
-      authModel: AuthModel(
-        id: 2,
-        email: '$name@medpik.com',
-        name: name,
-        phone: phone,
-        accessToken: 'mock_access_token',
-        refreshToken: 'mock_refresh_token',
-      ),
-    );
-
-    showCustomToast(message: 'Registration successful!', isSuccess: true);
-    return true;
-  }
-
   Future<void> signOut() async {
     await authRepo.logout().fold(
           (error) {
-            debugPrint("🔴 LOGOUT ERROR: ${error.message}");
+            debugPrint('🔴 LOGOUT API ERROR: ${error.message}');
           },
-          (_) async {
-            await ref.read(tokenServiceProvider).clearTokens();
-            debugPrint("🟢 SIGNED OUT");
+          (response) {
+            debugPrint('🟢 LOGOUT API SUCCESS: ${response.message}');
           },
         );
+
+    await ref.read(authSessionServiceProvider).clear();
     state = const AuthState();
+    phoneController.clear();
     showCustomToast(message: Strings.signedOut, isSuccess: true);
   }
 }

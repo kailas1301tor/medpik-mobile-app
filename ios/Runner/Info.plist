@@ -53,6 +53,8 @@
 	<string>Medpik needs photo library access to upload prescription images.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Medpik needs your location to set delivery address accurately.</string>
+	<key>GMSApiKey</key>
+	<string>$(GOOGLE_MAPS_API_KEY)</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

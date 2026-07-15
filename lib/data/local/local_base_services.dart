@@ -1,9 +1,10 @@
+// lib/data/local/local_base_services.dart
 abstract class LocalBaseServices {
   Future<void> initialize();
 
-  Future<void> getUserData();
+  Future<Map<String, dynamic>?> getUserData();
 
-  Future<void> insertUserData();
+  Future<void> insertUserData(Map<String, dynamic> session);
 
   Future<void> deleteUserData();
 

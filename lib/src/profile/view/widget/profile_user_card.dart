@@ -14,8 +14,14 @@ class ProfileUserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = authModel?.name ?? Strings.guestUser;
-    final initials = name.initials.isEmpty ? 'G' : name.initials;
+    final rawName = authModel?.name.trim() ?? '';
+    final phone = authModel?.phone.trim() ?? '';
+    final name = rawName.isNotEmpty
+        ? rawName
+        : (phone.isNotEmpty ? phone : Strings.guestUser);
+    final initials = rawName.isNotEmpty
+        ? (name.initials.isEmpty ? 'U' : name.initials)
+        : (phone.isNotEmpty ? 'U' : 'G');
 
     return Container(
       width: double.infinity,

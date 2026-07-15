@@ -20,12 +20,9 @@ mixin _$AuthState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   String? get phoneErrorText => throw _privateConstructorUsedError;
   bool get isPhoneValid => throw _privateConstructorUsedError;
-  String? get selectedGender => throw _privateConstructorUsedError;
-  String? get profilePhotoUrl => throw _privateConstructorUsedError;
-  String? get registerErrorText => throw _privateConstructorUsedError;
   int get resendCountdown => throw _privateConstructorUsedError;
   AuthModel? get authModel => throw _privateConstructorUsedError;
-  String? get errorMessage => throw _privateConstructorUsedError;
+  bool get isNewUser => throw _privateConstructorUsedError;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
@@ -43,12 +40,9 @@ abstract class $AuthStateCopyWith<$Res> {
     LoaderState loaderState,
     String? phoneErrorText,
     bool isPhoneValid,
-    String? selectedGender,
-    String? profilePhotoUrl,
-    String? registerErrorText,
     int resendCountdown,
     AuthModel? authModel,
-    String? errorMessage,
+    bool isNewUser,
   });
 }
 
@@ -70,12 +64,9 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
     Object? loaderState = null,
     Object? phoneErrorText = freezed,
     Object? isPhoneValid = null,
-    Object? selectedGender = freezed,
-    Object? profilePhotoUrl = freezed,
-    Object? registerErrorText = freezed,
     Object? resendCountdown = null,
     Object? authModel = freezed,
-    Object? errorMessage = freezed,
+    Object? isNewUser = null,
   }) {
     return _then(
       _value.copyWith(
@@ -91,18 +82,6 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
                 ? _value.isPhoneValid
                 : isPhoneValid // ignore: cast_nullable_to_non_nullable
                       as bool,
-            selectedGender: freezed == selectedGender
-                ? _value.selectedGender
-                : selectedGender // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            profilePhotoUrl: freezed == profilePhotoUrl
-                ? _value.profilePhotoUrl
-                : profilePhotoUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            registerErrorText: freezed == registerErrorText
-                ? _value.registerErrorText
-                : registerErrorText // ignore: cast_nullable_to_non_nullable
-                      as String?,
             resendCountdown: null == resendCountdown
                 ? _value.resendCountdown
                 : resendCountdown // ignore: cast_nullable_to_non_nullable
@@ -111,10 +90,10 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
                 ? _value.authModel
                 : authModel // ignore: cast_nullable_to_non_nullable
                       as AuthModel?,
-            errorMessage: freezed == errorMessage
-                ? _value.errorMessage
-                : errorMessage // ignore: cast_nullable_to_non_nullable
-                      as String?,
+            isNewUser: null == isNewUser
+                ? _value.isNewUser
+                : isNewUser // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -134,12 +113,9 @@ abstract class _$$AuthStateImplCopyWith<$Res>
     LoaderState loaderState,
     String? phoneErrorText,
     bool isPhoneValid,
-    String? selectedGender,
-    String? profilePhotoUrl,
-    String? registerErrorText,
     int resendCountdown,
     AuthModel? authModel,
-    String? errorMessage,
+    bool isNewUser,
   });
 }
 
@@ -160,12 +136,9 @@ class __$$AuthStateImplCopyWithImpl<$Res>
     Object? loaderState = null,
     Object? phoneErrorText = freezed,
     Object? isPhoneValid = null,
-    Object? selectedGender = freezed,
-    Object? profilePhotoUrl = freezed,
-    Object? registerErrorText = freezed,
     Object? resendCountdown = null,
     Object? authModel = freezed,
-    Object? errorMessage = freezed,
+    Object? isNewUser = null,
   }) {
     return _then(
       _$AuthStateImpl(
@@ -181,18 +154,6 @@ class __$$AuthStateImplCopyWithImpl<$Res>
             ? _value.isPhoneValid
             : isPhoneValid // ignore: cast_nullable_to_non_nullable
                   as bool,
-        selectedGender: freezed == selectedGender
-            ? _value.selectedGender
-            : selectedGender // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        profilePhotoUrl: freezed == profilePhotoUrl
-            ? _value.profilePhotoUrl
-            : profilePhotoUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        registerErrorText: freezed == registerErrorText
-            ? _value.registerErrorText
-            : registerErrorText // ignore: cast_nullable_to_non_nullable
-                  as String?,
         resendCountdown: null == resendCountdown
             ? _value.resendCountdown
             : resendCountdown // ignore: cast_nullable_to_non_nullable
@@ -201,10 +162,10 @@ class __$$AuthStateImplCopyWithImpl<$Res>
             ? _value.authModel
             : authModel // ignore: cast_nullable_to_non_nullable
                   as AuthModel?,
-        errorMessage: freezed == errorMessage
-            ? _value.errorMessage
-            : errorMessage // ignore: cast_nullable_to_non_nullable
-                  as String?,
+        isNewUser: null == isNewUser
+            ? _value.isNewUser
+            : isNewUser // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -217,12 +178,9 @@ class _$AuthStateImpl implements _AuthState {
     this.loaderState = LoaderState.loaded,
     this.phoneErrorText,
     this.isPhoneValid = false,
-    this.selectedGender,
-    this.profilePhotoUrl,
-    this.registerErrorText,
     this.resendCountdown = 0,
     this.authModel,
-    this.errorMessage,
+    this.isNewUser = false,
   });
 
   @override
@@ -234,22 +192,17 @@ class _$AuthStateImpl implements _AuthState {
   @JsonKey()
   final bool isPhoneValid;
   @override
-  final String? selectedGender;
-  @override
-  final String? profilePhotoUrl;
-  @override
-  final String? registerErrorText;
-  @override
   @JsonKey()
   final int resendCountdown;
   @override
   final AuthModel? authModel;
   @override
-  final String? errorMessage;
+  @JsonKey()
+  final bool isNewUser;
 
   @override
   String toString() {
-    return 'AuthState(loaderState: $loaderState, phoneErrorText: $phoneErrorText, isPhoneValid: $isPhoneValid, selectedGender: $selectedGender, profilePhotoUrl: $profilePhotoUrl, registerErrorText: $registerErrorText, resendCountdown: $resendCountdown, authModel: $authModel, errorMessage: $errorMessage)';
+    return 'AuthState(loaderState: $loaderState, phoneErrorText: $phoneErrorText, isPhoneValid: $isPhoneValid, resendCountdown: $resendCountdown, authModel: $authModel, isNewUser: $isNewUser)';
   }
 
   @override
@@ -263,18 +216,12 @@ class _$AuthStateImpl implements _AuthState {
                 other.phoneErrorText == phoneErrorText) &&
             (identical(other.isPhoneValid, isPhoneValid) ||
                 other.isPhoneValid == isPhoneValid) &&
-            (identical(other.selectedGender, selectedGender) ||
-                other.selectedGender == selectedGender) &&
-            (identical(other.profilePhotoUrl, profilePhotoUrl) ||
-                other.profilePhotoUrl == profilePhotoUrl) &&
-            (identical(other.registerErrorText, registerErrorText) ||
-                other.registerErrorText == registerErrorText) &&
             (identical(other.resendCountdown, resendCountdown) ||
                 other.resendCountdown == resendCountdown) &&
             (identical(other.authModel, authModel) ||
                 other.authModel == authModel) &&
-            (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage));
+            (identical(other.isNewUser, isNewUser) ||
+                other.isNewUser == isNewUser));
   }
 
   @override
@@ -283,12 +230,9 @@ class _$AuthStateImpl implements _AuthState {
     loaderState,
     phoneErrorText,
     isPhoneValid,
-    selectedGender,
-    profilePhotoUrl,
-    registerErrorText,
     resendCountdown,
     authModel,
-    errorMessage,
+    isNewUser,
   );
 
   /// Create a copy of AuthState
@@ -305,12 +249,9 @@ abstract class _AuthState implements AuthState {
     final LoaderState loaderState,
     final String? phoneErrorText,
     final bool isPhoneValid,
-    final String? selectedGender,
-    final String? profilePhotoUrl,
-    final String? registerErrorText,
     final int resendCountdown,
     final AuthModel? authModel,
-    final String? errorMessage,
+    final bool isNewUser,
   }) = _$AuthStateImpl;
 
   @override
@@ -320,17 +261,11 @@ abstract class _AuthState implements AuthState {
   @override
   bool get isPhoneValid;
   @override
-  String? get selectedGender;
-  @override
-  String? get profilePhotoUrl;
-  @override
-  String? get registerErrorText;
-  @override
   int get resendCountdown;
   @override
   AuthModel? get authModel;
   @override
-  String? get errorMessage;
+  bool get isNewUser;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.

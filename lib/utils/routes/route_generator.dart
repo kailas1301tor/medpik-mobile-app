@@ -6,7 +6,6 @@ import '../../src/address/view/address_book_screen.dart';
 import '../../src/address/view/location_picker_screen.dart';
 import '../../src/auth/view/login_screen.dart';
 import '../../src/auth/view/otp_screen.dart';
-import '../../src/auth/view/register_screen.dart';
 import '../../src/checkout/view/checkout_screen.dart';
 import '../../src/checkout/view/order_confirmation_screen.dart';
 import '../../src/main/main_screen.dart';
@@ -22,9 +21,6 @@ import '../../src/splash/view/splash_screen.dart';
 import '../../src/wishlist/view/wishlist_screen.dart';
 import '../../src/notifications/view/notifications_screen.dart';
 import 'route_constants.dart';
-
-/// Global navigator key for accessing navigation from anywhere.
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 /// Route generator for named navigation.
 class RouteGenerator {
@@ -46,12 +42,6 @@ class RouteGenerator {
       case RouteConstants.routeOtpScreen:
         return MaterialPageRoute(
           builder: (_) => const OtpScreen(),
-          settings: settings,
-        );
-
-      case RouteConstants.routeRegisterScreen:
-        return MaterialPageRoute(
-          builder: (_) => const RegisterScreen(),
           settings: settings,
         );
 
