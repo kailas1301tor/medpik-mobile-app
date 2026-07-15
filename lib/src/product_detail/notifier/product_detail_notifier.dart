@@ -6,6 +6,7 @@ import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/services/repo_di.dart';
 import 'package:tsuite/src/cart/notifier/cart_notifier.dart';
+import 'package:tsuite/src/product_detail/model/product_detail_model.dart';
 import 'package:tsuite/src/product_detail/repo/product_detail_repository.dart';
 import 'package:tsuite/src/product_detail/state/product_detail_state.dart';
 import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
@@ -56,11 +57,18 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
               errorMessage: error.message,
             );
           },
-          (detail) {
-            debugPrint("🟢 PRODUCT SUCCESS: ${detail.product.name}");
+          (response) {
+            final product = response.product;
+            if (product == null) {
+              debugPrint("🟡 PRODUCT NO DATA: product_id=$productId");
+              state = state.copyWith(loaderState: LoaderState.noData);
+              return;
+            }
+            debugPrint("🟢 PRODUCT SUCCESS: ${product.name}");
+            final detail = ProductDetailModel.fromApiProduct(product);
             final wishlisted = ref
                 .read(wishlistNotifierProvider.notifier)
-                .isWishlisted(detail.product.id);
+                .isWishlisted(product.id);
             state = state.copyWith(
               loaderState: LoaderState.loaded,
               detail: detail,

@@ -13,6 +13,10 @@ class ProductDetailAboutSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (detail.aboutText.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final colors = context.appColors;
 
     return Column(

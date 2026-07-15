@@ -7,11 +7,13 @@ import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/src/product_detail/notifier/product_detail_notifier.dart';
 import 'package:tsuite/src/product_detail/view/widget/product_detail_content_widget.dart';
 import 'package:tsuite/src/product_detail/view/widget/product_detail_floating_action.dart';
+import 'package:tsuite/src/product_detail/view/widget/product_detail_shimmer_widget.dart';
 import 'package:tsuite/src/product_detail/view/widget/product_detail_sticky_footer.dart';
 import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
-import 'package:tsuite/utils/common_widgets/common_loader.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
+import 'package:tsuite/utils/common_widgets/common_wishlist_button.dart';
+import 'package:tsuite/utils/extensions/context_extensions.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({super.key, required this.productId});
@@ -58,7 +60,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       body: CommonSwitchState(
         loaderState: loaderState,
         reload: () => notifier.loadProduct(widget.productId),
-        loader: const Center(child: CommonLoader()),
+        loader: const ProductDetailShimmerWidget(),
         buttonText: Strings.refresh,
         noData: const CommonEmptyState(
           title: Strings.noDataFound,
@@ -80,12 +82,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           onTap: () => Navigator.of(context).pop(),
                         ),
                         const Spacer(),
-                        ProductDetailFloatingAction(
-                          icon: isWishlisted
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_border_rounded,
-                          iconColor: isWishlisted ? colors.primary : null,
+                        CommonWishlistButton(
+                          isWishlisted: isWishlisted,
                           onTap: notifier.toggleWishlist,
+                          size: 40.r,
+                          iconSize: 20.r,
+                          backgroundColor: context.isDarkMode
+                              ? colors.surface.withValues(alpha: 0.92)
+                              : ColorPalette.white,
+                          inactiveColor: colors.primaryText,
+                          showShadow: true,
                         ),
                       ],
                     ),

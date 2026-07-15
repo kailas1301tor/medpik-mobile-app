@@ -1,110 +1,100 @@
 // lib/src/home/view/widget/home_shimmer_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
+import 'package:tsuite/res/constants/string_constants.dart';
+import 'package:tsuite/src/home/view/widget/home_hero_header.dart';
+import 'package:tsuite/src/home/view/widget/home_prescription_card.dart';
+import 'package:tsuite/src/home/view/widget/home_section_header.dart';
+import 'package:tsuite/src/home/view/widget/home_shimmer_sections.dart';
 import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
+import 'package:tsuite/utils/helpers/time_of_day_greeting_helper.dart';
+import 'package:tsuite/utils/routes/route_constants.dart';
 
-class HomeShimmerWidget extends StatelessWidget {
+class HomeShimmerWidget extends StatefulWidget {
   const HomeShimmerWidget({super.key});
+
+  @override
+  State<HomeShimmerWidget> createState() => _HomeShimmerWidgetState();
+}
+
+class _HomeShimmerWidgetState extends State<HomeShimmerWidget> {
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final topInset = MediaQuery.paddingOf(context).top;
 
     return CustomScrollView(
+      physics: const ClampingScrollPhysics(),
       slivers: [
+        // Same hero shell as loaded home (background image, greeting, actions).
         SliverToBoxAdapter(
-          child: Container(
-            height: topInset + 220.h,
-            color: ColorPalette.primaryColorDark,
-            padding: EdgeInsets.fromLTRB(16.w, topInset + 16.h, 16.w, 16.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CommonShimmerBox(height: 24.h, width: 180.w, borderRadius: 8.r),
-                12.verticalSpace,
-                CommonShimmerBox(height: 18.h, width: 200.w, borderRadius: 8.r),
-                20.verticalSpace,
-                CommonShimmerBox(
-                  height: 48.h,
-                  width: double.infinity,
-                  borderRadius: 24.r,
-                ),
-              ],
+          child: HomeHeroHeader(
+            topInset: topInset,
+            greeting: timeOfDayGreeting(),
+            deliveryHint: Strings.selectDeliveryAddress,
+            searchController: _searchController,
+            onSearchTap: () {
+              Navigator.pushNamed(context, RouteConstants.routeSearchScreen);
+            },
+          ),
+        ),
+        SliverToBoxAdapter(child: Padding(padding: EdgeInsets.only(top: 10.h))),
+        // Same prescription card as loaded home (no API dependency).
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
+            child: HomePrescriptionCard(
+              onUploadTap: () {
+                Navigator.pushNamed(
+                  context,
+                  RouteConstants.routePrescriptionUploadScreen,
+                );
+              },
             ),
           ),
+        ),
+        const SliverToBoxAdapter(
+          child: HomeSectionHeader(title: Strings.offersForYou),
         ),
         SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CommonShimmerBox(
-                  height: 136.h,
-                  width: double.infinity,
-                  borderRadius: 20.r,
-                ),
-                16.verticalSpace,
-                CommonShimmerBox(
-                  height: 20.h,
-                  width: 140.w,
-                  borderRadius: 8.r,
-                ),
-                8.verticalSpace,
-                CommonShimmerBox(
-                  height: 148.h,
-                  width: double.infinity,
-                  borderRadius: 20.r,
-                ),
-                16.verticalSpace,
-                CommonShimmerBox(
-                  height: 20.h,
-                  width: 160.w,
-                  borderRadius: 8.r,
-                ),
-                8.verticalSpace,
-                SizedBox(
-                  height: 112.h,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 5,
-                    separatorBuilder: (_, __) => 16.horizontalSpace,
-                    itemBuilder:
-                        (_, __) => CommonShimmerBox(
-                          height: 64.r,
-                          width: 64.r,
-                          borderRadius: 32.r,
-                        ),
-                  ),
-                ),
-                16.verticalSpace,
-                CommonShimmerBox(
-                  height: 20.h,
-                  width: 160.w,
-                  borderRadius: 8.r,
-                ),
-                8.verticalSpace,
-                SizedBox(
-                  height: 220.h,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    itemCount: 3,
-                    separatorBuilder: (_, __) => 12.horizontalSpace,
-                    itemBuilder:
-                        (_, __) => CommonShimmerBox(
-                          height: 212.h,
-                          width: 165.w,
-                          borderRadius: 16.r,
-                        ),
-                  ),
-                ),
-                80.verticalSpace,
-              ],
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: CommonShimmerBox(
+              height: 160.h,
+              width: double.infinity,
+              borderRadius: 20.r,
             ),
           ),
         ),
+        SliverToBoxAdapter(
+          child: HomeSectionHeader(
+            title: Strings.shopByCategory,
+            onSeeAll: () {},
+          ),
+        ),
+        const SliverToBoxAdapter(child: HomeCategoryShimmerRow()),
+        SliverToBoxAdapter(
+          child: HomeSectionHeader(
+            title: Strings.popularProducts,
+            bottomPadding: 4.h,
+            onSeeAll: () {},
+          ),
+        ),
+        const SliverToBoxAdapter(child: HomeProductGridShimmer()),
+        SliverToBoxAdapter(child: 140.verticalSpace),
       ],
     );
   }

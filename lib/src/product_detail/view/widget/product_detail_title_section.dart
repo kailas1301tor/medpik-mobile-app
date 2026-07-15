@@ -1,6 +1,7 @@
 // lib/src/product_detail/view/widget/product_detail_title_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/src/product_detail/model/product_detail_model.dart';
@@ -16,6 +17,10 @@ class ProductDetailTitleSection extends StatelessWidget {
     final colors = context.appColors;
     final product = detail.product;
     final packBadge = productPackBadgeLabel(product);
+    final categoryLabel = product.category.trim();
+    final typeLabel = product.requiresPrescription
+        ? Strings.prescriptionMedicine
+        : Strings.otcMedicine;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,17 +39,35 @@ class ProductDetailTitleSection extends StatelessWidget {
             ),
           ),
         ],
+        if (product.manufacturerName.isNotEmpty) ...[
+          8.verticalSpace,
+          Text(
+            '${Strings.manufacturer}: ${product.manufacturerName}',
+            style: FontPalette.base400(
+              13,
+              color: colors.secondaryText,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
         10.verticalSpace,
-        _CategoryChip(
-          label: packBadge.isNotEmpty ? packBadge : product.category,
+        Wrap(
+          spacing: 8.w,
+          runSpacing: 8.h,
+          children: [
+            if (packBadge.isNotEmpty) _MetaChip(label: packBadge),
+            if (categoryLabel.isNotEmpty) _MetaChip(label: categoryLabel),
+            _MetaChip(label: typeLabel),
+          ],
         ),
       ],
     );
   }
 }
 
-class _CategoryChip extends StatelessWidget {
-  const _CategoryChip({required this.label});
+class _MetaChip extends StatelessWidget {
+  const _MetaChip({required this.label});
 
   final String label;
 
