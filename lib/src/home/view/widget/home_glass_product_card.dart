@@ -33,45 +33,45 @@ class HomeGlassProductCard extends ConsumerWidget {
       ),
     );
 
+    // Material + shape paints the border inset (DecoratedBox borders are
+    // half-outside and get clipped by Expanded / Row parents).
     return GestureDetector(
       onTap: onTap,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colors.cardBackground,
+      child: Material(
+        color: colors.cardBackground,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radius),
-          border: Border.all(color: colors.cardBorder, width: 1.w),
+          side: BorderSide(color: colors.cardBorder, width: 1),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(radius),
-          child: Column(
-            mainAxisSize: intrinsic ? MainAxisSize.min : MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                children: [
-                  HomeGlassProductImageHero(
-                    product: product,
-                    height: imageHeight,
-                    topRadius: radius,
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: intrinsic ? MainAxisSize.min : MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                HomeGlassProductImageHero(
+                  product: product,
+                  height: imageHeight,
+                ),
+                Positioned(
+                  top: 8.h,
+                  right: 8.w,
+                  child: HomeGlassProductWishlistButton(
+                    isWishlisted: isWishlisted,
+                    onTap: () => ref
+                        .read(wishlistNotifierProvider.notifier)
+                        .toggle(product),
                   ),
-                  Positioned(
-                    top: 8.h,
-                    right: 8.w,
-                    child: HomeGlassProductWishlistButton(
-                      isWishlisted: isWishlisted,
-                      onTap: () => ref
-                          .read(wishlistNotifierProvider.notifier)
-                          .toggle(product),
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
-                child: _CardInfo(product: product, intrinsic: intrinsic),
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
+              child: _CardInfo(product: product, intrinsic: intrinsic),
+            ),
+          ],
         ),
       ),
     );
@@ -99,21 +99,23 @@ class _CardInfo extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        6.verticalSpace,
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-          decoration: BoxDecoration(
-            color: ColorPalette.productAccentTeal.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(999.r),
-          ),
-          child: Text(
-            product.category,
-            style: FontPalette.base600(
-              10,
-              color: ColorPalette.productAccentTeal,
+        if (product.category.isNotEmpty) ...[
+          6.verticalSpace,
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+            decoration: BoxDecoration(
+              color: ColorPalette.productAccentTeal.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(999.r),
+            ),
+            child: Text(
+              product.category,
+              style: FontPalette.base600(
+                10,
+                color: ColorPalette.productAccentTeal,
+              ),
             ),
           ),
-        ),
+        ],
         if (packLabel.isNotEmpty) ...[
           6.verticalSpace,
           Text(

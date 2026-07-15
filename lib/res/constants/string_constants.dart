@@ -153,7 +153,9 @@ class Strings {
   static const String pressBackAgainToExit = "Press back again to exit";
 
   // Home
-  static const String homeGreeting = "Hello";
+  static const String goodMorning = "Good morning";
+  static const String goodAfternoon = "Good afternoon";
+  static const String goodEvening = "Good evening";
   static const String deliverTo = "Deliver to";
   static const String searchMedicines = "Search medicines";
   static const String searchMedicinesHealthcare =

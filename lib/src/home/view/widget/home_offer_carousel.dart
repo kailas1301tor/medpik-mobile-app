@@ -8,6 +8,7 @@ import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/src/home/model/home_model.dart';
+import 'package:tsuite/utils/helpers/hex_color_helper.dart';
 
 class HomeOfferCarousel extends StatefulWidget {
   const HomeOfferCarousel({super.key, required this.offers});
@@ -174,19 +175,24 @@ class _HomeOfferCarouselState extends State<HomeOfferCarousel> {
   }
 
   LinearGradient _gradientFor(OfferModel offer, int index) {
-    return switch (offer.backgroundKey) {
-      'blue_cyan' => ColorPalette.offerBlueCyan,
-      'orange_amber' => ColorPalette.offerOrangeAmber,
-      'purple_pink' => ColorPalette.offerPurplePink,
-      'red_orange' => ColorPalette.offerRedOrange,
-      'green_lime' => ColorPalette.offerGreenLime,
-      _ => switch (index % 5) {
-        0 => ColorPalette.offerBlueCyan,
-        1 => ColorPalette.offerOrangeAmber,
-        2 => ColorPalette.offerPurplePink,
-        3 => ColorPalette.offerGreenLime,
-        _ => ColorPalette.offerRedOrange,
-      },
+    final start = tryParseHexColor(offer.gradientColor1);
+    final end = tryParseHexColor(offer.gradientColor2);
+    if (start != null && end != null) {
+      // Admin-style horizontal blend (same as CSS linear-gradient(to right, …)).
+      return LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        colors: [start, end],
+        stops: const [0.0, 1.0],
+      );
+    }
+
+    return switch (index % 5) {
+      0 => ColorPalette.offerLimeMagenta,
+      1 => ColorPalette.offerSlateSilver,
+      2 => ColorPalette.offerInkPurple,
+      3 => ColorPalette.offerRedBlue,
+      _ => ColorPalette.offerForestTeal,
     };
   }
 
@@ -268,18 +274,14 @@ class _OfferBannerCard extends StatelessWidget {
               if (offer.badgeLabel?.isNotEmpty ?? false)
                 SmoothContainer(
                   smoothness: 2,
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                  color: ColorPalette.offerBadgeBg,
-                  side: BorderSide(
-                    color: ColorPalette.grey.withValues(alpha: 0.5),
-                    width: 1.w,
-                  ),
-                  borderRadius: BorderRadius.circular(6.r),
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                  color: ColorPalette.white.withValues(alpha: 0.22),
+                  borderRadius: BorderRadius.circular(999.r),
                   child: Text(
                     offer.badgeLabel!,
                     style: FontPalette.base700(
                       9,
-                      color: ColorPalette.offerBadgeText,
+                      color: ColorPalette.white,
                     ),
                   ),
                 ),

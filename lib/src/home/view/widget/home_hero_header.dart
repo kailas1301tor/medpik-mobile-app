@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/res/constants/medpik_image_assets.dart';
 import 'package:tsuite/res/constants/medpik_svg_assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/src/home/view/widget/home_header_shared.dart';
@@ -13,14 +12,14 @@ class HomeHeroHeader extends StatelessWidget {
   const HomeHeroHeader({
     super.key,
     required this.topInset,
-    required this.userName,
+    required this.greeting,
     required this.deliveryHint,
     required this.searchController,
     required this.onSearchTap,
   });
 
   final double topInset;
-  final String userName;
+  final String greeting;
   final String deliveryHint;
   final TextEditingController searchController;
   final VoidCallback onSearchTap;
@@ -67,7 +66,7 @@ class HomeHeroHeader extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            '${Strings.homeGreeting}, $userName',
+                            greeting,
                             style: FontPalette.base700(
                               22,
                               color: ColorPalette.white,

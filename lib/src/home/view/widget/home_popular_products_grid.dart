@@ -7,7 +7,9 @@ import 'package:tsuite/data/models/product_model.dart';
 import 'package:tsuite/src/home/view/widget/home_glass_product_card.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
 
-/// 2-column popular products grid for the home [CustomScrollView].
+/// 2-column popular products list for the home [CustomScrollView].
+/// Uses content-sized rows (not a fixed aspect-ratio grid) so cards
+/// only occupy the height they need.
 abstract final class HomePopularProductsGrid {
   static const int maxItems = 10;
 
@@ -18,35 +20,55 @@ abstract final class HomePopularProductsGrid {
     }
 
     final count = math.min(maxItems, items.length);
+    final rowCount = (count / 2).ceil();
 
     return SliverPadding(
       padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
-      sliver: SliverGrid(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 12.h,
-          crossAxisSpacing: 12.w,
-          childAspectRatio: 0.62,
-        ),
+      sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final product = items[index];
-            return HomeGlassProductCard(
-              product: product,
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  RouteConstants.routeProductDetailScreen,
-                  arguments: product.id,
-                );
-              },
+          (context, rowIndex) {
+            final leftIndex = rowIndex * 2;
+            final rightIndex = leftIndex + 1;
+            final left = items[leftIndex];
+            final right = rightIndex < count ? items[rightIndex] : null;
+
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: rowIndex < rowCount - 1 ? 12.h : 0,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _productCard(context, left)),
+                  12.horizontalSpace,
+                  Expanded(
+                    child: right == null
+                        ? const SizedBox.shrink()
+                        : _productCard(context, right),
+                  ),
+                ],
+              ),
             );
           },
-          childCount: count,
+          childCount: rowCount,
           addAutomaticKeepAlives: false,
           addRepaintBoundaries: true,
         ),
       ),
+    );
+  }
+
+  static Widget _productCard(BuildContext context, ProductModel product) {
+    return HomeGlassProductCard(
+      product: product,
+      intrinsic: true,
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          RouteConstants.routeProductDetailScreen,
+          arguments: product.id,
+        );
+      },
     );
   }
 }

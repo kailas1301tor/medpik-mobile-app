@@ -44,11 +44,14 @@ class HomeContentWidget extends ConsumerWidget {
             SliverToBoxAdapter(
               child: HomeHeroHeader(
                 topInset: topInset,
-                userName: data?.userName ?? '',
+                greeting: data?.greeting ?? '',
                 deliveryHint: data?.deliveryHint ?? '',
                 searchController: searchController,
                 onSearchTap: onSearchTap,
               ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(padding: EdgeInsets.only(top: 10.h)),
             ),
             SliverToBoxAdapter(
               child: Padding(
@@ -63,12 +66,14 @@ class HomeContentWidget extends ConsumerWidget {
                 ),
               ),
             ),
-            SliverToBoxAdapter(
-              child: HomeSectionHeader(title: Strings.offersForYou),
-            ),
-            SliverToBoxAdapter(
-              child: HomeOfferCarousel(offers: data?.offers ?? []),
-            ),
+            if ((data?.offers ?? []).isNotEmpty) ...[
+              SliverToBoxAdapter(
+                child: HomeSectionHeader(title: Strings.offersForYou),
+              ),
+              SliverToBoxAdapter(
+                child: HomeOfferCarousel(offers: data?.offers ?? []),
+              ),
+            ],
             SliverToBoxAdapter(
               child: HomeSectionHeader(
                 title: Strings.shopByCategory,

@@ -40,7 +40,7 @@ class AppConstants {
   // Catalog endpoints
   static String products = '$prefix$user/products';
   static String categories = '$prefix$user/categories';
-  static String homeFeed = '$prefix$user/home';
+  static String homeFeed = '$api/customer-home';
 
   // Orders & addresses
   static String orders = '$prefix$user/orders';
