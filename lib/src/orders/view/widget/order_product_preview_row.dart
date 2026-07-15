@@ -2,33 +2,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_corner/smooth_corner.dart';
-import 'package:tsuite/data/models/order_model.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
 
 class OrderProductPreviewRow extends StatelessWidget {
-  const OrderProductPreviewRow({super.key, required this.items});
+  const OrderProductPreviewRow({
+    super.key,
+    required this.imageUrls,
+  });
 
-  final List<OrderItemModel> items;
+  final List<String> imageUrls;
 
   static const int _maxVisible = 4;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    if (items.isEmpty) return const SizedBox.shrink();
+    if (imageUrls.isEmpty) return const SizedBox.shrink();
 
-    final visibleItems = items.take(_maxVisible).toList();
-    final overflowCount = items.length - _maxVisible;
+    final visibleUrls = imageUrls.take(_maxVisible).toList();
+    final overflowCount = imageUrls.length - _maxVisible;
     final thumbSize = 40.r;
 
     return Row(
       children: [
-        for (var i = 0; i < visibleItems.length; i++) ...[
+        for (var i = 0; i < visibleUrls.length; i++) ...[
           if (i > 0) 6.horizontalSpace,
           CommonCachedNetworkImage(
-            imageUrl: visibleItems[i].product.imageUrl,
+            imageUrl: visibleUrls[i],
             width: thumbSize,
             height: thumbSize,
             borderRadius: 8.r,

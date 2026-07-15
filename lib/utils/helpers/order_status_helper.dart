@@ -357,6 +357,18 @@ int orderItemCount(OrderModel order) {
   return order.items.fold<int>(0, (sum, item) => sum + item.quantity);
 }
 
+String orderCardCountLabel(OrderModel order) {
+  final itemCount = orderItemCount(order);
+  if (itemCount > 0) {
+    return '$itemCount ${Strings.itemsLabel}';
+  }
+  final rxCount = order.prescriptionImageUrls.length;
+  if (rxCount > 0) {
+    return '$rxCount ${Strings.prescriptionsLabel}';
+  }
+  return '0 ${Strings.itemsLabel}';
+}
+
 int orderLifecycleIndex(OrderStatus status) {
   return switch (status) {
     OrderStatus.prescriptionUploaded => 0,

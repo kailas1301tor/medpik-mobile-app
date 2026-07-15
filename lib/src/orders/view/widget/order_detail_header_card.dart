@@ -44,13 +44,16 @@ class OrderDetailHeaderCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '${Strings.orderIdLabel}: ${order.id}',
+                  '${Strings.orderIdLabel}: ${order.displayOrderId.isNotEmpty ? order.displayOrderId : Strings.emDash}',
                   style: FontPalette.base700(16, color: colors.primaryText),
                 ),
               ),
               OrderStatusBadge(
                 status: badgeStatus ?? order.status,
-                label: badgeLabel ?? orderDetailStatusLabel(order.status),
+                label: badgeLabel ??
+                    (order.displayStatus.isNotEmpty
+                        ? order.displayStatus
+                        : orderDetailStatusLabel(order.status)),
               ),
             ],
           ),

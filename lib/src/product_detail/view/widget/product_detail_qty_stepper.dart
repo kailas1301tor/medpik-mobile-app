@@ -10,16 +10,20 @@ class ProductDetailQtyStepper extends StatelessWidget {
     required this.quantity,
     required this.onDecrement,
     required this.onIncrement,
+    this.allowRemoveAtOne = false,
   });
 
   final int quantity;
   final VoidCallback onDecrement;
   final VoidCallback onIncrement;
 
+  /// When true, minus stays enabled at qty 1 (e.g. remove cart line).
+  final bool allowRemoveAtOne;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final canDecrement = quantity > 1;
+    final canDecrement = allowRemoveAtOne || quantity > 1;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

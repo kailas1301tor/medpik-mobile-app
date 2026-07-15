@@ -10,6 +10,7 @@ import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/src/orders/view/widget/order_product_preview_row.dart';
 import 'package:tsuite/src/orders/view/widget/order_status_badge.dart';
+import 'package:tsuite/utils/common_widgets/common_container.dart';
 import 'package:tsuite/utils/extensions/num_extensions.dart';
 import 'package:tsuite/utils/helpers/order_status_helper.dart';
 
@@ -22,8 +23,14 @@ class OrderTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final itemCount = orderItemCount(order);
-    final showTotal = orderStatusShowsTotal(order.status) && order.amount > 0;
+    final displayId = order.displayOrderId.isNotEmpty
+        ? order.displayOrderId
+        : Strings.emDash;
+    final city = order.address.city.trim();
+    final showTotal = orderStatusShowsTotal(order.status) &&
+        order.hasKnownAmount &&
+        order.amount > 0;
+    final previewUrls = order.previewImageUrls;
 
     return GestureDetector(
       onTap: onTap,
@@ -36,9 +43,7 @@ class OrderTile extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.all(16.r),
         borderRadius: BorderRadius.circular(16.r),
-
         color: colors.surface,
-
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -47,11 +52,16 @@ class OrderTile extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '${Strings.orderIdLabel}: ${order.id}',
+                    '${Strings.orderIdLabel}: $displayId',
                     style: FontPalette.base700(15, color: colors.primaryText),
                   ),
                 ),
-                OrderStatusBadge(status: order.status),
+                OrderStatusBadge(
+                  status: order.status,
+                  label: order.displayStatus.isNotEmpty
+                      ? order.displayStatus
+                      : null,
+                ),
                 4.horizontalSpace,
                 Icon(
                   Icons.chevron_right_rounded,
@@ -78,15 +88,41 @@ class OrderTile extends StatelessWidget {
                 ),
               ],
             ),
-            12.verticalSpace,
-            OrderProductPreviewRow(items: order.items),
+            if (city.isNotEmpty) ...[
+              4.verticalSpace,
+              Text(
+                city,
+                style: FontPalette.base400(12, color: colors.secondaryText),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+            if (previewUrls.isNotEmpty) ...[
+              12.verticalSpace,
+              OrderProductPreviewRow(imageUrls: previewUrls),
+            ],
             12.verticalSpace,
             Row(
               children: [
                 Text(
-                  '$itemCount ${Strings.itemsLabel}',
+                  orderCardCountLabel(order),
                   style: FontPalette.base400(12, color: colors.secondaryText),
                 ),
+                if (order.hasPrescription) ...[
+                  8.horizontalSpace,
+                  CommonContainer(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 4.h,
+                    ),
+                    borderRadius: 8.r,
+                    color: colors.primary.withValues(alpha: 0.12),
+                    child: Text(
+                      Strings.prescriptionOrder,
+                      style: FontPalette.base600(11, color: colors.primary),
+                    ),
+                  ),
+                ],
                 const Spacer(),
                 if (showTotal) ...[
                   Column(

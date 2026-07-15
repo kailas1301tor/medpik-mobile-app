@@ -8,7 +8,7 @@ class AppConstants {
 
   /// When true, non-auth repositories use mock implementations.
   /// Auth always uses the live AuthRepoImpl regardless of this flag.
-  static const bool useMockData = true;
+  static const bool useMockData = false;
 
   /// Max file size for prescription uploads (images and documents).
   static const int maxImageSizeMb = 10;

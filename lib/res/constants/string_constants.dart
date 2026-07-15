@@ -188,6 +188,7 @@ class Strings {
   static const String searchResults = "Search Results";
   static const String resultsFor = "Results for";
   static const String addToCart = "Add to Cart";
+  static const String goToCart = "Go to Cart";
   static const String addedToCart = "Added to cart";
   static const String productDetails = "Product Details";
   static const String aboutThisMedicine = "About this medicine";
@@ -413,6 +414,7 @@ class Strings {
   static String quantityTimes(int quantity) => 'x$quantity';
   static const String orderPlacedSuccess = "Order placed successfully!";
   static const String orderIdLabel = "Order ID";
+  static const String emDash = "—";
   static const String trackOrder = "Track Order";
   static const String continueShopping = "Continue Shopping";
 
@@ -423,6 +425,8 @@ class Strings {
   static const String orderStatus = "Order Status";
   static const String orderItems = "Items";
   static const String totalLabel = "Total";
+  static const String prescriptionOrder = "Prescription";
+  static const String prescriptionsLabel = "prescriptions";
   static const String orderStatusPrescriptionUploaded = "Prescription Uploaded";
   static const String orderStatusUnderReview = "Under Review";
   static const String orderStatusPrescriptionAccepted = "Prescription Accepted";

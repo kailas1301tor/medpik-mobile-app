@@ -92,7 +92,7 @@ class _OrderTrackingBody extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${Strings.orderIdLabel}: ${order.id}',
+                      '${Strings.orderIdLabel}: ${order.displayOrderId.isNotEmpty ? order.displayOrderId : Strings.emDash}',
                       style: FontPalette.base700(
                         16,
                         color: colors.primaryText,

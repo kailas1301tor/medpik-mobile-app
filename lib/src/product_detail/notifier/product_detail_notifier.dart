@@ -102,11 +102,35 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
     );
   }
 
+  int _cartQuantityFor(int productId) {
+    for (final item in ref.read(cartNotifierProvider).items) {
+      if (item.product.id == productId) return item.quantity;
+    }
+    return 0;
+  }
+
   void incrementQuantity() {
+    final productId = state.detail?.product.id;
+    if (productId != null && _cartQuantityFor(productId) > 0) {
+      ref.read(cartNotifierProvider.notifier).incrementItem(productId);
+      debugPrint("🔵 ACTION: cart qty +1 product_id=$productId");
+      return;
+    }
     state = state.copyWith(quantity: state.quantity + 1);
   }
 
   void decrementQuantity() {
+    final productId = state.detail?.product.id;
+    if (productId != null && _cartQuantityFor(productId) > 0) {
+      ref.read(cartNotifierProvider.notifier).decrementItem(productId);
+      if (_cartQuantityFor(productId) == 0) {
+        state = state.copyWith(quantity: 1);
+        debugPrint("🔵 ACTION: removed from cart product_id=$productId");
+      } else {
+        debugPrint("🔵 ACTION: cart qty -1 product_id=$productId");
+      }
+      return;
+    }
     if (state.quantity <= 1) return;
     state = state.copyWith(quantity: state.quantity - 1);
   }
