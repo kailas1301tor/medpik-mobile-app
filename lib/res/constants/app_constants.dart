@@ -1,9 +1,13 @@
+// lib/res/constants/app_constants.dart
 class AppConstants {
-  // TODO: Update these with your actual API URLs
-  static const String baseURL = "https://api.example.com";
+  static const String baseURL = 'https://medpik-backend.onrender.com';
   static const int otpResendDuration = 60;
 
-  /// When true, repositories use mock implementations.
+  /// Hardcoded country code for OTP auth (India).
+  static const String defaultCountryCode = '+91';
+
+  /// When true, non-auth repositories use mock implementations.
+  /// Auth always uses the live AuthRepoImpl regardless of this flag.
   static const bool useMockData = true;
 
   /// Max file size for prescription uploads (images and documents).
@@ -18,34 +22,52 @@ class AppConstants {
     defaultValue: '',
   );
 
-  /// Mock phone number that simulates a suspended account.
-  static const String suspendedTestPhone = '9999999999';
-
-  static String api = "/api";
-  static String version = "/v1";
-  static String user = "/user";
-  static String general = "/general";
-  static String prefix = "$api$version";
+  static String api = '/api';
+  static String version = '/v1';
+  static String user = '/user';
+  static String auth = '/auth';
+  static String general = '/general';
+  static String prefix = '$api$version';
+  static String authPrefix = '$api$auth';
 
   // Auth endpoints
-  static String login = "$prefix$user/login";
-  static String register = "$prefix$user/register";
-  static String refreshTokenApi = "$prefix$user/token-refresh";
-  static String logout = "$prefix$user/logout";
-  static String requestOtp = "$prefix$user/otp/request";
-  static String verifyOtp = "$prefix$user/otp/verify";
-  static String resendOtp = "$prefix$user/otp/resend";
+  /// Placeholder until logout path is confirmed by backend.
+  static String logout = '$authPrefix/logout';
+  static String requestOtp = '$authPrefix/request-otp';
+  static String verifyOtp = '$authPrefix/verify-otp';
+  static String resendOtp = requestOtp;
 
   // Catalog endpoints
-  static String products = "$prefix$user/products";
-  static String categories = "$prefix$user/categories";
-  static String homeFeed = "$prefix$user/home";
+  static String products = '$prefix$user/products';
+  static String categories = '$prefix$user/categories';
+  static String homeFeed = '$prefix$user/home';
 
   // Orders & addresses
-  static String orders = "$prefix$user/orders";
-  static String addresses = "$prefix$user/addresses";
-  static String prescriptions = "$prefix$user/prescriptions";
+  static String orders = '$prefix$user/orders';
+  static String addresses = '$prefix$user/addresses';
+  static String prescriptions = '$prefix$user/prescriptions';
 
   // Profile endpoints
-  static String getProfileData = "$prefix$user/profile";
+  static String getProfileData = '$prefix$user/profile';
+
+  /// Runtime access token hydrated from Sembast on bootstrap / login.
+  static String? accessToken;
+
+  /// Runtime refresh token hydrated from Sembast on bootstrap / login.
+  static String? refreshToken;
+
+  static bool get hasSession => accessToken != null && accessToken!.isNotEmpty;
+
+  static void setSessionTokens({
+    required String access,
+    required String refresh,
+  }) {
+    accessToken = access;
+    refreshToken = refresh;
+  }
+
+  static void clearSessionTokens() {
+    accessToken = null;
+    refreshToken = null;
+  }
 }

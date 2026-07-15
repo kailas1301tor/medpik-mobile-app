@@ -34,6 +34,18 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Android / iOS build outputs (must not be tracked)
+/android/build/
+/android/app/build/
+/ios/build/
+
+# Local secrets — never commit API keys
+**/Secrets.xcconfig
+**/.env
+**/.env.*
+!**/.env.example
+!**/Secrets.xcconfig.example
+
 # Symbolication related
 app.*.symbols
 

@@ -1,16 +1,26 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tsuite/services/auth_session_service.dart';
 import 'src/root/tsuite_app.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  // Lock orientation to portrait
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const ProviderScope(child: TSuiteApp()));
+  final container = ProviderContainer();
+  await container.read(authSessionServiceProvider).initialize();
+  await container.read(authSessionServiceProvider).restore();
+
+  runApp(
+    UncontrolledProviderScope(
+      container: container,
+      child: const TSuiteApp(),
+    ),
+  );
 }

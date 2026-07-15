@@ -1,11 +1,11 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
+// lib/data/local/sembast_services.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sembast/sembast_io.dart';
 import 'package:tsuite/data/local/local_base_services.dart';
+import 'package:tsuite/utils/helpers/safe_converters.dart';
 
 part 'sembast_services.g.dart';
 
@@ -15,31 +15,69 @@ SembastServices sembastServices(Ref<SembastServices> ref) {
 }
 
 class SembastServices extends LocalBaseServices {
-  String dbPath = 'track_eats_app.db';
+  String dbPath = 'medpik_app.db';
   final _tokenStore = StoreRef<String, Map<String, dynamic>>('auth_tokens');
+  final _userStore = StoreRef<String, Map<String, dynamic>>('user_session');
   final _userStatus = StoreRef<String, String>('user_status');
-  final _onboardedStatus = StoreRef<String, bool>('onboarded_status');
-  final _reminderStore = StoreRef<String, String>('reminder_shown');
-  final _completeProfileFromHome = StoreRef<String, bool>(
-    'complete_profile_from_home',
-  );
 
-  late Database db;
+  Database? _db;
+  bool _initialized = false;
 
-  @override
-  Future<void> deleteUserData() async {}
-
-  @override
-  Future<void> getUserData() async {}
-
-  @override
-  Future<void> initialize() async {
-    final appDir = await getApplicationDocumentsDirectory();
-    db = await databaseFactoryIo.openDatabase('${appDir.path}/$dbPath');
+  Database get db {
+    final database = _db;
+    if (database == null) {
+      throw StateError('SembastServices.initialize() must be called first');
+    }
+    return database;
   }
 
   @override
-  Future<void> insertUserData() async {}
+  Future<void> initialize() async {
+    if (_initialized && _db != null) return;
+    final appDir = await getApplicationDocumentsDirectory();
+    _db = await databaseFactoryIo.openDatabase('${appDir.path}/$dbPath');
+    _initialized = true;
+    debugPrint('🟢 SEMBAST: initialized medpik_app.db');
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getUserData() async {
+    try {
+      final data = await _userStore.record('session').get(db);
+      if (data == null) return null;
+      return Map<String, dynamic>.from(data);
+    } catch (e) {
+      debugPrint('🔴 SEMBAST getUserData: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<void> insertUserData(Map<String, dynamic> session) async {
+    try {
+      await _userStore.record('session').put(db, session);
+      final isNewUser = convertToBool(session['isNewUser']);
+      await saveUser(isNewUser: isNewUser);
+      final access = convertToString(session['accessToken']);
+      final refresh = convertToString(session['refreshToken']);
+      if (access.isNotEmpty) {
+        await saveTokens(accessToken: access, refreshToken: refresh);
+      }
+      debugPrint('🟢 SEMBAST: session saved for user ${session['userId']}');
+    } catch (e) {
+      debugPrint('🔴 SEMBAST insertUserData: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteUserData() async {
+    try {
+      await _userStore.record('session').delete(db);
+      await _userStatus.record('isNewUser').delete(db);
+    } catch (e) {
+      debugPrint('🔴 SEMBAST deleteUserData: $e');
+    }
+  }
 
   @override
   Future<void> saveTokens({
@@ -52,7 +90,7 @@ class SembastServices extends LocalBaseServices {
         'refreshToken': refreshToken,
       });
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint('🔴 SEMBAST saveTokens: $e');
     }
   }
 
@@ -61,21 +99,30 @@ class SembastServices extends LocalBaseServices {
     try {
       await _userStatus.record('isNewUser').put(db, isNewUser.toString());
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint('🔴 SEMBAST saveUser: $e');
     }
   }
 
   @override
   Future<bool> isNewUser() async {
-    final status = await _userStatus.record('isNewUser').get(db);
-    return status == 'true';
+    try {
+      final status = await _userStatus.record('isNewUser').get(db);
+      return status == 'true';
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
   Future<String?> getAccessToken() async {
     try {
+      final session = await getUserData();
+      if (session != null) {
+        final fromSession = convertToString(session['accessToken']);
+        if (fromSession.isNotEmpty) return fromSession;
+      }
       final token = await _tokenStore.record('tokens').get(db);
-      return token?['accessToken'];
+      return token?['accessToken'] as String?;
     } catch (e) {
       return null;
     }
@@ -84,8 +131,13 @@ class SembastServices extends LocalBaseServices {
   @override
   Future<String?> getRefreshToken() async {
     try {
+      final session = await getUserData();
+      if (session != null) {
+        final fromSession = convertToString(session['refreshToken']);
+        if (fromSession.isNotEmpty) return fromSession;
+      }
       final token = await _tokenStore.record('tokens').get(db);
-      return token?['refreshToken'];
+      return token?['refreshToken'] as String?;
     } catch (e) {
       return null;
     }
@@ -96,70 +148,11 @@ class SembastServices extends LocalBaseServices {
     try {
       await _userStatus.delete(db);
       await _tokenStore.delete(db);
-      await _reminderStore.delete(db);
-      await _completeProfileFromHome.delete(db);
+      await _userStore.delete(db);
+      debugPrint('🟢 SEMBAST: local auth data cleared');
       return true;
     } catch (e) {
-      return false;
-    }
-  }
-
-  Future<void> updateOnboardedStatus(bool value) async {
-    try {
-      await _onboardedStatus.record('onboarded_status').put(db, value);
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  Future<bool> getOnboardedStatus() async {
-    try {
-      final onboardedStatus = await _onboardedStatus
-          .record('onboarded_status')
-          .get(db);
-      return onboardedStatus ?? false;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<void> setLastReminderShown(String mealLabel, DateTime time) async {
-    try {
-      await _reminderStore.record(mealLabel).put(db, time.toIso8601String());
-    } catch (e) {
-      debugPrint('setLastReminderShown error: $e');
-    }
-  }
-
-  Future<DateTime?> getLastReminderShown(String mealLabel) async {
-    try {
-      final iso = await _reminderStore.record(mealLabel).get(db);
-      if (iso == null) return null;
-      return DateTime.tryParse(iso);
-    } catch (e) {
-      debugPrint('getLastReminderShown error: $e');
-      return null;
-    }
-  }
-
-  Future<void> removeCompleteProfileFromHome(bool value) async {
-    try {
-      await _completeProfileFromHome
-          .record('remove_complete_profile_from_home')
-          .put(db, value);
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  Future<bool> getCompleteProfileFromHome() async {
-    try {
-      final onboardedStatus = await _completeProfileFromHome
-          .record('remove_complete_profile_from_home')
-          .get(db);
-      return onboardedStatus ?? false;
-    } catch (e) {
-      debugPrint('getCompleteProfileFromHome error: $e');
+      debugPrint('🔴 SEMBAST clearLocalDb: $e');
       return false;
     }
   }

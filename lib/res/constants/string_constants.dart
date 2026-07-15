@@ -39,15 +39,8 @@ class Strings {
       "Sign in to shop and track your orders";
   static const String authTrustLine = "Secure checkout · Order tracking";
   static const String login = "Login";
-  static const String register = "Register";
-  static const String email = "Email";
-  static const String password = "Password";
   static const String mobileNumber = "Mobile Number";
   static const String getOtp = "Get OTP";
-  static const String dontHaveAccount = "Don't have an account? ";
-  static const String signUp = "Sign Up";
-  static const String continueWithGoogle = "Continue with Google";
-  static const String forgotPassword = "Forgot Password?";
   static const String refresh = "Refresh";
   static const String error500Title = "Server Error";
   static const String error500Message = "Internal server error occurred.";
@@ -142,6 +135,7 @@ class Strings {
   static const String resendCode = "Resend Code";
   static const String resendIn = "Resend in";
   static const String otpVerificationFailed = "OTP verification failed";
+  static const String otpVerifiedSuccess = "OTP verified successfully";
   static const String accountSuspended =
       "Your account has been suspended. Please contact support.";
   static const String otpSentSuccess = "OTP sent successfully";

@@ -64,10 +64,8 @@ class OtpScreen extends ConsumerWidget {
                         onCompleted: isLoading
                             ? null
                             : (pin) async {
-                                final success =true;
-                                //  await notifier.verifyOtpCode(
-                                //   pin,
-                                // );
+                                final success =
+                                    await notifier.verifyOtpCode(pin);
                                 if (success && context.mounted) {
                                   Navigator.pushNamedAndRemoveUntil(
                                     context,

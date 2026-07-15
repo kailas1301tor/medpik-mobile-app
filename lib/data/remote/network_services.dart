@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -7,13 +6,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/utils/routes/route_generator.dart';
+import 'package:tsuite/src/root/tsuite_app.dart';
 import '../../res/constants/app_constants.dart';
 import '../../utils/helpers/common_functions.dart';
 import '../../utils/routes/route_constants.dart';
 import 'network_base_services.dart';
+import '../../services/auth_session_service.dart';
 import '../../services/connectivity_service.dart';
-import '../../services/token_service.dart';
 
 part 'network_services.g.dart';
 
@@ -57,10 +56,6 @@ class NetworkServices extends NetWorkBaseServices {
   late final Dio _dio;
   final Ref _ref;
 
-  /// Completer-based token refresh — prevents race conditions when multiple
-  /// 401s arrive concurrently. All concurrent callers await the same future.
-  Completer<bool>? _refreshCompleter;
-
   NetworkServices(this._ref) {
     _dio = Dio(
       BaseOptions(
@@ -77,7 +72,7 @@ class NetworkServices extends NetWorkBaseServices {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final isFromAuth = options.extra['isFromAuth'] ?? false;
-          final token = await _ref.read(tokenServiceProvider).getAccessToken();
+          final token = AppConstants.accessToken;
 
           if (!isFromAuth && token != null && token.isNotEmpty) {
             options.headers["Authorization"] = "Bearer $token";
@@ -88,17 +83,7 @@ class NetworkServices extends NetWorkBaseServices {
           if (e.response?.statusCode == 401) {
             final isFromAuth = e.requestOptions.extra['isFromAuth'] ?? false;
             if (!isFromAuth) {
-              final refreshed = await _ensureTokenRefreshed();
-
-              if (refreshed) {
-                final token = await _ref
-                    .read(tokenServiceProvider)
-                    .getAccessToken();
-                e.requestOptions.headers["Authorization"] = "Bearer $token";
-                return handler.resolve(await _retry(e.requestOptions));
-              } else {
-                _logout();
-              }
+              await _forceLogout();
             }
           }
           return handler.next(e);
@@ -163,48 +148,13 @@ class NetworkServices extends NetWorkBaseServices {
     }
   }
 
-  // ── Token Refresh (Completer-based, race-safe) ─────────────────────────
-
-  /// Ensures only one refresh call is in-flight. All concurrent 401 handlers
-  /// await the same [Completer] future.
-  Future<bool> _ensureTokenRefreshed() async {
-    if (_refreshCompleter != null) {
-      // Another call is already refreshing — wait for its result.
-      return _refreshCompleter!.future;
-    }
-
-    _refreshCompleter = Completer<bool>();
-    try {
-      final success = await getAccessTokenWithRefreshToken();
-      _refreshCompleter!.complete(success);
-      return success;
-    } catch (e) {
-      _refreshCompleter!.complete(false);
-      return false;
-    } finally {
-      _refreshCompleter = null;
-    }
-  }
+  // ── Helpers ─────────────────────────────────────────────────────────────
 
   /// Calculates request duration from the timestamp stored in extras.
   int _requestDuration(RequestOptions options) {
     final start = options.extra['_requestStartTime'] as int?;
     if (start == null) return -1;
     return DateTime.now().millisecondsSinceEpoch - start;
-  }
-
-  Future<Response> _retry(RequestOptions requestOptions) {
-    final options = Options(
-      method: requestOptions.method,
-      headers: requestOptions.headers,
-      extra: requestOptions.extra,
-    );
-    return _dio.request(
-      requestOptions.path,
-      data: requestOptions.data,
-      queryParameters: requestOptions.queryParameters,
-      options: options,
-    );
   }
 
   // ── Internet Check (singleton Connectivity) ────────────────────────────
@@ -554,14 +504,15 @@ class NetworkServices extends NetWorkBaseServices {
 
   // ── Auth Helpers ───────────────────────────────────────────────────────
 
-  Future<void> _logout() async {
-    debugPrint('🔴 Failed to refresh token — forcing logout');
-    await _ref.read(tokenServiceProvider).clearTokens();
+  Future<void> _forceLogout() async {
+    debugPrint('🔴 401 UNAUTHORIZED — clearing session and forcing logout');
+    await _ref.read(authSessionServiceProvider).clear();
 
-    if (navigatorKey.currentState != null) {
+    final navKey = _ref.read(navigatorKeyProvider);
+    if (navKey.currentState != null) {
       executeAfterFrame(() {
         Navigator.pushNamedAndRemoveUntil(
-          navigatorKey.currentState!.context,
+          navKey.currentState!.context,
           RouteConstants.routeLoginScreen,
           (_) => false,
         );
@@ -571,39 +522,8 @@ class NetworkServices extends NetWorkBaseServices {
 
   @override
   Future<bool> getAccessTokenWithRefreshToken() async {
-    try {
-      debugPrint('🔄 Refreshing access token…');
-      final refreshToken = await _ref
-          .read(tokenServiceProvider)
-          .getRefreshToken();
-
-      if (refreshToken == null || refreshToken.isEmpty) {
-        debugPrint('🔴 No refresh token available in secure storage');
-        return false;
-      }
-      final response = await postRequest(
-        endPoint: AppConstants.refreshTokenApi,
-        parameters: {'refresh': refreshToken},
-        isFromAuth: true,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint('🟢 Access token refreshed');
-        final newAccessToken = response.data['access'] ?? '';
-        await _ref
-            .read(tokenServiceProvider)
-            .saveTokens(
-              accessToken: newAccessToken,
-              refreshToken: refreshToken,
-            );
-        return true;
-      } else {
-        debugPrint('🔴 Refresh failed: ${response.statusCode}');
-        return false;
-      }
-    } catch (e) {
-      debugPrint('🔴 Unexpected error during refresh: $e');
-      return false;
-    }
+    // No refresh endpoint — always force re-login on expiry.
+    debugPrint('🟡 Token refresh not supported; session must be re-authenticated');
+    return false;
   }
 }

@@ -11,11 +11,8 @@ sealed class AuthState with _$AuthState {
     @Default(LoaderState.loaded) LoaderState loaderState,
     String? phoneErrorText,
     @Default(false) bool isPhoneValid,
-    String? selectedGender,
-    String? profilePhotoUrl,
-    String? registerErrorText,
     @Default(0) int resendCountdown,
     AuthModel? authModel,
-    String? errorMessage,
+    @Default(false) bool isNewUser,
   }) = _AuthState;
 }
