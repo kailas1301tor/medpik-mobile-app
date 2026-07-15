@@ -13,14 +13,14 @@ import 'package:tsuite/utils/routes/route_constants.dart';
 class HomeHeaderSection extends StatelessWidget {
   const HomeHeaderSection({
     super.key,
-    required this.userName,
+    required this.greeting,
     required this.deliveryHint,
     required this.searchController,
     required this.onSearchTap,
     this.isOnDarkBackground = false,
   });
 
-  final String userName;
+  final String greeting;
   final String deliveryHint;
   final TextEditingController searchController;
   final VoidCallback onSearchTap;
@@ -45,7 +45,7 @@ class HomeHeaderSection extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '${Strings.homeGreeting}, $userName',
+                  greeting,
                   style: FontPalette.base700(22, color: titleColor),
                 ),
               ),

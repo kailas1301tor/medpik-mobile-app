@@ -41,49 +41,6 @@ class MockCatalog {
     ),
   ];
 
-  static const List<OfferModel> offers = [
-    OfferModel(
-      id: 1,
-      title: 'Flat 15% OFF',
-      subtitle: '+ Free delivery on your first order',
-      badgeLabel: 'FIRST ORDER OFFER',
-      promoCode: 'NEW15',
-      backgroundKey: 'blue_cyan',
-    ),
-    OfferModel(
-      id: 2,
-      title: 'Free delivery',
-      subtitle: 'On orders above ₹499',
-      badgeLabel: 'DELIVERY OFFER',
-      promoCode: 'FREEDEL',
-      backgroundKey: 'orange_amber',
-    ),
-    OfferModel(
-      id: 3,
-      title: 'Extra 10% OFF',
-      subtitle: 'On wellness & supplements',
-      badgeLabel: 'WELLNESS OFFER',
-      promoCode: 'WELL10',
-      backgroundKey: 'purple_pink',
-    ),
-    OfferModel(
-      id: 4,
-      title: '20% OFF on skincare',
-      subtitle: 'On selected skin care products',
-      badgeLabel: 'SKIN CARE OFFER',
-      promoCode: 'SKIN20',
-      backgroundKey: 'green_lime',
-    ),
-    OfferModel(
-      id: 5,
-      title: 'Buy 2 Get 1 Free',
-      subtitle: 'On baby care essentials',
-      badgeLabel: 'BABY CARE OFFER',
-      promoCode: 'BABY3',
-      backgroundKey: 'red_orange',
-    ),
-  ];
-
   static const List<ProductModel> allProducts = [
     ProductModel(
       id: 101,
@@ -206,16 +163,6 @@ class MockCatalog {
       description: 'Topical pain relief spray for muscle aches.',
     ),
   ];
-
-  static List<ProductModel> get featuredProducts {
-    const ids = [101, 109, 102, 104, 107, 103, 105, 106, 108, 110];
-    return ids
-        .map((id) => productById(id))
-        .whereType<ProductModel>()
-        .toList();
-  }
-
-  static const String defaultDeliveryHint = 'Home · Mumbai, 400001';
 
   static List<ProductModel> searchProducts({
     required String query,

@@ -45,10 +45,7 @@ class HomePrescriptionCard extends StatelessWidget {
           ];
 
     return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        boxShadow: cardShadow,
-      ),
+      decoration: BoxDecoration(borderRadius: radius, boxShadow: cardShadow),
       child: SmoothClipRRect(
         smoothness: 2,
         borderRadius: radius,
@@ -108,10 +105,7 @@ class _CardSurface extends StatelessWidget {
                 ],
               )
             : ColorPalette.prescriptionCardGradient,
-        border: Border.all(
-          color: glassBorder,
-          width: isDark ? 1 : 1.2,
-        ),
+        border: Border.all(color: glassBorder, width: isDark ? 1 : 1.2),
       ),
       child: Stack(
         children: [
@@ -174,18 +168,12 @@ class _CardSurface extends StatelessWidget {
               children: [
                 Text(
                   Strings.uploadPrescription,
-                  style: FontPalette.base700(
-                    18,
-                    color: colors.primaryText,
-                  ),
+                  style: FontPalette.base700(18, color: colors.primaryText),
                 ),
                 3.verticalSpace,
                 Text(
                   Strings.uploadPrescriptionSubtitle,
-                  style: FontPalette.base400(
-                    12,
-                    color: colors.secondaryText,
-                  ),
+                  style: FontPalette.base400(12, color: colors.secondaryText),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -379,9 +367,7 @@ class _GlassChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: chipFill,
             borderRadius: BorderRadius.circular(100.r),
-            border: Border.all(
-              color: chipBorder,
-            ),
+            border: Border.all(color: chipBorder),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

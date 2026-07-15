@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:either_dart/either.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tsuite/src/root/tsuite_app.dart';
 import '../../res/constants/app_constants.dart';
 import '../../utils/helpers/common_functions.dart';
+import '../../utils/helpers/network_logger.dart';
 import '../../utils/routes/route_constants.dart';
 import 'network_base_services.dart';
 import '../../services/auth_session_service.dart';
@@ -19,34 +18,6 @@ part 'network_services.g.dart';
 @Riverpod(keepAlive: true)
 NetworkServices networkServices(Ref<NetworkServices> ref) {
   return NetworkServices(ref);
-}
-
-/// Maximum characters to log from a response body.
-/// Prevents jank/OOM when debugging endpoints that return huge payloads.
-const int _kMaxLogBodyLength = 2000;
-
-/// Pretty-prints JSON and truncates to [_kMaxLogBodyLength] characters.
-String _formatBody(dynamic data) {
-  try {
-    final encoded = const JsonEncoder.withIndent('  ').convert(data);
-    if (encoded.length > _kMaxLogBodyLength) {
-      return '${encoded.substring(0, _kMaxLogBodyLength)}\n  …[truncated ${encoded.length - _kMaxLogBodyLength} chars]';
-    }
-    return encoded;
-  } catch (_) {
-    final fallback = data.toString();
-    if (fallback.length > _kMaxLogBodyLength) {
-      return '${fallback.substring(0, _kMaxLogBodyLength)}\n  …[truncated]';
-    }
-    return fallback;
-  }
-}
-
-/// Masks a Bearer token to only show the last 6 chars.
-String _maskToken(String? token) {
-  if (token == null || token.isEmpty) return '[none]';
-  if (token.length <= 10) return '•••';
-  return 'Bearer •••${token.substring(token.length - 6)}';
 }
 
 class NetworkServices extends NetWorkBaseServices {
@@ -99,48 +70,36 @@ class NetworkServices extends NetWorkBaseServices {
             options.extra['_requestStartTime'] =
                 DateTime.now().millisecondsSinceEpoch;
 
-            debugPrint(
-              '┌─ 🌐 ${options.method} ${options.baseUrl}${options.path}',
+            NetworkLogger.request(
+              method: options.method,
+              url: '${options.baseUrl}${options.path}',
+              token: options.headers['Authorization']?.toString(),
+              queryParameters: options.queryParameters.isEmpty
+                  ? null
+                  : options.queryParameters,
+              body: options.data,
             );
-            debugPrint(
-              '│  🔒 Token: ${_maskToken(options.headers["Authorization"]?.toString())}',
-            );
-            if (options.queryParameters.isNotEmpty) {
-              debugPrint('│  📎 Params: ${options.queryParameters}');
-            }
-            if (options.data != null) {
-              if (options.data is FormData) {
-                debugPrint('│  📦 Body (FormData):');
-                for (final field in (options.data as FormData).fields) {
-                  debugPrint('│    ${field.key} = ${field.value}');
-                }
-              } else {
-                debugPrint('│  📦 Body:\n${_formatBody(options.data)}');
-              }
-            }
-            debugPrint('└─');
             return handler.next(options);
           },
           onResponse: (response, handler) {
-            final duration = _requestDuration(response.requestOptions);
-            debugPrint(
-              '┌─ ✅ ${response.statusCode} ${response.requestOptions.method} '
-              '${response.requestOptions.path} — ${duration}ms',
+            NetworkLogger.response(
+              statusCode: response.statusCode,
+              method: response.requestOptions.method,
+              path: response.requestOptions.path,
+              durationMs: _requestDuration(response.requestOptions),
+              data: response.data,
             );
-            debugPrint('│  📋 Data:\n${_formatBody(response.data)}');
-            debugPrint('└─');
             return handler.next(response);
           },
           onError: (DioException e, handler) {
-            final duration = _requestDuration(e.requestOptions);
-            debugPrint(
-              '┌─ ❌ ${e.response?.statusCode ?? "?"} ${e.requestOptions.method} '
-              '${e.requestOptions.path} — ${duration}ms',
+            NetworkLogger.error(
+              statusCode: e.response?.statusCode,
+              method: e.requestOptions.method,
+              path: e.requestOptions.path,
+              durationMs: _requestDuration(e.requestOptions),
+              data: e.response?.data,
+              message: e.message,
             );
-            if (e.response?.data != null) {
-              debugPrint('│  📉 Error:\n${_formatBody(e.response?.data)}');
-            }
-            debugPrint('└─');
             return handler.next(e);
           },
         ),

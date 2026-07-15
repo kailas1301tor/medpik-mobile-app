@@ -8,14 +8,14 @@ import 'package:tsuite/src/home/view/widget/home_header_section.dart';
 class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
   HomePinnedHeaderDelegate({
     required this.topInset,
-    required this.userName,
+    required this.greeting,
     required this.deliveryHint,
     required this.searchController,
     required this.onSearchTap,
   });
 
   final double topInset;
-  final String userName;
+  final String greeting;
   final String deliveryHint;
   final TextEditingController searchController;
   final VoidCallback onSearchTap;
@@ -69,7 +69,7 @@ class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
           Padding(
             padding: EdgeInsets.only(top: topInset),
             child: HomeHeaderSection(
-              userName: userName,
+              greeting: greeting,
               deliveryHint: deliveryHint,
               searchController: searchController,
               onSearchTap: onSearchTap,
@@ -98,7 +98,7 @@ class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant HomePinnedHeaderDelegate oldDelegate) {
-    return userName != oldDelegate.userName ||
+    return greeting != oldDelegate.greeting ||
         deliveryHint != oldDelegate.deliveryHint ||
         searchController != oldDelegate.searchController ||
         topInset != oldDelegate.topInset;

@@ -240,7 +240,7 @@ class FeatureRepoImpl implements FeatureRepo {
         .safe(_services.getRequest(endPoint: AppConstants.featureEndpoint))
         .thenRight(_services.checkHttpStatus)
         .thenRight(_services.parseJson)
-        .mapRight((right) => FeatureResponse.fromJson(right));
+        .mapRight((right) => FeatureResponse.fromJson(convertToMap(right)));
   }
 }
 ```
@@ -248,6 +248,7 @@ class FeatureRepoImpl implements FeatureRepo {
 - Repositories handle: API calls, response validation, model parsing only.
 - Repositories NEVER modify UI state.
 - Chain MUST be: `.safe()` → `.thenRight(checkHttpStatus)` → `.thenRight(parseJson)` → `.mapRight(Model.fromJson)`.
+- **Pass the full JSON envelope** into `Model.fromJson` — NEVER unwrap `results` / `data` (or other nested keys) inside the repository. Envelope drilling belongs in the model layer.
 
 ---
 
@@ -255,8 +256,75 @@ class FeatureRepoImpl implements FeatureRepo {
 
 NEVER use `json_serializable`. ALWAYS write manual `fromJson` factories using safe converters.
 
+### API envelope — `results` / `data` (MANDATORY for backend responses)
+
+Backend payloads follow `{ message?, status?, results: { data: { … } } }`.
+Response models MUST mirror that shape with nested types. The repository passes the **whole** JSON map; models unwrap.
+
 ```dart
 // model/feature_model.dart
+class FeatureResponse {
+  const FeatureResponse({
+    required this.results,
+    this.message = '',
+    this.status = true,
+  });
+
+  final FeatureResultsModel results;
+  final String message;
+  final bool status;
+
+  /// Optional convenience getters for UI (delegate into results.data).
+  List<ItemModel> get items => results.data?.items ?? const [];
+
+  factory FeatureResponse.fromJson(Map<String, dynamic> json) {
+    final hasStatus = json.containsKey('status');
+    return FeatureResponse(
+      message: convertToString(json['message']),
+      status: hasStatus ? convertToBool(json['status']) : true,
+      results: FeatureResultsModel.fromJson(convertToMap(json['results'])),
+    );
+  }
+}
+
+class FeatureResultsModel {
+  const FeatureResultsModel({this.data});
+
+  final FeatureDataModel? data;
+
+  factory FeatureResultsModel.fromJson(Map<String, dynamic> json) =>
+      FeatureResultsModel(
+        data: json['data'] == null
+            ? null
+            : FeatureDataModel.fromJson(convertToMap(json['data'])),
+      );
+}
+
+class FeatureDataModel {
+  const FeatureDataModel({this.items = const []});
+
+  final List<ItemModel> items;
+
+  factory FeatureDataModel.fromJson(Map<String, dynamic> json) =>
+      FeatureDataModel(
+        items: convertToList(json['items'])
+            .map((e) => ItemModel.fromJson(convertToMap(e)))
+            .toList(),
+      );
+}
+```
+
+Rules:
+- NEVER peel `right['results']['data']` in the repository — pass `convertToMap(right)` to the top-level response `fromJson`.
+- Top-level response model owns `results` (and optional `message` / `status`).
+- `results` model owns `data`.
+- Payload fields (`offers`, `categories`, `products`, etc.) live on the `data` model.
+- Local-only UI overlays (greeting name, delivery hint, etc.) may sit on the top-level response and be filled by the notifier via `copyWith` — not from JSON.
+- Convenience getters on the top-level model that delegate into `results.data` are allowed so UI stays clean.
+
+### Nested / leaf models
+
+```dart
 class FeatureModel {
   const FeatureModel({
     required this.id,
@@ -857,6 +925,7 @@ Enforce strictly. Exceed the limit → extract immediately into sub-files.
 | `json_serializable`                  | Manual `fromJson` with safe converters              |
 | `ChangeNotifier`                     | Riverpod code gen                                   |
 | `throw` in repository                | Return `Left(ResponseError(...))`                   |
+| Unwrap `results`/`data` in repository | Pass full JSON to `Model.fromJson`; nest `Results`/`Data` models |
 | Hardcoded strings in UI              | Use `Strings.` from `string_constants.dart`         |
 | Hardcoded colors in UI               | Use `ColorPalette.` from `color_palette.dart`       |
 | Inline `TextStyle(...)` in UI        | Use `FontPalette.` from font palette          |

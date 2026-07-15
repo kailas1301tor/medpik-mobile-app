@@ -216,36 +216,43 @@ class ColorPalette {
     ),
   ];
 
-  // Offer banner promotional gradients (Swiggy/Zomato style)
-  static const offerBlueCyan = LinearGradient(
+  // Offer banner gradients — match admin offer-card L→R style
+  static const offerLimeMagenta = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [Color(0xFF1D4ED8), Color(0xFF06B6D4)],
+    colors: [Color(0xFFA3E635), Color(0xFFDB2777)],
   );
 
-  static const offerOrangeAmber = LinearGradient(
+  static const offerSlateSilver = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [Color(0xFFEA580C), Color(0xFFFBBF24)],
+    colors: [Color(0xFF475569), Color(0xFFE2E8F0)],
   );
 
-  static const offerPurplePink = LinearGradient(
+  static const offerInkPurple = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [Color(0xFF7C3AED), Color(0xFFEC4899)],
+    colors: [Color(0xFF0F0A1A), Color(0xFF7C3AED)],
   );
 
-  static const offerRedOrange = LinearGradient(
+  static const offerRedBlue = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [Color(0xFFDC2626), Color(0xFFF97316)],
+    colors: [Color(0xFFEF4444), Color(0xFF2563EB)],
   );
 
-  static const offerGreenLime = LinearGradient(
+  static const offerForestTeal = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [Color(0xFF16A34A), Color(0xFFA3E635)],
+    colors: [Color(0xFF064E3B), Color(0xFF2DD4BF)],
   );
+
+  // Legacy aliases used by older call sites
+  static const offerBlueCyan = offerForestTeal;
+  static const offerOrangeAmber = offerRedBlue;
+  static const offerPurplePink = offerInkPurple;
+  static const offerRedOrange = offerLimeMagenta;
+  static const offerGreenLime = offerSlateSilver;
 }
 
 /// ThemeExtension to support dynamic color switching between Light and Dark mode
