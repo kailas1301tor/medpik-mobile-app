@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
+import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/services/location/places_session_client.dart';
 import 'package:tsuite/utils/common_widgets/common_container.dart';
 import 'package:tsuite/utils/common_widgets/common_inline_loader.dart';
@@ -29,6 +30,7 @@ class LocationSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final visiblePredictions = predictions.take(5).toList(growable: false);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -39,7 +41,7 @@ class LocationSearchBar extends StatelessWidget {
           onChanged: onChanged,
           onClear: onClear,
         ),
-        if (isSearching || predictions.isNotEmpty) ...[
+        if (isSearching || visiblePredictions.isNotEmpty) ...[
           8.verticalSpace,
           CommonContainer(
             padding: EdgeInsets.symmetric(vertical: 4.h),
@@ -56,21 +58,39 @@ class LocationSearchBar extends StatelessWidget {
                     ),
                   )
                 else
-                  ...predictions.take(5).map(
-                        (prediction) => ListTile(
-                          dense: true,
-                          leading: Icon(
-                            Icons.place_outlined,
-                            color: colors.primary,
-                            size: 20.r,
-                          ),
-                          title: Text(prediction.primaryText),
-                          subtitle: prediction.secondaryText.isEmpty
-                              ? null
-                              : Text(prediction.secondaryText),
-                          onTap: () => onPredictionTap(prediction),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: visiblePredictions.length,
+                    itemBuilder: (context, index) {
+                      final prediction = visiblePredictions[index];
+                      return ListTile(
+                        dense: true,
+                        leading: Icon(
+                          Icons.place_outlined,
+                          color: colors.primary,
+                          size: 20.r,
                         ),
-                      ),
+                        title: Text(
+                          prediction.primaryText,
+                          style: FontPalette.base500(
+                            14,
+                            color: colors.primaryText,
+                          ),
+                        ),
+                        subtitle: prediction.secondaryText.isEmpty
+                            ? null
+                            : Text(
+                                prediction.secondaryText,
+                                style: FontPalette.base400(
+                                  12,
+                                  color: colors.secondaryText,
+                                ),
+                              ),
+                        onTap: () => onPredictionTap(prediction),
+                      );
+                    },
+                  ),
               ],
             ),
           ),

@@ -10,7 +10,9 @@ sealed class AddressState with _$AddressState {
   const factory AddressState({
     @Default(LoaderState.loaded) LoaderState loaderState,
     @Default([]) List<AddressModel> addresses,
-    @Default(false) bool isSaving,
+    @Default(LoaderState.loaded) LoaderState saveLoaderState,
+    @Default(false) bool isDefaultSelected,
+    int? deletingAddressId,
     String? errorMessage,
   }) = _AddressState;
 }

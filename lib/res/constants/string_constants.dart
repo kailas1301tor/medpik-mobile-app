@@ -416,17 +416,12 @@ class Strings {
       "Could not load products. Please try again.";
   static const String cartCheckoutUnavailable =
       "Cart checkout is not available yet";
-  static const String addressUpdateUnavailable =
-      "Address update is not available yet";
-  static const String addressDeleteUnavailable =
-      "Address delete is not available yet";
-  static const String setDefaultAddressUnavailable =
-      "Set default address is not available yet";
 
   static String quantityTimes(int quantity) => 'x$quantity';
   static const String orderPlacedSuccess = "Order placed successfully!";
   static const String orderIdLabel = "Order ID";
   static const String emDash = "—";
+  static const String unavailableValue = "-----";
   static const String trackOrder = "Track Order";
   static const String continueShopping = "Continue Shopping";
 
@@ -439,6 +434,10 @@ class Strings {
   static const String totalLabel = "Total";
   static const String prescriptionOrder = "Prescription";
   static const String prescriptionsLabel = "prescriptions";
+  static const String orderCustomerDetails = "Customer details";
+  static const String orderDeliveryInstructions = "Delivery instructions";
+  static const String orderPrescriptionNotes = "Prescription notes";
+  static const String attachedPrescriptionsTitle = "Prescriptions";
   static const String orderStatusPrescriptionUploaded = "Prescription Uploaded";
   static const String orderStatusUnderReview = "Under Review";
   static const String orderStatusPrescriptionAccepted = "Prescription Accepted";

@@ -14,7 +14,7 @@ class HomeCategoryRow extends StatelessWidget {
   });
 
   final List<CategoryModel> categories;
-  final ValueChanged<String> onCategoryTap;
+  final ValueChanged<CategoryModel> onCategoryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class HomeCategoryRow extends StatelessWidget {
             if (i > 0) 16.horizontalSpace,
             _CategoryTile(
               category: categories[i],
-              onTap: () => onCategoryTap(categories[i].name),
+              onTap: () => onCategoryTap(categories[i]),
             ),
           ],
         ],

@@ -4,6 +4,8 @@ import 'package:tsuite/data/models/order_model.dart';
 import 'package:tsuite/data/remote/network_base_services.dart';
 import 'package:tsuite/data/remote/network_services.dart';
 import 'package:tsuite/res/constants/app_constants.dart';
+import 'package:tsuite/res/constants/string_constants.dart';
+import 'package:tsuite/src/orders/model/order_detail_response_model.dart';
 import 'package:tsuite/src/orders/model/orders_response_model.dart';
 import 'package:tsuite/utils/helpers/safe_converters.dart';
 
@@ -31,8 +33,44 @@ class OrdersRepoImpl implements OrdersRepo {
 
   @override
   Future<Either<ResponseError, OrderModel>> getOrderById(String id) async {
-    return const Left(
-      ResponseError(key: ApiErrorTypes.oops, message: 'Not implemented'),
-    );
+    final trimmedId = id.trim();
+    if (trimmedId.isEmpty) {
+      return const Left(
+        ResponseError(
+          key: ApiErrorTypes.badRequest,
+          message: Strings.somethingWentWrong,
+        ),
+      );
+    }
+
+    return await _networkServices
+        .safe(
+          _networkServices.getRequest(
+            endPoint: AppConstants.orders,
+            queryParameters: {'id': trimmedId},
+          ),
+        )
+        .thenRight(_networkServices.checkHttpStatus)
+        .thenRight(_networkServices.parseJson)
+        .mapRight(
+          (right) => OrderDetailResponse.fromJson(convertToMap(right)),
+        )
+        .then((either) {
+          return either.fold(
+            (error) => Left(error),
+            (response) {
+              final order = response.order;
+              if (order == null || order.id.isEmpty) {
+                return const Left(
+                  ResponseError(
+                    key: ApiErrorTypes.jsonParsing,
+                    message: Strings.somethingWentWrong,
+                  ),
+                );
+              }
+              return Right(order);
+            },
+          );
+        });
   }
 }

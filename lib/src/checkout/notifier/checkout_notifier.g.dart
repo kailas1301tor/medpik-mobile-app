@@ -6,7 +6,7 @@ part of 'checkout_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$checkoutNotifierHash() => r'be091cd61762195c6d92fc21237cfb455cb5fc3d';
+String _$checkoutNotifierHash() => r'e6d8374a43bf93111e87f2bff5ef61e6e3193cf1';
 
 /// See also [CheckoutNotifier].
 @ProviderFor(CheckoutNotifier)

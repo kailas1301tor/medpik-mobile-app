@@ -76,7 +76,7 @@ class _SelectedProductCard extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: ColorPalette.productCardBorder, width: 1.w),
+            border: Border.all(color: colors.cardBorder, width: 1.w),
           ),
           child: Row(
             children: [
@@ -105,7 +105,10 @@ class _SelectedProductCard extends StatelessWidget {
                       2.verticalSpace,
                       Text(
                         product.packSize,
-                        style: FontPalette.base400(12, color: colors.secondaryText),
+                        style: FontPalette.base400(
+                          12,
+                          color: colors.secondaryText,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -118,7 +121,10 @@ class _SelectedProductCard extends StatelessWidget {
                 children: [
                   Text(
                     '×${item.quantity}',
-                    style: FontPalette.base700(14, color: ColorPalette.productAccentTeal),
+                    style: FontPalette.base700(
+                      14,
+                      color: ColorPalette.productAccentTeal,
+                    ),
                   ),
                   8.verticalSpace,
                   GestureDetector(

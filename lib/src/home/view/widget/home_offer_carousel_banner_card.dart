@@ -2,14 +2,22 @@
 part of 'home_offer_carousel.dart';
 
 class _OfferBannerCard extends StatelessWidget {
-  const _OfferBannerCard({required this.offer, required this.gradient});
+  const _OfferBannerCard({
+    required this.offer,
+    required this.gradient,
+    this.onTap,
+  });
 
   final OfferModel offer;
   final LinearGradient gradient;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return SmoothClipRRect(
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SmoothClipRRect(
       smoothness: 2,
       borderRadius: BorderRadius.circular(20.r),
       child: DecoratedBox(
@@ -71,6 +79,7 @@ class _OfferBannerCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

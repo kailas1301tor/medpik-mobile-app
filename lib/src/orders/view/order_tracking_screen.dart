@@ -113,7 +113,7 @@ class _OrderTrackingBody extends StatelessWidget {
                           8.horizontalSpace,
                           Expanded(
                             child: Text(
-                              order.etaText!,
+                              order.etaText ?? '',
                               style: FontPalette.base500(
                                 14,
                                 color: colors.primary,

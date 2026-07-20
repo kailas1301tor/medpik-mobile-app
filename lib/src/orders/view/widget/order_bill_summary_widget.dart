@@ -32,7 +32,7 @@ class OrderBillSummaryWidget extends StatelessWidget {
       children: [
         if (title != null) ...[
           Text(
-            title!,
+            title??"",
             style: FontPalette.base700(16, color: colors.primaryText),
           ),
           12.verticalSpace,

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
+import 'package:tsuite/utils/common_widgets/common_container.dart';
 import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
 
 class AddressBookShimmerWidget extends StatelessWidget {
@@ -18,13 +19,11 @@ class AddressBookShimmerWidget extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: _itemCount,
       itemBuilder: (context, index) {
-        return Container(
+        return CommonContainer(
           margin: EdgeInsets.only(bottom: 12.h),
           padding: EdgeInsets.all(16.r),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(16.r),
-          ),
+          borderRadius: 16.r,
+          color: colors.surface,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

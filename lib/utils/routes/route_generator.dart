@@ -20,6 +20,7 @@ import '../../src/orders/view/order_tracking_screen.dart';
 import '../../src/prescription/view/prescription_checkout_screen.dart';
 import '../../src/prescription/view/prescription_upload_screen.dart';
 import '../../src/product_detail/view/product_detail_screen.dart';
+import '../../src/search/model/product_catalog_args.dart';
 import '../../src/search/view/search_results_screen.dart';
 import '../../src/search/view/search_screen.dart';
 import '../../src/splash/view/splash_screen.dart';
@@ -63,9 +64,9 @@ class RouteGenerator {
         );
 
       case RouteConstants.routeSearchResultsScreen:
-        final query = settings.arguments as String? ?? '';
+        final args = ProductCatalogArgs.from(settings.arguments);
         return MaterialPageRoute(
-          builder: (_) => SearchResultsScreen(initialQuery: query),
+          builder: (_) => SearchResultsScreen(args: args),
           settings: settings,
         );
 

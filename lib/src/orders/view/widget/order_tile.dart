@@ -10,8 +10,7 @@ import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/src/orders/view/widget/order_product_preview_row.dart';
 import 'package:tsuite/src/orders/view/widget/order_status_badge.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/extensions/num_extensions.dart';
+import 'package:tsuite/src/orders/view/widget/order_tile_footer.dart';
 import 'package:tsuite/utils/helpers/order_status_helper.dart';
 
 class OrderTile extends StatelessWidget {
@@ -27,19 +26,13 @@ class OrderTile extends StatelessWidget {
         ? order.displayOrderId
         : Strings.emDash;
     final city = order.address.city.trim();
-    final showTotal = orderStatusShowsTotal(order.status) &&
-        order.hasKnownAmount &&
-        order.amount > 0;
     final previewUrls = order.previewImageUrls;
 
     return GestureDetector(
       onTap: onTap,
       child: SmoothContainer(
         smoothness: 2,
-        side: BorderSide(
-          color: colors.cardBorder.withValues(alpha: 0.6),
-          width: 1.w,
-        ),
+        side: BorderSide(color: colors.cardBorder, width: 1.w),
         margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.all(16.r),
         borderRadius: BorderRadius.circular(16.r),
@@ -102,52 +95,7 @@ class OrderTile extends StatelessWidget {
               OrderProductPreviewRow(imageUrls: previewUrls),
             ],
             12.verticalSpace,
-            Row(
-              children: [
-                Text(
-                  orderCardCountLabel(order),
-                  style: FontPalette.base400(12, color: colors.secondaryText),
-                ),
-                if (order.hasPrescription) ...[
-                  8.horizontalSpace,
-                  CommonContainer(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    borderRadius: 8.r,
-                    color: colors.primary.withValues(alpha: 0.12),
-                    child: Text(
-                      Strings.prescriptionOrder,
-                      style: FontPalette.base600(11, color: colors.primary),
-                    ),
-                  ),
-                ],
-                const Spacer(),
-                if (showTotal) ...[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        Strings.totalLabel,
-                        style: FontPalette.base400(
-                          11,
-                          color: colors.secondaryText,
-                        ),
-                      ),
-                      2.verticalSpace,
-                      Text(
-                        order.amount.toCurrency(decimalDigits: 0),
-                        style: FontPalette.base700(
-                          15,
-                          color: colors.primaryText,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
+            OrderTileFooter(order: order),
           ],
         ),
       ),

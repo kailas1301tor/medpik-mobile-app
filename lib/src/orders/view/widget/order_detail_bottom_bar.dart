@@ -24,8 +24,9 @@ class OrderDetailBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final cta = orderDetailPrimaryCta(order.status);
-    final showTotal =
-        orderStatusShowsTotal(order.status) && order.displayGrandTotal > 0;
+    final showTotal = orderStatusShowsTotal(order.status) &&
+        order.hasKnownAmount &&
+        order.displayGrandTotal > 0;
 
     return CommonStickyBottomBar(
       child: Row(

@@ -5,6 +5,7 @@ import 'package:tsuite/res/constants/assets.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/src/orders/notifier/orders_notifier.dart';
 import 'package:tsuite/src/orders/view/widget/orders_content_widget.dart';
+import 'package:tsuite/src/orders/view/widget/orders_shimmer_widget.dart';
 import 'package:tsuite/utils/common_widgets/common_refresh_indicator.dart';
 import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
 import 'package:tuple/tuple.dart';
@@ -34,6 +35,7 @@ class OrdersScreen extends ConsumerWidget {
               loaderState: loaderState,
               reload: () =>
                   ref.read(ordersNotifierProvider.notifier).fetchOrders(),
+              loader: const OrdersShimmerWidget(),
               buttonText: Strings.refresh,
               emptyScreenTitle: Strings.noOrdersYet,
               emptyScreenDescription: Strings.noOrdersMessage,

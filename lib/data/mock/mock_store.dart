@@ -12,8 +12,19 @@ class MockStore {
 
   PrescriptionDraftModel? prescriptionDraft;
 
-  final List<AddressModel> addresses = [
-    const AddressModel(
+  final List<OrderModel> orders = [];
+  int _orderCounter = 1000;
+
+  String nextOrderId() {
+    _orderCounter += 1;
+    return 'MPK$_orderCounter';
+  }
+
+  void seedDemoOrdersIfEmpty() {
+    if (orders.isNotEmpty) return;
+
+    // Orders mock still needs a delivery address on each seeded order.
+    const address = AddressModel(
       id: 1,
       label: 'Home',
       line1: 'Flat 12B, Sunrise Apartments',
@@ -25,34 +36,7 @@ class MockStore {
       latitude: 19.1136,
       longitude: 72.8697,
       formattedAddress: 'Andheri West, Mumbai, Maharashtra 400001',
-    ),
-  ];
-
-  final List<OrderModel> orders = [];
-  int _orderCounter = 1000;
-  int _addressCounter = 1;
-
-  String nextOrderId() {
-    _orderCounter += 1;
-    return 'MPK$_orderCounter';
-  }
-
-  int nextAddressId() {
-    _addressCounter += 1;
-    return _addressCounter;
-  }
-
-  AddressModel? get defaultAddress {
-    for (final address in addresses) {
-      if (address.isDefault) return address;
-    }
-    return addresses.isEmpty ? null : addresses.first;
-  }
-
-  void seedDemoOrdersIfEmpty() {
-    if (orders.isNotEmpty) return;
-    final address = defaultAddress;
-    if (address == null) return;
+    );
 
     final products = MockCatalog.allProducts;
 

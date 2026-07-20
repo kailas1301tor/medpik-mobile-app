@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
+import 'package:tsuite/res/enums/enums.dart';
+import 'package:tsuite/res/styles/color_palette.dart';
+import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/src/address/notifier/address_notifier.dart';
 import 'package:tsuite/utils/common_widgets/common_bottom_sheet.dart';
 import 'package:tsuite/utils/common_widgets/common_text_form_field.dart';
 import 'package:tsuite/utils/common_widgets/primary_button.dart';
+import 'package:tuple/tuple.dart';
 
 class AddressFormSheet extends ConsumerWidget {
   const AddressFormSheet({super.key});
@@ -25,10 +29,21 @@ class AddressFormSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
     final notifier = ref.read(addressNotifierProvider.notifier);
-    final isSaving = ref.watch(
-      addressNotifierProvider.select((s) => s.isSaving),
+    final formData = ref.watch(
+      addressNotifierProvider.select(
+        (s) => Tuple3(
+          s.saveLoaderState,
+          s.isDefaultSelected,
+          s.addresses.isEmpty,
+        ),
+      ),
     );
+    final saveLoaderState = formData.item1;
+    final isDefaultSelected = formData.item2;
+    final forceDefault = formData.item3;
+    final isSaving = saveLoaderState == LoaderState.loading;
 
     return IgnorePointer(
       ignoring: isSaving,
@@ -71,6 +86,18 @@ class AddressFormSheet extends ConsumerWidget {
             controller: notifier.pincodeController,
             hintText: Strings.pincode,
             inputType: TextInputType.number,
+          ),
+          8.verticalSpace,
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(
+              Strings.setAsDefault,
+              style: FontPalette.base500(14, color: colors.primaryText),
+            ),
+            value: forceDefault ? true : isDefaultSelected,
+            onChanged: forceDefault
+                ? null
+                : notifier.setDefaultSelection,
           ),
           20.verticalSpace,
           PrimaryButton(

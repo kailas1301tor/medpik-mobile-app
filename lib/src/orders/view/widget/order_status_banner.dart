@@ -44,7 +44,7 @@ class OrderStatusBanner extends StatelessWidget {
                 if (data.subtitle?.isNotEmpty ?? false) ...[
                   4.verticalSpace,
                   Text(
-                    data.subtitle!,
+                    data.subtitle ?? '',
                     style: FontPalette.base400(12, color: colors.secondaryText),
                   ),
                 ],

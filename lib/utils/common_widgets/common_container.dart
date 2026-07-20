@@ -49,12 +49,7 @@ class CommonContainer extends StatelessWidget {
       margin: margin,
       smoothness: smoothness ?? 2,
       borderRadius: BorderRadius.circular(borderRadiusValue),
-      side:
-          side ??
-          BorderSide(
-            color: context.appColors.cardBorder.withValues(alpha: 0.6),
-            width: 1.w,
-          ),
+      side: side ?? BorderSide(color: context.appColors.cardBorder, width: 1.w),
       color: color ?? context.appColors.surface,
       child: Material(
         color: Colors.transparent,

@@ -5,18 +5,22 @@ import 'package:tsuite/data/remote/network_base_services.dart';
 import 'package:tsuite/data/remote/network_services.dart';
 import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/src/address/model/address_create_response_model.dart';
+import 'package:tsuite/src/address/model/address_save_response_model.dart';
 import 'package:tsuite/src/address/model/addresses_response_model.dart';
 import 'package:tsuite/utils/helpers/safe_converters.dart';
 
 abstract class AddressRepo {
   Future<Either<ResponseError, List<AddressModel>>> getAddresses();
 
-  Future<Either<ResponseError, AddressModel>> saveAddress(AddressModel address);
+  Future<Either<ResponseError, AddressModel>> createAddress(
+    AddressModel address,
+  );
+
+  Future<Either<ResponseError, AddressModel>> updateAddress(
+    AddressModel address,
+  );
 
   Future<Either<ResponseError, bool>> deleteAddress(int id);
-
-  Future<Either<ResponseError, AddressModel>> setDefaultAddress(int id);
 }
 
 class AddressRepoImpl implements AddressRepo {
@@ -39,18 +43,9 @@ class AddressRepoImpl implements AddressRepo {
   }
 
   @override
-  Future<Either<ResponseError, AddressModel>> saveAddress(
+  Future<Either<ResponseError, AddressModel>> createAddress(
     AddressModel address,
   ) async {
-    if (address.id != 0) {
-      return const Left(
-        ResponseError(
-          key: ApiErrorTypes.oops,
-          message: Strings.addressUpdateUnavailable,
-        ),
-      );
-    }
-
     return await _networkServices
         .safe(
           _networkServices.postRequest(
@@ -61,44 +56,64 @@ class AddressRepoImpl implements AddressRepo {
         .thenRight(_networkServices.checkHttpStatus)
         .thenRight(_networkServices.parseJson)
         .mapRight(
-          (right) => AddressCreateResponse.fromJson(convertToMap(right)),
+          (right) => AddressSaveResponse.fromJson(convertToMap(right)),
         )
-        .then((either) {
-          return either.fold(
-            (error) => Left(error),
-            (response) {
-              final saved = response.address;
-              if (saved == null || saved.id == 0) {
-                return const Left(
-                  ResponseError(
-                    key: ApiErrorTypes.jsonParsing,
-                    message: Strings.somethingWentWrong,
-                  ),
-                );
-              }
-              return Right(saved);
+        .then(_parseSavedAddress);
+  }
+
+  @override
+  Future<Either<ResponseError, AddressModel>> updateAddress(
+    AddressModel address,
+  ) async {
+    return await _networkServices
+        .safe(
+          _networkServices.putRequest(
+            endPoint: AppConstants.addresses,
+            parameters: {
+              'id': address.id,
+              ...address.toCreateJson(),
             },
-          );
-        });
+          ),
+        )
+        .thenRight(_networkServices.checkHttpStatus)
+        .thenRight(_networkServices.parseJson)
+        .mapRight(
+          (right) => AddressSaveResponse.fromJson(convertToMap(right)),
+        )
+        .then(_parseSavedAddress);
   }
 
   @override
   Future<Either<ResponseError, bool>> deleteAddress(int id) async {
-    return const Left(
-      ResponseError(
-        key: ApiErrorTypes.oops,
-        message: Strings.addressDeleteUnavailable,
-      ),
-    );
+    return await _networkServices
+        .safe(
+          _networkServices.deleteRequest(
+            endPoint: AppConstants.addresses,
+            parameters: {'id': id},
+          ),
+        )
+        .thenRight(_networkServices.checkHttpStatus)
+        .thenRight(_networkServices.parseJson)
+        .mapRight((_) => true);
   }
 
-  @override
-  Future<Either<ResponseError, AddressModel>> setDefaultAddress(int id) async {
-    return const Left(
-      ResponseError(
-        key: ApiErrorTypes.oops,
-        message: Strings.setDefaultAddressUnavailable,
-      ),
+  Either<ResponseError, AddressModel> _parseSavedAddress(
+    Either<ResponseError, AddressSaveResponse> either,
+  ) {
+    return either.fold(
+      (error) => Left(error),
+      (response) {
+        final saved = response.address;
+        if (saved == null || saved.id == 0) {
+          return const Left(
+            ResponseError(
+              key: ApiErrorTypes.jsonParsing,
+              message: Strings.somethingWentWrong,
+            ),
+          );
+        }
+        return Right(saved);
+      },
     );
   }
 }

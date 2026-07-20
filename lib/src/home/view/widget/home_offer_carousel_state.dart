@@ -99,6 +99,7 @@ class _HomeOfferCarouselState extends State<HomeOfferCarousel> {
   Widget build(BuildContext context) {
     final offers = widget.offers;
     final offersLength = offers.length;
+    final onOfferTap = widget.onOfferTap;
 
     if (offers.isEmpty) return const SizedBox.shrink();
 
@@ -121,6 +122,7 @@ class _HomeOfferCarouselState extends State<HomeOfferCarousel> {
                   child: _OfferBannerCard(
                     offer: offer,
                     gradient: _gradientFor(offer, offerIndex),
+                    onTap: onOfferTap == null ? null : () => onOfferTap(offer),
                   ),
                 );
               },

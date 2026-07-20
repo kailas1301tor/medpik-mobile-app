@@ -19,7 +19,9 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$AddressState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   List<AddressModel> get addresses => throw _privateConstructorUsedError;
-  bool get isSaving => throw _privateConstructorUsedError;
+  LoaderState get saveLoaderState => throw _privateConstructorUsedError;
+  bool get isDefaultSelected => throw _privateConstructorUsedError;
+  int? get deletingAddressId => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of AddressState
@@ -39,7 +41,9 @@ abstract class $AddressStateCopyWith<$Res> {
   $Res call({
     LoaderState loaderState,
     List<AddressModel> addresses,
-    bool isSaving,
+    LoaderState saveLoaderState,
+    bool isDefaultSelected,
+    int? deletingAddressId,
     String? errorMessage,
   });
 }
@@ -61,7 +65,9 @@ class _$AddressStateCopyWithImpl<$Res, $Val extends AddressState>
   $Res call({
     Object? loaderState = null,
     Object? addresses = null,
-    Object? isSaving = null,
+    Object? saveLoaderState = null,
+    Object? isDefaultSelected = null,
+    Object? deletingAddressId = freezed,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -74,10 +80,18 @@ class _$AddressStateCopyWithImpl<$Res, $Val extends AddressState>
                 ? _value.addresses
                 : addresses // ignore: cast_nullable_to_non_nullable
                       as List<AddressModel>,
-            isSaving: null == isSaving
-                ? _value.isSaving
-                : isSaving // ignore: cast_nullable_to_non_nullable
+            saveLoaderState: null == saveLoaderState
+                ? _value.saveLoaderState
+                : saveLoaderState // ignore: cast_nullable_to_non_nullable
+                      as LoaderState,
+            isDefaultSelected: null == isDefaultSelected
+                ? _value.isDefaultSelected
+                : isDefaultSelected // ignore: cast_nullable_to_non_nullable
                       as bool,
+            deletingAddressId: freezed == deletingAddressId
+                ? _value.deletingAddressId
+                : deletingAddressId // ignore: cast_nullable_to_non_nullable
+                      as int?,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -100,7 +114,9 @@ abstract class _$$AddressStateImplCopyWith<$Res>
   $Res call({
     LoaderState loaderState,
     List<AddressModel> addresses,
-    bool isSaving,
+    LoaderState saveLoaderState,
+    bool isDefaultSelected,
+    int? deletingAddressId,
     String? errorMessage,
   });
 }
@@ -121,7 +137,9 @@ class __$$AddressStateImplCopyWithImpl<$Res>
   $Res call({
     Object? loaderState = null,
     Object? addresses = null,
-    Object? isSaving = null,
+    Object? saveLoaderState = null,
+    Object? isDefaultSelected = null,
+    Object? deletingAddressId = freezed,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -134,10 +152,18 @@ class __$$AddressStateImplCopyWithImpl<$Res>
             ? _value._addresses
             : addresses // ignore: cast_nullable_to_non_nullable
                   as List<AddressModel>,
-        isSaving: null == isSaving
-            ? _value.isSaving
-            : isSaving // ignore: cast_nullable_to_non_nullable
+        saveLoaderState: null == saveLoaderState
+            ? _value.saveLoaderState
+            : saveLoaderState // ignore: cast_nullable_to_non_nullable
+                  as LoaderState,
+        isDefaultSelected: null == isDefaultSelected
+            ? _value.isDefaultSelected
+            : isDefaultSelected // ignore: cast_nullable_to_non_nullable
                   as bool,
+        deletingAddressId: freezed == deletingAddressId
+            ? _value.deletingAddressId
+            : deletingAddressId // ignore: cast_nullable_to_non_nullable
+                  as int?,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -153,7 +179,9 @@ class _$AddressStateImpl implements _AddressState {
   const _$AddressStateImpl({
     this.loaderState = LoaderState.loaded,
     final List<AddressModel> addresses = const [],
-    this.isSaving = false,
+    this.saveLoaderState = LoaderState.loaded,
+    this.isDefaultSelected = false,
+    this.deletingAddressId,
     this.errorMessage,
   }) : _addresses = addresses;
 
@@ -171,13 +199,18 @@ class _$AddressStateImpl implements _AddressState {
 
   @override
   @JsonKey()
-  final bool isSaving;
+  final LoaderState saveLoaderState;
+  @override
+  @JsonKey()
+  final bool isDefaultSelected;
+  @override
+  final int? deletingAddressId;
   @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'AddressState(loaderState: $loaderState, addresses: $addresses, isSaving: $isSaving, errorMessage: $errorMessage)';
+    return 'AddressState(loaderState: $loaderState, addresses: $addresses, saveLoaderState: $saveLoaderState, isDefaultSelected: $isDefaultSelected, deletingAddressId: $deletingAddressId, errorMessage: $errorMessage)';
   }
 
   @override
@@ -191,8 +224,12 @@ class _$AddressStateImpl implements _AddressState {
               other._addresses,
               _addresses,
             ) &&
-            (identical(other.isSaving, isSaving) ||
-                other.isSaving == isSaving) &&
+            (identical(other.saveLoaderState, saveLoaderState) ||
+                other.saveLoaderState == saveLoaderState) &&
+            (identical(other.isDefaultSelected, isDefaultSelected) ||
+                other.isDefaultSelected == isDefaultSelected) &&
+            (identical(other.deletingAddressId, deletingAddressId) ||
+                other.deletingAddressId == deletingAddressId) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -202,7 +239,9 @@ class _$AddressStateImpl implements _AddressState {
     runtimeType,
     loaderState,
     const DeepCollectionEquality().hash(_addresses),
-    isSaving,
+    saveLoaderState,
+    isDefaultSelected,
+    deletingAddressId,
     errorMessage,
   );
 
@@ -219,7 +258,9 @@ abstract class _AddressState implements AddressState {
   const factory _AddressState({
     final LoaderState loaderState,
     final List<AddressModel> addresses,
-    final bool isSaving,
+    final LoaderState saveLoaderState,
+    final bool isDefaultSelected,
+    final int? deletingAddressId,
     final String? errorMessage,
   }) = _$AddressStateImpl;
 
@@ -228,7 +269,11 @@ abstract class _AddressState implements AddressState {
   @override
   List<AddressModel> get addresses;
   @override
-  bool get isSaving;
+  LoaderState get saveLoaderState;
+  @override
+  bool get isDefaultSelected;
+  @override
+  int? get deletingAddressId;
   @override
   String? get errorMessage;
 

@@ -30,9 +30,11 @@ class LocationConfirmCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final title = result?.formattedAddress.isNotEmpty == true
-        ? result!.formattedAddress
+    final formattedAddress = result?.formattedAddress ?? '';
+    final title = formattedAddress.isNotEmpty
+        ? formattedAddress
         : Strings.selectLocationOnMap;
+    final errorText = errorMessage;
 
     return CommonContainer(
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
@@ -80,10 +82,10 @@ class LocationConfirmCard extends StatelessWidget {
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
-            if (errorMessage != null) ...[
+            if (errorText != null) ...[
               8.verticalSpace,
               Text(
-                errorMessage!,
+                errorText,
                 style: FontPalette.base400(12, color: colors.errorText),
               ),
             ],

@@ -16,9 +16,14 @@ part 'home_offer_carousel_banner_card.dart';
 part 'home_offer_carousel_indicators.dart';
 
 class HomeOfferCarousel extends StatefulWidget {
-  const HomeOfferCarousel({super.key, required this.offers});
+  const HomeOfferCarousel({
+    super.key,
+    required this.offers,
+    this.onOfferTap,
+  });
 
   final List<OfferModel> offers;
+  final ValueChanged<OfferModel>? onOfferTap;
 
   @override
   State<HomeOfferCarousel> createState() => _HomeOfferCarouselState();

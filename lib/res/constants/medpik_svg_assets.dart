@@ -5,7 +5,7 @@ class MedpikSvgAssets {
   static const String _base = 'assets/images/svg';
 
   static const String home = '$_base/Home.svg';
-  static const String shopping = '$_base/shopping.svg';
+  static const String shopping = '$_base/Cart.svg';
   static const String cart = shopping;
   static const String profile = '$_base/Profile.svg';
   static const String search = '$_base/search (1).svg';

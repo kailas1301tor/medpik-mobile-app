@@ -43,10 +43,7 @@ class _BottomNavigationBody extends ConsumerWidget {
         decoration: BoxDecoration(
           color: colors.cardBackground,
           borderRadius: BorderRadius.circular(100.r),
-          border: Border.all(
-            color: colors.cardBorder.withValues(alpha: 0.7),
-            width: 1.w,
-          ),
+          border: Border.all(color: colors.cardBorder, width: 1.w),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -88,10 +85,7 @@ class _BottomNavigationBody extends ConsumerWidget {
 }
 
 class _CartBottomNavTile extends ConsumerWidget {
-  const _CartBottomNavTile({
-    required this.selectedIndex,
-    required this.onTap,
-  });
+  const _CartBottomNavTile({required this.selectedIndex, required this.onTap});
 
   final int selectedIndex;
   final VoidCallback onTap;
@@ -142,50 +136,66 @@ class BottomNavTile extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                SvgPicture.asset(
-                  icon,
-                  width: 24.r,
-                  height: 24.r,
-                  colorFilter: ColorFilter.mode(
-                    isSelected ? colors.primary : colors.secondaryText,
-                    BlendMode.srcIn,
-                  ),
-                ),
-                if (badgeCount > 0)
-                  Positioned(
-                    top: -4.h,
-                    right: -6.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 5.w,
-                        vertical: 1.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: ColorPalette.productAccentTeal,
-                        borderRadius: BorderRadius.circular(999.r),
-                      ),
-                      constraints: BoxConstraints(minWidth: 16.r),
-                      child: Text(
-                        badgeCount > 99 ? '99+' : '$badgeCount',
-                        textAlign: TextAlign.center,
-                        style: FontPalette.base700(9, color: ColorPalette.white),
-                      ),
+            SizedBox(
+              width: 32.r,
+              height: 32.r,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  AnimatedScale(
+                    scale: isSelected ? 1 : 0.875,
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOut,
+                    child: SvgPicture.asset(
+                      icon,
+                      width: 32.r,
+                      height: 32.r,
+                      colorFilter: isSelected
+                          ? ColorFilter.mode(colors.primary, BlendMode.srcIn)
+                          : null,
                     ),
                   ),
-              ],
+                  if (badgeCount > 0)
+                    Positioned(
+                      top: -2.h,
+                      right: -4.w,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 5.w,
+                          vertical: 1.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: ColorPalette.productAccentTeal,
+                          borderRadius: BorderRadius.circular(999.r),
+                        ),
+                        constraints: BoxConstraints(minWidth: 16.r),
+                        child: Text(
+                          badgeCount > 99 ? '99+' : '$badgeCount',
+                          textAlign: TextAlign.center,
+                          style: FontPalette.base700(
+                            9,
+                            color: ColorPalette.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
             4.verticalSpace,
-            Text(
-              label,
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
               style: FontPalette.base500(
                 10,
                 color: isSelected ? colors.primary : colors.secondaryText,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

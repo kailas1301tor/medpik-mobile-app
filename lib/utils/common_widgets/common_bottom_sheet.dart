@@ -41,48 +41,51 @@ class CommonBottomSheet extends StatelessWidget {
       padding: EdgeInsets.only(bottom: keyboardInset),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: maxHeight),
-        child: Container(
-          width: double.maxFinite,
-          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h + bottomInset),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
-          ),
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 44.w,
-                  height: 5.h,
-                  decoration: BoxDecoration(
-                    color: colors.inputBorder,
-                    borderRadius: BorderRadius.circular(999.r),
+        child: Material(
+          color: colors.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
+          clipBehavior: Clip.antiAlias,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h + bottomInset),
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 44.w,
+                    height: 5.h,
+                    decoration: BoxDecoration(
+                      color: colors.inputBorder,
+                      borderRadius: BorderRadius.circular(999.r),
+                    ),
                   ),
-                ),
-                16.verticalSpace,
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: FontPalette.base700(18, color: colors.primaryText),
+                  16.verticalSpace,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: FontPalette.base700(
+                            18,
+                            color: colors.primaryText,
+                          ),
+                        ),
                       ),
-                    ),
-                    CommonNavBarButton(
-                      icon: Icon(
-                        Icons.close_rounded,
-                        size: 18.r,
-                        color: colors.primaryText,
+                      CommonNavBarButton(
+                        icon: Icon(
+                          Icons.close_rounded,
+                          size: 18.r,
+                          color: colors.primaryText,
+                        ),
+                        onTap: () => Navigator.of(context).pop(),
                       ),
-                      onTap: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-                16.verticalSpace,
-                child,
-              ],
+                    ],
+                  ),
+                  16.verticalSpace,
+                  child,
+                ],
+              ),
             ),
           ),
         ),

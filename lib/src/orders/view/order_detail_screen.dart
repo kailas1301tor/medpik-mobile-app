@@ -8,7 +8,7 @@ import 'package:tsuite/src/orders/notifier/orders_notifier.dart';
 import 'package:tsuite/src/orders/view/widget/order_detail_bottom_bar.dart';
 import 'package:tsuite/src/orders/view/widget/order_detail_content_widget.dart';
 import 'package:tsuite/src/orders/view/widget/order_support_app_bar.dart';
-import 'package:tsuite/utils/common_widgets/common_loader.dart';
+import 'package:tsuite/src/orders/view/widget/order_detail_shimmer_widget.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
 import 'package:tsuite/utils/helpers/order_status_helper.dart';
@@ -87,7 +87,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             .read(ordersNotifierProvider.notifier)
             .loadOrderDetail(widget.orderId),
         buttonText: Strings.refresh,
-        loader: const Center(child: CommonLoader()),
+        loader: const OrderDetailShimmerWidget(),
         child: order == null
             ? const SizedBox.shrink()
             : Column(

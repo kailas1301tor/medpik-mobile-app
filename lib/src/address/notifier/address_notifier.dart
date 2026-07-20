@@ -90,6 +90,7 @@ class AddressNotifier extends _$AddressNotifier {
     stateController.clear();
     pincodeController.clear();
     _clearPickMeta();
+    state = state.copyWith(isDefaultSelected: state.addresses.isEmpty);
     if (pick != null) {
       applyPickedLocation(pick);
     }
@@ -108,6 +109,15 @@ class AddressNotifier extends _$AddressNotifier {
     _pickedLongitude = address.longitude;
     _pickedPlaceId = address.placeId;
     _pickedFormattedAddress = address.formattedAddress;
+    state = state.copyWith(isDefaultSelected: address.isDefault);
+  }
+
+  void setDefaultSelection(bool value) {
+    state = state.copyWith(isDefaultSelected: value);
+  }
+
+  void toggleDefaultSelection() {
+    state = state.copyWith(isDefaultSelected: !state.isDefaultSelected);
   }
 
   void applyPickedLocation(PickedLocationModel pick) {
@@ -140,9 +150,8 @@ class AddressNotifier extends _$AddressNotifier {
     _pickedFormattedAddress = null;
   }
 
-  Future<bool> saveCurrent({bool isDefault = false}) async {
-    if (state.isSaving) return false;
-
+  AddressModel? _buildAddressFromForm() {
+    final isDefault = state.isDefaultSelected || state.addresses.isEmpty;
     final address = AddressModel(
       id: _editingId ?? 0,
       label: labelController.text.trim(),
@@ -152,7 +161,7 @@ class AddressNotifier extends _$AddressNotifier {
       city: cityController.text.trim(),
       state: stateController.text.trim(),
       pincode: pincodeController.text.trim(),
-      isDefault: isDefault || state.addresses.isEmpty,
+      isDefault: isDefault,
       latitude: _pickedLatitude,
       longitude: _pickedLongitude,
       placeId: _pickedPlaceId,
@@ -166,15 +175,25 @@ class AddressNotifier extends _$AddressNotifier {
         address.state.isEmpty ||
         address.pincode.isEmpty) {
       showCustomToast(message: Strings.fieldRequired, isSuccess: false);
-      return false;
+      return null;
     }
+    return address;
+  }
 
-    state = state.copyWith(isSaving: true);
+  /// Creates a new address via POST `/api/addresses`.
+  Future<bool> addAddress() async {
+    if (state.saveLoaderState == LoaderState.loading) return false;
+
+    final address = _buildAddressFromForm();
+    if (address == null) return false;
+
+    state = state.copyWith(saveLoaderState: LoaderState.loading);
     return await addressRepo
-        .saveAddress(address)
+        .createAddress(address)
         .fold(
           (error) {
-            state = state.copyWith(isSaving: false);
+            debugPrint("🔴 ADDRESS CREATE ERROR: ${error.message}");
+            state = state.copyWith(saveLoaderState: LoaderState.error);
             showCustomToast(
               message: error.message ?? Strings.somethingWentWrong,
               isSuccess: false,
@@ -182,15 +201,16 @@ class AddressNotifier extends _$AddressNotifier {
             return false;
           },
           (saved) async {
+            debugPrint("🟢 ADDRESS CREATED: ${saved.id}");
             showCustomToast(message: Strings.addressSaved, isSuccess: true);
             await fetchAddresses();
-            state = state.copyWith(isSaving: false);
+            state = state.copyWith(saveLoaderState: LoaderState.loaded);
             return true;
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED ADDRESS SAVE ERROR: $error");
-          state = state.copyWith(isSaving: false);
+          debugPrint("🔴 UNEXPECTED ADDRESS CREATE ERROR: $error");
+          state = state.copyWith(saveLoaderState: LoaderState.error);
           showCustomToast(
             message: Strings.somethingWentWrong,
             isSuccess: false,
@@ -199,9 +219,71 @@ class AddressNotifier extends _$AddressNotifier {
         });
   }
 
-  Future<void> deleteAddress(int id) async {
-    await addressRepo.deleteAddress(id).fold(
+  /// Updates an existing address via PUT `/api/addresses` with `id` in the body.
+  Future<bool> updateAddress() async {
+    if (state.saveLoaderState == LoaderState.loading) return false;
+
+    final editingId = _editingId;
+    if (editingId == null || editingId == 0) {
+      debugPrint("🔴 ADDRESS UPDATE ERROR: missing editing id");
+      showCustomToast(message: Strings.somethingWentWrong, isSuccess: false);
+      return false;
+    }
+
+    final address = _buildAddressFromForm();
+    if (address == null) return false;
+
+    state = state.copyWith(saveLoaderState: LoaderState.loading);
+    return await addressRepo
+        .updateAddress(address.copyWith(id: editingId))
+        .fold(
           (error) {
+            debugPrint("🔴 ADDRESS UPDATE ERROR: ${error.message}");
+            state = state.copyWith(saveLoaderState: LoaderState.error);
+            showCustomToast(
+              message: error.message ?? Strings.somethingWentWrong,
+              isSuccess: false,
+            );
+            return false;
+          },
+          (saved) async {
+            debugPrint("🟢 ADDRESS UPDATED: ${saved.id}");
+            showCustomToast(message: Strings.addressSaved, isSuccess: true);
+            await fetchAddresses();
+            state = state.copyWith(saveLoaderState: LoaderState.loaded);
+            return true;
+          },
+        )
+        .catchError((error) {
+          debugPrint("🔴 UNEXPECTED ADDRESS UPDATE ERROR: $error");
+          state = state.copyWith(saveLoaderState: LoaderState.error);
+          showCustomToast(
+            message: Strings.somethingWentWrong,
+            isSuccess: false,
+          );
+          return false;
+        });
+  }
+
+  /// Form entry point — routes to create or update based on edit mode.
+  Future<bool> saveCurrent() {
+    final editingId = _editingId;
+    if (editingId != null && editingId != 0) {
+      return updateAddress();
+    }
+    return addAddress();
+  }
+
+  Future<void> deleteAddress(int id) async {
+    if (state.deletingAddressId != null) return;
+
+    state = state.copyWith(deletingAddressId: id);
+    await addressRepo
+        .deleteAddress(id)
+        .fold(
+          (error) {
+            debugPrint("🔴 ADDRESS DELETE ERROR: ${error.message}");
+            state = state.copyWith(deletingAddressId: null);
             showCustomToast(
               message: error.message ?? Strings.somethingWentWrong,
               isSuccess: false,
@@ -210,19 +292,16 @@ class AddressNotifier extends _$AddressNotifier {
           (_) async {
             showCustomToast(message: Strings.addressDeleted, isSuccess: true);
             await fetchAddresses();
+            state = state.copyWith(deletingAddressId: null);
           },
-        );
-  }
-
-  Future<void> setDefault(int id) async {
-    await addressRepo.setDefaultAddress(id).fold(
-          (error) {
-            showCustomToast(
-              message: error.message ?? Strings.somethingWentWrong,
-              isSuccess: false,
-            );
-          },
-          (_) => fetchAddresses(),
-        );
+        )
+        .catchError((error) {
+          debugPrint("🔴 UNEXPECTED ADDRESS DELETE ERROR: $error");
+          state = state.copyWith(deletingAddressId: null);
+          showCustomToast(
+            message: Strings.somethingWentWrong,
+            isSuccess: false,
+          );
+        });
   }
 }

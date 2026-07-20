@@ -140,7 +140,7 @@ class ColorPalette {
 
   // Clean product card tokens
   static const productCardBg = white;
-  static const productCardBorder = Color(0xFFEDEFF1);
+  static const productCardBorder = Color(0xFFD9DEE3);
   static const productImageBg = Color(0xFFF4F7F8);
   static const productSavingsGreen = Color(0xFF22A06D);
 
@@ -340,13 +340,10 @@ class AppColors extends ThemeExtension<AppColors> {
   });
 
   LinearGradient get primaryGradient => LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color.lerp(primary, ColorPalette.white, 0.22)!,
-          primary,
-        ],
-      );
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color.lerp(primary, ColorPalette.white, 0.22)!, primary],
+  );
 
   @override
   AppColors copyWith({
@@ -447,37 +444,64 @@ class AppColors extends ThemeExtension<AppColors> {
       accent: Color.lerp(accent, other.accent, t)!,
       cardBackground: Color.lerp(cardBackground, other.cardBackground, t)!,
       cardBorder: Color.lerp(cardBorder, other.cardBorder, t)!,
-      shimmerHighlight:
-          Color.lerp(shimmerHighlight, other.shimmerHighlight, t)!,
+      shimmerHighlight: Color.lerp(
+        shimmerHighlight,
+        other.shimmerHighlight,
+        t,
+      )!,
       divider: Color.lerp(divider, other.divider, t)!,
       statusWarningBg: Color.lerp(statusWarningBg, other.statusWarningBg, t)!,
-      statusWarningText:
-          Color.lerp(statusWarningText, other.statusWarningText, t)!,
+      statusWarningText: Color.lerp(
+        statusWarningText,
+        other.statusWarningText,
+        t,
+      )!,
       statusInfoBg: Color.lerp(statusInfoBg, other.statusInfoBg, t)!,
       statusInfoText: Color.lerp(statusInfoText, other.statusInfoText, t)!,
       statusSuccessBg: Color.lerp(statusSuccessBg, other.statusSuccessBg, t)!,
-      statusSuccessText:
-          Color.lerp(statusSuccessText, other.statusSuccessText, t)!,
+      statusSuccessText: Color.lerp(
+        statusSuccessText,
+        other.statusSuccessText,
+        t,
+      )!,
       statusErrorBg: Color.lerp(statusErrorBg, other.statusErrorBg, t)!,
       statusErrorText: Color.lerp(statusErrorText, other.statusErrorText, t)!,
       statusNeutralBg: Color.lerp(statusNeutralBg, other.statusNeutralBg, t)!,
-      statusNeutralText:
-          Color.lerp(statusNeutralText, other.statusNeutralText, t)!,
+      statusNeutralText: Color.lerp(
+        statusNeutralText,
+        other.statusNeutralText,
+        t,
+      )!,
       bannerSuccessBg: Color.lerp(bannerSuccessBg, other.bannerSuccessBg, t)!,
-      bannerSuccessBorder:
-          Color.lerp(bannerSuccessBorder, other.bannerSuccessBorder, t)!,
+      bannerSuccessBorder: Color.lerp(
+        bannerSuccessBorder,
+        other.bannerSuccessBorder,
+        t,
+      )!,
       bannerErrorBg: Color.lerp(bannerErrorBg, other.bannerErrorBg, t)!,
-      bannerErrorBorder:
-          Color.lerp(bannerErrorBorder, other.bannerErrorBorder, t)!,
+      bannerErrorBorder: Color.lerp(
+        bannerErrorBorder,
+        other.bannerErrorBorder,
+        t,
+      )!,
       bannerWarningBg: Color.lerp(bannerWarningBg, other.bannerWarningBg, t)!,
-      bannerWarningBorder:
-          Color.lerp(bannerWarningBorder, other.bannerWarningBorder, t)!,
+      bannerWarningBorder: Color.lerp(
+        bannerWarningBorder,
+        other.bannerWarningBorder,
+        t,
+      )!,
       bannerInfoBg: Color.lerp(bannerInfoBg, other.bannerInfoBg, t)!,
-      bannerInfoBorder:
-          Color.lerp(bannerInfoBorder, other.bannerInfoBorder, t)!,
+      bannerInfoBorder: Color.lerp(
+        bannerInfoBorder,
+        other.bannerInfoBorder,
+        t,
+      )!,
       bannerSecureBg: Color.lerp(bannerSecureBg, other.bannerSecureBg, t)!,
-      bannerSecureBorder:
-          Color.lerp(bannerSecureBorder, other.bannerSecureBorder, t)!,
+      bannerSecureBorder: Color.lerp(
+        bannerSecureBorder,
+        other.bannerSecureBorder,
+        t,
+      )!,
     );
   }
 

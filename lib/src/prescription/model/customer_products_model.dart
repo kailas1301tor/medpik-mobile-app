@@ -15,7 +15,15 @@ class CustomerProductsResponse {
   int get currentPage => results.currentPage;
   int get totalPages => results.totalPages;
   int get totalCount => results.totalCount;
-  bool get hasMore => results.currentPage < results.totalPages;
+  int get itemPerPage => results.itemPerPage;
+
+  /// Prefer server pagination meta; fall back to page-size heuristic.
+  bool get hasMore {
+    if (totalPages > 0) return currentPage < totalPages;
+    return data.length >= (itemPerPage > 0 ? itemPerPage : 10);
+  }
+
+  List<ProductModel> get data => results.data;
 
   factory CustomerProductsResponse.fromJson(Map<String, dynamic> json) =>
       CustomerProductsResponse(
@@ -41,14 +49,33 @@ class CustomerProductsResults {
   final int itemPerPage;
   final List<ProductModel> data;
 
-  factory CustomerProductsResults.fromJson(Map<String, dynamic> json) =>
-      CustomerProductsResults(
-        totalCount: convertToInt(json['total_count']),
-        totalPages: convertToInt(json['total_pages']),
-        currentPage: convertToInt(json['current_page'], defValue: 1),
-        itemPerPage: convertToInt(json['item_per_page'], defValue: 10),
-        data: convertToList(json['data'])
-            .map((e) => ProductModel.fromJson(convertToMap(e)))
-            .toList(),
-      );
+  factory CustomerProductsResults.fromJson(Map<String, dynamic> json) {
+    final data = convertToList(json['data'])
+        .map((e) => ProductModel.fromJson(convertToMap(e)))
+        .toList();
+    final itemPerPage = convertToInt(json['item_per_page'], defValue: 10);
+    final currentPage = convertToInt(json['current_page'], defValue: 1);
+    var totalPages = convertToInt(json['total_pages']);
+    var totalCount = convertToInt(json['total_count']);
+
+    // Responses that only return `data` — infer pagination from page size.
+    if (totalPages <= 0 && data.isNotEmpty) {
+      if (data.length >= itemPerPage) {
+        totalPages = currentPage + 1;
+      } else {
+        totalPages = currentPage;
+      }
+    }
+    if (totalCount <= 0) {
+      totalCount = data.length;
+    }
+
+    return CustomerProductsResults(
+      totalCount: totalCount,
+      totalPages: totalPages,
+      currentPage: currentPage,
+      itemPerPage: itemPerPage > 0 ? itemPerPage : 10,
+      data: data,
+    );
+  }
 }

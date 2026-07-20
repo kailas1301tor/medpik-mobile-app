@@ -1,4 +1,5 @@
 // lib/data/models/order_model.dart
+import 'package:intl/intl.dart';
 import 'package:tsuite/data/models/address_model.dart';
 import 'package:tsuite/data/models/product_model.dart';
 import 'package:tsuite/res/enums/enums.dart';
@@ -61,6 +62,10 @@ class OrderModel {
     this.rejectionReason,
     this.billBreakdown,
     this.prescriptionImageUrls = const [],
+    this.customerName = '',
+    this.customerPhone = '',
+    this.deliveryInstructions = '',
+    this.prescriptionDescription = '',
   });
 
   /// Numeric (or mock) id used for navigation / detail lookup.
@@ -87,6 +92,10 @@ class OrderModel {
   final String? rejectionReason;
   final OrderBillBreakdown? billBreakdown;
   final List<String> prescriptionImageUrls;
+  final String customerName;
+  final String customerPhone;
+  final String deliveryInstructions;
+  final String prescriptionDescription;
 
   /// Prefer `order_id`; fall back to legacy/mock non-numeric `id`; else dash token.
   String get displayOrderId {
@@ -136,6 +145,7 @@ class OrderModel {
     final orderCode = orderCodeRaw.isEmpty ? null : orderCodeRaw;
 
     final addressJson = json['address_detail'] ?? json['address'];
+    final address = AddressModel.fromJson(convertToMap(addressJson));
 
     final hasTotalAmountKey = json.containsKey('total_amount');
     final hasKnownAmount = hasTotalAmountKey
@@ -155,6 +165,11 @@ class OrderModel {
         .toList();
 
     final statusRaw = convertToString(json['status']);
+    final customer = _parseCustomerContact(convertToMap(json['customer_detail']));
+    final deliveryInstructions =
+        convertToString(json['delivery_instructions']).trim();
+    final prescriptionDescription =
+        convertToString(json['prescription_description']).trim();
 
     return OrderModel(
       id: convertToString(json['id']),
@@ -166,9 +181,8 @@ class OrderModel {
       hasKnownAmount: hasKnownAmount,
       status: _parseStatus(statusRaw),
       statusRaw: statusRaw,
-      address: AddressModel.fromJson(convertToMap(addressJson)),
-      createdAt: DateTime.tryParse(convertToString(json['created_at'])) ??
-          DateTime.now(),
+      address: address,
+      createdAt: _parseCreatedAt(convertToString(json['created_at'])),
       etaText: convertToString(json['eta_text']).isEmpty
           ? null
           : convertToString(json['eta_text']),
@@ -183,7 +197,54 @@ class OrderModel {
               convertToMap(json['bill_breakdown']),
             ),
       prescriptionImageUrls: prescriptionUrls,
+      customerName: customer.$1,
+      customerPhone: customer.$2.isNotEmpty
+          ? customer.$2
+          : address.phoneNumber.trim(),
+      deliveryInstructions: deliveryInstructions,
+      prescriptionDescription: prescriptionDescription,
     );
+  }
+
+  static (String, String) _parseCustomerContact(Map<String, dynamic> json) {
+    if (json.isEmpty) return ('', '');
+
+    final userDetail = convertToMap(json['user_detail']);
+    final firstName = convertToString(userDetail['first_name']).trim();
+    final lastName = convertToString(userDetail['last_name']).trim();
+    final name = [firstName, lastName].where((part) => part.isNotEmpty).join(' ');
+
+    final countryCode = convertToString(json['country_code']).trim();
+    final phoneNumber = convertToString(json['phone_number']).trim();
+    final phone = phoneNumber.isEmpty
+        ? ''
+        : countryCode.isEmpty
+            ? phoneNumber
+            : '$countryCode$phoneNumber';
+
+    return (name, phone);
+  }
+
+  static DateTime _parseCreatedAt(String raw) {
+    final value = raw.trim();
+    if (value.isEmpty) return DateTime.now();
+
+    final iso = DateTime.tryParse(value);
+    if (iso != null) return iso;
+
+    for (final pattern in const [
+      'd MMM yyyy, hh:mm a',
+      'dd MMM yyyy, hh:mm a',
+      'd MMM yyyy, h:mm a',
+      'dd MMM yyyy, h:mm a',
+    ]) {
+      try {
+        return DateFormat(pattern).parseLoose(value);
+      } catch (_) {
+        continue;
+      }
+    }
+    return DateTime.now();
   }
 
   static OrderStatus _parseStatus(String value) {

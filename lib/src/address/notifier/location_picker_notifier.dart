@@ -225,17 +225,19 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
     double longitude, {
     bool force = false,
   }) async {
-    if (!force &&
-        _lastReverseLat != null &&
-        _lastReverseLng != null) {
-      final moved = distanceMeters(
-        fromLat: _lastReverseLat!,
-        fromLng: _lastReverseLng!,
-        toLat: latitude,
-        toLng: longitude,
-      );
-      if (moved < LocationConfig.minMoveMetersForReverseGeocode) {
-        return;
+    if (!force) {
+      final lastLat = _lastReverseLat;
+      final lastLng = _lastReverseLng;
+      if (lastLat != null && lastLng != null) {
+        final moved = distanceMeters(
+          fromLat: lastLat,
+          fromLng: lastLng,
+          toLat: latitude,
+          toLng: longitude,
+        );
+        if (moved < LocationConfig.minMoveMetersForReverseGeocode) {
+          return;
+        }
       }
     }
 

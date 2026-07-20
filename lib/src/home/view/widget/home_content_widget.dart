@@ -15,6 +15,7 @@ import 'package:tsuite/src/home/view/widget/home_popular_products_grid.dart';
 import 'package:tsuite/src/home/view/widget/home_prescription_card.dart';
 import 'package:tsuite/src/home/view/widget/home_section_header.dart';
 import 'package:tsuite/utils/extensions/context_extensions.dart';
+import 'package:tsuite/src/search/model/product_catalog_args.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
 
 class HomeContentWidget extends StatelessWidget {
@@ -72,7 +73,19 @@ class HomeContentWidget extends StatelessWidget {
                 child: HomeSectionHeader(title: Strings.offersForYou),
               ),
               SliverToBoxAdapter(
-                child: HomeOfferCarousel(offers: data?.offers ?? []),
+                child: HomeOfferCarousel(
+                  offers: data?.offers ?? [],
+                  onOfferTap: (offer) {
+                    Navigator.pushNamed(
+                      context,
+                      RouteConstants.routeSearchResultsScreen,
+                      arguments: ProductCatalogArgs(
+                        title: offer.title,
+                        offerId: offer.id,
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
             SliverToBoxAdapter(
@@ -82,7 +95,9 @@ class HomeContentWidget extends StatelessWidget {
                   Navigator.pushNamed(
                     context,
                     RouteConstants.routeSearchResultsScreen,
-                    arguments: Strings.allCategories,
+                    arguments: const ProductCatalogArgs(
+                      title: Strings.popularProducts,
+                    ),
                   );
                 },
               ),
@@ -90,11 +105,14 @@ class HomeContentWidget extends StatelessWidget {
             SliverToBoxAdapter(
               child: HomeCategoryRow(
                 categories: data?.categories ?? [],
-                onCategoryTap: (name) {
+                onCategoryTap: (category) {
                   Navigator.pushNamed(
                     context,
                     RouteConstants.routeSearchResultsScreen,
-                    arguments: name,
+                    arguments: ProductCatalogArgs(
+                      title: category.name,
+                      categoryId: category.id,
+                    ),
                   );
                 },
               ),
@@ -107,7 +125,9 @@ class HomeContentWidget extends StatelessWidget {
                   Navigator.pushNamed(
                     context,
                     RouteConstants.routeSearchResultsScreen,
-                    arguments: '',
+                    arguments: const ProductCatalogArgs(
+                      title: Strings.popularProducts,
+                    ),
                   );
                 },
               ),

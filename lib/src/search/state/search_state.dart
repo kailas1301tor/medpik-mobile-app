@@ -2,7 +2,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:tsuite/data/models/product_model.dart';
 import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/src/home/model/home_model.dart';
 
 part 'search_state.freezed.dart';
 
@@ -11,9 +10,14 @@ sealed class SearchState with _$SearchState {
   const factory SearchState({
     @Default(LoaderState.loaded) LoaderState loaderState,
     @Default('') String query,
-    String? selectedCategory,
+    @Default('') String catalogTitle,
+    int? categoryId,
+    int? offerId,
+    @Default(0) int currentPage,
+    @Default(false) bool hasMore,
+    @Default(false) bool isLoadingMore,
+    @Default(false) bool catalogInitialized,
     @Default([]) List<String> recentSearches,
-    @Default([]) List<CategoryModel> categories,
     @Default([]) List<ProductModel> results,
     String? errorMessage,
   }) = _SearchState;
