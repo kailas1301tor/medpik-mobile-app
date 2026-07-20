@@ -10,6 +10,7 @@ sealed class CheckoutState with _$CheckoutState {
   const factory CheckoutState({
     @Default(LoaderState.loaded) LoaderState loaderState,
     AddressModel? selectedAddress,
+    @Default('') String pharmacistInstructions,
     @Default(0) double payableTotal,
     @Default(false) bool isPlacingOrder,
     String? errorMessage,

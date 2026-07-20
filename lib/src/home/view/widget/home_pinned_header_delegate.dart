@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_corner/smooth_corner.dart';
 import 'package:tsuite/res/constants/medpik_image_assets.dart';
+import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/src/home/view/widget/home_header_section.dart';
 
 class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
@@ -44,7 +45,7 @@ class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
             bottomRight: Radius.circular(24.r),
           ),
         ),
-        color: const Color(0xFF043745),
+        color: ColorPalette.homePinnedHeaderBackground,
       ),
       child: Stack(
         fit: StackFit.expand,
@@ -60,8 +61,8 @@ class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withValues(alpha: 0.06),
-                  Colors.black.withValues(alpha: 0.28),
+                  ColorPalette.black.withValues(alpha: 0.06),
+                  ColorPalette.black.withValues(alpha: 0.28),
                 ],
               ),
             ),
@@ -86,7 +87,10 @@ class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0x00000000), Color(0x14000000)],
+                  colors: [
+                    ColorPalette.homePinnedHeaderFadeTop,
+                    ColorPalette.homePinnedHeaderFadeBottom,
+                  ],
                 ),
               ),
             ),

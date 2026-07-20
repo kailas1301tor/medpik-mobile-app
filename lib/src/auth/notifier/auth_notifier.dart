@@ -11,7 +11,8 @@ import 'package:tsuite/services/auth_session_service.dart';
 import 'package:tsuite/services/repo_di.dart';
 import 'package:tsuite/src/auth/repo/auth_repo.dart';
 import 'package:tsuite/src/auth/state/auth_state.dart';
-import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
+import 'package:tsuite/src/cart/notifier/cart_notifier.dart';
+import 'package:tsuite/services/wishlist_facade_service.dart';
 import 'package:tsuite/utils/common_widgets/custom_toast.dart';
 import 'package:tsuite/utils/helpers/api_error_handler.dart';
 import 'package:tsuite/utils/helpers/validators.dart';
@@ -213,7 +214,7 @@ class AuthNotifier extends _$AuthNotifier {
               result.message,
               fallback: Strings.otpVerifiedSuccess,
             );
-            await ref.read(wishlistNotifierProvider.notifier).fetchWishlist();
+            await ref.read(wishlistFacadeServiceProvider).fetchWishlist();
             return true;
           },
         )
@@ -249,7 +250,8 @@ class AuthNotifier extends _$AuthNotifier {
         );
 
     await ref.read(authSessionServiceProvider).clear();
-    ref.read(wishlistNotifierProvider.notifier).clear();
+    ref.read(wishlistFacadeServiceProvider).clear();
+    ref.read(cartNotifierProvider.notifier).clearSessionCart();
     state = const AuthState();
     phoneController.clear();
     showCustomToast(message: Strings.signedOut, isSuccess: true);

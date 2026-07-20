@@ -25,32 +25,45 @@ class CheckoutAddressCard extends StatelessWidget {
     final selected = address;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          Strings.deliveryAddress,
-          style: FontPalette.base700(16, color: colors.primaryText),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                Strings.deliveryAddress,
+                style: FontPalette.base700(16, color: colors.primaryText),
+              ),
+            ),
+            GestureDetector(
+              onTap: onChangeAddress,
+              behavior: HitTestBehavior.opaque,
+              child: Text(
+                Strings.changeAddress,
+                style: FontPalette.base600(13, color: colors.primary),
+              ),
+            ),
+          ],
         ),
-        12.verticalSpace,
+        10.verticalSpace,
         CommonContainer(
-          padding: EdgeInsets.all(16.r),
-          borderRadius: 16.r,
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+          borderRadius: 12.r,
           color: colors.surface,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SvgPicture.asset(
-                MedpikSvgAssets.location,
-                width: 22.r,
-                height: 22.r,
+                MedpikSvgAssets.homeLocation,
+                width: 20.r,
+                height: 20.r,
               ),
-              12.horizontalSpace,
+              10.horizontalSpace,
               Expanded(
                 child: selected == null
                     ? Text(
                         Strings.noAddressSaved,
                         style: FontPalette.base400(
-                          14,
+                          13,
                           color: colors.secondaryText,
                         ),
                       )
@@ -60,27 +73,24 @@ class CheckoutAddressCard extends StatelessWidget {
                           Text(
                             selected.label,
                             style: FontPalette.base700(
-                              16,
+                              14,
                               color: colors.primaryText,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          6.verticalSpace,
+                          2.verticalSpace,
                           Text(
                             selected.fullAddress,
                             style: FontPalette.base400(
-                              14,
+                              12,
                               color: colors.secondaryText,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
-              ),
-              GestureDetector(
-                onTap: onChangeAddress,
-                child: Text(
-                  Strings.changeAddress,
-                  style: FontPalette.base600(13, color: colors.primary),
-                ),
               ),
             ],
           ),

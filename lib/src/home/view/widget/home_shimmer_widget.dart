@@ -10,27 +10,10 @@ import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
 import 'package:tsuite/utils/helpers/time_of_day_greeting_helper.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
 
-class HomeShimmerWidget extends StatefulWidget {
-  const HomeShimmerWidget({super.key});
+class HomeShimmerWidget extends StatelessWidget {
+  const HomeShimmerWidget({super.key, required this.searchController});
 
-  @override
-  State<HomeShimmerWidget> createState() => _HomeShimmerWidgetState();
-}
-
-class _HomeShimmerWidgetState extends State<HomeShimmerWidget> {
-  late final TextEditingController _searchController;
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
+  final TextEditingController searchController;
 
   @override
   Widget build(BuildContext context) {
@@ -39,20 +22,18 @@ class _HomeShimmerWidgetState extends State<HomeShimmerWidget> {
     return CustomScrollView(
       physics: const ClampingScrollPhysics(),
       slivers: [
-        // Same hero shell as loaded home (background image, greeting, actions).
         SliverToBoxAdapter(
           child: HomeHeroHeader(
             topInset: topInset,
             greeting: timeOfDayGreeting(),
             deliveryHint: Strings.selectDeliveryAddress,
-            searchController: _searchController,
+            searchController: searchController,
             onSearchTap: () {
               Navigator.pushNamed(context, RouteConstants.routeSearchScreen);
             },
           ),
         ),
         SliverToBoxAdapter(child: Padding(padding: EdgeInsets.only(top: 10.h))),
-        // Same prescription card as loaded home (no API dependency).
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),

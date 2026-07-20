@@ -13,6 +13,7 @@ import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
 import 'package:tsuite/utils/helpers/order_status_helper.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:tuple/tuple.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
   const OrderDetailScreen({super.key, required this.orderId});
@@ -67,12 +68,13 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final detailLoaderState = ref.watch(
-      ordersNotifierProvider.select((s) => s.detailLoaderState),
+    final orderData = ref.watch(
+      ordersNotifierProvider.select(
+        (s) => Tuple2(s.detailLoaderState, s.selectedOrder),
+      ),
     );
-    final order = ref.watch(
-      ordersNotifierProvider.select((s) => s.selectedOrder),
-    );
+    final detailLoaderState = orderData.item1;
+    final order = orderData.item2;
     final cta = order == null ? null : orderDetailPrimaryCta(order.status);
 
     return CommonScaffold(

@@ -9,6 +9,7 @@ import 'package:tsuite/src/product_detail/view/widget/product_detail_about_secti
 import 'package:tsuite/src/product_detail/view/widget/product_detail_benefits_section.dart';
 import 'package:tsuite/src/product_detail/view/widget/product_detail_hero_image.dart';
 import 'package:tsuite/src/product_detail/view/widget/product_detail_how_to_use_section.dart';
+import 'package:tsuite/src/product_detail/view/widget/product_detail_quantity_section.dart';
 import 'package:tsuite/src/product_detail/view/widget/product_detail_safety_section.dart';
 import 'package:tsuite/src/product_detail/view/widget/product_detail_title_section.dart';
 import 'package:tsuite/src/product_detail/view/widget/product_detail_trust_grid.dart';
@@ -81,6 +82,9 @@ class ProductDetailContentWidget extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ProductDetailTitleSection(detail: detail),
+                            ProductDetailQuantitySection(
+                              productId: detail.product.id,
+                            ),
                             if (hasAbout) ...[
                               24.verticalSpace,
                               ProductDetailAboutSection(detail: detail),

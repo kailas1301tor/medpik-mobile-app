@@ -16,6 +16,7 @@ import 'package:tsuite/utils/common_widgets/common_loader.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
 import 'package:tsuite/utils/helpers/order_status_helper.dart';
+import 'package:tuple/tuple.dart';
 
 class OrderTrackingScreen extends ConsumerStatefulWidget {
   const OrderTrackingScreen({super.key, required this.orderId});
@@ -41,12 +42,13 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final loaderState = ref.watch(
-      ordersNotifierProvider.select((s) => s.detailLoaderState),
+    final orderData = ref.watch(
+      ordersNotifierProvider.select(
+        (s) => Tuple2(s.detailLoaderState, s.selectedOrder),
+      ),
     );
-    final order = ref.watch(
-      ordersNotifierProvider.select((s) => s.selectedOrder),
-    );
+    final loaderState = orderData.item1;
+    final order = orderData.item2;
 
     return CommonScaffold(
       appBar: const CommonAppBar(title: Strings.trackOrder),

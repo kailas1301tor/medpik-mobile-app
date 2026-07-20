@@ -1,8 +1,10 @@
 // lib/src/home/view/widget/home_content_widget.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
+import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/src/home/model/home_model.dart';
 import 'package:tsuite/src/home/notifier/home_notifier.dart';
 import 'package:tsuite/src/home/view/widget/home_category_row.dart';
@@ -12,25 +14,24 @@ import 'package:tsuite/src/home/view/widget/home_offer_carousel.dart';
 import 'package:tsuite/src/home/view/widget/home_popular_products_grid.dart';
 import 'package:tsuite/src/home/view/widget/home_prescription_card.dart';
 import 'package:tsuite/src/home/view/widget/home_section_header.dart';
+import 'package:tsuite/utils/extensions/context_extensions.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
 
-class HomeContentWidget extends ConsumerWidget {
+class HomeContentWidget extends StatelessWidget {
   const HomeContentWidget({
     super.key,
     this.data,
     required this.searchController,
+    required this.scrollController,
   });
 
   final HomeFeedModel? data;
   final TextEditingController searchController;
+  final ScrollController scrollController;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final topInset = MediaQuery.paddingOf(context).top;
-    final notifier = ref.read(homeNotifierProvider.notifier);
-    final compactProgress = ref.watch(
-      homeNotifierProvider.select((s) => s.compactHeaderProgress),
-    );
     void onSearchTap() {
       Navigator.pushNamed(context, RouteConstants.routeSearchScreen);
     }
@@ -38,7 +39,7 @@ class HomeContentWidget extends ConsumerWidget {
     return Stack(
       children: [
         CustomScrollView(
-          controller: notifier.scrollController,
+          controller: scrollController,
           physics: const ClampingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(
@@ -121,8 +122,7 @@ class HomeContentWidget extends ConsumerWidget {
           top: 0,
           left: 0,
           right: 0,
-          child: HomeCompactHeader(
-            progress: compactProgress,
+          child: _HomeCompactHeaderScope(
             topInset: topInset,
             deliveryHint: data?.deliveryHint ?? '',
             searchController: searchController,
@@ -130,6 +130,46 @@ class HomeContentWidget extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _HomeCompactHeaderScope extends ConsumerWidget {
+  const _HomeCompactHeaderScope({
+    required this.topInset,
+    required this.deliveryHint,
+    required this.searchController,
+    required this.onSearchTap,
+  });
+
+  final double topInset;
+  final String deliveryHint;
+  final TextEditingController searchController;
+  final VoidCallback onSearchTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final compactProgress = ref.watch(
+      homeNotifierProvider.select((s) => s.compactHeaderProgress),
+    );
+    final useDarkStatusIcons =
+        compactProgress > 0.5 && !context.isDarkMode;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: ColorPalette.transparent,
+        statusBarIconBrightness:
+            useDarkStatusIcons ? Brightness.dark : Brightness.light,
+        statusBarBrightness:
+            useDarkStatusIcons ? Brightness.light : Brightness.dark,
+      ),
+      child: HomeCompactHeader(
+        progress: compactProgress,
+        topInset: topInset,
+        deliveryHint: deliveryHint,
+        searchController: searchController,
+        onSearchTap: onSearchTap,
+      ),
     );
   }
 }

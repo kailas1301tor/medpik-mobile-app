@@ -83,7 +83,7 @@ class HomeHeaderSection extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SvgPicture.asset(
-                  MedpikSvgAssets.location,
+                  MedpikSvgAssets.homeLocation,
                   width: 30.w,
                   height: 30.w,
                 ),

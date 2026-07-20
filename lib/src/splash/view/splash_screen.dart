@@ -47,15 +47,6 @@ class SplashScreen extends ConsumerWidget {
               style: FontPalette.base400(16, color: ColorPalette.white),
               textAlign: TextAlign.center,
             ),
-            32.verticalSpace,
-            SizedBox(
-              width: 28.r,
-              height: 28.r,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.w,
-                color: ColorPalette.white,
-              ),
-            ),
           ],
         ),
       ),

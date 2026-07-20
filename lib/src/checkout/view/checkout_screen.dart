@@ -8,15 +8,19 @@ import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/src/address/model/address_book_args.dart';
 import 'package:tsuite/src/cart/notifier/cart_notifier.dart';
+import 'package:tsuite/src/cart/view/widget/cart_pricing_banner.dart';
+import 'package:tsuite/src/checkout/model/order_confirmation_args.dart';
+import 'package:tsuite/services/cart_facade_service.dart';
 import 'package:tsuite/src/checkout/notifier/checkout_notifier.dart';
 import 'package:tsuite/src/checkout/view/widget/checkout_address_card.dart';
+import 'package:tsuite/src/checkout/view/widget/checkout_bill_summary_section.dart';
 import 'package:tsuite/src/checkout/view/widget/checkout_order_summary.dart';
-import 'package:tsuite/src/orders/view/widget/order_sticky_bottom_bar.dart';
+import 'package:tsuite/src/checkout/view/widget/checkout_pharmacist_instructions_card.dart';
+import 'package:tsuite/src/checkout/view/widget/checkout_place_order_footer.dart';
 import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
 import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
-import 'package:tsuite/utils/common_widgets/common_loader.dart';
+import 'package:tsuite/src/checkout/view/widget/checkout_shimmer_widget.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/common_widgets/primary_button.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
 import 'package:tuple/tuple.dart';
 
@@ -26,33 +30,40 @@ class CheckoutScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
-    final prepare = ref.watch(
+    final checkoutData = ref.watch(
       checkoutNotifierProvider.select(
-        (s) => Tuple2(s.loaderState, s.errorMessage),
+        (s) => Tuple4(
+          s.loaderState,
+          s.errorMessage,
+          s.selectedAddress,
+          s.isPlacingOrder,
+        ),
       ),
     );
-    final loaderState = prepare.item1;
-    final errorMessage = prepare.item2;
-    final address = ref.watch(
-      checkoutNotifierProvider.select((s) => s.selectedAddress),
+    final loaderState = checkoutData.item1;
+    final errorMessage = checkoutData.item2;
+    final address = checkoutData.item3;
+    final isPlacingOrder = checkoutData.item4;
+    final cartItems = ref.watch(cartItemsProvider);
+    final isCartMutating = ref.watch(
+      cartNotifierProvider.select((s) => s.isMutating),
     );
-    final isPlacingOrder = ref.watch(
-      checkoutNotifierProvider.select((s) => s.isPlacingOrder),
-    );
-    final cartItems = ref.watch(cartNotifierProvider.select((s) => s.items));
     final notifier = ref.read(checkoutNotifierProvider.notifier);
+    final itemCount = cartItems.fold<int>(0, (sum, item) => sum + item.quantity);
 
     if (loaderState == LoaderState.loading) {
-      return const CommonScaffold(
-        appBar: CommonAppBar(title: Strings.checkout),
-        body: Center(child: CommonLoader()),
+      return CommonScaffold(
+        appBar: const CommonAppBar(title: Strings.medicineCartCheckoutTitle),
+        backgroundColor: colors.background,
+        safeAreaBottom: false,
+        body: const CheckoutShimmerWidget(),
       );
     }
 
     if (loaderState == LoaderState.error ||
         loaderState == LoaderState.noData) {
       return CommonScaffold(
-        appBar: const CommonAppBar(title: Strings.checkout),
+        appBar: const CommonAppBar(title: Strings.medicineCartCheckoutTitle),
         body: CommonEmptyState(
           title: Strings.errorTitle,
           message: errorMessage ?? Strings.cartEmptyMessage,
@@ -65,7 +76,7 @@ class CheckoutScreen extends ConsumerWidget {
     if (loaderState == LoaderState.networkError ||
         loaderState == LoaderState.serverError) {
       return CommonScaffold(
-        appBar: const CommonAppBar(title: Strings.checkout),
+        appBar: const CommonAppBar(title: Strings.medicineCartCheckoutTitle),
         body: CommonEmptyState(
           title: Strings.errorTitle,
           message: errorMessage ?? Strings.errorDescription,
@@ -76,65 +87,82 @@ class CheckoutScreen extends ConsumerWidget {
     }
 
     return CommonScaffold(
-      appBar: const CommonAppBar(title: Strings.checkout),
+      appBar: const CommonAppBar(title: Strings.medicineCartCheckoutTitle),
       backgroundColor: colors.background,
+      safeAreaBottom: false,
       body: IgnorePointer(
-        ignoring: isPlacingOrder,
+        ignoring: isPlacingOrder || isCartMutating,
         child: Column(
           children: [
             Expanded(
               child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 20.h),
                 children: [
+                  const CartPricingBanner(),
+                  20.verticalSpace,
+                  const CheckoutPharmacistInstructionsCard(),
+                  20.verticalSpace,
                   CheckoutAddressCard(
                     address: address,
-                    onChangeAddress: () async {
-                      final selected =
-                          await Navigator.pushNamed<AddressModel>(
-                        context,
-                        RouteConstants.routeAddressBookScreen,
-                        arguments: AddressBookArgs(
-                          selectMode: true,
-                          selectedAddressId: address?.id,
-                        ),
-                      );
-                      if (selected != null) {
-                        notifier.selectAddress(selected);
-                      } else if (context.mounted) {
-                        await notifier.refreshSelectedAddress();
-                      }
-                    },
+                    onChangeAddress: () => _changeAddress(context, ref, notifier),
                   ),
-                  24.verticalSpace,
+                  20.verticalSpace,
                   CheckoutOrderSummary(cartItems: cartItems),
+                  20.verticalSpace,
+                  CheckoutBillSummarySection(itemCount: itemCount),
                 ],
               ),
             ),
-            OrderStickyBottomBar(
-              child: PrimaryButton(
-                text: Strings.placeOrder,
-                height: 48.h,
-                isLoading: isPlacingOrder,
-                onPressed: address == null
-                    ? null
-                    : () async {
-                        final orderId = await notifier.placeOrder();
-                        if (orderId != null && context.mounted) {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            RouteConstants.routeConfirmationScreen,
-                            (route) =>
-                                route.settings.name ==
-                                RouteConstants.mainScreen,
-                            arguments: orderId,
-                          );
-                        }
-                      },
-              ),
+            CheckoutPlaceOrderFooter(
+              isLoading: isPlacingOrder,
+              isEnabled: address != null && !isCartMutating,
+              onPlaceOrder: () => _placeOrder(context, ref, notifier),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _changeAddress(
+    BuildContext context,
+    WidgetRef ref,
+    CheckoutNotifier notifier,
+  ) async {
+    final address = ref.read(
+      checkoutNotifierProvider.select((s) => s.selectedAddress),
+    );
+    final selected = await Navigator.pushNamed<AddressModel>(
+      context,
+      RouteConstants.routeAddressBookScreen,
+      arguments: AddressBookArgs(
+        selectMode: true,
+        selectedAddressId: address?.id,
+      ),
+    );
+    if (selected != null) {
+      notifier.selectAddress(selected);
+    } else if (context.mounted) {
+      await notifier.refreshSelectedAddress();
+    }
+  }
+
+  Future<void> _placeOrder(
+    BuildContext context,
+    WidgetRef ref,
+    CheckoutNotifier notifier,
+  ) async {
+    final orderId = await notifier.placeMedicineCartOrder();
+    if (orderId != null && context.mounted) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        RouteConstants.routeConfirmationScreen,
+        (route) => route.settings.name == RouteConstants.mainScreen,
+        arguments: OrderConfirmationArgs(
+          orderId: orderId,
+          source: OrderSubmissionSource.medicineCart,
+        ),
+      );
+    }
   }
 }

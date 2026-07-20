@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tsuite/data/models/address_model.dart';
+import 'package:tsuite/res/enums/enums.dart';
 
 import '../../src/address/model/address_book_args.dart';
 import '../../src/address/model/location_picker_args.dart';
@@ -8,6 +9,7 @@ import '../../src/address/view/address_book_screen.dart';
 import '../../src/address/view/location_picker_screen.dart';
 import '../../src/auth/view/login_screen.dart';
 import '../../src/auth/view/otp_screen.dart';
+import '../../src/checkout/model/order_confirmation_args.dart';
 import '../../src/checkout/view/checkout_screen.dart';
 import '../../src/checkout/view/order_confirmation_screen.dart';
 import '../../src/main/main_screen.dart';
@@ -93,9 +95,14 @@ class RouteGenerator {
         );
 
       case RouteConstants.routeConfirmationScreen:
-        final orderId = settings.arguments as String? ?? '';
+        final args = settings.arguments is OrderConfirmationArgs
+            ? settings.arguments as OrderConfirmationArgs
+            : OrderConfirmationArgs(
+                orderId: settings.arguments as String? ?? '',
+                source: OrderSubmissionSource.medicineCart,
+              );
         return MaterialPageRoute(
-          builder: (_) => OrderConfirmationScreen(orderId: orderId),
+          builder: (_) => OrderConfirmationScreen(args: args),
           settings: settings,
         );
 

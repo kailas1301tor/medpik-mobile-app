@@ -19,9 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$CartState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   List<CartItemModel> get items => throw _privateConstructorUsedError;
-  AddressModel? get selectedAddress => throw _privateConstructorUsedError;
-  String get pharmacistInstructions => throw _privateConstructorUsedError;
-  String? get submittedOrderId => throw _privateConstructorUsedError;
+  bool get isMutating => throw _privateConstructorUsedError;
 
   /// Create a copy of CartState
   /// with the given fields replaced by the non-null parameter values.
@@ -38,9 +36,7 @@ abstract class $CartStateCopyWith<$Res> {
   $Res call({
     LoaderState loaderState,
     List<CartItemModel> items,
-    AddressModel? selectedAddress,
-    String pharmacistInstructions,
-    String? submittedOrderId,
+    bool isMutating,
   });
 }
 
@@ -61,9 +57,7 @@ class _$CartStateCopyWithImpl<$Res, $Val extends CartState>
   $Res call({
     Object? loaderState = null,
     Object? items = null,
-    Object? selectedAddress = freezed,
-    Object? pharmacistInstructions = null,
-    Object? submittedOrderId = freezed,
+    Object? isMutating = null,
   }) {
     return _then(
       _value.copyWith(
@@ -75,18 +69,10 @@ class _$CartStateCopyWithImpl<$Res, $Val extends CartState>
                 ? _value.items
                 : items // ignore: cast_nullable_to_non_nullable
                       as List<CartItemModel>,
-            selectedAddress: freezed == selectedAddress
-                ? _value.selectedAddress
-                : selectedAddress // ignore: cast_nullable_to_non_nullable
-                      as AddressModel?,
-            pharmacistInstructions: null == pharmacistInstructions
-                ? _value.pharmacistInstructions
-                : pharmacistInstructions // ignore: cast_nullable_to_non_nullable
-                      as String,
-            submittedOrderId: freezed == submittedOrderId
-                ? _value.submittedOrderId
-                : submittedOrderId // ignore: cast_nullable_to_non_nullable
-                      as String?,
+            isMutating: null == isMutating
+                ? _value.isMutating
+                : isMutating // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -105,9 +91,7 @@ abstract class _$$CartStateImplCopyWith<$Res>
   $Res call({
     LoaderState loaderState,
     List<CartItemModel> items,
-    AddressModel? selectedAddress,
-    String pharmacistInstructions,
-    String? submittedOrderId,
+    bool isMutating,
   });
 }
 
@@ -127,9 +111,7 @@ class __$$CartStateImplCopyWithImpl<$Res>
   $Res call({
     Object? loaderState = null,
     Object? items = null,
-    Object? selectedAddress = freezed,
-    Object? pharmacistInstructions = null,
-    Object? submittedOrderId = freezed,
+    Object? isMutating = null,
   }) {
     return _then(
       _$CartStateImpl(
@@ -141,18 +123,10 @@ class __$$CartStateImplCopyWithImpl<$Res>
             ? _value._items
             : items // ignore: cast_nullable_to_non_nullable
                   as List<CartItemModel>,
-        selectedAddress: freezed == selectedAddress
-            ? _value.selectedAddress
-            : selectedAddress // ignore: cast_nullable_to_non_nullable
-                  as AddressModel?,
-        pharmacistInstructions: null == pharmacistInstructions
-            ? _value.pharmacistInstructions
-            : pharmacistInstructions // ignore: cast_nullable_to_non_nullable
-                  as String,
-        submittedOrderId: freezed == submittedOrderId
-            ? _value.submittedOrderId
-            : submittedOrderId // ignore: cast_nullable_to_non_nullable
-                  as String?,
+        isMutating: null == isMutating
+            ? _value.isMutating
+            : isMutating // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -164,9 +138,7 @@ class _$CartStateImpl implements _CartState {
   const _$CartStateImpl({
     this.loaderState = LoaderState.loaded,
     final List<CartItemModel> items = const [],
-    this.selectedAddress,
-    this.pharmacistInstructions = '',
-    this.submittedOrderId,
+    this.isMutating = false,
   }) : _items = items;
 
   @override
@@ -182,16 +154,12 @@ class _$CartStateImpl implements _CartState {
   }
 
   @override
-  final AddressModel? selectedAddress;
-  @override
   @JsonKey()
-  final String pharmacistInstructions;
-  @override
-  final String? submittedOrderId;
+  final bool isMutating;
 
   @override
   String toString() {
-    return 'CartState(loaderState: $loaderState, items: $items, selectedAddress: $selectedAddress, pharmacistInstructions: $pharmacistInstructions, submittedOrderId: $submittedOrderId)';
+    return 'CartState(loaderState: $loaderState, items: $items, isMutating: $isMutating)';
   }
 
   @override
@@ -202,12 +170,8 @@ class _$CartStateImpl implements _CartState {
             (identical(other.loaderState, loaderState) ||
                 other.loaderState == loaderState) &&
             const DeepCollectionEquality().equals(other._items, _items) &&
-            (identical(other.selectedAddress, selectedAddress) ||
-                other.selectedAddress == selectedAddress) &&
-            (identical(other.pharmacistInstructions, pharmacistInstructions) ||
-                other.pharmacistInstructions == pharmacistInstructions) &&
-            (identical(other.submittedOrderId, submittedOrderId) ||
-                other.submittedOrderId == submittedOrderId));
+            (identical(other.isMutating, isMutating) ||
+                other.isMutating == isMutating));
   }
 
   @override
@@ -215,9 +179,7 @@ class _$CartStateImpl implements _CartState {
     runtimeType,
     loaderState,
     const DeepCollectionEquality().hash(_items),
-    selectedAddress,
-    pharmacistInstructions,
-    submittedOrderId,
+    isMutating,
   );
 
   /// Create a copy of CartState
@@ -233,9 +195,7 @@ abstract class _CartState implements CartState {
   const factory _CartState({
     final LoaderState loaderState,
     final List<CartItemModel> items,
-    final AddressModel? selectedAddress,
-    final String pharmacistInstructions,
-    final String? submittedOrderId,
+    final bool isMutating,
   }) = _$CartStateImpl;
 
   @override
@@ -243,11 +203,7 @@ abstract class _CartState implements CartState {
   @override
   List<CartItemModel> get items;
   @override
-  AddressModel? get selectedAddress;
-  @override
-  String get pharmacistInstructions;
-  @override
-  String? get submittedOrderId;
+  bool get isMutating;
 
   /// Create a copy of CartState
   /// with the given fields replaced by the non-null parameter values.

@@ -14,8 +14,8 @@ import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
 import 'package:tsuite/utils/common_widgets/common_wishlist_button.dart';
-import 'package:tsuite/utils/extensions/context_extensions.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:tuple/tuple.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({super.key, required this.productId});
@@ -42,22 +42,20 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final notifier = ref.read(productDetailNotifierProvider.notifier);
-    final loaderState = ref.watch(
-      productDetailNotifierProvider.select((s) => s.loaderState),
+    final screenData = ref.watch(
+      productDetailNotifierProvider.select(
+        (s) => Tuple2(s.loaderState, s.detail),
+      ),
     );
-    final detail = ref.watch(
-      productDetailNotifierProvider.select((s) => s.detail),
-    );
-    final isWishlisted = ref.watch(
-      productDetailNotifierProvider.select((s) => s.isWishlisted),
-    );
+    final loaderState = screenData.item1;
+    final detail = screenData.item2;
     final topInset = MediaQuery.paddingOf(context).top;
 
     return CommonScaffold(
       safeAreaTop: false,
       safeAreaBottom: false,
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
+      statusBarColor: ColorPalette.transparent,
+      statusBarIconBrightness: Brightness.dark,
       backgroundColor: colors.background,
       body: CommonSwitchState(
         loaderState: loaderState,
@@ -84,25 +82,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           onTap: () => Navigator.of(context).pop(),
                         ),
                         const Spacer(),
-                        CommonWishlistButton(
-                          isWishlisted: isWishlisted,
-                          onTap: () {
-                            if (!AppConstants.hasSession) {
-                              Navigator.pushNamed(
-                                context,
-                                RouteConstants.routeLoginScreen,
-                              );
-                              return;
-                            }
-                            notifier.toggleWishlist();
-                          },
-                          size: 40.r,
-                          iconSize: 20.r,
-                          backgroundColor: context.isDarkMode
-                              ? colors.surface.withValues(alpha: 0.92)
-                              : ColorPalette.white,
-                          inactiveColor: colors.primaryText,
-                          showShadow: true,
+                        _ProductDetailWishlistButton(
+                          onToggle: notifier.toggleWishlist,
                         ),
                       ],
                     ),
@@ -116,6 +97,31 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 ],
               ),
       ),
+    );
+  }
+}
+
+class _ProductDetailWishlistButton extends ConsumerWidget {
+  const _ProductDetailWishlistButton({required this.onToggle});
+
+  final Future<void> Function() onToggle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isWishlisted = ref.watch(
+      productDetailNotifierProvider.select((s) => s.isWishlisted),
+    );
+
+    return CommonWishlistButton(
+      isWishlisted: isWishlisted,
+      onTap: () {
+        if (!AppConstants.hasSession) {
+          Navigator.pushNamed(context, RouteConstants.routeLoginScreen);
+          return;
+        }
+        onToggle();
+      },
+      overlayStyle: true,
     );
   }
 }

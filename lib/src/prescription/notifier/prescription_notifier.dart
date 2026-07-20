@@ -17,16 +17,21 @@ part 'prescription_notifier.g.dart';
 @Riverpod(keepAlive: true)
 class PrescriptionNotifier extends _$PrescriptionNotifier {
   late final TextEditingController notesController;
+  late final TextEditingController productQuantityController;
   late PrescriptionRepo prescriptionRepo;
   final _fileService = FileSelectionService.instance;
 
   @override
   PrescriptionState build() {
     notesController = TextEditingController();
+    productQuantityController = TextEditingController(
+      text: Strings.defaultQuantityHint,
+    );
     prescriptionRepo = ref.read(prescriptionRepositoryProvider);
 
     ref.onDispose(() {
       notesController.dispose();
+      productQuantityController.dispose();
     });
 
     Future.microtask(loadDraft);
@@ -174,6 +179,17 @@ class PrescriptionNotifier extends _$PrescriptionNotifier {
       if (item.product.id == productId) return item.quantity;
     }
     return 0;
+  }
+
+  void prepareProductQuantityEditor(int productId) {
+    final currentQty = selectedProductQuantity(productId);
+    productQuantityController.text = '${currentQty < 1 ? 1 : currentQty}';
+  }
+
+  int parsedProductQuantity() {
+    final parsed = int.tryParse(productQuantityController.text.trim());
+    if (parsed == null || parsed < 1) return 1;
+    return parsed;
   }
 
   Future<bool> submit() async {

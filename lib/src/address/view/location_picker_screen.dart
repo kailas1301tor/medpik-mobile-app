@@ -12,6 +12,7 @@ import 'package:tsuite/src/address/model/picked_location_model.dart';
 import 'package:tsuite/src/address/notifier/location_picker_notifier.dart';
 import 'package:tsuite/src/address/view/widget/location_confirm_card.dart';
 import 'package:tsuite/src/address/view/widget/location_search_bar.dart';
+import 'package:tsuite/utils/common_widgets/common_back_button.dart';
 import 'package:tsuite/utils/common_widgets/common_container.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tuple/tuple.dart';
@@ -96,18 +97,7 @@ class LocationPickerScreen extends ConsumerWidget {
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Material(
-                    color: colors.surface,
-                    shape: const CircleBorder(),
-                    child: IconButton(
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      icon: Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        size: 18.r,
-                        color: colors.primaryText,
-                      ),
-                    ),
-                  ),
+                  child: const CommonBackButton(margin: EdgeInsets.zero),
                 ),
                 10.verticalSpace,
                 if (AppConstants.useMockData) ...[

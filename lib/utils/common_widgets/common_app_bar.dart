@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
+import 'package:tsuite/utils/common_widgets/common_back_button.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -78,17 +79,12 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       // ✅ Always auto-computed — never null
       systemOverlayStyle: _resolveOverlayStyle(effectiveBgColor),
       actionsPadding: EdgeInsets.only(right: 16.w),
+      leadingWidth: 64.w,
       leading:
           leading ??
           (showBackButton
-              ? IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    size: 20.r,
-                    color: effectiveIconColor,
-                  ),
-                  onPressed: onBackPressed ?? () => Navigator.pop(context),
-                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+              ? CommonBackButton(
+                  onTap: onBackPressed ?? () => Navigator.pop(context),
                 )
               : null),
       actions: actions,

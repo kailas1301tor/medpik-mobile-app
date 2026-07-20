@@ -13,6 +13,7 @@ import 'package:tsuite/utils/common_widgets/common_container.dart';
 import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
 import 'package:tsuite/utils/common_widgets/common_loader.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
+import 'package:tuple/tuple.dart';
 
 class SearchResultsScreen extends ConsumerWidget {
   const SearchResultsScreen({super.key, required this.initialQuery});
@@ -23,16 +24,20 @@ class SearchResultsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final notifier = ref.read(searchNotifierProvider.notifier);
-    final loaderState = ref.watch(
-      searchNotifierProvider.select((s) => s.loaderState),
+    final searchData = ref.watch(
+      searchNotifierProvider.select(
+        (s) => Tuple4(
+          s.loaderState,
+          s.results,
+          s.categories,
+          s.selectedCategory,
+        ),
+      ),
     );
-    final results = ref.watch(searchNotifierProvider.select((s) => s.results));
-    final categories = ref.watch(
-      searchNotifierProvider.select((s) => s.categories),
-    );
-    final selectedCategory = ref.watch(
-      searchNotifierProvider.select((s) => s.selectedCategory),
-    );
+    final loaderState = searchData.item1;
+    final results = searchData.item2;
+    final categories = searchData.item3;
+    final selectedCategory = searchData.item4;
 
     Future.microtask(() => notifier.initResults(initialQuery));
 

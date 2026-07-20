@@ -1,40 +1,33 @@
-// lib/src/home/view/widget/home_glass_product_card.dart
+// lib/utils/common_widgets/common_glass_product_card.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/home/view/widget/home_glass_product_image_hero.dart';
-import 'package:tsuite/src/home/view/widget/home_glass_product_wishlist_button.dart';
-import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
+import 'package:tsuite/utils/common_widgets/common_glass_product_image_hero.dart';
+import 'package:tsuite/utils/common_widgets/common_wishlist_button.dart';
 import 'package:tsuite/utils/helpers/product_pack_label_helper.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
 
-class HomeGlassProductCard extends ConsumerWidget {
-  const HomeGlassProductCard({
+class CommonGlassProductCard extends StatelessWidget {
+  const CommonGlassProductCard({
     super.key,
     required this.product,
     this.onTap,
+    this.isWishlisted = false,
+    this.onWishlistTap,
   });
 
   final ProductModel product;
   final VoidCallback? onTap;
+  final bool isWishlisted;
+  final VoidCallback? onWishlistTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final colors = context.appColors;
     final radius = 20.r;
     final imageHeight = 118.h;
-    final isWishlisted = ref.watch(
-      wishlistNotifierProvider.select(
-        (s) => s.items.any((item) => item.id == product.id),
-      ),
-    );
 
-    // Material + shape paints the border inset (DecoratedBox borders are
-    // half-outside and get clipped by Expanded / Row parents).
     return GestureDetector(
       onTap: onTap,
       child: Material(
@@ -51,34 +44,26 @@ class HomeGlassProductCard extends ConsumerWidget {
           children: [
             Stack(
               children: [
-                HomeGlassProductImageHero(
+                CommonGlassProductImageHero(
                   product: product,
                   height: imageHeight,
                 ),
-                Positioned(
-                  top: 8.h,
-                  right: 8.w,
-                  child: HomeGlassProductWishlistButton(
-                    isWishlisted: isWishlisted,
-                    onTap: () {
-                      if (!AppConstants.hasSession) {
-                        Navigator.pushNamed(
-                          context,
-                          RouteConstants.routeLoginScreen,
-                        );
-                        return;
-                      }
-                      ref
-                          .read(wishlistNotifierProvider.notifier)
-                          .toggle(product);
-                    },
+                if (onWishlistTap != null)
+                  Positioned(
+                    top: 8.h,
+                    right: 8.w,
+                    child: CommonWishlistButton(
+                      isWishlisted: isWishlisted,
+                      onTap: onWishlistTap!,
+                      size: 30.r,
+                      iconSize: 16.r,
+                    ),
                   ),
-                ),
               ],
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
-              child: _CardInfo(product: product),
+              child: _CommonGlassProductCardInfo(product: product),
             ),
           ],
         ),
@@ -87,12 +72,11 @@ class HomeGlassProductCard extends ConsumerWidget {
   }
 }
 
-class _CardInfo extends StatelessWidget {
-  const _CardInfo({required this.product});
+class _CommonGlassProductCardInfo extends StatelessWidget {
+  const _CommonGlassProductCardInfo({required this.product});
 
   final ProductModel product;
 
-  /// Fixed slots so every card shares the same height without IntrinsicHeight.
   static double get _titleSlotHeight => 36.h;
   static double get _categorySlotHeight => 22.h;
   static double get _packSlotHeight => 14.h;

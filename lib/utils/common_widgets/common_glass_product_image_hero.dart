@@ -1,12 +1,12 @@
-// lib/src/home/view/widget/home_glass_product_image_hero.dart
+// lib/utils/common_widgets/common_glass_product_image_hero.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/data/models/product_model.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
 
-class HomeGlassProductImageHero extends StatelessWidget {
-  const HomeGlassProductImageHero({
+class CommonGlassProductImageHero extends StatelessWidget {
+  const CommonGlassProductImageHero({
     super.key,
     required this.product,
     required this.height,

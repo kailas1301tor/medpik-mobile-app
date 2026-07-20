@@ -20,6 +20,7 @@ import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_text_form_field.dart';
 import 'package:tsuite/utils/common_widgets/primary_button.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:tuple/tuple.dart';
 
 class PrescriptionUploadScreen extends ConsumerWidget {
   const PrescriptionUploadScreen({super.key});
@@ -28,14 +29,13 @@ class PrescriptionUploadScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final notifier = ref.read(prescriptionNotifierProvider.notifier);
-    final pickedPaths = ref.watch(
-      prescriptionNotifierProvider.select((s) => s.pickedPaths),
-    );
-    final isLoading = ref.watch(
+    final uploadData = ref.watch(
       prescriptionNotifierProvider.select(
-        (s) => s.loaderState == LoaderState.loading,
+        (s) => Tuple2(s.pickedPaths, s.loaderState == LoaderState.loading),
       ),
     );
+    final pickedPaths = uploadData.item1;
+    final isLoading = uploadData.item2;
     final hasFiles = pickedPaths.isNotEmpty;
 
     return CommonScaffold(

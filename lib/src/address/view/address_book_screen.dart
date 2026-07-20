@@ -23,10 +23,7 @@ import 'package:tsuite/utils/routes/route_constants.dart';
 import 'package:tuple/tuple.dart';
 
 class AddressBookScreen extends ConsumerWidget {
-  const AddressBookScreen({
-    super.key,
-    this.args = const AddressBookArgs(),
-  });
+  const AddressBookScreen({super.key, this.args = const AddressBookArgs()});
 
   final AddressBookArgs args;
 
@@ -34,9 +31,7 @@ class AddressBookScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final data = ref.watch(
-      addressNotifierProvider.select(
-        (s) => Tuple2(s.loaderState, s.addresses),
-      ),
+      addressNotifierProvider.select((s) => Tuple2(s.loaderState, s.addresses)),
     );
     final loaderState = data.item1;
     final addresses = data.item2;
@@ -56,32 +51,32 @@ class AddressBookScreen extends ConsumerWidget {
       body: switch (loaderState) {
         LoaderState.loading => const AddressBookShimmerWidget(),
         LoaderState.noData => CommonEmptyState(
-            title: Strings.noAddressSaved,
-            message: Strings.addAddressToContinue,
-            buttonText: Strings.addAddress,
-            onPressed: () => _openAddFlow(context, ref),
-          ),
+          title: Strings.noAddressSaved,
+          message: Strings.addAddressToContinue,
+          buttonText: Strings.addAddress,
+          onPressed: () => _openAddFlow(context, ref),
+        ),
         LoaderState.loaded => ListView.builder(
-            padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
-            itemCount: addresses.length,
-            itemBuilder: (context, index) {
-              final address = addresses[index];
-              return _AddressTile(
-                address: address,
-                isSelectable: args.selectMode,
-                isSelected: args.selectedAddressId == address.id,
-                onTap: args.selectMode
-                    ? () => Navigator.pop(context, address)
-                    : null,
-              );
-            },
-          ),
+          padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
+          itemCount: addresses.length,
+          itemBuilder: (context, index) {
+            final address = addresses[index];
+            return _AddressTile(
+              address: address,
+              isSelectable: args.selectMode,
+              isSelected: args.selectedAddressId == address.id,
+              onTap: args.selectMode
+                  ? () => Navigator.pop(context, address)
+                  : null,
+            );
+          },
+        ),
         _ => CommonEmptyState(
-            title: Strings.errorTitle,
-            message: Strings.errorDescription,
-            buttonText: Strings.refresh,
-            onPressed: notifier.fetchAddresses,
-          ),
+          title: Strings.errorTitle,
+          message: Strings.errorDescription,
+          buttonText: Strings.refresh,
+          onPressed: notifier.fetchAddresses,
+        ),
       },
     );
   }
@@ -120,18 +115,12 @@ class _AddressTile extends StatelessWidget {
       padding: EdgeInsets.all(16.r),
       borderRadius: 16.r,
       color: colors.surface,
-      side: isSelected
-          ? BorderSide(color: colors.primary, width: 1.5.w)
-          : null,
+      side: isSelected ? BorderSide(color: colors.primary, width: 1.5.w) : null,
       onTap: onTap,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SvgPicture.asset(
-            MedpikSvgAssets.location,
-            width: 22.r,
-            height: 22.r,
-          ),
+          SvgPicture.asset(MedpikSvgAssets.location, width: 22.r, height: 22.r),
           12.horizontalSpace,
           Expanded(
             child: Column(
@@ -159,10 +148,7 @@ class _AddressTile extends StatelessWidget {
                         color: colors.primary.withValues(alpha: 0.12),
                         child: Text(
                           Strings.defaultAddress,
-                          style: FontPalette.base600(
-                            11,
-                            color: colors.primary,
-                          ),
+                          style: FontPalette.base600(11, color: colors.primary),
                         ),
                       ),
                     ],
@@ -171,10 +157,7 @@ class _AddressTile extends StatelessWidget {
                 8.verticalSpace,
                 Text(
                   address.fullAddress,
-                  style: FontPalette.base400(
-                    14,
-                    color: colors.secondaryText,
-                  ),
+                  style: FontPalette.base400(14, color: colors.secondaryText),
                 ),
               ],
             ),

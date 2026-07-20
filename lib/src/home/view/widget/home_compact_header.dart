@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:smooth_corner/smooth_corner.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/src/home/view/widget/home_header_shared.dart';
 
@@ -29,6 +30,10 @@ class HomeCompactHeader extends StatelessWidget {
     final colors = context.appColors;
     final slideOffset = lerpDouble(-16, 0, progress)!;
     final shadowOpacity = progress * 0.12;
+    final bottomRadius = BorderRadius.only(
+      bottomLeft: Radius.circular(24.r),
+      bottomRight: Radius.circular(24.r),
+    );
 
     return IgnorePointer(
       ignoring: progress < 0.35,
@@ -36,15 +41,15 @@ class HomeCompactHeader extends StatelessWidget {
         opacity: progress.clamp(0.0, 1.0),
         child: Transform.translate(
           offset: Offset(0, slideOffset),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
+          child: Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: ShapeDecoration(
               color: colors.background,
-              border: Border(
-                bottom: BorderSide(
-                  color: colors.divider.withValues(alpha: progress),
-                ),
+              shape: SmoothRectangleBorder(
+                smoothness: 3,
+                borderRadius: bottomRadius,
               ),
-              boxShadow: [
+              shadows: [
                 BoxShadow(
                   color: ColorPalette.black.withValues(alpha: shadowOpacity),
                   blurRadius: 16,
@@ -57,7 +62,7 @@ class HomeCompactHeader extends StatelessWidget {
                 16.w,
                 topInset + 8.h,
                 16.w,
-                10.h,
+                22.h,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,

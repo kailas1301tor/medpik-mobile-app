@@ -7,6 +7,8 @@ import 'package:path/path.dart' as p;
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
+import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
+import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/helpers/file_picker.dart';
 
 class PrescriptionFullPreview {
@@ -33,14 +35,16 @@ class _PrescriptionFullPreviewScreen extends StatelessWidget {
     final isImage = isImageFilePath(filePath);
     final fileName = p.basename(filePath);
 
-    return Scaffold(
+    return CommonScaffold(
       backgroundColor: ColorPalette.black,
-      appBar: AppBar(
+      enableFadeIn: false,
+      appBar: CommonAppBar(
+        title: '',
         backgroundColor: ColorPalette.black,
-        foregroundColor: ColorPalette.white,
-        elevation: 0,
+        iconColor: ColorPalette.white,
+        showBackButton: false,
         leading: IconButton(
-          icon: Icon(Icons.close_rounded, size: 24.r),
+          icon: Icon(Icons.close_rounded, size: 24.r, color: ColorPalette.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),

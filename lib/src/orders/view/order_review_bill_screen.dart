@@ -10,9 +10,10 @@ import 'package:tsuite/src/orders/view/widget/order_support_app_bar.dart';
 import 'package:tsuite/utils/common_widgets/common_loader.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
-import 'package:tsuite/src/orders/view/widget/order_sticky_bottom_bar.dart';
+import 'package:tsuite/utils/common_widgets/common_sticky_bottom_bar.dart';
 import 'package:tsuite/utils/common_widgets/primary_button.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:tuple/tuple.dart';
 
 class OrderReviewBillScreen extends ConsumerStatefulWidget {
   const OrderReviewBillScreen({super.key, required this.orderId});
@@ -38,12 +39,13 @@ class _OrderReviewBillScreenState extends ConsumerState<OrderReviewBillScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final detailLoaderState = ref.watch(
-      ordersNotifierProvider.select((s) => s.detailLoaderState),
+    final orderData = ref.watch(
+      ordersNotifierProvider.select(
+        (s) => Tuple2(s.detailLoaderState, s.selectedOrder),
+      ),
     );
-    final order = ref.watch(
-      ordersNotifierProvider.select((s) => s.selectedOrder),
-    );
+    final detailLoaderState = orderData.item1;
+    final order = orderData.item2;
     final notifier = ref.read(ordersNotifierProvider.notifier);
 
     return CommonScaffold(
@@ -96,7 +98,7 @@ class _ReviewBillActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
-    return OrderStickyBottomBar(
+    return CommonStickyBottomBar(
       child: Row(
         children: [
           Expanded(

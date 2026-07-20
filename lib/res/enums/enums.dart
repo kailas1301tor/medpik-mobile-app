@@ -78,3 +78,8 @@ enum NotificationType {
   offer,
   system,
 }
+
+enum OrderSubmissionSource {
+  medicineCart,
+  prescription,
+}

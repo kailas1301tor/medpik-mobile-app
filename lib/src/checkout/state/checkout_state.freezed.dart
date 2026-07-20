@@ -19,6 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$CheckoutState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   AddressModel? get selectedAddress => throw _privateConstructorUsedError;
+  String get pharmacistInstructions => throw _privateConstructorUsedError;
   double get payableTotal => throw _privateConstructorUsedError;
   bool get isPlacingOrder => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
@@ -41,6 +42,7 @@ abstract class $CheckoutStateCopyWith<$Res> {
   $Res call({
     LoaderState loaderState,
     AddressModel? selectedAddress,
+    String pharmacistInstructions,
     double payableTotal,
     bool isPlacingOrder,
     String? errorMessage,
@@ -65,6 +67,7 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
   $Res call({
     Object? loaderState = null,
     Object? selectedAddress = freezed,
+    Object? pharmacistInstructions = null,
     Object? payableTotal = null,
     Object? isPlacingOrder = null,
     Object? errorMessage = freezed,
@@ -80,6 +83,10 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
                 ? _value.selectedAddress
                 : selectedAddress // ignore: cast_nullable_to_non_nullable
                       as AddressModel?,
+            pharmacistInstructions: null == pharmacistInstructions
+                ? _value.pharmacistInstructions
+                : pharmacistInstructions // ignore: cast_nullable_to_non_nullable
+                      as String,
             payableTotal: null == payableTotal
                 ? _value.payableTotal
                 : payableTotal // ignore: cast_nullable_to_non_nullable
@@ -114,6 +121,7 @@ abstract class _$$CheckoutStateImplCopyWith<$Res>
   $Res call({
     LoaderState loaderState,
     AddressModel? selectedAddress,
+    String pharmacistInstructions,
     double payableTotal,
     bool isPlacingOrder,
     String? errorMessage,
@@ -137,6 +145,7 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
   $Res call({
     Object? loaderState = null,
     Object? selectedAddress = freezed,
+    Object? pharmacistInstructions = null,
     Object? payableTotal = null,
     Object? isPlacingOrder = null,
     Object? errorMessage = freezed,
@@ -152,6 +161,10 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
             ? _value.selectedAddress
             : selectedAddress // ignore: cast_nullable_to_non_nullable
                   as AddressModel?,
+        pharmacistInstructions: null == pharmacistInstructions
+            ? _value.pharmacistInstructions
+            : pharmacistInstructions // ignore: cast_nullable_to_non_nullable
+                  as String,
         payableTotal: null == payableTotal
             ? _value.payableTotal
             : payableTotal // ignore: cast_nullable_to_non_nullable
@@ -179,6 +192,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
   const _$CheckoutStateImpl({
     this.loaderState = LoaderState.loaded,
     this.selectedAddress,
+    this.pharmacistInstructions = '',
     this.payableTotal = 0,
     this.isPlacingOrder = false,
     this.errorMessage,
@@ -192,6 +206,9 @@ class _$CheckoutStateImpl implements _CheckoutState {
   final AddressModel? selectedAddress;
   @override
   @JsonKey()
+  final String pharmacistInstructions;
+  @override
+  @JsonKey()
   final double payableTotal;
   @override
   @JsonKey()
@@ -203,7 +220,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
 
   @override
   String toString() {
-    return 'CheckoutState(loaderState: $loaderState, selectedAddress: $selectedAddress, payableTotal: $payableTotal, isPlacingOrder: $isPlacingOrder, errorMessage: $errorMessage, placedOrderId: $placedOrderId)';
+    return 'CheckoutState(loaderState: $loaderState, selectedAddress: $selectedAddress, pharmacistInstructions: $pharmacistInstructions, payableTotal: $payableTotal, isPlacingOrder: $isPlacingOrder, errorMessage: $errorMessage, placedOrderId: $placedOrderId)';
   }
 
   @override
@@ -215,6 +232,8 @@ class _$CheckoutStateImpl implements _CheckoutState {
                 other.loaderState == loaderState) &&
             (identical(other.selectedAddress, selectedAddress) ||
                 other.selectedAddress == selectedAddress) &&
+            (identical(other.pharmacistInstructions, pharmacistInstructions) ||
+                other.pharmacistInstructions == pharmacistInstructions) &&
             (identical(other.payableTotal, payableTotal) ||
                 other.payableTotal == payableTotal) &&
             (identical(other.isPlacingOrder, isPlacingOrder) ||
@@ -230,6 +249,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
     runtimeType,
     loaderState,
     selectedAddress,
+    pharmacistInstructions,
     payableTotal,
     isPlacingOrder,
     errorMessage,
@@ -249,6 +269,7 @@ abstract class _CheckoutState implements CheckoutState {
   const factory _CheckoutState({
     final LoaderState loaderState,
     final AddressModel? selectedAddress,
+    final String pharmacistInstructions,
     final double payableTotal,
     final bool isPlacingOrder,
     final String? errorMessage,
@@ -259,6 +280,8 @@ abstract class _CheckoutState implements CheckoutState {
   LoaderState get loaderState;
   @override
   AddressModel? get selectedAddress;
+  @override
+  String get pharmacistInstructions;
   @override
   double get payableTotal;
   @override

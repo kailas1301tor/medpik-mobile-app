@@ -2,17 +2,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tsuite/res/constants/medpik_svg_assets.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/cart/notifier/cart_notifier.dart';
+import 'package:tsuite/services/cart_facade_service.dart';
 import 'package:tsuite/src/main/notifier/main_shell_notifier.dart';
-import 'package:tsuite/src/orders/view/widget/order_sticky_bottom_bar.dart';
 import 'package:tsuite/src/product_detail/notifier/product_detail_notifier.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_qty_stepper.dart';
+import 'package:tsuite/utils/common_widgets/common_sticky_bottom_bar.dart';
 import 'package:tsuite/utils/common_widgets/primary_button.dart';
 import 'package:tsuite/utils/extensions/context_extensions.dart';
 import 'package:tsuite/utils/extensions/num_extensions.dart';
+import 'package:tuple/tuple.dart';
 
 class ProductDetailStickyFooter extends ConsumerWidget {
   const ProductDetailStickyFooter({super.key});
@@ -21,74 +22,51 @@ class ProductDetailStickyFooter extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.appColors;
-    final productId = ref.watch(
-      productDetailNotifierProvider.select((s) => s.detail?.product.id),
+    final detailData = ref.watch(
+      productDetailNotifierProvider.select(
+        (s) => Tuple3(
+          s.detail?.product.id,
+          s.detail?.product.price,
+          s.quantity,
+        ),
+      ),
     );
-    final localQuantity = ref.watch(
-      productDetailNotifierProvider.select((s) => s.quantity),
-    );
-    final unitPrice = ref.watch(
-      productDetailNotifierProvider.select((s) => s.detail?.product.price),
-    );
-    final cartQuantity = ref.watch(
-      cartNotifierProvider.select((s) {
-        if (productId == null) return 0;
-        for (final item in s.items) {
-          if (item.product.id == productId) return item.quantity;
-        }
-        return 0;
-      }),
-    );
-
+    final productId = detailData.item1;
+    final unitPrice = detailData.item2;
+    final localQuantity = detailData.item3;
+    final cartQuantity = productId == null
+        ? 0
+        : ref.watch(cartProductQuantityProvider(productId));
     final isInCart = cartQuantity > 0;
-    final quantity = isInCart ? cartQuantity : localQuantity;
     final notifier = ref.read(productDetailNotifierProvider.notifier);
-    final lineTotal = (unitPrice ?? 0) * quantity;
-    final ctaLabel = isInCart
-        ? Strings.goToCart
-        : (unitPrice != null && unitPrice > 0
-            ? '${Strings.addToCart} · ${lineTotal.toCurrency(decimalDigits: 0)}'
-            : Strings.addToCart);
 
-    return OrderStickyBottomBar(
+    if (isInCart) {
+      return CommonStickyBottomBar(
+        child: PrimaryButton(
+          text: Strings.goToCart,
+          height: 48,
+          onPressed: () => _goToCart(context, ref),
+        ),
+      );
+    }
+
+    final lineTotal = (unitPrice ?? 0) * localQuantity;
+    final ctaLabel = unitPrice != null && unitPrice > 0
+        ? '${Strings.addToCart} · ${lineTotal.toCurrency(decimalDigits: 0)}'
+        : Strings.addToCart;
+
+    return CommonStickyBottomBar(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                Strings.quantityLabel,
-                style: FontPalette.base500(12, color: colors.secondaryText),
-              ),
-              6.verticalSpace,
-              SizedBox(
-                height: 48.h,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: ProductDetailQtyStepper(
-                    quantity: quantity,
-                    allowRemoveAtOne: isInCart,
-                    onDecrement: notifier.decrementQuantity,
-                    onIncrement: notifier.incrementQuantity,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          16.horizontalSpace,
           Expanded(
             child: PrimaryButton(
               text: ctaLabel,
               height: 48,
-              radius: 14,
-              onPressed: isInCart
-                  ? () => _goToCart(context, ref)
-                  : notifier.addToCart,
+              onPressed: notifier.addToCart,
             ),
           ),
+          12.horizontalSpace,
+          _GoToCartButton(onTap: () => _goToCart(context, ref)),
         ],
       ),
     );
@@ -97,5 +75,48 @@ class ProductDetailStickyFooter extends ConsumerWidget {
   void _goToCart(BuildContext context, WidgetRef ref) {
     ref.read(mainShellNotifierProvider.notifier).setTab(_cartTabIndex);
     context.popUntilFirst();
+  }
+}
+
+class _GoToCartButton extends StatelessWidget {
+  const _GoToCartButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: Strings.goToCart,
+      child: Material(
+        color: ColorPalette.transparent,
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: Ink(
+            width: 48.r,
+            height: 48.r,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: ColorPalette.productAccentTeal.withValues(alpha: 0.12),
+              border: Border.all(
+                color: ColorPalette.productAccentTeal.withValues(alpha: 0.28),
+              ),
+            ),
+            child: Center(
+              child: SvgPicture.asset(
+                MedpikSvgAssets.shopping,
+                width: 22.r,
+                height: 22.r,
+                colorFilter: const ColorFilter.mode(
+                  ColorPalette.productAccentTeal,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

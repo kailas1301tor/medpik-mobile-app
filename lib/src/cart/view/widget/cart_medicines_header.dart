@@ -4,8 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_delete_icon.dart';
-
 class CartMedicinesHeader extends StatelessWidget {
   const CartMedicinesHeader({
     super.key,
@@ -33,19 +31,12 @@ class CartMedicinesHeader extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CommonDeleteIcon(size: 16.r),
-                4.horizontalSpace,
-                Text(
-                  Strings.clearAll,
-                  style: FontPalette.base600(
-                    13,
-                    color: ColorPalette.formValidationErrorColor,
-                  ),
-                ),
-              ],
+            child: Text(
+              Strings.clearAll,
+              style: FontPalette.base600(
+                13,
+                color: ColorPalette.formValidationErrorColor,
+              ),
             ),
           ),
         ),

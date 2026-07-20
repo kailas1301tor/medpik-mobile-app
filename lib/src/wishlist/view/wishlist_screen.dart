@@ -12,6 +12,7 @@ import 'package:tsuite/src/wishlist/view/widget/wishlist_shimmer_widget.dart';
 import 'package:tsuite/utils/common_widgets/common_refresh_indicator.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
+import 'package:tuple/tuple.dart';
 
 class WishlistScreen extends ConsumerStatefulWidget {
   const WishlistScreen({super.key});
@@ -33,10 +34,13 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final loaderState = ref.watch(
-      wishlistNotifierProvider.select((s) => s.loaderState),
+    final wishlistData = ref.watch(
+      wishlistNotifierProvider.select(
+        (s) => Tuple2(s.loaderState, s.items),
+      ),
     );
-    final items = ref.watch(wishlistNotifierProvider.select((s) => s.items));
+    final loaderState = wishlistData.item1;
+    final items = wishlistData.item2;
     final notifier = ref.read(wishlistNotifierProvider.notifier);
 
     return CommonScaffold(
@@ -61,7 +65,10 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
                 emptyScreenTitle: Strings.noFavoriteProducts,
                 emptyScreenDescription: Strings.noFavoriteProductsDesc,
                 emptyScreenImage: Assets.lottieEmptyHeart,
-                child: WishlistContentWidget(items: items),
+                child: WishlistContentWidget(
+                  items: items,
+                  onWishlistTap: notifier.toggle,
+                ),
               ),
             ),
           ],

@@ -1,10 +1,10 @@
-// lib/src/orders/view/widget/order_sticky_bottom_bar.dart
+// lib/utils/common_widgets/common_sticky_bottom_bar.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 
-class OrderStickyBottomBar extends StatelessWidget {
-  const OrderStickyBottomBar({super.key, required this.child});
+class CommonStickyBottomBar extends StatelessWidget {
+  const CommonStickyBottomBar({super.key, required this.child});
 
   final Widget child;
 

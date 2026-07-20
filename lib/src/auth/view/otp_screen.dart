@@ -10,6 +10,7 @@ import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
 import 'package:tsuite/utils/common_widgets/common_loader.dart';
 import 'package:tsuite/utils/common_widgets/common_otp_field.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
+import 'package:tsuite/utils/common_widgets/common_text_button.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
 import '../notifier/auth_notifier.dart';
 
@@ -105,25 +106,18 @@ class OtpScreen extends ConsumerWidget {
                           color: colors.secondaryText,
                         ),
                       ),
-                      TextButton(
+                      CommonTextButton(
+                        label: countdown == 0
+                            ? Strings.resendCode
+                            : '${Strings.resendIn} ${countdown}s',
                         onPressed: countdown == 0 && !isLoading
                             ? () => notifier.resendOtp()
                             : null,
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          countdown == 0
-                              ? Strings.resendCode
-                              : '${Strings.resendIn} ${countdown}s',
-                          style: FontPalette.base600(
-                            14,
-                            color: countdown == 0
-                                ? colors.primary
-                                : colors.secondaryText,
-                          ),
+                        style: FontPalette.base600(
+                          14,
+                          color: countdown == 0
+                              ? colors.primary
+                              : colors.secondaryText,
                         ),
                       ),
                     ],

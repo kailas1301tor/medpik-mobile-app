@@ -5,6 +5,7 @@ import 'package:tsuite/data/remote/network_services.dart';
 import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/src/address/repo/address_repository.dart';
 import 'package:tsuite/src/auth/repo/auth_repo.dart';
+import 'package:tsuite/src/cart/repo/cart_repository.dart';
 import 'package:tsuite/src/checkout/repo/checkout_repository.dart';
 import 'package:tsuite/src/home/repo/home_repository.dart';
 import 'package:tsuite/src/orders/repo/orders_repository.dart';
@@ -63,6 +64,12 @@ PrescriptionRepo prescriptionRepository(Ref ref) {
 AddressRepo addressRepository(Ref ref) {
   final services = ref.watch(networkServicesProvider);
   return AddressRepoImpl(services);
+}
+
+@Riverpod(keepAlive: true)
+CartRepo cartRepository(Ref ref) {
+  final services = ref.watch(networkServicesProvider);
+  return CartRepoImpl(services);
 }
 
 @Riverpod(keepAlive: false)

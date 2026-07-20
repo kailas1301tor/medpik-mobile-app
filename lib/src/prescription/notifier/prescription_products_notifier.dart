@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/services/repo_di.dart';
 import 'package:tsuite/src/prescription/repo/customer_products_repository.dart';
@@ -30,7 +31,9 @@ class PrescriptionProductsNotifier extends _$PrescriptionProductsNotifier {
     searchController = TextEditingController();
     searchFocusNode = FocusNode();
     missingProductNameController = TextEditingController();
-    missingProductQuantityController = TextEditingController(text: '1');
+    missingProductQuantityController = TextEditingController(
+      text: Strings.defaultQuantityHint,
+    );
     customerProductsRepo = ref.read(customerProductsRepositoryProvider);
 
     ref.onDispose(() {

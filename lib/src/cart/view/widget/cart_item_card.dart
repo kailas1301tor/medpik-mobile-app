@@ -4,9 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
 import 'package:tsuite/src/cart/model/cart_item_model.dart';
-import 'package:tsuite/utils/common_widgets/common_delete_icon.dart';
 import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
 import 'package:tsuite/utils/common_widgets/common_container.dart';
+import 'package:tsuite/utils/common_widgets/common_delete_icon.dart';
 import 'package:tsuite/utils/common_widgets/common_qty_selector.dart';
 
 class CartItemCard extends StatelessWidget {
@@ -98,7 +98,7 @@ class CartItemCard extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               child: Padding(
                 padding: EdgeInsets.all(4.w),
-                child: CommonDeleteIcon(size: 24.w),
+                child: CommonDeleteIcon(size: 22.r),
               ),
             ),
           ),

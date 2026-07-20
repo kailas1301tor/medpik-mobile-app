@@ -190,6 +190,7 @@ class Strings {
   static const String addToCart = "Add to Cart";
   static const String goToCart = "Go to Cart";
   static const String addedToCart = "Added to cart";
+  static const String loginToAddToCart = "Please login to add items to cart";
   static const String productDetails = "Product Details";
   static const String aboutThisMedicine = "About this medicine";
   static const String readMore = "Read more";
@@ -257,6 +258,7 @@ class Strings {
   static const String cartTitle = "Cart";
   static const String cartEmptyMessage =
       "Your cart is empty. Add medicines to get started.";
+  static const String startShopping = "Start Shopping";
   static const String cartPricingDisclaimer =
       "Final pricing will be shared after our pharmacist reviews your order. You can review and approve the bill before making any payment.";
   static const String clearAll = "Clear All";
@@ -265,6 +267,7 @@ class Strings {
   static const String pharmacistInstructionsHint =
       "E.g. deliver after 6 PM, call before delivery...";
   static const String submitOrder = "Submit Order";
+  static const String medicineCartCheckoutTitle = "Medicine Cart Checkout";
   static const String secureAndPrivate = "Secure & Private";
   static const String orderSubmittedSuccessTitle =
       "Order Submitted Successfully!";
@@ -347,6 +350,12 @@ class Strings {
       "Preview not available for this file type";
   static const String prescriptionUploaded =
       "Prescription uploaded successfully";
+  static const String prescriptionOrderCheckoutTitle =
+      "Prescription Order Checkout";
+  static const String prescriptionOrderSubmittedSuccessTitle =
+      "Prescription Order Submitted Successfully!";
+  static const String prescriptionOrderSubmittedSuccessMessage =
+      "Your prescription order has been sent to our pharmacist for review. We'll notify you when the next step is ready.";
   static const String prescriptionRequiredToContinue =
       "Please upload a valid prescription to continue";
   static const String prescriptionValidContainsTitle =
@@ -372,6 +381,7 @@ class Strings {
   static const String addToOrder = "Add to order";
   static const String requestedProductName = "Product name";
   static const String requestedProductQuantity = "Quantity";
+  static const String defaultQuantityHint = "1";
   static const String productAddedToDescription =
       "Product added to description";
   static const String productNotFoundInCatalogPrefix =
@@ -388,6 +398,8 @@ class Strings {
   static const String deliveryAddress = "Delivery Address";
   static const String orderSummary = "Order Summary";
   static const String placeOrder = "Place Order";
+  static const String placeMedicineCartOrder = "Place Order";
+  static const String submitPrescriptionOrder = "Submit Prescription Order";
   static const String changeAddress = "Change";
   static const String noAddressSaved = "No delivery address saved";
   static const String addAddressToContinue =

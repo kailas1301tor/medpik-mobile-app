@@ -71,7 +71,7 @@ class HomeHeaderLocationRow extends StatelessWidget {
       child: Row(
         children: [
           SvgPicture.asset(
-            MedpikSvgAssets.location,
+            MedpikSvgAssets.homeLocation,
             width: 32.w,
             height: 32.w,
           ),

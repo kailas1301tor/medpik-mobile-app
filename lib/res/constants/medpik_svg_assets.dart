@@ -26,7 +26,8 @@ class MedpikSvgAssets {
   static const String trash = '$_base/Trash.svg';
   static const String delete = trash;
   static const String bell = notification;
-  static const String location = '$_base/location.svg';
+  static const String location = '$_base/home_location.svg';
+  static const String homeLocation = location;
   static const String mapPin = location;
   static const String locationPin = location;
   static const String arrowCircleUp = '$_base/arrow-circle-up.svg';

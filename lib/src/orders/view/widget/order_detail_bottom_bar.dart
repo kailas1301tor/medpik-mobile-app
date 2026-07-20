@@ -5,7 +5,7 @@ import 'package:tsuite/data/models/order_model.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/styles/color_palette.dart';
 import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/orders/view/widget/order_sticky_bottom_bar.dart';
+import 'package:tsuite/utils/common_widgets/common_sticky_bottom_bar.dart';
 import 'package:tsuite/utils/common_widgets/primary_button.dart';
 import 'package:tsuite/utils/extensions/num_extensions.dart';
 import 'package:tsuite/utils/helpers/order_status_helper.dart';
@@ -27,7 +27,7 @@ class OrderDetailBottomBar extends StatelessWidget {
     final showTotal =
         orderStatusShowsTotal(order.status) && order.displayGrandTotal > 0;
 
-    return OrderStickyBottomBar(
+    return CommonStickyBottomBar(
       child: Row(
         children: [
           if (showTotal)

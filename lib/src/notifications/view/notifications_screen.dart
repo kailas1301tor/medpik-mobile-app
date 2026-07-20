@@ -10,6 +10,7 @@ import 'package:tsuite/src/notifications/view/widget/notifications_screen_header
 import 'package:tsuite/utils/common_widgets/common_refresh_indicator.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
+import 'package:tuple/tuple.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
@@ -17,12 +18,13 @@ class NotificationsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
-    final loaderState = ref.watch(
-      notificationsNotifierProvider.select((s) => s.loaderState),
+    final notificationsData = ref.watch(
+      notificationsNotifierProvider.select(
+        (s) => Tuple2(s.loaderState, s.notifications),
+      ),
     );
-    final notifications = ref.watch(
-      notificationsNotifierProvider.select((s) => s.notifications),
-    );
+    final loaderState = notificationsData.item1;
+    final notifications = notificationsData.item2;
     final hasUnread = notifications.any((n) => !n.isRead);
     final notifier = ref.read(notificationsNotifierProvider.notifier);
 

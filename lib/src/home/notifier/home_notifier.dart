@@ -2,15 +2,15 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/data/models/address_model.dart';
 import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/src/address/notifier/address_notifier.dart';
+import 'package:tsuite/services/address_book_service.dart';
+import 'package:tsuite/services/wishlist_facade_service.dart';
 import 'package:tsuite/src/home/repo/home_repository.dart';
 import 'package:tsuite/src/home/state/home_state.dart';
-import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
+import 'package:tsuite/utils/helpers/address_resolution_helper.dart';
 import 'package:tsuite/utils/helpers/api_error_handler.dart';
 import 'package:tsuite/utils/helpers/time_of_day_greeting_helper.dart';
 import 'package:tsuite/utils/helpers/toast_helper.dart';
@@ -37,18 +37,15 @@ class HomeNotifier extends _$HomeNotifier {
       scrollController.dispose();
     });
 
-    ref.listen(
-      addressNotifierProvider.select((s) => s.addresses),
-      (previous, next) {
-        final data = state.data;
-        if (data == null) return;
-        final deliveryHint = _deliveryHintFromAddresses(next);
-        if (data.deliveryHint == deliveryHint) return;
-        state = state.copyWith(
-          data: data.copyWith(deliveryHint: deliveryHint),
-        );
-      },
-    );
+    ref.listen(userAddressesProvider, (previous, next) {
+      final data = state.data;
+      if (data == null) return;
+      final deliveryHint = deliveryHintFromAddresses(next);
+      if (data.deliveryHint == deliveryHint) return;
+      state = state.copyWith(
+        data: data.copyWith(deliveryHint: deliveryHint),
+      );
+    });
 
     homeRepo = ref.read(homeRepositoryProvider);
     Future.microtask(fetchHomeFeed);
@@ -92,7 +89,7 @@ class HomeNotifier extends _$HomeNotifier {
             );
             if (AppConstants.hasSession) {
               ref
-                  .read(wishlistNotifierProvider.notifier)
+                  .read(wishlistFacadeServiceProvider)
                   .syncFromProducts(feed.featuredProducts);
             }
           },
@@ -104,19 +101,6 @@ class HomeNotifier extends _$HomeNotifier {
   }
 
   String _resolveDeliveryHint() {
-    final addresses = ref.read(addressNotifierProvider).addresses;
-    return _deliveryHintFromAddresses(addresses);
-  }
-
-  String _deliveryHintFromAddresses(List<AddressModel> addresses) {
-    AddressModel? selected;
-    for (final address in addresses) {
-      if (address.isDefault) {
-        selected = address;
-        break;
-      }
-    }
-    selected ??= addresses.isEmpty ? null : addresses.first;
-    return selected?.deliveryHint ?? Strings.selectDeliveryAddress;
+    return deliveryHintFromAddresses(ref.read(userAddressesProvider));
   }
 }

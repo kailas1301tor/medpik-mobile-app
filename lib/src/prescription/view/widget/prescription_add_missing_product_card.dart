@@ -65,7 +65,7 @@ class PrescriptionAddMissingProductCard extends ConsumerWidget {
           CommonTextFormField(
             controller: productsNotifier.missingProductQuantityController,
             title: Strings.requestedProductQuantity,
-            hintText: '1',
+            hintText: Strings.defaultQuantityHint,
             inputType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             borderRadius: 12,

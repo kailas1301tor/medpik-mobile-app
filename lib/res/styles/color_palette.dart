@@ -88,6 +88,9 @@ class ColorPalette {
   static const heroTealDark = Color(0xFF032B36);
   static const heroTealMid = Color(0xFF064A5B);
   static const heroTealLight = Color(0xFF0A6C7D);
+  static const homePinnedHeaderBackground = Color(0xFF043745);
+  static const homePinnedHeaderFadeTop = Color(0x00000000);
+  static const homePinnedHeaderFadeBottom = Color(0x14000000);
 
   // Prescription card — healthcare palette
   static const prescriptionGradientStart = Color(0xFFF2FCFC);

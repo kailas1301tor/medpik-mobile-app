@@ -131,6 +131,23 @@ final addressRepositoryProvider = AutoDisposeProvider<AddressRepo>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AddressRepositoryRef = AutoDisposeProviderRef<AddressRepo>;
+String _$cartRepositoryHash() => r'7273033435ecae7df03839940f139d70f1762e6d';
+
+/// See also [cartRepository].
+@ProviderFor(cartRepository)
+final cartRepositoryProvider = Provider<CartRepo>.internal(
+  cartRepository,
+  name: r'cartRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$cartRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CartRepositoryRef = ProviderRef<CartRepo>;
 String _$checkoutRepositoryHash() =>
     r'd05dbd2d84cee33734501afe8ff774009992ed09';
 

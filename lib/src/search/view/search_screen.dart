@@ -11,6 +11,7 @@ import 'package:tsuite/utils/common_widgets/common_container.dart';
 import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
 import 'package:tsuite/utils/common_widgets/common_search_bar.dart';
 import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:tuple/tuple.dart';
 
 class SearchScreen extends ConsumerWidget {
   const SearchScreen({super.key});
@@ -19,12 +20,13 @@ class SearchScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final notifier = ref.read(searchNotifierProvider.notifier);
-    final recentSearches = ref.watch(
-      searchNotifierProvider.select((s) => s.recentSearches),
+    final searchData = ref.watch(
+      searchNotifierProvider.select(
+        (s) => Tuple2(s.recentSearches, s.categories),
+      ),
     );
-    final categories = ref.watch(
-      searchNotifierProvider.select((s) => s.categories),
-    );
+    final recentSearches = searchData.item1;
+    final categories = searchData.item2;
 
     return CommonScaffold(
       appBar: const CommonAppBar(title: Strings.search),

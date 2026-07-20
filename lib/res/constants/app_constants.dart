@@ -47,6 +47,9 @@ class AppConstants {
   /// GET wishlist list / POST toggle (`product_id`).
   static String wishlist = '$api/wishlist';
 
+  /// GET cart / POST add (delta) / DELETE remove (`item_ids`).
+  static String cart = '$api/cart';
+
   // Orders & addresses
   static String orders = '$api/orders';
   static String addresses = '$api/addresses';

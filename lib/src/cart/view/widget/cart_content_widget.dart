@@ -4,11 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/src/cart/notifier/cart_notifier.dart';
-import 'package:tsuite/src/cart/view/widget/cart_address_card.dart';
 import 'package:tsuite/src/cart/view/widget/cart_item_card.dart';
 import 'package:tsuite/src/cart/view/widget/cart_medicines_header.dart';
-import 'package:tsuite/src/cart/view/widget/cart_order_summary_section.dart';
-import 'package:tsuite/src/cart/view/widget/cart_pharmacist_instructions_card.dart';
 import 'package:tsuite/src/cart/view/widget/cart_pricing_banner.dart';
 import 'package:tsuite/utils/common_widgets/common_dialog_box.dart';
 
@@ -38,16 +35,10 @@ class CartContentWidget extends ConsumerWidget {
               item: item,
               onIncrement: () => notifier.incrementItem(item.product.id),
               onDecrement: () => notifier.decrementItem(item.product.id),
-              onRemove: () => notifier.removeItem(item.product.id),
+              onRemove: () => notifier.removeCartLine(item.id),
             ),
             if (item != items.last) 12.verticalSpace,
           ],
-          20.verticalSpace,
-          const CartPharmacistInstructionsCard(),
-          20.verticalSpace,
-          const CartAddressCard(),
-          20.verticalSpace,
-          CartOrderSummarySection(itemCount: itemCount),
         ],
       ),
     );

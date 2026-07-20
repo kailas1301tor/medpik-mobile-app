@@ -16,6 +16,7 @@ class PrescriptionUploadArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return DashedBorderContainer(
       height: 180.h,
@@ -23,6 +24,12 @@ class PrescriptionUploadArea extends StatelessWidget {
       dashWidth: 6,
       dashGap: 6,
       strokeWidth: 2,
+      borderColor: isDarkMode
+          ? colors.inputBorder
+          : ColorPalette.prescriptionUploadDashedBorder,
+      backgroundColor: isDarkMode
+          ? colors.inputBackground
+          : ColorPalette.prescriptionUploadAreaBg,
       onTap: onTap,
       child: Center(
         child: Column(
