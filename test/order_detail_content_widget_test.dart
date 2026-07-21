@@ -57,6 +57,8 @@ void main() {
     expect(find.text(Strings.deliveryAddress), findsOneWidget);
     expect(find.textContaining('12 Palm Street'), findsOneWidget);
     expect(find.text(Strings.orderCustomerDetails), findsOneWidget);
+    expect(find.text(Strings.orderCustomerName), findsOneWidget);
+    expect(find.text(Strings.orderCustomerNumber), findsOneWidget);
     expect(find.text('Anita Sharma'), findsOneWidget);
     expect(find.text('+919876543210'), findsOneWidget);
     expect(find.text(Strings.attachedPrescriptionsTitle), findsOneWidget);
@@ -71,6 +73,8 @@ void main() {
     );
 
     expect(find.text(Strings.orderCustomerDetails), findsOneWidget);
+    expect(find.text(Strings.orderCustomerName), findsOneWidget);
+    expect(find.text(Strings.orderCustomerNumber), findsOneWidget);
     expect(find.text(Strings.unavailableValue), findsNWidgets(2));
   });
 }

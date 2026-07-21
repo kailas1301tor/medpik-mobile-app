@@ -6,7 +6,7 @@ part of 'address_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$addressNotifierHash() => r'5534bf86abf8d83eb814530c831443422edb98ea';
+String _$addressNotifierHash() => r'6b034cbbfcbaf2b57ed34e8be10d71cab19ff2f7';
 
 /// See also [AddressNotifier].
 @ProviderFor(AddressNotifier)

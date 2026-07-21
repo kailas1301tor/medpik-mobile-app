@@ -1,4 +1,4 @@
-package com.example.tsuite
+package com.medpik
 
 import io.flutter.embedding.android.FlutterActivity
 

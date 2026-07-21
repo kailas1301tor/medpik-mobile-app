@@ -39,19 +39,53 @@ class OrderDetailCustomerCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                displayName,
-                style: FontPalette.base700(14, color: colors.primaryText),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              _LabeledValue(
+                label: Strings.orderCustomerName,
+                value: displayName,
+                valueStyle: FontPalette.base700(14, color: colors.primaryText),
               ),
-              4.verticalSpace,
-              Text(
-                displayPhone,
-                style: FontPalette.base400(13, color: colors.secondaryText),
+              10.verticalSpace,
+              _LabeledValue(
+                label: Strings.orderCustomerNumber,
+                value: displayPhone,
+                valueStyle: FontPalette.base400(13, color: colors.secondaryText),
               ),
             ],
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LabeledValue extends StatelessWidget {
+  const _LabeledValue({
+    required this.label,
+    required this.value,
+    required this.valueStyle,
+  });
+
+  final String label;
+  final String value;
+  final TextStyle valueStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: FontPalette.base500(12, color: colors.secondaryText),
+        ),
+        4.verticalSpace,
+        Text(
+          value,
+          style: valueStyle,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

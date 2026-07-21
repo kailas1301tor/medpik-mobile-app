@@ -22,6 +22,13 @@ class AppConstants {
     defaultValue: '',
   );
 
+  /// OneSignal App ID from dashboard Settings > Keys & IDs.
+  /// Override at build time: `--dart-define=ONESIGNAL_APP_ID=...`
+  static const String oneSignalAppId = String.fromEnvironment(
+    'ONESIGNAL_APP_ID',
+    defaultValue: 'bc15686a-2431-4099-8916-1f2c0ff361ac',
+  );
+
   static String api = '/api';
   static String version = '/v1';
   static String user = '/user';

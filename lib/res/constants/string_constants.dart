@@ -435,6 +435,8 @@ class Strings {
   static const String prescriptionOrder = "Prescription";
   static const String prescriptionsLabel = "prescriptions";
   static const String orderCustomerDetails = "Customer details";
+  static const String orderCustomerName = "Name";
+  static const String orderCustomerNumber = "Number";
   static const String orderDeliveryInstructions = "Delivery instructions";
   static const String orderPrescriptionNotes = "Prescription notes";
   static const String attachedPrescriptionsTitle = "Prescriptions";

@@ -8,6 +8,7 @@ import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/res/constants/string_constants.dart';
 import 'package:tsuite/res/enums/enums.dart';
 import 'package:tsuite/services/auth_session_service.dart';
+import 'package:tsuite/services/onesignal_service.dart';
 import 'package:tsuite/services/repo_di.dart';
 import 'package:tsuite/src/auth/repo/auth_repo.dart';
 import 'package:tsuite/src/auth/state/auth_state.dart';
@@ -214,7 +215,8 @@ class AuthNotifier extends _$AuthNotifier {
               result.message,
               fallback: Strings.otpVerifiedSuccess,
             );
-            await ref.read(wishlistFacadeServiceProvider).fetchWishlist();
+            // await ref.read(wishlistFacadeServiceProvider).fetchWishlist();
+            await ref.read(oneSignalServiceProvider).refreshDeviceRegistration();
             return true;
           },
         )
@@ -250,6 +252,7 @@ class AuthNotifier extends _$AuthNotifier {
         );
 
     await ref.read(authSessionServiceProvider).clear();
+    await ref.read(oneSignalServiceProvider).clearIdentity();
     ref.read(wishlistFacadeServiceProvider).clear();
     ref.read(cartNotifierProvider.notifier).clearSessionCart();
     state = const AuthState();

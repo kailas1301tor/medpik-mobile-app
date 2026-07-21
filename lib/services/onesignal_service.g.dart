@@ -1,25 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'auth_notifier.dart';
+part of 'onesignal_service.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authNotifierHash() => r'5445370d30383def2f42a7365c5ccbb1d833cc86';
+String _$oneSignalServiceHash() => r'13b5bbbb155c5010d25546cd6ce659c0756d35bd';
 
-/// See also [AuthNotifier].
-@ProviderFor(AuthNotifier)
-final authNotifierProvider = NotifierProvider<AuthNotifier, AuthState>.internal(
-  AuthNotifier.new,
-  name: r'authNotifierProvider',
+/// See also [oneSignalService].
+@ProviderFor(oneSignalService)
+final oneSignalServiceProvider = Provider<OneSignalService>.internal(
+  oneSignalService,
+  name: r'oneSignalServiceProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$authNotifierHash,
+      : _$oneSignalServiceHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$AuthNotifier = Notifier<AuthState>;
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef OneSignalServiceRef = ProviderRef<OneSignalService>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

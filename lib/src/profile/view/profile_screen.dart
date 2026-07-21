@@ -46,17 +46,6 @@ class ProfileScreen extends ConsumerWidget {
                         showCustomToast(message: Strings.supportComingSoon),
                   ),
                   ProfileMenuTile(
-                    icon: Icons.notifications_outlined,
-                    title: Strings.notifications,
-                    subtitle: Strings.notificationsSubtitle,
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        RouteConstants.routeNotificationsScreen,
-                      );
-                    },
-                  ),
-                  ProfileMenuTile(
                     icon: Icons.shield_outlined,
                     title: Strings.privacyAndSecurity,
                     subtitle: Strings.privacyAndSecuritySubtitle,

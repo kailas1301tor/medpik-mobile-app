@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tsuite/res/constants/app_constants.dart';
 import 'package:tsuite/services/wishlist_facade_service.dart';
+import 'package:tsuite/services/onesignal_service.dart';
 import 'package:tsuite/src/auth/notifier/auth_notifier.dart';
 
 part 'session_bootstrap_service.g.dart';
@@ -22,6 +23,7 @@ class SessionBootstrapService {
 
     if (AppConstants.hasSession) {
       await _ref.read(wishlistFacadeServiceProvider).fetchWishlist();
+      await _ref.read(oneSignalServiceProvider).refreshDeviceRegistration();
     }
 
     return AppConstants.hasSession;

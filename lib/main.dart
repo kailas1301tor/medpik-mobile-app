@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tsuite/services/auth_session_service.dart';
+import 'package:tsuite/services/onesignal_service.dart';
 import 'src/root/tsuite_app.dart';
 
 Future<void> main() async {
@@ -15,7 +16,10 @@ Future<void> main() async {
 
   final container = ProviderContainer();
   await container.read(authSessionServiceProvider).initialize();
-  await container.read(authSessionServiceProvider).restore();
+  final session = await container.read(authSessionServiceProvider).restore();
+  await container.read(oneSignalServiceProvider).initialize(
+        restoredUserId: session?.authModel.id.toString(),
+      );
 
   runApp(
     UncontrolledProviderScope(
