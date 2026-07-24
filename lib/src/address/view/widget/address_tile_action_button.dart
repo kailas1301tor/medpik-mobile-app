@@ -1,7 +1,9 @@
 // lib/src/address/view/widget/address_tile_action_button.dart
+//
+// ? Circular tap target for edit/delete icons on [AddressBookTile].
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/color_palette.dart';
 
 class AddressTileActionButton extends StatelessWidget {
   const AddressTileActionButton({

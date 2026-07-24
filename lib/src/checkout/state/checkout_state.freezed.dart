@@ -20,10 +20,8 @@ mixin _$CheckoutState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   AddressModel? get selectedAddress => throw _privateConstructorUsedError;
   String get pharmacistInstructions => throw _privateConstructorUsedError;
-  double get payableTotal => throw _privateConstructorUsedError;
   bool get isPlacingOrder => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
-  String? get placedOrderId => throw _privateConstructorUsedError;
 
   /// Create a copy of CheckoutState
   /// with the given fields replaced by the non-null parameter values.
@@ -43,10 +41,8 @@ abstract class $CheckoutStateCopyWith<$Res> {
     LoaderState loaderState,
     AddressModel? selectedAddress,
     String pharmacistInstructions,
-    double payableTotal,
     bool isPlacingOrder,
     String? errorMessage,
-    String? placedOrderId,
   });
 }
 
@@ -68,10 +64,8 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
     Object? loaderState = null,
     Object? selectedAddress = freezed,
     Object? pharmacistInstructions = null,
-    Object? payableTotal = null,
     Object? isPlacingOrder = null,
     Object? errorMessage = freezed,
-    Object? placedOrderId = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -87,10 +81,6 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
                 ? _value.pharmacistInstructions
                 : pharmacistInstructions // ignore: cast_nullable_to_non_nullable
                       as String,
-            payableTotal: null == payableTotal
-                ? _value.payableTotal
-                : payableTotal // ignore: cast_nullable_to_non_nullable
-                      as double,
             isPlacingOrder: null == isPlacingOrder
                 ? _value.isPlacingOrder
                 : isPlacingOrder // ignore: cast_nullable_to_non_nullable
@@ -98,10 +88,6 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            placedOrderId: freezed == placedOrderId
-                ? _value.placedOrderId
-                : placedOrderId // ignore: cast_nullable_to_non_nullable
                       as String?,
           )
           as $Val,
@@ -122,10 +108,8 @@ abstract class _$$CheckoutStateImplCopyWith<$Res>
     LoaderState loaderState,
     AddressModel? selectedAddress,
     String pharmacistInstructions,
-    double payableTotal,
     bool isPlacingOrder,
     String? errorMessage,
-    String? placedOrderId,
   });
 }
 
@@ -146,10 +130,8 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
     Object? loaderState = null,
     Object? selectedAddress = freezed,
     Object? pharmacistInstructions = null,
-    Object? payableTotal = null,
     Object? isPlacingOrder = null,
     Object? errorMessage = freezed,
-    Object? placedOrderId = freezed,
   }) {
     return _then(
       _$CheckoutStateImpl(
@@ -165,10 +147,6 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
             ? _value.pharmacistInstructions
             : pharmacistInstructions // ignore: cast_nullable_to_non_nullable
                   as String,
-        payableTotal: null == payableTotal
-            ? _value.payableTotal
-            : payableTotal // ignore: cast_nullable_to_non_nullable
-                  as double,
         isPlacingOrder: null == isPlacingOrder
             ? _value.isPlacingOrder
             : isPlacingOrder // ignore: cast_nullable_to_non_nullable
@@ -176,10 +154,6 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        placedOrderId: freezed == placedOrderId
-            ? _value.placedOrderId
-            : placedOrderId // ignore: cast_nullable_to_non_nullable
                   as String?,
       ),
     );
@@ -193,10 +167,8 @@ class _$CheckoutStateImpl implements _CheckoutState {
     this.loaderState = LoaderState.loaded,
     this.selectedAddress,
     this.pharmacistInstructions = '',
-    this.payableTotal = 0,
     this.isPlacingOrder = false,
     this.errorMessage,
-    this.placedOrderId,
   });
 
   @override
@@ -209,18 +181,13 @@ class _$CheckoutStateImpl implements _CheckoutState {
   final String pharmacistInstructions;
   @override
   @JsonKey()
-  final double payableTotal;
-  @override
-  @JsonKey()
   final bool isPlacingOrder;
   @override
   final String? errorMessage;
-  @override
-  final String? placedOrderId;
 
   @override
   String toString() {
-    return 'CheckoutState(loaderState: $loaderState, selectedAddress: $selectedAddress, pharmacistInstructions: $pharmacistInstructions, payableTotal: $payableTotal, isPlacingOrder: $isPlacingOrder, errorMessage: $errorMessage, placedOrderId: $placedOrderId)';
+    return 'CheckoutState(loaderState: $loaderState, selectedAddress: $selectedAddress, pharmacistInstructions: $pharmacistInstructions, isPlacingOrder: $isPlacingOrder, errorMessage: $errorMessage)';
   }
 
   @override
@@ -234,14 +201,10 @@ class _$CheckoutStateImpl implements _CheckoutState {
                 other.selectedAddress == selectedAddress) &&
             (identical(other.pharmacistInstructions, pharmacistInstructions) ||
                 other.pharmacistInstructions == pharmacistInstructions) &&
-            (identical(other.payableTotal, payableTotal) ||
-                other.payableTotal == payableTotal) &&
             (identical(other.isPlacingOrder, isPlacingOrder) ||
                 other.isPlacingOrder == isPlacingOrder) &&
             (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage) &&
-            (identical(other.placedOrderId, placedOrderId) ||
-                other.placedOrderId == placedOrderId));
+                other.errorMessage == errorMessage));
   }
 
   @override
@@ -250,10 +213,8 @@ class _$CheckoutStateImpl implements _CheckoutState {
     loaderState,
     selectedAddress,
     pharmacistInstructions,
-    payableTotal,
     isPlacingOrder,
     errorMessage,
-    placedOrderId,
   );
 
   /// Create a copy of CheckoutState
@@ -270,10 +231,8 @@ abstract class _CheckoutState implements CheckoutState {
     final LoaderState loaderState,
     final AddressModel? selectedAddress,
     final String pharmacistInstructions,
-    final double payableTotal,
     final bool isPlacingOrder,
     final String? errorMessage,
-    final String? placedOrderId,
   }) = _$CheckoutStateImpl;
 
   @override
@@ -283,13 +242,9 @@ abstract class _CheckoutState implements CheckoutState {
   @override
   String get pharmacistInstructions;
   @override
-  double get payableTotal;
-  @override
   bool get isPlacingOrder;
   @override
   String? get errorMessage;
-  @override
-  String? get placedOrderId;
 
   /// Create a copy of CheckoutState
   /// with the given fields replaced by the non-null parameter values.

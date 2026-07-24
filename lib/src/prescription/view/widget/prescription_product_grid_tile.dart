@@ -1,12 +1,12 @@
 // lib/src/prescription/view/widget/prescription_product_grid_tile.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_product_grid_add_button.dart';
-import 'package:tsuite/utils/common_widgets/common_glass_product_image_hero.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_product_grid_add_button.dart';
+import 'package:medpik/utils/common_widgets/common_glass_product_image_hero.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 
 class PrescriptionProductGridTile extends StatelessWidget {
   const PrescriptionProductGridTile({super.key, required this.product});

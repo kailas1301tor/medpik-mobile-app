@@ -1,8 +1,9 @@
 // lib/src/search/view/widget/search_results_shimmer_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 
 class SearchResultsShimmerWidget extends StatelessWidget {
   const SearchResultsShimmerWidget({super.key});
@@ -57,12 +58,10 @@ class _ProductCardShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.cardBackground,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: colors.cardBorder),
-      ),
+    return CommonContainer(
+      borderRadius: 20.r,
+      color: colors.cardBackground,
+      side: BorderSide(color: colors.cardBorder),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

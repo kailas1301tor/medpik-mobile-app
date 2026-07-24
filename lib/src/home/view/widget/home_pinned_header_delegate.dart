@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_corner/smooth_corner.dart';
-import 'package:tsuite/res/constants/medpik_image_assets.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/home/view/widget/home_header_section.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/home/view/widget/home_header_section.dart';
+import 'package:medpik/utils/helpers/pre_cache_images.dart';
 
 class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
   HomePinnedHeaderDelegate({
@@ -50,10 +50,11 @@ class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(
-            MedpikImageAssets.primaryBackground,
+          Image(
+            image: PreCacheImages.primaryBackground.image,
             fit: BoxFit.cover,
             alignment: Alignment.topCenter,
+            gaplessPlayback: true,
           ),
           DecoratedBox(
             decoration: BoxDecoration(

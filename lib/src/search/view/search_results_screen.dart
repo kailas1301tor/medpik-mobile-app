@@ -2,51 +2,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/home/notifier/home_notifier.dart';
-import 'package:tsuite/src/search/model/product_catalog_args.dart';
-import 'package:tsuite/src/search/notifier/search_notifier.dart';
-import 'package:tsuite/src/search/view/widget/catalog_category_chips.dart';
-import 'package:tsuite/src/search/view/widget/search_results_content_widget.dart';
-import 'package:tsuite/src/search/view/widget/search_results_shimmer_widget.dart';
-import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
-import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/common_widgets/common_search_bar.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/data/models/product_catalog_args.dart';
+import 'package:medpik/src/search/notifier/search_notifier.dart';
+import 'package:medpik/src/search/view/widget/catalog_category_chips.dart';
+import 'package:medpik/src/search/view/widget/search_results_content_widget.dart';
+import 'package:medpik/src/search/view/widget/search_results_shimmer_widget.dart';
+import 'package:medpik/utils/common_widgets/common_app_bar.dart';
+import 'package:medpik/utils/common_widgets/common_refresh_indicator.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/common_search_bar.dart';
+import 'package:medpik/utils/common_widgets/common_switch_state.dart';
 import 'package:tuple/tuple.dart';
 
-class SearchResultsScreen extends ConsumerStatefulWidget {
+class SearchResultsScreen extends ConsumerWidget {
   const SearchResultsScreen({super.key, required this.args});
 
   final ProductCatalogArgs args;
 
   @override
-  ConsumerState<SearchResultsScreen> createState() =>
-      _SearchResultsScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(searchCatalogInitProvider(args));
 
-class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      ref.read(searchNotifierProvider.notifier).initCatalog(widget.args);
-      _ensureHomeCategories();
-    });
-  }
-
-  void _ensureHomeCategories() {
-    final home = ref.read(homeNotifierProvider);
-    final categories = home.data?.categories ?? const [];
-    if (categories.isEmpty) {
-      ref.read(homeNotifierProvider.notifier).fetchHomeFeed();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final colors = context.appColors;
     final notifier = ref.read(searchNotifierProvider.notifier);
     final catalogTitle = ref.watch(
@@ -68,7 +46,7 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
     final categoryId = searchData.item3;
     final hasMore = paging.item1;
     final isLoadingMore = paging.item2;
-    final title = catalogTitle.isNotEmpty ? catalogTitle : widget.args.title;
+    final title = catalogTitle.isNotEmpty ? catalogTitle : args.title;
 
     return CommonScaffold(
       appBar: CommonAppBar(title: title),
@@ -93,29 +71,21 @@ class _SearchResultsScreenState extends ConsumerState<SearchResultsScreen> {
           ),
           4.verticalSpace,
           Expanded(
-            child: switch (loaderState) {
-              LoaderState.loading => const SearchResultsShimmerWidget(),
-              LoaderState.noData => const CommonEmptyState(
-                  title: Strings.noResultsFound,
-                  message: Strings.noResultsDesc,
-                ),
-              LoaderState.error ||
-              LoaderState.networkError ||
-              LoaderState.serverError =>
-                CommonEmptyState(
-                  title: Strings.errorTitle,
-                  message: Strings.errorDescription,
-                  buttonText: Strings.refresh,
-                  onPressed: notifier.refreshCatalog,
-                ),
-              LoaderState.loaded => SearchResultsContentWidget(
+            child: CommonRefreshIndicator(
+              onRefresh: notifier.refreshCatalog,
+              child: CommonSwitchState(
+                loaderState: loaderState,
+                reload: notifier.refreshCatalog,
+                loader: const SearchResultsShimmerWidget(),
+                buttonText: Strings.refresh,
+                child: SearchResultsContentWidget(
                   results: results,
                   hasMore: hasMore,
                   isLoadingMore: isLoadingMore,
                   onLoadMore: notifier.loadMore,
                 ),
-              _ => const SizedBox.shrink(),
-            },
+              ),
+            ),
           ),
         ],
       ),

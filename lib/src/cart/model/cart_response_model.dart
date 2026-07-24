@@ -1,6 +1,6 @@
 // lib/src/cart/model/cart_response_model.dart
-import 'package:tsuite/src/cart/model/cart_item_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/models/cart_item_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class CartResponse {
   const CartResponse({

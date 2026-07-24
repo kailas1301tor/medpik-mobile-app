@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tsuite/src/address/model/address_save_response_model.dart';
+import 'package:medpik/src/address/model/address_save_response_model.dart';
 
 void main() {
   group('AddressSaveResponse', () {

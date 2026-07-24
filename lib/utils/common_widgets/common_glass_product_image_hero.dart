@@ -1,9 +1,9 @@
 // lib/utils/common_widgets/common_glass_product_image_hero.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
+import 'package:medpik/utils/helpers/image_mem_cache_helper.dart';
 
 class CommonGlassProductImageHero extends StatelessWidget {
   const CommonGlassProductImageHero({
@@ -12,16 +12,30 @@ class CommonGlassProductImageHero extends StatelessWidget {
     required this.height,
     this.contained = false,
     this.topRadius,
+    this.memCacheWidth,
+    this.memCacheHeight,
   });
 
   final ProductModel product;
   final double height;
   final bool contained;
   final double? topRadius;
+  final int? memCacheWidth;
+  final int? memCacheHeight;
 
   @override
   Widget build(BuildContext context) {
     final imageSize = contained ? height * 0.72 : null;
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final resolvedMemCache = ImageMemCacheHelper.resolve(
+      logicalWidth: contained ? (imageSize ?? height) : null,
+      logicalHeight: contained ? imageSize : height,
+      devicePixelRatio: dpr,
+      fallbackLogicalWidth: contained ? null : screenWidth / 2,
+      min: contained ? 100 : 150,
+      max: 300,
+    );
 
     return ClipRRect(
       borderRadius: topRadius == null
@@ -37,14 +51,9 @@ class CommonGlassProductImageHero extends StatelessWidget {
           width: contained ? imageSize : double.infinity,
           height: contained ? imageSize : height,
           fit: contained ? BoxFit.contain : BoxFit.cover,
-          memCacheWidth: 400,
-          memCacheHeight: 400,
+          memCacheWidth: memCacheWidth ?? resolvedMemCache.width,
+          memCacheHeight: memCacheHeight ?? resolvedMemCache.height,
           borderRadius: 0,
-          errorWidget: Icon(
-            Icons.medication_outlined,
-            size: 36.r,
-            color: ColorPalette.prescriptionIconTeal,
-          ),
         ),
       ),
     );

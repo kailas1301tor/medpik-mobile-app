@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/color_palette.dart';
 
 class FontPalette {
   static const String fontFamily = 'onest';

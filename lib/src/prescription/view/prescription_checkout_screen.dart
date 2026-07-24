@@ -2,23 +2,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/address/model/address_book_args.dart';
-import 'package:tsuite/src/checkout/model/order_confirmation_args.dart';
-import 'package:tsuite/utils/common_widgets/common_sticky_bottom_bar.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_checkout_notifier.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_checkout_address_card.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_checkout_order_summary.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_checkout_shimmer_widget.dart';
-import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
-import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/common_widgets/primary_button.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/data/models/address_book_args.dart';
+import 'package:medpik/data/models/order_confirmation_args.dart';
+import 'package:medpik/utils/common_widgets/common_sticky_bottom_bar.dart';
+import 'package:medpik/src/prescription/notifier/prescription_checkout_notifier.dart';
+import 'package:medpik/src/prescription/notifier/prescription_notifier.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_checkout_address_card.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_checkout_order_summary.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_checkout_shimmer_widget.dart';
+import 'package:medpik/utils/common_widgets/common_app_bar.dart';
+import 'package:medpik/utils/common_widgets/common_empty_state.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/primary_button.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 import 'package:tuple/tuple.dart';
 
 class PrescriptionCheckoutScreen extends ConsumerWidget {
@@ -49,6 +49,7 @@ class PrescriptionCheckoutScreen extends ConsumerWidget {
     if (loaderState == LoaderState.loading) {
       return const CommonScaffold(
         appBar: CommonAppBar(title: Strings.prescriptionOrderCheckoutTitle),
+        safeAreaBottom: false,
         body: PrescriptionCheckoutShimmerWidget(),
       );
     }
@@ -57,6 +58,7 @@ class PrescriptionCheckoutScreen extends ConsumerWidget {
         loaderState == LoaderState.noData) {
       return CommonScaffold(
         appBar: const CommonAppBar(title: Strings.prescriptionOrderCheckoutTitle),
+        safeAreaBottom: false,
         body: CommonEmptyState(
           title: Strings.errorTitle,
           message: errorMessage ?? Strings.attachPrescriptionToContinue,
@@ -70,6 +72,7 @@ class PrescriptionCheckoutScreen extends ConsumerWidget {
         loaderState == LoaderState.serverError) {
       return CommonScaffold(
         appBar: const CommonAppBar(title: Strings.prescriptionOrderCheckoutTitle),
+        safeAreaBottom: false,
         body: CommonEmptyState(
           title: Strings.errorTitle,
           message: errorMessage ?? Strings.errorDescription,
@@ -82,6 +85,7 @@ class PrescriptionCheckoutScreen extends ConsumerWidget {
     return CommonScaffold(
       appBar: const CommonAppBar(title: Strings.prescriptionOrderCheckoutTitle),
       backgroundColor: colors.background,
+      safeAreaBottom: false,
       body: IgnorePointer(
         ignoring: isPlacingOrder,
         child: Column(

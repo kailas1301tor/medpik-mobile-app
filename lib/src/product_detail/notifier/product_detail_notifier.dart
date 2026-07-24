@@ -2,16 +2,16 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/cart_facade_service.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/services/wishlist_facade_service.dart';
-import 'package:tsuite/src/product_detail/model/product_detail_model.dart';
-import 'package:tsuite/src/product_detail/repo/product_detail_repository.dart';
-import 'package:tsuite/src/product_detail/state/product_detail_state.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
-import 'package:tsuite/utils/helpers/api_error_handler.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/providers/cart_providers.dart';
+import 'package:medpik/providers/wishlist_providers.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/product_detail/repo/product_detail_repository.dart';
+import 'package:medpik/src/product_detail/state/product_detail_state.dart';
+import 'package:medpik/utils/common_widgets/custom_toast.dart';
+import 'package:medpik/utils/helpers/api_error_handler.dart';
+import 'package:medpik/utils/helpers/cart_quantity_helper.dart';
 
 part 'product_detail_notifier.g.dart';
 
@@ -37,8 +37,8 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
     if (_productId == productId && state.detail != null) return;
     _productId = productId;
 
-    final wishlist = ref.read(wishlistFacadeServiceProvider);
-    final isWishlisted = wishlist.isWishlisted(productId);
+    final wishlistNotifier = ref.read(wishlistNotifierProvider.notifier);
+    final isWishlisted = wishlistNotifier.isWishlisted(productId);
 
     state = state.copyWith(
       loaderState: LoaderState.loading,
@@ -58,22 +58,21 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
             );
           },
           (response) {
-            final product = response.product;
-            if (product == null) {
+            final detail = response.detail;
+            if (detail == null) {
               debugPrint("🟡 PRODUCT NO DATA: product_id=$productId");
               state = state.copyWith(loaderState: LoaderState.noData);
               return;
             }
-            debugPrint("🟢 PRODUCT SUCCESS: ${product.name}");
-            final detail = ProductDetailModel.fromApiProduct(product);
+            debugPrint("🟢 PRODUCT SUCCESS: ${detail.product.name}");
             ref
-                .read(wishlistFacadeServiceProvider)
-                .syncFromProducts([product]);
+                .read(wishlistNotifierProvider.notifier)
+                .syncFromProducts([detail.product]);
             state = state.copyWith(
               loaderState: LoaderState.loaded,
               detail: detail,
               quantity: 1,
-              isWishlisted: product.isWishlisted,
+              isWishlisted: detail.product.isWishlisted,
             );
           },
         )
@@ -87,21 +86,21 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
     final product = state.detail?.product;
     if (product == null) return;
 
-    final wishlist = ref.read(wishlistFacadeServiceProvider);
-    final toggleFuture = wishlist.toggle(product);
-    state = state.copyWith(isWishlisted: wishlist.isWishlisted(product.id));
+    final wishlistNotifier = ref.read(wishlistNotifierProvider.notifier);
+    final toggleFuture = wishlistNotifier.toggle(product);
+    state = state.copyWith(isWishlisted: wishlistNotifier.isWishlisted(product.id));
     await toggleFuture;
-    state = state.copyWith(isWishlisted: wishlist.isWishlisted(product.id));
+    state = state.copyWith(isWishlisted: wishlistNotifier.isWishlisted(product.id));
   }
 
   int _cartQuantityFor(int productId) {
-    return ref.read(cartFacadeServiceProvider).quantityForProduct(productId);
+    return cartQuantityForProduct(ref.read(cartNotifierProvider).items, productId);
   }
 
   void incrementQuantity() {
     final productId = state.detail?.product.id;
     if (productId != null && _cartQuantityFor(productId) > 0) {
-      ref.read(cartFacadeServiceProvider).incrementItem(productId);
+      ref.read(cartNotifierProvider.notifier).incrementItem(productId);
       debugPrint("🔵 ACTION: cart qty +1 product_id=$productId");
       return;
     }
@@ -112,7 +111,7 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
     final productId = state.detail?.product.id;
     if (productId != null && _cartQuantityFor(productId) > 0) {
       final willRemove = _cartQuantityFor(productId) <= 1;
-      ref.read(cartFacadeServiceProvider).decrementItem(productId);
+      ref.read(cartNotifierProvider.notifier).decrementItem(productId);
       if (willRemove) {
         state = state.copyWith(quantity: 1);
       }
@@ -127,17 +126,17 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
     final product = state.detail?.product;
     if (product == null) return false;
 
-    final cart = ref.read(cartFacadeServiceProvider);
-    final alreadyInCart = cart.quantityForProduct(product.id) > 0;
+    final cartNotifier = ref.read(cartNotifierProvider.notifier);
+    final alreadyInCart = _cartQuantityFor(product.id) > 0;
 
     if (alreadyInCart) {
-      await cart.incrementItem(product.id);
+      await cartNotifier.incrementItem(product.id);
       showCustomToast(message: Strings.addedToCart, isSuccess: true);
       debugPrint("🔵 ACTION: addToCart increment product_id=${product.id}");
       return true;
     }
 
-    final ok = await cart.addItem(
+    final ok = await cartNotifier.addItem(
       product: product,
       quantity: state.quantity,
     );

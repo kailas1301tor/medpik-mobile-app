@@ -3,20 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/home/model/home_model.dart';
-import 'package:tsuite/src/home/notifier/home_notifier.dart';
-import 'package:tsuite/src/home/view/widget/home_category_row.dart';
-import 'package:tsuite/src/home/view/widget/home_compact_header.dart';
-import 'package:tsuite/src/home/view/widget/home_hero_header.dart';
-import 'package:tsuite/src/home/view/widget/home_offer_carousel.dart';
-import 'package:tsuite/src/home/view/widget/home_popular_products_grid.dart';
-import 'package:tsuite/src/home/view/widget/home_prescription_card.dart';
-import 'package:tsuite/src/home/view/widget/home_section_header.dart';
-import 'package:tsuite/utils/extensions/context_extensions.dart';
-import 'package:tsuite/src/search/model/product_catalog_args.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/home/model/home_model.dart';
+import 'package:medpik/src/home/notifier/home_notifier.dart';
+import 'package:medpik/src/home/view/widget/home_category_row.dart';
+import 'package:medpik/src/home/view/widget/home_compact_header.dart';
+import 'package:medpik/src/home/view/widget/home_hero_header.dart';
+import 'package:medpik/src/home/view/widget/home_offer_carousel.dart';
+import 'package:medpik/src/home/view/widget/home_popular_products_grid.dart';
+import 'package:medpik/src/home/view/widget/home_prescription_card.dart';
+import 'package:medpik/src/home/view/widget/home_section_header.dart';
+import 'package:medpik/utils/extensions/context_extensions.dart';
+import 'package:medpik/data/models/product_catalog_args.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 
 class HomeContentWidget extends StatelessWidget {
   const HomeContentWidget({

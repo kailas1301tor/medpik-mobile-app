@@ -1,17 +1,17 @@
 # AGENTS.md — Flutter Production Engineering Rules
 
-## PROJECT ADAPTERS (VyapApp)
+## PROJECT ADAPTERS (Medpik)
 
 This repo uses the following mappings from generic rule names to actual project code:
 
-| Rule / template name | VyapApp implementation |
+| Rule / template name | Medpik implementation |
 |----------------------|------------------------|
-| Package imports | `package:vyapapp/...` |
+| Package imports | `package:medpik/...` |
 | Font styles | [`FontPalette`](lib/res/styles/font_palette.dart) (`onest` family) |
 | Primary CTA button | [`PrimaryButton`](lib/utils/common_widgets/primary_button.dart) |
 | Text inputs | [`CommonTextFormField`](lib/utils/common_widgets/common_text_form_field.dart) |
 | Body text | `Text` with `FontPalette` styles (no `CommonTextWidget` in this repo yet) |
-| App display name | `Strings.appName` → **VyapApp** |
+| App display name | `Strings.appName` → **medpik** |
 
 ---
 
@@ -138,20 +138,28 @@ sealed class FeatureState with _$FeatureState {
     @Default(LoaderState.loaded) LoaderState loaderState,
     FeatureData? data,
     String? errorMessage,
+    // Use bool flags only for button/inline action loaders; use LoaderState for screen content.
   }) = _FeatureState;
 }
 ```
 
 - Always use `copyWith` for updates.
-- Always include `LoaderState loaderState` for API-backed features.
+- Always include `LoaderState loaderState` for API-backed screen/content loading.
+- Use `bool` flags only for button/inline action loaders (see **Button and inline loaders** below).
 - Never store derived or computed values in state.
-- NEVER use raw `bool` flags like `isLoading` — use `LoaderState`.
+
+**Loader type choice:**
+- **Screen / content / list loading** → `LoaderState` (`loaderState`, `detailLoaderState`, etc.) with full switch (`loading`, `error`, `noData`, `networkError`, `serverError`, `loaded`)
+- **Button / inline / small loaders** → `bool isSubmitting` / `isPaymentLoading` / `isBillActionLoading` — `true` only while an action is in-flight; reset to `false` in `finally`; surface errors via toast/dialog, not via the bool
 
 ---
 
 ## LOADER STATE
 
-ALWAYS use this enum for API-backed features. NEVER substitute raw booleans.
+Use `LoaderState` for **screen and content** loading (lists, detail fetches, full-page shimmers).
+NEVER substitute raw booleans for screen/content loaders.
+
+For **button spinners** and **inline loaders**, use `bool` instead — see **Button and inline loaders** below.
 
 ```dart
 enum LoaderState {
@@ -164,17 +172,21 @@ enum LoaderState {
 }
 ```
 
-UI MUST switch exhaustively on `loaderState`. Use `CommonSwitchStateNoExpand` for standard
-list/scroll screens, and a manual switch for custom layouts:
+UI MUST switch exhaustively on `loaderState`. Use `CommonSwitchState` for standard
+list/scroll screens (inside `CommonRefreshIndicator` when pull-to-refresh is needed), and a
+manual switch for custom layouts:
 
 ```dart
 // Standard screens — use the shared widget:
-CommonSwitchStateNoExpand(
-  loaderState: state.loaderState,
-  reload: () => ref.read(featureNotifierProvider.notifier).fetchData(),
-  loader: const FeatureShimmerWidget(),
-  buttonText: Strings.refresh,
-  child: FeatureContentWidget(data: state.data),
+CommonRefreshIndicator(
+  onRefresh: () => ref.read(featureNotifierProvider.notifier).fetchData(),
+  child: CommonSwitchState(
+    loaderState: state.loaderState,
+    reload: () => ref.read(featureNotifierProvider.notifier).fetchData(),
+    loader: const FeatureShimmerWidget(),
+    buttonText: Strings.refresh,
+    child: FeatureContentWidget(data: state.data),
+  ),
 )
 
 // Custom layouts — switch manually:
@@ -187,6 +199,41 @@ switch (state.loaderState) {
   case LoaderState.loaded       => FeatureContentWidget(data: state.data),
 }
 ```
+
+### Button and inline loaders (bool)
+
+Use a `bool` for `PrimaryButton.isLoading`, inline spinners, and sheet action buttons.
+Do NOT use `LoaderState` for these — they only need loading vs idle.
+
+```dart
+// state/feature_state.dart
+@Default(false) bool isPaymentLoading,
+
+// notifier/feature_notifier.dart
+state = state.copyWith(isPaymentLoading: true);
+try {
+  await repo.submit(...).fold(
+    (error) { showCustomErrorToast(...); },
+    (right) { ... },
+  );
+} finally {
+  state = state.copyWith(isPaymentLoading: false);
+}
+
+// view — use .select()
+final isLoading = ref.watch(
+  featureNotifierProvider.select((s) => s.isPaymentLoading),
+);
+PrimaryButton(
+  isLoading: isLoading,
+  onPressed: isLoading ? null : _submit,
+);
+```
+
+Rules:
+- `handleResponseError` maps to `LoaderState` for **screen** loaders only.
+- Button/inline actions: toast on error + `false` in `finally` — never assign `LoaderState` to a button bool.
+- During Razorpay checkout (SDK modal), set the button bool to `false` so the UI is not blocked behind the modal.
 
 ---
 
@@ -751,16 +798,40 @@ CommonTextFormField(
 )
 ```
 
-### CommonSwitchStateNoExpand
+### CommonSwitchState
 Use for ALL loader/error/empty/content switching in scrollable or list screens.
+Defined in `utils/common_widgets/common_switch_state.dart`. Does **not** wrap the loaded
+child in `Expanded`, so `ListView` / `CustomScrollView` children are safe.
+
+For `CustomScrollView` / sliver-based screens, use `CommonSwitchStateSliver` instead.
 
 ```dart
-CommonSwitchStateNoExpand(
-  loaderState: loaderState,
-  reload: () => ref.read(featureNotifierProvider.notifier).fetchData(),
-  loader: const FeatureShimmerWidget(),
-  buttonText: Strings.refresh,
-  child: const FeatureContent(),
+CommonRefreshIndicator(
+  onRefresh: () => ref.read(featureNotifierProvider.notifier).fetchData(),
+  child: CommonSwitchState(
+    loaderState: loaderState,
+    reload: () => ref.read(featureNotifierProvider.notifier).fetchData(),
+    loader: const FeatureShimmerWidget(),
+    buttonText: Strings.refresh,
+    noData: const FeatureEmptyState(), // optional — overrides default empty UI
+    child: const FeatureContent(),
+  ),
+)
+```
+
+When the switch sits below a fixed header inside a `Column`, wrap it in `Expanded`:
+
+```dart
+Column(
+  children: [
+    const FeatureHeader(),
+    Expanded(
+      child: CommonSwitchState(
+        loaderState: loaderState,
+        child: const FeatureContent(),
+      ),
+    ),
+  ],
 )
 ```
 
@@ -1004,6 +1075,8 @@ Enforce strictly. Exceed the limit → extract immediately into sub-files.
 | `ref.watch(provider.select((s) => s))` on object state | Field-level `.select()` or dedicated derived provider |
 | Promoting parent to `ConsumerWidget` for badge/counter | Inline `Consumer` on badge/counter only |
 | `Tuple` with >4 items                | Extract into a sub-widget or dedicated state model  |
+| `LoaderState` for button `isLoading` | `bool isXLoading` in state                          |
+| `bool` for full-screen list/content loading | `LoaderState`                               |
 | Importing across feature folders     | Use `utils/`, `res/`, or `data/` only               |
 | `ListView(children: buildList())`   | `ListView.builder`                                  |
 | `MediaQuery.of(context).size`        | `MediaQuery.sizeOf(context)`                        |

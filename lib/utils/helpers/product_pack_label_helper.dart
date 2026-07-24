@@ -1,5 +1,5 @@
 // lib/utils/helpers/product_pack_label_helper.dart
-import 'package:tsuite/data/models/product_model.dart';
+import 'package:medpik/data/models/product_model.dart';
 
 String productPackDisplayLabel(ProductModel product) {
   final packSize = product.packSize.trim();

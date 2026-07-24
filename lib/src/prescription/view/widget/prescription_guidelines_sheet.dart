@@ -1,8 +1,8 @@
 // lib/src/prescription/view/widget/prescription_guidelines_sheet.dart
 import 'package:flutter/material.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_guidelines_content.dart';
-import 'package:tsuite/utils/common_widgets/common_bottom_sheet.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_guidelines_content.dart';
+import 'package:medpik/utils/common_widgets/common_bottom_sheet.dart';
 
 class PrescriptionGuidelinesSheet {
   PrescriptionGuidelinesSheet._();

@@ -1,12 +1,12 @@
 // lib/src/product_detail/view/widget/product_detail_benefits_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/product_detail/model/product_benefit_model.dart';
-import 'package:tsuite/src/product_detail/model/product_detail_model.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_icon_helper.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/product_detail/model/product_benefit_model.dart';
+import 'package:medpik/src/product_detail/model/product_detail_model.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_icon_helper.dart';
 
 class ProductDetailBenefitsSection extends StatelessWidget {
   const ProductDetailBenefitsSection({super.key, required this.detail});

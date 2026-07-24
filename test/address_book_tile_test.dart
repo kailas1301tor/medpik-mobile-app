@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/app_theme.dart';
-import 'package:tsuite/src/address/notifier/address_notifier.dart';
-import 'package:tsuite/src/address/state/address_state.dart';
-import 'package:tsuite/src/address/view/widget/address_book_tile.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/app_theme.dart';
+import 'package:medpik/src/address/notifier/address_notifier.dart';
+import 'package:medpik/src/address/state/address_state.dart';
+import 'package:medpik/src/address/view/widget/address_book_tile.dart';
 
 void main() {
   testWidgets('AddressBookTile shows edit and delete in manage mode', (

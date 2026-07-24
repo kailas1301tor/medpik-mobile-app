@@ -2,16 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tsuite/data/models/order_model.dart';
-import 'package:tsuite/res/constants/medpik_svg_assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/orders/view/widget/order_horizontal_stepper.dart';
-import 'package:tsuite/src/orders/view/widget/order_status_badge.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/helpers/order_status_helper.dart';
+import 'package:medpik/data/models/order_model.dart';
+import 'package:medpik/res/constants/medpik_svg_assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/orders/view/widget/order_horizontal_stepper.dart';
+import 'package:medpik/src/orders/view/widget/order_status_badge.dart';
+import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/utils/helpers/order_status_helper.dart';
 
 class OrderDetailHeaderCard extends StatelessWidget {
   const OrderDetailHeaderCard({

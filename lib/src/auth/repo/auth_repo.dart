@@ -1,12 +1,12 @@
 // lib/src/auth/repo/auth_repo.dart
 import 'package:either_dart/either.dart';
-import 'package:tsuite/data/remote/network_base_services.dart';
-import 'package:tsuite/data/remote/network_services.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/src/auth/model/auth_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/remote/network_base_services.dart';
+import 'package:medpik/data/remote/network_services.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/src/auth/model/auth_model.dart';
+import 'package:medpik/src/auth/model/verify_otp_response_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
-/// Abstract repository for authentication operations.
 abstract class AuthRepo {
   Future<Either<ResponseError, CommonResponseModel>> requestOtp({
     required String phone,
@@ -18,16 +18,17 @@ abstract class AuthRepo {
     String countryCode = AppConstants.defaultCountryCode,
   });
 
-  Future<Either<ResponseError, VerifyOtpResult>> verifyOtp({
+  Future<Either<ResponseError, VerifyOtpResponse>> verifyOtp({
     required String phone,
     required String otp,
     String countryCode = AppConstants.defaultCountryCode,
   });
 
-  Future<Either<ResponseError, CommonResponseModel>> logout();
+  Future<Either<ResponseError, CommonResponseModel>> logout({
+    required String refresh,
+  });
 }
 
-/// Concrete implementation of [AuthRepo].
 class AuthRepoImpl implements AuthRepo {
   AuthRepoImpl(this._networkServices);
 
@@ -63,7 +64,7 @@ class AuthRepoImpl implements AuthRepo {
   }
 
   @override
-  Future<Either<ResponseError, VerifyOtpResult>> verifyOtp({
+  Future<Either<ResponseError, VerifyOtpResponse>> verifyOtp({
     required String phone,
     required String otp,
     String countryCode = AppConstants.defaultCountryCode,
@@ -82,20 +83,22 @@ class AuthRepoImpl implements AuthRepo {
         )
         .thenRight(_networkServices.checkHttpStatus)
         .thenRight(_networkServices.parseJson)
-        .mapRight((right) => VerifyOtpResult.fromApiJson(convertToMap(right)));
+        .mapRight((right) => VerifyOtpResponse.fromJson(convertToMap(right)));
   }
 
   @override
-  Future<Either<ResponseError, CommonResponseModel>> logout() async {
+  Future<Either<ResponseError, CommonResponseModel>> logout({
+    required String refresh,
+  }) async {
     return await _networkServices
-        .safe(_networkServices.postRequest(endPoint: AppConstants.logout))
+        .safe(
+          _networkServices.postRequest(
+            endPoint: AppConstants.logout,
+            parameters: {'refresh': refresh},
+          ),
+        )
         .thenRight(_networkServices.checkHttpStatus)
         .thenRight(_networkServices.parseJson)
-        .mapRight((right) {
-          if (right is Map) {
-            return CommonResponseModel.fromJson(convertToMap(right));
-          }
-          return const CommonResponseModel(message: 'Logged out');
-        });
+        .mapRight((right) => CommonResponseModel.fromJson(convertToMap(right)));
   }
 }

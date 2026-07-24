@@ -1,13 +1,13 @@
 // lib/src/orders/view/widget/order_bill_summary_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/order_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/extensions/num_extensions.dart';
-import 'package:tsuite/utils/helpers/order_status_helper.dart';
+import 'package:medpik/data/models/order_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/utils/extensions/num_extensions.dart';
+import 'package:medpik/utils/helpers/order_status_helper.dart';
 
 class OrderBillSummaryWidget extends StatelessWidget {
   const OrderBillSummaryWidget({
@@ -46,11 +46,20 @@ class OrderBillSummaryWidget extends StatelessWidget {
           label: Strings.deliveryCharges,
           value: breakdown.deliveryCharges.toCurrency(decimalDigits: 0),
         ),
-        8.verticalSpace,
-        _SummaryRow(
-          label: Strings.packagingCharges,
-          value: breakdown.packagingCharges.toCurrency(decimalDigits: 0),
-        ),
+        if (breakdown.tax > 0) ...[
+          8.verticalSpace,
+          _SummaryRow(
+            label: Strings.tax,
+            value: breakdown.tax.toCurrency(decimalDigits: 0),
+          ),
+        ],
+        if (breakdown.packagingCharges > 0) ...[
+          8.verticalSpace,
+          _SummaryRow(
+            label: Strings.packagingCharges,
+            value: breakdown.packagingCharges.toCurrency(decimalDigits: 0),
+          ),
+        ],
         12.verticalSpace,
         _DashedDivider(),
         12.verticalSpace,

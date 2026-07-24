@@ -1,8 +1,8 @@
 // lib/src/prescription/view/widget/prescription_product_grid.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_product_grid_tile.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_product_grid_tile.dart';
 
 class PrescriptionProductGrid extends StatelessWidget {
   const PrescriptionProductGrid({super.key, required this.products});
@@ -16,6 +16,8 @@ class PrescriptionProductGrid extends StatelessWidget {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      addAutomaticKeepAlives: false,
+      addRepaintBoundaries: true,
       itemCount: products.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,

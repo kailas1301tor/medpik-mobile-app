@@ -1,6 +1,9 @@
 // lib/src/address/model/address_save_response_model.dart
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+//
+// ? POST/PUT /api/addresses envelope: { message, results: { data: AddressModel } }
+// ? Backend may return data as object OR one-item array — both handled below.
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class AddressSaveResponse {
   const AddressSaveResponse({

@@ -1,38 +1,53 @@
 // lib/src/address/notifier/location_picker_notifier.dart
+//
+// * Google Maps location picker — search, GPS, reverse geocode, serviceability.
+//
+// ? UX: fixed center pin (LocationPickerScreen). User pans map; on camera idle we
+// ? debounce and reverse-geocode pin coordinates. Search = forward geocode + animate.
+//
+// ? Lifecycle: autoDispose — scoped to LocationPickerScreen only. Confirmed picks
+// ? return via Navigator.pop(PickedLocationModel) → merged by AddressNotifier.
+//
+// ? Coordination flags:
+// ? - _programmaticMove — skip onCameraMove during programmatic camera animation
+// ? - _suppressNextCameraIdle — skip one idle after _moveCamera (no duplicate reverse)
+// ? - _reverseGeneration — cancel stale reverse-geocode when newer request starts
+//
+// ? Serviceability: location_picker_confirm_helper + LocationConfig
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/location/geocode_client.dart';
-import 'package:tsuite/services/location/haversine.dart';
-import 'package:tsuite/services/location/location_config.dart';
-import 'package:tsuite/services/location/location_permission_service.dart';
-import 'package:tsuite/services/location/places_session_client.dart';
-import 'package:tsuite/src/address/model/picked_location_model.dart';
-import 'package:tsuite/src/address/state/location_picker_state.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/location/geocode_client.dart';
+import 'package:medpik/services/location/haversine.dart';
+import 'package:medpik/services/location/location_config.dart';
+import 'package:medpik/services/location/location_permission_service.dart';
+import 'package:medpik/src/address/model/picked_location_model.dart';
+import 'package:medpik/src/address/state/location_picker_state.dart';
+import 'package:medpik/utils/helpers/location_picker_confirm_helper.dart';
 
 part 'location_picker_notifier.g.dart';
 
 @Riverpod(keepAlive: false)
 class LocationPickerNotifier extends _$LocationPickerNotifier {
   late final TextEditingController searchController;
-  late final PlacesSessionClient _places;
   late final GeocodeClient _geocode;
   late final LocationPermissionService _permission;
 
   GoogleMapController? mapController;
-  Timer? _autocompleteTimer;
   Timer? _reverseTimer;
   double? _lastReverseLat;
   double? _lastReverseLng;
   bool _programmaticMove = false;
+  bool _suppressNextCameraIdle = false;
   bool _initialApplied = false;
   bool _disposed = false;
-  int _autocompleteGeneration = 0;
+  bool _mapReady = false;
   int _reverseGeneration = 0;
+  DateTime? _lastGpsAt;
   LatLng? _pendingCameraTarget;
   double _cameraLat = LocationConfig.defaultLat;
   double _cameraLng = LocationConfig.defaultLng;
@@ -40,7 +55,6 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
   @override
   LocationPickerState build() {
     searchController = TextEditingController();
-    _places = ref.read(placesSessionClientProvider);
     _geocode = ref.read(geocodeClientProvider);
     _permission = const LocationPermissionService();
     _disposed = false;
@@ -49,18 +63,23 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
 
     ref.onDispose(() {
       _disposed = true;
-      _autocompleteTimer?.cancel();
       _reverseTimer?.cancel();
       searchController.dispose();
       mapController?.dispose();
       mapController = null;
-      _places.endSession();
     });
+
+    if (!LocationConfig.hasGoogleMapsApiKey) {
+      return const LocationPickerState(
+        loaderState: LoaderState.loaded,
+        errorMessage: Strings.locationMapsKeyMissing,
+      );
+    }
 
     return const LocationPickerState(loaderState: LoaderState.loading);
   }
 
-  /// Seeds camera from route args, or falls back to GPS.
+  // ? Seeds camera from route args, or falls back to GPS (once per screen open).
   void applyInitialCoordinates({
     double? latitude,
     double? longitude,
@@ -83,6 +102,7 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    _mapReady = true;
     final pending = _pendingCameraTarget;
     if (pending != null) {
       _pendingCameraTarget = null;
@@ -90,90 +110,61 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
     }
   }
 
-  void onSearchChanged(String value) {
-    _autocompleteTimer?.cancel();
-    final query = value.trim();
-    if (query.length < LocationConfig.minAutocompleteQueryLength) {
-      state = state.copyWith(predictions: const [], isSearching: false);
-      return;
-    }
-
-    state = state.copyWith(isSearching: true);
-    _autocompleteTimer = Timer(
-      Duration(milliseconds: LocationConfig.autocompleteDebounceMs),
-      () => _runAutocomplete(query),
-    );
-  }
-
-  Future<void> _runAutocomplete(String query) async {
-    final generation = ++_autocompleteGeneration;
-    _places.beginSession();
-    final predictions = await _places.autocomplete(query);
-    if (_disposed || generation != _autocompleteGeneration) return;
-    state = state.copyWith(
-      predictions: predictions,
-      isSearching: false,
-    );
-  }
-
   void clearSearch() {
     searchController.clear();
-    state = state.copyWith(predictions: const [], isSearching: false);
+    state = state.copyWith(isSearching: false, searchErrorMessage: null);
   }
 
-  Future<void> selectPrediction(PlacePrediction prediction) async {
-    state = state.copyWith(isReverseLoading: true, predictions: const []);
-    final details = await _places.fetchDetails(prediction.placeId);
+  // ? Forward geocode from searchController; moves map on success.
+  Future<void> submitAddressSearch() async {
+    final query = searchController.text.trim();
+    if (query.length < LocationConfig.minSearchQueryLength) return;
+
+    state = state.copyWith(
+      isSearching: true,
+      errorMessage: null,
+      searchErrorMessage: null,
+    );
+    final result = await _geocode.forwardGeocode(address: query);
     if (_disposed) return;
 
-    if (details == null) {
+    if (result == null) {
       state = state.copyWith(
-        isReverseLoading: false,
-        errorMessage: Strings.locationLookupFailed,
+        isSearching: false,
+        reverseResult: null,
+        searchErrorMessage: Strings.locationLookupFailed,
       );
       return;
     }
 
-    await _moveCamera(details.latitude, details.longitude);
-    final serviceable = isWithinDeliveryRadius(
-      latitude: details.latitude,
-      longitude: details.longitude,
-    );
-    state = state.copyWith(
-      latitude: details.latitude,
-      longitude: details.longitude,
-      isReverseLoading: false,
-      isServiceable: serviceable,
-      errorMessage: serviceable ? null : Strings.locationNotServiceable,
-      reverseResult: ReverseGeocodeResult(
-        latitude: details.latitude,
-        longitude: details.longitude,
-        formattedAddress: details.formattedAddress,
-        line1: details.line1,
-        line2: details.line2,
-        city: details.city,
-        state: details.state,
-        pincode: details.pincode,
-        placeId: details.placeId,
-      ),
-      loaderState: LoaderState.loaded,
-    );
-    _lastReverseLat = details.latitude;
-    _lastReverseLng = details.longitude;
-    searchController.text = details.formattedAddress;
+    await _applyGeocodeResult(result, moveCamera: true);
+    searchController.text = result.formattedAddress;
+    state = state.copyWith(isSearching: false);
   }
 
+  // ? GPS centering — rate-limited by LocationConfig.useCurrentLocationCooldownMs.
   Future<void> useCurrentLocation() async {
-    state = state.copyWith(loaderState: LoaderState.loading);
+    final now = DateTime.now();
+    final lastGps = _lastGpsAt;
+    if (lastGps != null &&
+        now.difference(lastGps).inMilliseconds <
+            LocationConfig.useCurrentLocationCooldownMs) {
+      return;
+    }
+
+    state = state.copyWith(isReverseLoading: true, errorMessage: null);
     final position = await _permission.getCurrentPosition();
     if (_disposed) return;
 
     if (position == null) {
       state = state.copyWith(
         loaderState: LoaderState.loaded,
-        isServiceable: isWithinDeliveryRadius(
+        isReverseLoading: false,
+        reverseResult: null,
+        isServiceable: isLocationServiceable(
           latitude: LocationConfig.defaultLat,
           longitude: LocationConfig.defaultLng,
+          state: LocationConfig.deliveryState,
         ),
         errorMessage: Strings.locationPermissionDenied,
       );
@@ -182,35 +173,34 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
         LocationConfig.defaultLat,
         LocationConfig.defaultLng,
         force: true,
+        preserveErrorMessage: Strings.locationPermissionDenied,
       );
       return;
     }
 
-    var lat = position.latitude;
-    var lng = position.longitude;
-    // Emulators often GPS outside India — snap to delivery hub in mock/dev.
-    if (!isWithinDeliveryRadius(latitude: lat, longitude: lng)) {
-      debugPrint(
-        "🟡 LOCATION: GPS outside delivery radius "
-        "($lat,$lng) — using Mumbai default",
-      );
-      lat = LocationConfig.defaultLat;
-      lng = LocationConfig.defaultLng;
-    }
+    _lastGpsAt = now;
+
+    final lat = position.latitude;
+    final lng = position.longitude;
 
     await _moveCamera(lat, lng);
     await reverseAt(lat, lng, force: true);
   }
 
+  // ? Live camera position while user pans (ignored during programmatic moves).
   void onCameraMove(CameraPosition position) {
     if (_programmaticMove) return;
-    // Keep camera coords without notifying listeners every frame.
     _cameraLat = position.target.latitude;
     _cameraLng = position.target.longitude;
   }
 
+  // ? Debounced reverse geocode when user stops panning.
   void onCameraIdle() {
-    if (_programmaticMove) return;
+    if (_programmaticMove || !_mapReady) return;
+    if (_suppressNextCameraIdle) {
+      _suppressNextCameraIdle = false;
+      return;
+    }
     _reverseTimer?.cancel();
     final lat = _cameraLat;
     final lng = _cameraLng;
@@ -220,10 +210,12 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
     );
   }
 
+  // ? Reverse geocode pin. Skips API if move < minMoveMeters unless force=true.
   Future<void> reverseAt(
     double latitude,
     double longitude, {
     bool force = false,
+    String? preserveErrorMessage,
   }) async {
     if (!force) {
       final lastLat = _lastReverseLat;
@@ -241,59 +233,121 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
       }
     }
 
+    if (!force &&
+        shouldSkipReverseGeocodeApi(
+          latitude: latitude,
+          longitude: longitude,
+        )) {
+      _lastReverseLat = latitude;
+      _lastReverseLng = longitude;
+      state = state.copyWith(
+        latitude: latitude,
+        longitude: longitude,
+        reverseResult: null,
+        isReverseLoading: false,
+        isServiceable: false,
+        loaderState: LoaderState.loaded,
+        errorMessage: Strings.locationNotServiceable,
+      );
+      return;
+    }
+
     final generation = ++_reverseGeneration;
-    state = state.copyWith(isReverseLoading: true);
+    state = state.copyWith(isReverseLoading: true, errorMessage: null);
     final result = await _geocode.reverseGeocode(
       latitude: latitude,
       longitude: longitude,
     );
     if (_disposed || generation != _reverseGeneration) return;
 
-    final serviceable = isWithinDeliveryRadius(
+    final serviceable = isLocationServiceable(
       latitude: latitude,
       longitude: longitude,
+      state: result?.state,
     );
 
     if (result == null) {
       state = state.copyWith(
         latitude: latitude,
         longitude: longitude,
+        reverseResult: null,
         isReverseLoading: false,
         isServiceable: serviceable,
         loaderState: LoaderState.loaded,
-        errorMessage: serviceable
-            ? Strings.locationLookupFailed
-            : Strings.locationNotServiceable,
+        errorMessage: preserveErrorMessage ??
+            (serviceable
+                ? Strings.locationLookupFailed
+                : Strings.locationNotServiceable),
       );
       return;
     }
 
-    _lastReverseLat = latitude;
-    _lastReverseLng = longitude;
-    _cameraLat = latitude;
-    _cameraLng = longitude;
-    state = state.copyWith(
-      latitude: latitude,
-      longitude: longitude,
-      reverseResult: result,
+    await _applyGeocodeResult(
+      result,
+      moveCamera: false,
       isReverseLoading: false,
-      isServiceable: serviceable,
-      loaderState: LoaderState.loaded,
-      errorMessage: serviceable ? null : Strings.locationNotServiceable,
+      preserveErrorMessage: preserveErrorMessage,
     );
   }
 
+  Future<void> _applyGeocodeResult(
+    ReverseGeocodeResult result, {
+    bool moveCamera = false,
+    bool isReverseLoading = false,
+    String? preserveErrorMessage,
+  }) async {
+    final serviceable = isLocationServiceable(
+      latitude: result.latitude,
+      longitude: result.longitude,
+      state: result.state,
+    );
+
+    _lastReverseLat = result.latitude;
+    _lastReverseLng = result.longitude;
+    _cameraLat = result.latitude;
+    _cameraLng = result.longitude;
+
+    if (moveCamera) {
+      await _moveCamera(result.latitude, result.longitude);
+    }
+
+    state = state.copyWith(
+      latitude: result.latitude,
+      longitude: result.longitude,
+      reverseResult: result,
+      isReverseLoading: isReverseLoading,
+      isServiceable: serviceable,
+      loaderState: LoaderState.loaded,
+      errorMessage: preserveErrorMessage ??
+          (serviceable ? null : Strings.locationNotServiceable),
+    );
+  }
+
+  bool _canConfirmSelection() {
+    return canConfirmLocationPicker(
+      isServiceable: state.isServiceable,
+      isReverseLoading: state.isReverseLoading,
+      errorMessage: state.errorMessage,
+      reverseResult: state.reverseResult,
+      pinLat: state.latitude,
+      pinLng: state.longitude,
+    );
+  }
+
+  // * Builds PickedLocationModel for Navigator.pop after serviceability check.
   PickedLocationModel? confirmSelection() {
-    final reverse = state.reverseResult;
-    if (!state.isServiceable || reverse == null) {
+    if (!_canConfirmSelection()) {
+      final reverse = state.reverseResult;
       state = state.copyWith(
-        errorMessage: state.isServiceable
-            ? Strings.locationLookupFailed
-            : Strings.locationNotServiceable,
+        errorMessage: state.errorMessage ??
+            (reverse == null
+                ? Strings.locationLookupFailed
+                : Strings.locationNotServiceable),
       );
       return null;
     }
 
+    final reverse = state.reverseResult!;
     final pick = PickedLocationModel(
       latitude: reverse.latitude,
       longitude: reverse.longitude,
@@ -310,6 +364,7 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
   }
 
   Future<void> _moveCamera(double lat, double lng) async {
+    _suppressNextCameraIdle = true;
     _cameraLat = lat;
     _cameraLng = lng;
     state = state.copyWith(latitude: lat, longitude: lng);
@@ -325,7 +380,6 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
       await controller.animateCamera(
         CameraUpdate.newLatLngZoom(LatLng(lat, lng), 16),
       );
-      await Future<void>.delayed(const Duration(milliseconds: 320));
     } finally {
       _programmaticMove = false;
     }

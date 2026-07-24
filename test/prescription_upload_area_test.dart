@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tsuite/res/styles/app_theme.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_upload_area.dart';
-import 'package:tsuite/utils/common_widgets/dashed_border_container.dart';
+import 'package:medpik/res/styles/app_theme.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_upload_area.dart';
+import 'package:medpik/utils/common_widgets/dashed_border_container.dart';
 
 void main() {
   testWidgets('PrescriptionUploadArea uses dark theme surface colors', (

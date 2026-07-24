@@ -1,10 +1,11 @@
 // lib/src/home/view/widget/home_category_row.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/home/model/home_model.dart';
-import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
+import 'package:medpik/res/constants/medpik_image_assets.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/home/model/home_model.dart';
+import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
 
 class HomeCategoryRow extends StatelessWidget {
   const HomeCategoryRow({
@@ -45,21 +46,17 @@ class _CategoryTile extends StatelessWidget {
   final CategoryModel category;
   final VoidCallback onTap;
 
-  IconData _iconForKey(String key) {
-    return switch (key) {
-      'pain' => Icons.medication_outlined,
-      'vitamins' => Icons.local_pharmacy_outlined,
-      'skin' => Icons.spa_outlined,
-      'diabetes' => Icons.monitor_heart_outlined,
-      'baby' => Icons.child_care_outlined,
-      _ => Icons.category_outlined,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final tileSize = 64.r;
+    final categoryPlaceholder = CommonAssetPlaceholderImage(
+      assetPath: MedpikImageAssets.categoryPlaceholder,
+      width: tileSize,
+      height: tileSize,
+      borderRadius: tileSize / 2,
+      fit: BoxFit.cover,
+    );
 
     return GestureDetector(
       onTap: onTap,
@@ -76,24 +73,14 @@ class _CategoryTile extends StatelessWidget {
                 boxShadow: ColorPalette.productCardShadow,
               ),
               child: ClipOval(
-                child: category.imageUrl.isNotEmpty
-                    ? CommonCachedNetworkImage(
-                        imageUrl: category.imageUrl,
-                        width: tileSize,
-                        height: tileSize,
-                        borderRadius: tileSize / 2,
-                        fit: BoxFit.cover,
-                        memCacheWidth: 128,
-                        memCacheHeight: 128,
-                        errorWidget: _CategoryFallbackIcon(
-                          icon: _iconForKey(category.iconKey),
-                          size: tileSize,
-                        ),
-                      )
-                    : _CategoryFallbackIcon(
-                        icon: _iconForKey(category.iconKey),
-                        size: tileSize,
-                      ),
+                child: CommonCachedNetworkImage(
+                  imageUrl: category.imageUrl,
+                  width: tileSize,
+                  height: tileSize,
+                  borderRadius: tileSize / 2,
+                  fit: BoxFit.cover,
+                  errorWidget: categoryPlaceholder,
+                ),
               ),
             ),
             6.verticalSpace,
@@ -109,32 +96,6 @@ class _CategoryTile extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _CategoryFallbackIcon extends StatelessWidget {
-  const _CategoryFallbackIcon({required this.icon, required this.size});
-
-  final IconData icon;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: colors.inputBackground,
-      ),
-      child: Icon(
-        icon,
-        size: 26.r,
-        color: ColorPalette.productAccentTeal,
       ),
     );
   }

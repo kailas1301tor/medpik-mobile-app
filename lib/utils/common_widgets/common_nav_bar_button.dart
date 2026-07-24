@@ -1,8 +1,8 @@
-// /Users/wac/Documents/wac projects/tsuite/lib/utils/common_widgets/common_nav_bar_button.dart
+// /Users/wac/Documents/tortilon/medpik/lib/utils/common_widgets/common_nav_bar_button.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
 
 class CommonNavBarButton extends StatelessWidget {
   const CommonNavBarButton({

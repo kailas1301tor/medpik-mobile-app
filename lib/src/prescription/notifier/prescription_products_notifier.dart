@@ -4,12 +4,12 @@ import 'dart:async';
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/src/prescription/repo/customer_products_repository.dart';
-import 'package:tsuite/src/prescription/state/prescription_products_state.dart';
-import 'package:tsuite/utils/helpers/api_error_handler.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/prescription/repo/customer_products_repository.dart';
+import 'package:medpik/src/prescription/state/prescription_products_state.dart';
+import 'package:medpik/utils/helpers/api_error_handler.dart';
 
 part 'prescription_products_notifier.g.dart';
 

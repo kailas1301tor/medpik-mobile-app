@@ -8,7 +8,7 @@
 - Exit: `/product-detail` with product id
 
 ## Acceptance
-- [ ] Product list from mock search
+- [ ] Product list from search API
 - [ ] Category filter chips
 - [ ] Empty and error states
 - [ ] Tap opens product detail

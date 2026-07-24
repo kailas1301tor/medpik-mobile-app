@@ -1,17 +1,20 @@
 // lib/services/onesignal_service.dart
 import 'dart:io';
 
+import 'package:either_dart/either.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/src/auth/notifier/auth_notifier.dart';
-import 'package:tsuite/src/main/notifier/main_shell_notifier.dart';
-import 'package:tsuite/src/root/tsuite_app.dart';
-import 'package:tsuite/utils/helpers/common_functions.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/utils/helpers/device_platform_helper.dart';
+import 'package:medpik/src/auth/notifier/auth_notifier.dart';
+import 'package:medpik/src/main/notifier/main_shell_notifier.dart';
+import 'package:medpik/src/root/medpik_app.dart';
+import 'package:medpik/utils/helpers/common_functions.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 
 part 'onesignal_service.g.dart';
 
@@ -25,6 +28,7 @@ final class OneSignalService {
   bool _isInitialized = false;
   bool _isSdkInitialized = false;
   String? _lastLinkedUserId;
+  String? _lastBackendRegistrationKey;
   String? _restoredUserId;
 
   bool get _isSupportedPlatform =>
@@ -93,11 +97,47 @@ final class OneSignalService {
     await _linkCurrentUser();
   }
 
+  /// Posts the OneSignal subscription to the backend. Call only after fresh login.
+  Future<void> registerDeviceWithBackend() async {
+    if (!_isSdkInitialized) {
+      debugPrint('🟨 DEVICE REGISTER SKIPPED: OneSignal not initialized.');
+      return;
+    }
+
+    final String? userId = _currentUserId();
+    if (userId == null || userId.isEmpty) {
+      debugPrint('🟨 DEVICE REGISTER SKIPPED: no authenticated user.');
+      return;
+    }
+
+    try {
+      String? subscriptionId;
+      for (int i = 0; i < 10; i++) {
+        subscriptionId = OneSignal.User.pushSubscription.id?.trim();
+        if (subscriptionId != null && subscriptionId.isNotEmpty) break;
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+      }
+
+      if (subscriptionId == null || subscriptionId.isEmpty) {
+        debugPrint('🟨 DEVICE REGISTER SKIPPED: subscription id pending.');
+        return;
+      }
+
+      await _registerDeviceWithBackend(
+        userId: userId,
+        subscriptionId: subscriptionId,
+      );
+    } catch (e) {
+      debugPrint('🔴 DEVICE REGISTER ERROR: $e');
+    }
+  }
+
   Future<void> clearIdentity() async {
     if (!_isSdkInitialized) return;
     try {
       await OneSignal.logout();
       _lastLinkedUserId = null;
+      _lastBackendRegistrationKey = null;
       debugPrint('🟢 ONESIGNAL LOGOUT');
     } catch (e) {
       debugPrint('🟨 ONESIGNAL LOGOUT FAILED: $e');
@@ -126,15 +166,10 @@ final class OneSignalService {
     if (_lastLinkedUserId == userId) return;
 
     try {
-      String? subscriptionId;
-      for (int i = 0; i < 10; i++) {
-        subscriptionId = OneSignal.User.pushSubscription.id?.trim();
-        if (subscriptionId != null && subscriptionId.isNotEmpty) break;
-        await Future<void>.delayed(const Duration(milliseconds: 500));
-      }
-
       await OneSignal.login(userId);
       _lastLinkedUserId = userId;
+      final String? subscriptionId =
+          OneSignal.User.pushSubscription.id?.trim();
       debugPrint(
         '🟢 ONESIGNAL USER LINKED: userId=$userId '
         'subscriptionId=${subscriptionId ?? 'pending'}',
@@ -142,6 +177,44 @@ final class OneSignalService {
     } catch (e) {
       debugPrint('🔴 ONESIGNAL USER LINK ERROR: $e');
     }
+  }
+
+  Future<void> _registerDeviceWithBackend({
+    required String userId,
+    required String subscriptionId,
+  }) async {
+    if (!AppConstants.hasSession) {
+      debugPrint('🟨 DEVICE REGISTER SKIPPED: no active session.');
+      return;
+    }
+
+    final String? platform = resolveDevicePlatform();
+    if (platform == null) {
+      debugPrint('🟨 DEVICE REGISTER SKIPPED: unsupported platform.');
+      return;
+    }
+
+    final String registrationKey = '$userId:$subscriptionId';
+    if (_lastBackendRegistrationKey == registrationKey) return;
+
+    return await _ref
+        .read(deviceRepositoryProvider)
+        .registerDevice(
+          subscriptionId: subscriptionId,
+          platform: platform,
+        )
+        .fold(
+          (left) {
+            debugPrint('🔴 DEVICE REGISTER API ERROR: ${left.message}');
+          },
+          (right) {
+            _lastBackendRegistrationKey = registrationKey;
+            debugPrint('🟢 DEVICE REGISTER API SUCCESS: ${right.message}');
+          },
+        )
+        .catchError((error) {
+          debugPrint('🔴 UNEXPECTED DEVICE REGISTER ERROR: $error');
+        });
   }
 
   String? _currentUserId() {

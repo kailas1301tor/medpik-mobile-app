@@ -1,6 +1,6 @@
 // lib/src/orders/model/order_detail_response_model.dart
-import 'package:tsuite/data/models/order_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/models/order_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class OrderDetailResponse {
   const OrderDetailResponse({

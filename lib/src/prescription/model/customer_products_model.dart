@@ -1,6 +1,6 @@
 // lib/src/prescription/model/customer_products_model.dart
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class CustomerProductsResponse {
   const CustomerProductsResponse({

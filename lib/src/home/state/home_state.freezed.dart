@@ -19,6 +19,9 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$HomeState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   HomeFeedModel? get data => throw _privateConstructorUsedError;
+  CustomerGeneralDataModel? get generalData =>
+      throw _privateConstructorUsedError;
+  LoaderState get generalDataLoaderState => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
   double get compactHeaderProgress => throw _privateConstructorUsedError;
 
@@ -37,6 +40,8 @@ abstract class $HomeStateCopyWith<$Res> {
   $Res call({
     LoaderState loaderState,
     HomeFeedModel? data,
+    CustomerGeneralDataModel? generalData,
+    LoaderState generalDataLoaderState,
     String? errorMessage,
     double compactHeaderProgress,
   });
@@ -59,6 +64,8 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
   $Res call({
     Object? loaderState = null,
     Object? data = freezed,
+    Object? generalData = freezed,
+    Object? generalDataLoaderState = null,
     Object? errorMessage = freezed,
     Object? compactHeaderProgress = null,
   }) {
@@ -72,6 +79,14 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
                 ? _value.data
                 : data // ignore: cast_nullable_to_non_nullable
                       as HomeFeedModel?,
+            generalData: freezed == generalData
+                ? _value.generalData
+                : generalData // ignore: cast_nullable_to_non_nullable
+                      as CustomerGeneralDataModel?,
+            generalDataLoaderState: null == generalDataLoaderState
+                ? _value.generalDataLoaderState
+                : generalDataLoaderState // ignore: cast_nullable_to_non_nullable
+                      as LoaderState,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -98,6 +113,8 @@ abstract class _$$HomeStateImplCopyWith<$Res>
   $Res call({
     LoaderState loaderState,
     HomeFeedModel? data,
+    CustomerGeneralDataModel? generalData,
+    LoaderState generalDataLoaderState,
     String? errorMessage,
     double compactHeaderProgress,
   });
@@ -119,6 +136,8 @@ class __$$HomeStateImplCopyWithImpl<$Res>
   $Res call({
     Object? loaderState = null,
     Object? data = freezed,
+    Object? generalData = freezed,
+    Object? generalDataLoaderState = null,
     Object? errorMessage = freezed,
     Object? compactHeaderProgress = null,
   }) {
@@ -132,6 +151,14 @@ class __$$HomeStateImplCopyWithImpl<$Res>
             ? _value.data
             : data // ignore: cast_nullable_to_non_nullable
                   as HomeFeedModel?,
+        generalData: freezed == generalData
+            ? _value.generalData
+            : generalData // ignore: cast_nullable_to_non_nullable
+                  as CustomerGeneralDataModel?,
+        generalDataLoaderState: null == generalDataLoaderState
+            ? _value.generalDataLoaderState
+            : generalDataLoaderState // ignore: cast_nullable_to_non_nullable
+                  as LoaderState,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -151,6 +178,8 @@ class _$HomeStateImpl implements _HomeState {
   const _$HomeStateImpl({
     this.loaderState = LoaderState.loaded,
     this.data,
+    this.generalData,
+    this.generalDataLoaderState = LoaderState.loading,
     this.errorMessage,
     this.compactHeaderProgress = 0,
   });
@@ -161,6 +190,11 @@ class _$HomeStateImpl implements _HomeState {
   @override
   final HomeFeedModel? data;
   @override
+  final CustomerGeneralDataModel? generalData;
+  @override
+  @JsonKey()
+  final LoaderState generalDataLoaderState;
+  @override
   final String? errorMessage;
   @override
   @JsonKey()
@@ -168,7 +202,7 @@ class _$HomeStateImpl implements _HomeState {
 
   @override
   String toString() {
-    return 'HomeState(loaderState: $loaderState, data: $data, errorMessage: $errorMessage, compactHeaderProgress: $compactHeaderProgress)';
+    return 'HomeState(loaderState: $loaderState, data: $data, generalData: $generalData, generalDataLoaderState: $generalDataLoaderState, errorMessage: $errorMessage, compactHeaderProgress: $compactHeaderProgress)';
   }
 
   @override
@@ -179,6 +213,10 @@ class _$HomeStateImpl implements _HomeState {
             (identical(other.loaderState, loaderState) ||
                 other.loaderState == loaderState) &&
             (identical(other.data, data) || other.data == data) &&
+            (identical(other.generalData, generalData) ||
+                other.generalData == generalData) &&
+            (identical(other.generalDataLoaderState, generalDataLoaderState) ||
+                other.generalDataLoaderState == generalDataLoaderState) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage) &&
             (identical(other.compactHeaderProgress, compactHeaderProgress) ||
@@ -190,6 +228,8 @@ class _$HomeStateImpl implements _HomeState {
     runtimeType,
     loaderState,
     data,
+    generalData,
+    generalDataLoaderState,
     errorMessage,
     compactHeaderProgress,
   );
@@ -207,6 +247,8 @@ abstract class _HomeState implements HomeState {
   const factory _HomeState({
     final LoaderState loaderState,
     final HomeFeedModel? data,
+    final CustomerGeneralDataModel? generalData,
+    final LoaderState generalDataLoaderState,
     final String? errorMessage,
     final double compactHeaderProgress,
   }) = _$HomeStateImpl;
@@ -215,6 +257,10 @@ abstract class _HomeState implements HomeState {
   LoaderState get loaderState;
   @override
   HomeFeedModel? get data;
+  @override
+  CustomerGeneralDataModel? get generalData;
+  @override
+  LoaderState get generalDataLoaderState;
   @override
   String? get errorMessage;
   @override

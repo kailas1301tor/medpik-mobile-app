@@ -20,7 +20,7 @@
 - Shop by category — circular icon row
 - Popular products — liquid glass horizontal carousel (~2.2 cards visible, snapping) with hero product imagery, discount badge, wishlist, glass CTA morphing to qty selector
 
-## Mock Contract
+## API Contract
 - `GET /home` → `HomeFeedModel`
 - `OfferModel` includes optional `badgeLabel`, `promoCode`
 - `ProductModel` includes optional `mrp`, `discountPercent`, `packSize`

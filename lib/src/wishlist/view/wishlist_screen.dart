@@ -1,54 +1,42 @@
 // lib/src/wishlist/view/wishlist_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/res/constants/assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
-import 'package:tsuite/src/wishlist/view/widget/wishlist_content_widget.dart';
-import 'package:tsuite/src/wishlist/view/widget/wishlist_screen_header.dart';
-import 'package:tsuite/src/wishlist/view/widget/wishlist_shimmer_widget.dart';
-import 'package:tsuite/utils/common_widgets/common_refresh_indicator.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
-import 'package:tuple/tuple.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/res/constants/assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/wishlist/notifier/wishlist_notifier.dart';
+import 'package:medpik/src/wishlist/view/widget/wishlist_content_widget.dart';
+import 'package:medpik/src/wishlist/view/widget/wishlist_screen_header.dart';
+import 'package:medpik/src/wishlist/view/widget/wishlist_shimmer_widget.dart';
+import 'package:medpik/utils/common_widgets/common_refresh_indicator.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/common_switch_state.dart';
 
-class WishlistScreen extends ConsumerStatefulWidget {
+class WishlistScreen extends ConsumerWidget {
   const WishlistScreen({super.key});
 
   @override
-  ConsumerState<WishlistScreen> createState() => _WishlistScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(wishlistScreenOpenedProvider);
 
-class _WishlistScreenState extends ConsumerState<WishlistScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      if (!AppConstants.hasSession) return;
-      ref.read(wishlistNotifierProvider.notifier).fetchWishlist();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final colors = context.appColors;
-    final wishlistData = ref.watch(
-      wishlistNotifierProvider.select(
-        (s) => Tuple2(s.loaderState, s.items),
-      ),
+    final loaderState = ref.watch(
+      wishlistNotifierProvider.select((s) => s.loaderState),
     );
-    final loaderState = wishlistData.item1;
-    final items = wishlistData.item2;
     final notifier = ref.read(wishlistNotifierProvider.notifier);
+
+    Future<void> refreshWishlist({required bool showLoader}) async {
+      if (!AppConstants.hasSession) return;
+      await notifier.fetchWishlist(showLoader: showLoader);
+    }
 
     return CommonScaffold(
       backgroundColor: colors.background,
       body: CommonRefreshIndicator(
         onRefresh: () async {
-          if (!AppConstants.hasSession) return;
-          await notifier.fetchWishlist();
+          final itemsEmpty = ref.read(wishlistNotifierProvider).items.isEmpty;
+          await refreshWishlist(showLoader: itemsEmpty);
         },
         child: Column(
           children: [
@@ -57,18 +45,16 @@ class _WishlistScreenState extends ConsumerState<WishlistScreen> {
               child: CommonSwitchState(
                 loaderState: loaderState,
                 reload: () {
-                  if (!AppConstants.hasSession) return;
-                  notifier.fetchWishlist();
+                  final itemsEmpty =
+                      ref.read(wishlistNotifierProvider).items.isEmpty;
+                  refreshWishlist(showLoader: itemsEmpty);
                 },
                 loader: const WishlistShimmerWidget(),
                 buttonText: Strings.refresh,
                 emptyScreenTitle: Strings.noFavoriteProducts,
                 emptyScreenDescription: Strings.noFavoriteProductsDesc,
                 emptyScreenImage: Assets.lottieEmptyHeart,
-                child: WishlistContentWidget(
-                  items: items,
-                  onWishlistTap: notifier.toggle,
-                ),
+                child: const WishlistContentWidget(),
               ),
             ),
           ],

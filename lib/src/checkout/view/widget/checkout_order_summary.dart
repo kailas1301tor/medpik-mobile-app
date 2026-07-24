@@ -1,11 +1,11 @@
 // lib/src/checkout/view/widget/checkout_order_summary.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/cart/model/cart_item_model.dart';
-import 'package:tsuite/src/checkout/view/widget/checkout_product_tile.dart';
+import 'package:medpik/data/models/cart_item_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_product_tile.dart';
 
 class CheckoutOrderSummary extends StatelessWidget {
   const CheckoutOrderSummary({super.key, required this.cartItems});
@@ -24,11 +24,18 @@ class CheckoutOrderSummary extends StatelessWidget {
           Strings.selectedMedicinesWithCount(totalQty),
           style: FontPalette.base700(16, color: colors.primaryText),
         ),
-        10.verticalSpace,
-        for (var i = 0; i < cartItems.length; i++) ...[
-          CheckoutProductTile(item: cartItems[i]),
-          if (i < cartItems.length - 1) 8.verticalSpace,
-        ],
+        8.verticalSpace,
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: cartItems.length,
+          itemBuilder: (context, index) {
+            return CheckoutProductTile(
+              item: cartItems[index],
+              showDivider: index < cartItems.length - 1,
+            );
+          },
+        ),
       ],
     );
   }

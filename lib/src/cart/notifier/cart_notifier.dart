@@ -1,27 +1,32 @@
 // lib/src/cart/notifier/cart_notifier.dart
+//
+// * Cart feature — API-driven session cart.
+//
+// ? Module role: owns cart items, screen loader state, and mutation-in-flight flag.
+// ? All writes call the API first; items update only after a successful GET /cart.
+//
+// ! keepAlive: true — cart badge, product detail, and checkout read cart across tabs.
+//
+// * Entry points: CartScreen, ProductDetail, Checkout, bottom nav badge, AuthNotifier sync.
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/src/cart/model/cart_item_model.dart';
-import 'package:tsuite/src/cart/repo/cart_repository.dart';
-import 'package:tsuite/src/cart/state/cart_state.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
-import 'package:tsuite/utils/helpers/api_error_handler.dart';
+import 'package:medpik/data/models/cart_item_model.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/cart/repo/cart_repository.dart';
+import 'package:medpik/src/cart/state/cart_state.dart';
+import 'package:medpik/utils/helpers/api_error_handler.dart';
+import 'package:medpik/utils/helpers/toast_helper.dart';
 
 part 'cart_notifier.g.dart';
 
 @Riverpod(keepAlive: true)
 class CartNotifier extends _$CartNotifier {
   late CartRepo cartRepo;
-
-  Future<void> _mutationChain = Future.value();
-  bool _hasFetchedOnce = false;
-  int _tempLineIdSeq = 0;
 
   @override
   CartState build() {
@@ -33,406 +38,219 @@ class CartNotifier extends _$CartNotifier {
       }
     });
 
-    return const CartState();
-  }
-
-  CartItemModel? _itemForProduct(int productId) {
-    for (final item in state.items) {
-      if (item.product.id == productId) return item;
-    }
-    return null;
-  }
-
-  List<CartItemModel> _snapshotItems() =>
-      List<CartItemModel>.from(state.items);
-
-  void _restoreItems(List<CartItemModel> snapshot) {
-    state = state.copyWith(
-      items: snapshot,
-      loaderState: snapshot.isEmpty ? LoaderState.noData : LoaderState.loaded,
+    return CartState(
+      loaderState: AppConstants.hasSession
+          ? LoaderState.loading
+          : LoaderState.noData,
     );
   }
 
-  void _setItems(List<CartItemModel> items) {
-    state = state.copyWith(
-      items: items,
-      loaderState: items.isEmpty ? LoaderState.noData : LoaderState.loaded,
-    );
-  }
-
-  int _nextTempLineId() {
-    _tempLineIdSeq += 1;
-    return -(_tempLineIdSeq + DateTime.now().millisecondsSinceEpoch);
-  }
-
-  Future<T> _enqueueMutation<T>(Future<T> Function() action) {
-    final run = _mutationChain.then((_) async {
-      state = state.copyWith(isMutating: true);
-      try {
-        return await action();
-      } finally {
-        state = state.copyWith(isMutating: false);
-      }
-    });
-    _mutationChain = run.then(
-      (_) {},
-      onError: (_) {},
-    );
-    return run;
-  }
-
+  // ? GET /api/cart — drives CartScreen loader / empty / error states.
   Future<void> fetchCart({bool showLoader = true}) async {
-    if (!AppConstants.hasSession) {
-      state = state.copyWith(
-        items: const [],
-        isMutating: false,
-        loaderState: LoaderState.noData,
-      );
-      return;
-    }
-
-    if (showLoader || !_hasFetchedOnce) {
+    if (showLoader) {
       state = state.copyWith(loaderState: LoaderState.loading);
     }
-
     return await cartRepo
         .getCart()
         .fold(
-          (error) {
-            final loaderState = handleResponseError(error.key);
-            debugPrint("🔴 CART FETCH ERROR: ${error.message}");
-            state = state.copyWith(loaderState: loaderState);
-            showCustomToast(
-              message: error.message ?? Strings.somethingWentWrong,
-              isSuccess: false,
-            );
+          (left) {
+            final loaderState = handleResponseError(left.key);
+            debugPrint("🔴 CART FETCH ERROR: ${left.message}");
+            if (showLoader) {
+              state = state.copyWith(loaderState: loaderState);
+              showCustomErrorToast(
+                message: left.message ?? Strings.somethingWentWrong,
+              );
+            }
           },
-          (response) {
-            _hasFetchedOnce = true;
-            final items = response.items;
+          (right) {
+            final items = right.items;
             debugPrint("🟢 CART FETCH: ${items.length} item(s)");
             state = state.copyWith(
               items: items,
-              loaderState:
-                  items.isEmpty ? LoaderState.noData : LoaderState.loaded,
+              loaderState: items.isEmpty
+                  ? LoaderState.noData
+                  : LoaderState.loaded,
             );
           },
         )
         .catchError((error) {
           debugPrint("🔴 UNEXPECTED CART FETCH ERROR: $error");
-          state = state.copyWith(loaderState: LoaderState.error);
-          showCustomToast(
-            message: Strings.somethingWentWrong,
-            isSuccess: false,
-          );
+          if (showLoader) {
+            state = state.copyWith(loaderState: LoaderState.error);
+          }
         });
   }
 
+  // ? POST /api/cart — add product or bump quantity.
   Future<bool> addItem({
-    required ProductModel product,
-    required int quantity,
-  }) {
-    return _enqueueMutation(
-      () => _addItem(product: product, quantity: quantity),
-    );
-  }
-
-  Future<bool> _addItem({
     required ProductModel product,
     required int quantity,
   }) async {
     if (quantity <= 0) return false;
     if (!AppConstants.hasSession) {
-      showCustomToast(message: Strings.loginToAddToCart, isSuccess: false);
+      showCustomErrorToast(message: Strings.loginToAddToCart);
       return false;
     }
+    if (state.isMutating) return false;
 
-    final snapshot = _snapshotItems();
-    final existing = _itemForProduct(product.id);
-    if (existing != null) {
-      _setItems([
-        for (final item in state.items)
-          if (item.product.id == product.id)
-            item.copyWith(quantity: item.quantity + quantity)
-          else
-            item,
-      ]);
-    } else {
-      _setItems([
-        ...state.items,
-        CartItemModel(
-          id: _nextTempLineId(),
-          product: product,
-          quantity: quantity,
-        ),
-      ]);
-    }
-
-    return await cartRepo
+    state = state.copyWith(isMutating: true);
+    var succeeded = false;
+    await cartRepo
         .addToCart(productId: product.id, quantity: quantity)
         .fold(
-          (error) {
-            debugPrint("🔴 CART ADD ERROR: ${error.message}");
-            _restoreItems(snapshot);
-            showCustomToast(
-              message: error.message ?? Strings.somethingWentWrong,
-              isSuccess: false,
+          (left) {
+            debugPrint("🔴 CART ADD ERROR: ${left.message}");
+            showCustomErrorToast(
+              message: left.message ?? Strings.somethingWentWrong,
             );
-            return false;
           },
-          (_) async {
-            debugPrint("🟢 CART: added ${product.name} x$quantity");
+          (right) async {
+            debugPrint("🟢 CART ADD SUCCESS: ${product.name} x$quantity");
             await fetchCart(showLoader: false);
-            return true;
+            succeeded = true;
           },
         )
         .catchError((error) {
           debugPrint("🔴 UNEXPECTED CART ADD ERROR: $error");
-          _restoreItems(snapshot);
-          showCustomToast(
-            message: Strings.somethingWentWrong,
-            isSuccess: false,
-          );
-          return false;
+          showCustomErrorToast(message: Strings.somethingWentWrong);
         });
+    state = state.copyWith(isMutating: false);
+    return succeeded;
   }
 
-  Future<void> incrementItem(int productId) {
-    return _enqueueMutation(() => _incrementItem(productId));
-  }
+  // ? POST /api/cart quantity=+1.
+  Future<void> incrementItem(int productId) async {
+    if (!AppConstants.hasSession || state.isMutating) return;
 
-  Future<void> _incrementItem(int productId) async {
-    if (!AppConstants.hasSession) return;
-
-    final existing = _itemForProduct(productId);
-    if (existing == null) return;
-
-    final snapshot = _snapshotItems();
-    _setItems([
-      for (final item in state.items)
-        if (item.product.id == productId)
-          item.copyWith(quantity: item.quantity + 1)
-        else
-          item,
-    ]);
-
-    return await cartRepo
+    state = state.copyWith(isMutating: true);
+    await cartRepo
         .addToCart(productId: productId, quantity: 1)
         .fold(
-          (error) {
-            debugPrint("🔴 CART INCREMENT ERROR: ${error.message}");
-            _restoreItems(snapshot);
-            showCustomToast(
-              message: error.message ?? Strings.somethingWentWrong,
-              isSuccess: false,
+          (left) {
+            debugPrint("🔴 CART INCREMENT ERROR: ${left.message}");
+            showCustomErrorToast(
+              message: left.message ?? Strings.somethingWentWrong,
             );
           },
-          (_) async {
-            debugPrint("🔵 ACTION: cart qty +1 product_id=$productId");
+          (right) async {
+            debugPrint("🟢 CART INCREMENT SUCCESS: product_id=$productId");
             await fetchCart(showLoader: false);
           },
         )
         .catchError((error) {
           debugPrint("🔴 UNEXPECTED CART INCREMENT ERROR: $error");
-          _restoreItems(snapshot);
-          showCustomToast(
-            message: Strings.somethingWentWrong,
-            isSuccess: false,
-          );
+          showCustomErrorToast(message: Strings.somethingWentWrong);
         });
+    state = state.copyWith(isMutating: false);
   }
 
-  Future<void> decrementItem(int productId) {
-    return _enqueueMutation(() => _decrementItem(productId));
-  }
+  // ? Decrement — API rejects negative quantity; re-set line via remove + add.
+  Future<void> decrementItem(int productId) async {
+    if (state.isMutating) return;
 
-  Future<void> _decrementItem(int productId) async {
-    if (!AppConstants.hasSession) return;
+    final cartItem = _findItemByProductId(productId);
+    if (cartItem == null) return;
 
-    final item = _itemForProduct(productId);
-    if (item == null) return;
-
-    if (item.quantity <= 1) {
-      await _removeByLineId(item.id);
+    if (cartItem.quantity <= 1) {
+      await removeCartLine(cartItem.id);
       return;
     }
 
-    final snapshot = _snapshotItems();
-    final nextQty = item.quantity - 1;
-    _setItems([
-      for (final entry in state.items)
-        if (entry.product.id == productId)
-          entry.copyWith(quantity: nextQty)
-        else
-          entry,
-    ]);
-
-    // Temp lines have no server id yet — skip network until reconcile.
-    if (item.id <= 0) {
-      debugPrint("🔵 ACTION: cart qty -1 (temp line) product_id=$productId");
-      return;
-    }
-
-    return await cartRepo
-        .removeCartItems(itemIds: [item.id])
+    state = state.copyWith(isMutating: true);
+    await cartRepo
+        .setCartLineQuantity(
+          productId: productId,
+          lineId: cartItem.id,
+          quantity: cartItem.quantity - 1,
+        )
         .fold(
-          (error) {
-            debugPrint("🔴 CART DECREMENT REMOVE ERROR: ${error.message}");
-            _restoreItems(snapshot);
-            showCustomToast(
-              message: error.message ?? Strings.somethingWentWrong,
-              isSuccess: false,
+          (left) {
+            debugPrint("🔴 CART DECREMENT ERROR: ${left.message}");
+            showCustomErrorToast(
+              message: left.message ?? Strings.somethingWentWrong,
             );
           },
-          (_) async {
-            await cartRepo
-                .addToCart(productId: productId, quantity: nextQty)
-                .fold(
-                  (error) {
-                    debugPrint(
-                      "🔴 CART DECREMENT RE-ADD ERROR: ${error.message}",
-                    );
-                    _restoreItems(snapshot);
-                    showCustomToast(
-                      message: error.message ?? Strings.somethingWentWrong,
-                      isSuccess: false,
-                    );
-                  },
-                  (_) async {
-                    debugPrint(
-                      "🔵 ACTION: cart qty -1 product_id=$productId",
-                    );
-                    await fetchCart(showLoader: false);
-                  },
-                )
-                .catchError((error) {
-                  debugPrint(
-                    "🔴 UNEXPECTED CART DECREMENT RE-ADD ERROR: $error",
-                  );
-                  _restoreItems(snapshot);
-                  showCustomToast(
-                    message: Strings.somethingWentWrong,
-                    isSuccess: false,
-                  );
-                });
+          (right) async {
+            debugPrint("🟢 CART DECREMENT SUCCESS: product_id=$productId");
+            await fetchCart(showLoader: false);
           },
         )
         .catchError((error) {
           debugPrint("🔴 UNEXPECTED CART DECREMENT ERROR: $error");
-          _restoreItems(snapshot);
-          showCustomToast(
-            message: Strings.somethingWentWrong,
-            isSuccess: false,
-          );
+          showCustomErrorToast(message: Strings.somethingWentWrong);
         });
+    state = state.copyWith(isMutating: false);
   }
 
-  Future<void> removeItem(int productId) {
-    return _enqueueMutation(() async {
-      final item = _itemForProduct(productId);
-      if (item == null) return;
-      await _removeByLineId(item.id);
-    });
-  }
+  // ? DELETE /api/cart — remove one line.
+  Future<void> removeCartLine(int lineId) async {
+    if (state.isMutating) return;
 
-  Future<void> removeCartLine(int lineId) {
-    return _enqueueMutation(() => _removeByLineId(lineId));
-  }
-
-  Future<void> _removeByLineId(int lineId) async {
-    if (!AppConstants.hasSession) return;
-
-    final snapshot = _snapshotItems();
-    final next = state.items.where((e) => e.id != lineId).toList();
-    _setItems(next);
-
-    // Optimistic-only temp lines never hit DELETE.
-    if (lineId <= 0) {
-      debugPrint("🔵 ACTION: removed temp cart line id=$lineId");
-      return;
-    }
-
-    return await cartRepo
+    state = state.copyWith(isMutating: true);
+    await cartRepo
         .removeCartItems(itemIds: [lineId])
         .fold(
-          (error) {
-            debugPrint("🔴 CART REMOVE ERROR: ${error.message}");
-            _restoreItems(snapshot);
-            showCustomToast(
-              message: error.message ?? Strings.somethingWentWrong,
-              isSuccess: false,
+          (left) {
+            debugPrint("🔴 CART REMOVE ERROR: ${left.message}");
+            showCustomErrorToast(
+              message: left.message ?? Strings.somethingWentWrong,
             );
           },
-          (_) async {
-            debugPrint("🔵 ACTION: removed cart line id=$lineId");
+          (right) async {
+            debugPrint("🟢 CART REMOVE SUCCESS: line_id=$lineId");
             await fetchCart(showLoader: false);
           },
         )
         .catchError((error) {
           debugPrint("🔴 UNEXPECTED CART REMOVE ERROR: $error");
-          _restoreItems(snapshot);
-          showCustomToast(
-            message: Strings.somethingWentWrong,
-            isSuccess: false,
-          );
+          showCustomErrorToast(message: Strings.somethingWentWrong);
         });
+    state = state.copyWith(isMutating: false);
   }
 
-  Future<void> clearCart() {
-    return _enqueueMutation(_clearCart);
-  }
+  // ? DELETE /api/cart — remove all lines, then reconcile with GET /cart.
+  Future<void> clearCart({bool showErrors = true}) async {
+    if (state.isMutating) return;
 
-  Future<void> _clearCart() async {
-    if (!AppConstants.hasSession) {
-      state = state.copyWith(
-        items: const [],
-        loaderState: LoaderState.noData,
-      );
-      return;
+    final lineIds = state.items.map((e) => e.id).toList();
+    state = state.copyWith(isMutating: true);
+    if (lineIds.isNotEmpty) {
+      await cartRepo
+          .removeCartItems(itemIds: lineIds)
+          .fold(
+            (left) {
+              debugPrint("🔴 CART CLEAR ERROR: ${left.message}");
+              if (showErrors) {
+                showCustomErrorToast(
+                  message: left.message ?? Strings.somethingWentWrong,
+                );
+              }
+            },
+            (right) async {
+              debugPrint("🟢 CART CLEAR SUCCESS");
+            },
+          )
+          .catchError((error) {
+            debugPrint("🔴 UNEXPECTED CART CLEAR ERROR: $error");
+            if (showErrors) {
+              showCustomErrorToast(message: Strings.somethingWentWrong);
+            }
+          });
     }
-
-    final snapshot = _snapshotItems();
-    final ids = snapshot.map((e) => e.id).where((id) => id > 0).toList();
-    _setItems(const []);
-
-    if (ids.isEmpty) {
-      return;
-    }
-
-    return await cartRepo
-        .removeCartItems(itemIds: ids)
-        .fold(
-          (error) {
-            debugPrint("🔴 CART CLEAR ERROR: ${error.message}");
-            _restoreItems(snapshot);
-            showCustomToast(
-              message: error.message ?? Strings.somethingWentWrong,
-              isSuccess: false,
-            );
-          },
-          (_) async {
-            debugPrint("🔵 CART: cleared");
-            await fetchCart(showLoader: false);
-          },
-        )
-        .catchError((error) {
-          debugPrint("🔴 UNEXPECTED CART CLEAR ERROR: $error");
-          _restoreItems(snapshot);
-          showCustomToast(
-            message: Strings.somethingWentWrong,
-            isSuccess: false,
-          );
-        });
+    await fetchCart(showLoader: false);
+    state = state.copyWith(isMutating: false);
   }
 
-  double get subtotal =>
-      state.items.fold(0, (sum, item) => sum + item.lineTotal);
-
-  int get totalItemCount =>
-      state.items.fold<int>(0, (sum, item) => sum + item.quantity);
-
+  // ? Called on logout — resets cart state.
   void clearSessionCart() {
-    _hasFetchedOnce = false;
     state = const CartState(loaderState: LoaderState.noData);
+  }
+
+  CartItemModel? _findItemByProductId(int productId) {
+    for (final item in state.items) {
+      if (item.product.id == productId) return item;
+    }
+    return null;
   }
 }

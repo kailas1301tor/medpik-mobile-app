@@ -1,11 +1,11 @@
-// /Users/wac/Documents/wac projects/tsuite/lib/utils/common_widgets/common_password_field.dart
+// /Users/wac/Documents/tortilon/medpik/lib/utils/common_widgets/common_password_field.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tsuite/res/constants/assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_text_form_field.dart';
+import 'package:medpik/res/constants/assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/utils/common_widgets/common_text_form_field.dart';
 
 class CommonPasswordField extends StatefulWidget {
   const CommonPasswordField({

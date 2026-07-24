@@ -1,9 +1,10 @@
 // lib/src/orders/view/widget/orders_shimmer_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
+import 'package:medpik/utils/helpers/shell_insets_helper.dart';
 
 class OrdersShimmerWidget extends StatelessWidget {
   const OrdersShimmerWidget({super.key});
@@ -16,7 +17,12 @@ class OrdersShimmerWidget extends StatelessWidget {
     final colors = context.appColors;
 
     return ListView.builder(
-      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 24.h),
+      padding: EdgeInsets.fromLTRB(
+        16.w,
+        0,
+        16.w,
+        shellScrollBottomPadding(context),
+      ),
       physics: const NeverScrollableScrollPhysics(),
       itemCount: _itemCount,
       itemBuilder: (context, index) {

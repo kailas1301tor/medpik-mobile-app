@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
-import 'package:tsuite/res/constants/assets.dart';
+import 'package:medpik/res/constants/assets.dart';
 
 class CommonSuccessLottie extends StatefulWidget {
   const CommonSuccessLottie({super.key, this.size});

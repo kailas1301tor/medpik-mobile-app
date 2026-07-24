@@ -1,18 +1,25 @@
 // lib/src/address/view/widget/address_book_tile.dart
+//
+// ? Single address row in [AddressBookScreen].
+//
+// ? Three visual modes (parent callbacks + [isSelectable]):
+// ? - Manage — edit + delete action buttons on the right
+// ? - Select — radio indicator; tap handled by parent [onTap]
+// ? - Deleting — inline loader on delete button; tile ignores pointer
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/constants/medpik_svg_assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/address/notifier/address_notifier.dart';
-import 'package:tsuite/src/address/view/widget/address_tile_action_button.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/common_widgets/common_delete_icon.dart';
-import 'package:tsuite/utils/common_widgets/common_inline_loader.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/res/constants/medpik_svg_assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/address/notifier/address_notifier.dart';
+import 'package:medpik/src/address/view/widget/address_tile_action_button.dart';
+import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/utils/common_widgets/common_delete_icon.dart';
+import 'package:medpik/utils/common_widgets/common_inline_loader.dart';
 
 class AddressBookTile extends ConsumerWidget {
   const AddressBookTile({

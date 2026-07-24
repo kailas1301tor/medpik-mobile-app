@@ -2,16 +2,13 @@
 class AppConstants {
   static const String baseURL = 'https://medpik-backend.onrender.com';
   static const int otpResendDuration = 60;
+  static const int otpLength = 6;
 
   /// Hardcoded country code for OTP auth (India).
   static const String defaultCountryCode = '+91';
 
-  /// When true, non-auth repositories use mock implementations.
-  /// Auth always uses the live AuthRepoImpl regardless of this flag.
-  static const bool useMockData = false;
-
   /// Max file size for prescription uploads (images and documents).
-  static const int maxImageSizeMb = 10;
+  static const int maxImageSizeMb = 5;
 
   /// Google Maps / Places / Geocoding key used as Dart HTTP fallback.
   /// Prefer `--dart-define=GOOGLE_MAPS_API_KEY=...` and platform keys in
@@ -38,7 +35,6 @@ class AppConstants {
   static String authPrefix = '$api$auth';
 
   // Auth endpoints
-  /// Placeholder until logout path is confirmed by backend.
   static String logout = '$authPrefix/logout';
   static String requestOtp = '$authPrefix/request-otp';
   static String verifyOtp = '$authPrefix/verify-otp';
@@ -48,22 +44,38 @@ class AppConstants {
   static String products = '$prefix$user/products';
   static String categories = '$prefix$user/categories';
   static String homeFeed = '$api/customer-home';
+  static String customerGeneralData = '$api/customer-general-data';
   static String customerProducts = '$api/customer-products';
   static String customerProductDetail = '$api/customer-products/detail';
 
   /// GET wishlist list / POST toggle (`product_id`).
   static String wishlist = '$api/wishlist';
 
-  /// GET cart / POST add (delta) / DELETE remove (`item_ids`).
+  /// GET cart / POST add (quantity > 0) / DELETE remove (`item_ids`).
   static String cart = '$api/cart';
 
   // Orders & addresses
   static String orders = '$api/orders';
+  static String ordersBillAction = '$api/orders/bill-action';
+  static String ordersPayment = '$api/orders/payment';
+  static String ordersPaymentInit = '$api/orders/payment/init';
   static String addresses = '$api/addresses';
-  static String prescriptions = '$prefix$user/prescriptions';
 
   // Profile endpoints
   static String getProfileData = '$prefix$user/profile';
+
+  // Device endpoints
+  static String devicesRegister = '$api/devices/register';
+
+  // Notification endpoints
+  static String notificationsInApp = '$api/devices/in-app';
+
+  // Emergency endpoints
+  static String emergencyServices = '$api/emergency/services';
+
+  /// Backend-accepted platform values for device registration.
+  static const String devicePlatformAndroid = 'android';
+  static const String devicePlatformIos = 'ios';
 
   /// Runtime access token hydrated from Sembast on bootstrap / login.
   static String? accessToken;

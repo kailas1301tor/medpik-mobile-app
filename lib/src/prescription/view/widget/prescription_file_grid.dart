@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_add_more_tile.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_file_tile.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_source_sheet.dart';
+import 'package:medpik/src/prescription/notifier/prescription_notifier.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_add_more_tile.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_file_tile.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_source_sheet.dart';
 
 class PrescriptionFileGrid extends ConsumerWidget {
   const PrescriptionFileGrid({super.key});

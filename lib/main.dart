@@ -2,12 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tsuite/services/auth_session_service.dart';
-import 'package:tsuite/services/onesignal_service.dart';
-import 'src/root/tsuite_app.dart';
+import 'package:medpik/services/onesignal_service.dart';
+import 'package:medpik/src/auth/notifier/auth_notifier.dart';
+import 'package:medpik/utils/helpers/pre_cache_images.dart';
+import 'src/root/medpik_app.dart';
+import 'utils/helpers/common_functions.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  PreCacheImages.initializeAllImages();
+  configureImageCache();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -15,16 +19,18 @@ Future<void> main() async {
   ]);
 
   final container = ProviderContainer();
-  await container.read(authSessionServiceProvider).initialize();
-  final session = await container.read(authSessionServiceProvider).restore();
+  final restoredUserId =
+      await container.read(authNotifierProvider.notifier).bootstrap();
   await container.read(oneSignalServiceProvider).initialize(
-        restoredUserId: session?.authModel.id.toString(),
+        restoredUserId: restoredUserId,
       );
 
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: const TSuiteApp(),
+      child: const MedpikApp(),
     ),
   );
 }
+
+

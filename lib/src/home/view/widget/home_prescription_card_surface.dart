@@ -2,12 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
-import 'package:tsuite/res/constants/assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/home/view/widget/home_prescription_card_chip.dart';
-import 'package:tsuite/src/home/view/widget/home_prescription_card_upload_button.dart';
+import 'package:medpik/res/constants/assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/home/view/widget/home_prescription_card_chip.dart';
+import 'package:medpik/src/home/view/widget/home_prescription_card_upload_button.dart';
 
 class HomePrescriptionCardSurface extends StatelessWidget {
   const HomePrescriptionCardSurface({

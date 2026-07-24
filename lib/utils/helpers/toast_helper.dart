@@ -1,13 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:medpik/utils/common_widgets/custom_toast.dart' as custom_toast;
 
 /// Show a standard toast message.
-void showCustomToast({required String message}) {
-  debugPrint('✅ SUCCESS: $message');
-  // Implementation note: integration with native/custom toast library would happen here.
+void showCustomToast({required String message, bool? isSuccess}) {
+  custom_toast.showCustomToast(message: message, isSuccess: isSuccess);
 }
 
 /// Show a standard error toast message.
 void showCustomErrorToast({required String message}) {
-  debugPrint('❌ ERROR: $message');
-  // Implementation note: integration with native/custom toast library would happen here.
+  custom_toast.showCustomToast(message: message, isSuccess: false);
 }

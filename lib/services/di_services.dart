@@ -1,9 +1,6 @@
+// lib/services/di_services.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:medpik/services/invalidate_di.dart';
 
-/// Dispose/invalidate commonly cached providers on logout.
-///
-/// Add your notifier providers here as you create new features.
-disposeProviders(WidgetRef ref) {
-  // ref.invalidate(authNotifierProvider);
-  // ref.invalidate(homeNotifierProvider);
-}
+/// Dispose/invalidate keepAlive providers on logout.
+void disposeProviders(WidgetRef ref) => InvalidateDI.invalidateWidget(ref);

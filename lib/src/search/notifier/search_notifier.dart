@@ -3,18 +3,25 @@ import 'dart:async';
 
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/src/home/model/home_model.dart';
-import 'package:tsuite/src/prescription/repo/customer_products_repository.dart';
-import 'package:tsuite/src/search/model/product_catalog_args.dart';
-import 'package:tsuite/src/search/repo/search_repository.dart';
-import 'package:tsuite/src/search/state/search_state.dart';
-import 'package:tsuite/utils/helpers/api_error_handler.dart';
+import 'package:medpik/data/models/category_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/data/models/product_catalog_args.dart';
+import 'package:medpik/src/search/repo/search_repository.dart';
+import 'package:medpik/src/search/state/search_state.dart';
+import 'package:medpik/utils/helpers/api_error_handler.dart';
 
 part 'search_notifier.g.dart';
+
+@Riverpod(keepAlive: false)
+void searchCatalogInit(Ref ref, ProductCatalogArgs args) {
+  Future.microtask(
+    () => ref.read(searchNotifierProvider.notifier).initCatalog(args),
+  );
+}
 
 @Riverpod(keepAlive: false)
 class SearchNotifier extends _$SearchNotifier {
@@ -25,7 +32,6 @@ class SearchNotifier extends _$SearchNotifier {
   late final TextEditingController catalogSearchController;
   late final FocusNode catalogSearchFocusNode;
   late SearchRepo searchRepo;
-  late CustomerProductsRepo customerProductsRepo;
 
   int _requestId = 0;
   Timer? _debounceTimer;
@@ -37,7 +43,6 @@ class SearchNotifier extends _$SearchNotifier {
     catalogSearchController = TextEditingController();
     catalogSearchFocusNode = FocusNode();
     searchRepo = ref.read(searchRepositoryProvider);
-    customerProductsRepo = ref.read(customerProductsRepositoryProvider);
 
     ref.onDispose(() {
       _debounceTimer?.cancel();
@@ -54,6 +59,7 @@ class SearchNotifier extends _$SearchNotifier {
   Future<void> loadInitialData() async {
     await searchRepo.getRecentSearches().fold(
       (error) {
+        handleResponseError(error.key);
         debugPrint("🔴 RECENT SEARCH ERROR: ${error.message}");
       },
       (recent) {
@@ -69,7 +75,8 @@ class SearchNotifier extends _$SearchNotifier {
         state.categoryId == args.categoryId &&
         state.offerId == args.offerId &&
         (state.loaderState == LoaderState.loaded ||
-            state.loaderState == LoaderState.noData);
+            state.loaderState == LoaderState.noData ||
+            state.loaderState == LoaderState.noSearchData);
     if (sameFilters) return;
 
     catalogSearchController.text = args.search;
@@ -107,11 +114,11 @@ class SearchNotifier extends _$SearchNotifier {
     }
 
     if (!append && search.isNotEmpty) {
-      await searchRepo.saveRecentSearch(search);
+      unawaited(searchRepo.saveRecentSearch(search));
     }
 
-    return await customerProductsRepo
-        .getCustomerProducts(
+    return await searchRepo
+        .getCatalogProducts(
           search: search,
           categoryId: categoryId,
           offerId: offerId,
@@ -152,9 +159,12 @@ class SearchNotifier extends _$SearchNotifier {
               "🟢 CATALOG page=${response.currentPage}: "
               "${pageProducts.length} items (total=${merged.length})",
             );
+            final emptyLoaderState = search.isNotEmpty
+                ? LoaderState.noSearchData
+                : LoaderState.noData;
             state = state.copyWith(
               loaderState:
-                  merged.isEmpty ? LoaderState.noData : LoaderState.loaded,
+                  merged.isEmpty ? emptyLoaderState : LoaderState.loaded,
               results: merged,
               currentPage: response.currentPage > 0 ? response.currentPage : page,
               hasMore: hasMore,
@@ -215,6 +225,7 @@ class SearchNotifier extends _$SearchNotifier {
   void selectCategory(CategoryModel? category) {
     state = state.copyWith(
       categoryId: category?.id,
+      offerId: null,
       catalogTitle: category?.name ?? Strings.popularProducts,
     );
     if (state.catalogInitialized) {
@@ -226,5 +237,4 @@ class SearchNotifier extends _$SearchNotifier {
     searchController.text = query;
     state = state.copyWith(query: query.trim());
   }
-
 }

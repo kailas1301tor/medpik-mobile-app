@@ -4,28 +4,17 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:either_dart/either.dart';
 import 'package:path/path.dart' as p;
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/data/models/order_model.dart';
-import 'package:tsuite/data/models/prescription_model.dart';
-import 'package:tsuite/data/models/prescription_selected_product_model.dart';
-import 'package:tsuite/data/remote/network_base_services.dart';
-import 'package:tsuite/data/remote/network_services.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/src/prescription/model/prescription_order_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/data/models/order_model.dart';
+import 'package:medpik/data/models/prescription_selected_product_model.dart';
+import 'package:medpik/data/remote/network_base_services.dart';
+import 'package:medpik/data/remote/network_services.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/src/prescription/model/prescription_order_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 abstract class PrescriptionRepo {
-  Future<Either<ResponseError, PrescriptionDraftModel>> uploadPrescription({
-    required List<String> filePaths,
-    String? notes,
-    List<PrescriptionSelectedProductModel> selectedProducts = const [],
-  });
-
-  Future<Either<ResponseError, PrescriptionDraftModel?>> getDraft();
-
-  Future<Either<ResponseError, bool>> clearDraft();
-
   Future<Either<ResponseError, PrescriptionOrderResponse>> placeOrder({
     required int addressId,
     required String prescriptionDescription,
@@ -35,41 +24,10 @@ abstract class PrescriptionRepo {
   });
 }
 
-/// Local draft until Place Order; multipart create lives here (not in cart checkout).
 class PrescriptionRepoImpl implements PrescriptionRepo {
   PrescriptionRepoImpl(this._networkServices);
 
   final NetworkServices _networkServices;
-  PrescriptionDraftModel? _draft;
-
-  @override
-  Future<Either<ResponseError, PrescriptionDraftModel>> uploadPrescription({
-    required List<String> filePaths,
-    String? notes,
-    List<PrescriptionSelectedProductModel> selectedProducts = const [],
-  }) async {
-    final draft = PrescriptionDraftModel(
-      filePaths: List<String>.from(filePaths),
-      notes: notes ?? '',
-      uploadedAt: DateTime.now(),
-      selectedProducts: List<PrescriptionSelectedProductModel>.from(
-        selectedProducts,
-      ),
-    );
-    _draft = draft;
-    return Right(draft);
-  }
-
-  @override
-  Future<Either<ResponseError, PrescriptionDraftModel?>> getDraft() async {
-    return Right(_draft);
-  }
-
-  @override
-  Future<Either<ResponseError, bool>> clearDraft() async {
-    _draft = null;
-    return const Right(true);
-  }
 
   @override
   Future<Either<ResponseError, PrescriptionOrderResponse>> placeOrder({

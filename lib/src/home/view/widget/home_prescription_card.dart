@@ -4,8 +4,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_corner/smooth_corner.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/home/view/widget/home_prescription_card_surface.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/home/view/widget/home_prescription_card_surface.dart';
 
 class HomePrescriptionCard extends StatelessWidget {
   const HomePrescriptionCard({super.key, this.onUploadTap});

@@ -1,0 +1,4 @@
+{
+  "dart.runPubGetOnPubspecChanges": true,
+  "dart.promptToGetPackages": false
+}

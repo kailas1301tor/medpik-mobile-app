@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/utils/common_widgets/custom_toast.dart';
 
 class FileSelectionService {
   FileSelectionService._();

@@ -1,9 +1,11 @@
 // lib/src/address/view/widget/address_book_shimmer_widget.dart
+//
+// ? Loading placeholder for [AddressBookScreen] list (4 skeleton tiles).
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 
 class AddressBookShimmerWidget extends StatelessWidget {
   const AddressBookShimmerWidget({super.key});

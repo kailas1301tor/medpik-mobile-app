@@ -1,16 +1,12 @@
 // lib/src/prescription/notifier/prescription_notifier.dart
-import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/data/models/prescription_selected_product_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/src/prescription/repo/prescription_repository.dart';
-import 'package:tsuite/src/prescription/state/prescription_state.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
-import 'package:tsuite/utils/helpers/api_error_handler.dart';
-import 'package:tsuite/utils/helpers/file_picker.dart';
+import 'package:medpik/data/models/prescription_model.dart';
+import 'package:medpik/data/models/prescription_selected_product_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/src/prescription/state/prescription_state.dart';
+import 'package:medpik/utils/common_widgets/custom_toast.dart';
+import 'package:medpik/utils/helpers/file_picker.dart';
 
 part 'prescription_notifier.g.dart';
 
@@ -18,7 +14,6 @@ part 'prescription_notifier.g.dart';
 class PrescriptionNotifier extends _$PrescriptionNotifier {
   late final TextEditingController notesController;
   late final TextEditingController productQuantityController;
-  late PrescriptionRepo prescriptionRepo;
   final _fileService = FileSelectionService.instance;
 
   @override
@@ -27,89 +22,73 @@ class PrescriptionNotifier extends _$PrescriptionNotifier {
     productQuantityController = TextEditingController(
       text: Strings.defaultQuantityHint,
     );
-    prescriptionRepo = ref.read(prescriptionRepositoryProvider);
 
     ref.onDispose(() {
       notesController.dispose();
       productQuantityController.dispose();
     });
 
-    Future.microtask(loadDraft);
     return const PrescriptionState();
   }
 
-  Future<void> loadDraft() async {
-    await prescriptionRepo.getDraft().fold(
-          (error) {
-            debugPrint("🔴 PRESCRIPTION DRAFT ERROR: ${error.message}");
-          },
-          (draft) {
-            if (draft != null) {
-              notesController.text = draft.notes;
-              state = state.copyWith(
-                draft: draft,
-                pickedPaths: List<String>.from(draft.filePaths),
-                selectedProducts: List<PrescriptionSelectedProductModel>.from(
-                  draft.selectedProducts,
-                ),
-              );
-            } else {
-              notesController.clear();
-              state = state.copyWith(
-                draft: null,
-                pickedPaths: const [],
-                selectedProducts: const [],
-              );
-            }
-          },
-        );
+  void clearDraft() {
+    notesController.clear();
+    state = state.copyWith(
+      draft: null,
+      pickedPaths: const [],
+      selectedProducts: const [],
+      errorMessage: null,
+    );
   }
 
   Future<void> pickFromCamera() async {
-    state = state.copyWith(loaderState: LoaderState.loading);
+    state = state.copyWith(isPickingFiles: true, errorMessage: null);
     try {
       final file = await _fileService.captureImage();
-      if (file == null) {
-        state = state.copyWith(loaderState: LoaderState.loaded);
-        return;
-      }
+      if (file == null) return;
       _appendPaths([file.path]);
-      state = state.copyWith(loaderState: LoaderState.loaded);
     } catch (e) {
       debugPrint("🔴 CAMERA PICK ERROR: $e");
-      state = state.copyWith(loaderState: LoaderState.error);
+      showCustomToast(
+        message: Strings.somethingWentWrong,
+        isSuccess: false,
+      );
+    } finally {
+      state = state.copyWith(isPickingFiles: false);
     }
   }
 
   Future<void> pickFromGallery() async {
-    state = state.copyWith(loaderState: LoaderState.loading);
+    state = state.copyWith(isPickingFiles: true, errorMessage: null);
     try {
       final files = await _fileService.pickMultipleImages();
-      if (files.isEmpty) {
-        state = state.copyWith(loaderState: LoaderState.loaded);
-        return;
-      }
+      if (files.isEmpty) return;
       _appendPaths(files.map((f) => f.path).toList());
-      state = state.copyWith(loaderState: LoaderState.loaded);
     } catch (e) {
       debugPrint("🔴 GALLERY PICK ERROR: $e");
-      state = state.copyWith(loaderState: LoaderState.error);
+      showCustomToast(
+        message: Strings.somethingWentWrong,
+        isSuccess: false,
+      );
+    } finally {
+      state = state.copyWith(isPickingFiles: false);
     }
   }
 
   Future<void> pickFiles() async {
-    state = state.copyWith(loaderState: LoaderState.loading);
+    state = state.copyWith(isPickingFiles: true, errorMessage: null);
     try {
       final files = await _fileService.pickFiles();
-      if (files.isEmpty) {
-        state = state.copyWith(loaderState: LoaderState.loaded);
-        return;
-      }
+      if (files.isEmpty) return;
       _appendPaths(files.map((f) => f.path).toList());
-      state = state.copyWith(loaderState: LoaderState.loaded);
     } catch (e) {
       debugPrint("🔴 FILE PICK ERROR: $e");
-      state = state.copyWith(loaderState: LoaderState.error);
+      showCustomToast(
+        message: Strings.somethingWentWrong,
+        isSuccess: false,
+      );
+    } finally {
+      state = state.copyWith(isPickingFiles: false);
     }
   }
 
@@ -201,38 +180,29 @@ class PrescriptionNotifier extends _$PrescriptionNotifier {
       return false;
     }
 
-    state = state.copyWith(loaderState: LoaderState.loading);
+    state = state.copyWith(isSubmitting: true, errorMessage: null);
 
-    return await prescriptionRepo
-        .uploadPrescription(
-          filePaths: state.pickedPaths,
-          notes: notesController.text.trim(),
-          selectedProducts: state.selectedProducts,
-        )
-        .fold(
-          (error) {
-            final loaderState = handleResponseError(error.key);
-            debugPrint("🔴 UPLOAD PRESCRIPTION ERROR: ${error.message}");
-            state = state.copyWith(loaderState: loaderState);
-            showCustomToast(
-              message: error.message ?? Strings.somethingWentWrong,
-              isSuccess: false,
-            );
-            return false;
-          },
-          (draft) {
-            debugPrint("🟢 PRESCRIPTION UPLOADED");
-            state = state.copyWith(
-              loaderState: LoaderState.loaded,
-              draft: draft,
-            );
-            return true;
-          },
-        )
-        .catchError((error) {
-          debugPrint("🔴 UNEXPECTED UPLOAD ERROR: $error");
-          state = state.copyWith(loaderState: LoaderState.error);
-          return false;
-        });
+    try {
+      final draft = PrescriptionDraftModel(
+        filePaths: List<String>.from(state.pickedPaths),
+        notes: notesController.text.trim(),
+        uploadedAt: DateTime.now(),
+        selectedProducts: List<PrescriptionSelectedProductModel>.from(
+          state.selectedProducts,
+        ),
+      );
+      debugPrint("🟢 PRESCRIPTION DRAFT READY");
+      state = state.copyWith(draft: draft);
+      return true;
+    } catch (e) {
+      debugPrint("🔴 PRESCRIPTION SUBMIT ERROR: $e");
+      showCustomToast(
+        message: Strings.somethingWentWrong,
+        isSuccess: false,
+      );
+      return false;
+    } finally {
+      state = state.copyWith(isSubmitting: false);
+    }
   }
 }

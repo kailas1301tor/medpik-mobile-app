@@ -1,98 +1,65 @@
 // lib/src/address/view/widget/location_search_bar.dart
+//
+// ? Address search input for [LocationPickerScreen].
+//
+// ? Wraps [CommonSearchBar] with:
+// ? - trailing inline loader while forward geocode runs
+// ? - inline error text below field (search-specific, separate from pin errors)
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/services/location/places_session_client.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/common_widgets/common_inline_loader.dart';
-import 'package:tsuite/utils/common_widgets/common_search_bar.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/utils/common_widgets/common_inline_loader.dart';
+import 'package:medpik/utils/common_widgets/common_search_bar.dart';
 
 class LocationSearchBar extends StatelessWidget {
   const LocationSearchBar({
     super.key,
     required this.controller,
-    required this.predictions,
     required this.isSearching,
-    required this.onChanged,
+    required this.searchErrorMessage,
+    required this.onSubmit,
     required this.onClear,
-    required this.onPredictionTap,
   });
 
   final TextEditingController controller;
-  final List<PlacePrediction> predictions;
   final bool isSearching;
-  final ValueChanged<String> onChanged;
+  final String? searchErrorMessage;
+  final VoidCallback onSubmit;
   final VoidCallback onClear;
-  final ValueChanged<PlacePrediction> onPredictionTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final visiblePredictions = predictions.take(5).toList(growable: false);
+    final errorText = searchErrorMessage;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CommonSearchBar(
-          controller: controller,
-          hintText: Strings.searchDeliveryLocation,
-          onChanged: onChanged,
-          onClear: onClear,
-        ),
-        if (isSearching || visiblePredictions.isNotEmpty) ...[
-          8.verticalSpace,
-          CommonContainer(
-            padding: EdgeInsets.symmetric(vertical: 4.h),
-            borderRadius: 14.r,
-            color: colors.surface,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isSearching)
-                  Padding(
-                    padding: EdgeInsets.all(16.r),
-                    child: Center(
-                      child: CommonInlineLoader(color: colors.primary),
-                    ),
+        IgnorePointer(
+          ignoring: isSearching,
+          child: CommonSearchBar(
+            controller: controller,
+            hintText: Strings.searchLocationHint,
+            onSubmitted: (_) => onSubmit(),
+            onClear: onClear,
+            trailing: isSearching
+                ? Padding(
+                    padding: EdgeInsets.only(right: 12.w),
+                    child: CommonInlineLoader(size: 18.r, color: colors.primary),
                   )
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: visiblePredictions.length,
-                    itemBuilder: (context, index) {
-                      final prediction = visiblePredictions[index];
-                      return ListTile(
-                        dense: true,
-                        leading: Icon(
-                          Icons.place_outlined,
-                          color: colors.primary,
-                          size: 20.r,
-                        ),
-                        title: Text(
-                          prediction.primaryText,
-                          style: FontPalette.base500(
-                            14,
-                            color: colors.primaryText,
-                          ),
-                        ),
-                        subtitle: prediction.secondaryText.isEmpty
-                            ? null
-                            : Text(
-                                prediction.secondaryText,
-                                style: FontPalette.base400(
-                                  12,
-                                  color: colors.secondaryText,
-                                ),
-                              ),
-                        onTap: () => onPredictionTap(prediction),
-                      );
-                    },
-                  ),
-              ],
-            ),
+                : null,
+          ),
+        ),
+        if (errorText != null) ...[
+          6.verticalSpace,
+          Text(
+            errorText,
+            style: FontPalette.base400(12, color: colors.errorText),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ],

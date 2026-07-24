@@ -2,18 +2,17 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/address_book_service.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/src/address/notifier/address_notifier.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
-import 'package:tsuite/src/prescription/repo/prescription_repository.dart';
-import 'package:tsuite/src/prescription/state/prescription_checkout_state.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
-import 'package:tsuite/utils/helpers/address_resolution_helper.dart';
-import 'package:tsuite/utils/helpers/api_error_handler.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/providers/address_providers.dart';
+import 'package:medpik/providers/orders_providers.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/prescription/notifier/prescription_notifier.dart';
+import 'package:medpik/src/prescription/repo/prescription_repository.dart';
+import 'package:medpik/src/prescription/state/prescription_checkout_state.dart';
+import 'package:medpik/utils/common_widgets/custom_toast.dart';
+import 'package:medpik/utils/helpers/address_resolution_helper.dart';
 
 part 'prescription_checkout_notifier.g.dart';
 
@@ -30,22 +29,21 @@ class PrescriptionCheckoutNotifier extends _$PrescriptionCheckoutNotifier {
 
   Future<void> prepareCheckout() async {
     final draft = ref.read(prescriptionNotifierProvider).draft;
-    final addressBook = ref.read(addressBookServiceProvider);
 
-    await addressBook.fetchAddresses();
-    final addressState = ref.read(addressNotifierProvider);
-    if (addressState.loaderState == LoaderState.networkError ||
-        addressState.loaderState == LoaderState.serverError ||
-        addressState.loaderState == LoaderState.error) {
+    await ref.read(addressNotifierProvider.notifier).fetchAddresses();
+    final addressLoaderState = ref.read(addressNotifierProvider).loaderState;
+    if (addressLoaderState == LoaderState.networkError ||
+        addressLoaderState == LoaderState.serverError ||
+        addressLoaderState == LoaderState.error) {
       state = state.copyWith(
-        loaderState: addressState.loaderState,
+        loaderState: addressLoaderState,
         errorMessage: Strings.errorDescription,
         isPlacingOrder: false,
       );
       return;
     }
 
-    final addresses = addressBook.addresses;
+    final addresses = ref.read(addressNotifierProvider).addresses;
 
     if (draft == null || draft.filePaths.isEmpty) {
       state = state.copyWith(
@@ -63,11 +61,10 @@ class PrescriptionCheckoutNotifier extends _$PrescriptionCheckoutNotifier {
   }
 
   Future<void> refreshSelectedAddress() async {
-    final addressBook = ref.read(addressBookServiceProvider);
-    await addressBook.fetchAddresses();
+    await ref.read(addressNotifierProvider.notifier).fetchAddresses();
     state = state.copyWith(
       selectedAddress: resolveSelectedAddress(
-        addressBook.addresses,
+        ref.read(addressNotifierProvider).addresses,
         current: state.selectedAddress,
       ),
     );
@@ -108,13 +105,8 @@ class PrescriptionCheckoutNotifier extends _$PrescriptionCheckoutNotifier {
         )
         .fold(
           (error) {
-            final loaderState = handleResponseError(error.key);
             debugPrint("🔴 PRESCRIPTION ORDER ERROR: ${error.message}");
-            state = state.copyWith(
-              isPlacingOrder: false,
-              loaderState: loaderState,
-              errorMessage: error.message ?? Strings.somethingWentWrong,
-            );
+            state = state.copyWith(isPlacingOrder: false);
             showCustomToast(
               message: error.message ?? Strings.somethingWentWrong,
               isSuccess: false,
@@ -133,8 +125,8 @@ class PrescriptionCheckoutNotifier extends _$PrescriptionCheckoutNotifier {
               return null;
             }
             debugPrint("🟢 PRESCRIPTION ORDER PLACED: $orderId");
-            await prescriptionRepo.clearDraft();
-            await ref.read(prescriptionNotifierProvider.notifier).loadDraft();
+            ref.read(prescriptionNotifierProvider.notifier).clearDraft();
+            ref.read(ordersNotifierProvider.notifier).fetchOrders();
             state = state.copyWith(
               isPlacingOrder: false,
               placedOrderId: orderId,

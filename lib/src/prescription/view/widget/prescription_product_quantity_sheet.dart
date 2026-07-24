@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/data/models/prescription_selected_product_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
-import 'package:tsuite/utils/common_widgets/common_bottom_sheet.dart';
-import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
-import 'package:tsuite/utils/common_widgets/common_text_form_field.dart';
-import 'package:tsuite/utils/common_widgets/primary_button.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/data/models/prescription_selected_product_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/prescription/notifier/prescription_notifier.dart';
+import 'package:medpik/utils/common_widgets/common_bottom_sheet.dart';
+import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
+import 'package:medpik/utils/common_widgets/common_text_form_field.dart';
+import 'package:medpik/utils/common_widgets/primary_button.dart';
 
 class PrescriptionProductQuantitySheet {
   PrescriptionProductQuantitySheet._();
@@ -72,8 +72,6 @@ class _PrescriptionProductQuantitySheetContent extends ConsumerWidget {
                 imageUrl: product.imageUrl,
                 width: imageSize,
                 height: imageSize,
-                memCacheWidth: 120,
-                memCacheHeight: 120,
               ),
             ),
             12.horizontalSpace,

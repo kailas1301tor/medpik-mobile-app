@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/utils/common_widgets/common_floating_circle_button.dart';
+import 'package:medpik/utils/common_widgets/common_floating_circle_button.dart';
 
 class CommonBackButton extends StatelessWidget {
   const CommonBackButton({

@@ -1,7 +1,7 @@
 // lib/src/main/notifier/main_shell_notifier.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/utils/common_widgets/custom_toast.dart';
 
 part 'main_shell_notifier.g.dart';
 

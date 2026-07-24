@@ -2,12 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/services/cart_facade_service.dart';
-import 'package:tsuite/src/product_detail/notifier/product_detail_notifier.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_qty_stepper.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/providers/cart_providers.dart';
+import 'package:medpik/utils/helpers/cart_quantity_helper.dart';
+import 'package:medpik/src/product_detail/notifier/product_detail_notifier.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_qty_stepper.dart';
 
 /// Always-visible quantity controls under product info.
 ///
@@ -21,7 +22,11 @@ class ProductDetailQuantitySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
-    final cartQuantity = ref.watch(cartProductQuantityProvider(productId));
+    final cartQuantity = ref.watch(
+      cartNotifierProvider.select(
+        (s) => cartQuantityForProduct(s.items, productId),
+      ),
+    );
     final localQuantity = ref.watch(
       productDetailNotifierProvider.select((s) => s.quantity),
     );

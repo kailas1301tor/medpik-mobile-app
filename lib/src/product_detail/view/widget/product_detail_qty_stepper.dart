@@ -1,8 +1,8 @@
 // lib/src/product_detail/view/widget/product_detail_qty_stepper.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
 
 class ProductDetailQtyStepper extends StatelessWidget {
   const ProductDetailQtyStepper({

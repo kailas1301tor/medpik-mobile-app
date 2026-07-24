@@ -1,4 +1,4 @@
-# Google Maps / Places — quotas & key restrictions
+# Google Maps / Geocoding — quotas & key restrictions
 
 Use this checklist when enabling location pick in production.
 
@@ -6,41 +6,59 @@ Use this checklist when enabling location pick in production.
 
 - Maps SDK for Android
 - Maps SDK for iOS
-- Places API (Autocomplete + Place Details)
 - Geocoding API
 
-Do **not** enable Distance Matrix, Roads, or Static Maps for this flow.
+Do **not** enable Places API, Distance Matrix, Roads, or Static Maps for this flow.
 
-## Key strategy
+## Unified secrets setup
 
-Never commit real API keys. Inject them via local/CI config:
+All keys live in one gitignored file. A bootstrap script fans them out to platform files.
 
-1. **Android Maps SDK key** — `AndroidManifest` uses `${GOOGLE_MAPS_API_KEY}`
-   - Set in gitignored `android/local.properties`: `GOOGLE_MAPS_API_KEY=...`
-   - Or export env var `GOOGLE_MAPS_API_KEY` for CI
-   - The Android Gradle build **fails** if this key is missing/blank (avoids shipping an empty Maps SDK key)
-   - Restrict to: Maps SDK for Android + app package / SHA-1
-2. **iOS Maps SDK key** — `AppDelegate` reads `GMSApiKey` from Info.plist
-   - Copy `ios/Flutter/Secrets.xcconfig.example` → `Secrets.xcconfig` (gitignored)
-   - Set `GOOGLE_MAPS_API_KEY=...`
-   - Restrict to: Maps SDK for iOS + bundle ID
-3. **Dart HTTP key** (Places Autocomplete / Details + Geocoding)
-   - Prefer `--dart-define=GOOGLE_MAPS_API_KEY=...` (see `LocationConfig.googleMapsApiKey`)
-   - Restrict to: Places API + Geocoding API
-   - Prefer IP / API restriction; rotate if the key was ever unrestricted in source
+1. Copy the template:
+   ```bash
+   cp config/secrets.example.json config/secrets.local.json
+   ```
+2. Fill in your keys in `config/secrets.local.json`:
+   ```json
+   {
+     "GOOGLE_MAPS_ANDROID_KEY": "android_maps_sdk_key",
+     "GOOGLE_MAPS_IOS_KEY": "ios_maps_sdk_key",
+     "GOOGLE_GEOCODING_KEY": "geocoding_api_key"
+   }
+   ```
+3. Run bootstrap:
+   ```bash
+   chmod +x tool/bootstrap_secrets.sh
+   ./tool/bootstrap_secrets.sh
+   ```
+4. Run the app:
+   ```bash
+   flutter run --dart-define-from-file=config/dart_defines.json
+   ```
 
-Never ship an unrestricted key. Treat any key embedded in the binary as public.
-If a key was previously committed, rotate it in Google Cloud Console.
+Or use the VS Code / Cursor launch config **medpik** (`.vscode/launch.json`), which passes `dartDefineFile` automatically.
+
+### What each key is for
+
+| Key in `secrets.local.json` | Written to | Google restriction |
+|-----------------------------|------------|-------------------|
+| `GOOGLE_MAPS_ANDROID_KEY` | `android/local.properties` | Maps SDK for Android + package / SHA-1 |
+| `GOOGLE_MAPS_IOS_KEY` | `ios/Flutter/Secrets.xcconfig` | Maps SDK for iOS + bundle ID |
+| `GOOGLE_GEOCODING_KEY` | `config/dart_defines.json` | Geocoding API only |
+
+Never commit `config/secrets.local.json` or `config/dart_defines.json`.
 
 ## Quotas & billing alerts
 
 - Set budget alerts on the Google Cloud billing account.
-- Cap daily quotas for Places Autocomplete, Place Details, and Geocoding if abuse is a concern.
-- This app already reduces cost with:
-  - Places **session tokens** (Autocomplete → Details = one session)
-  - 400ms autocomplete debounce / min 3 characters
-  - Reverse geocode only on `cameraIdle` (500ms debounce) and skip moves &lt; 30m
-  - In-memory LRU reverse-geocode cache (~11m grid)
+- Cap daily quotas for Geocoding if abuse is a concern.
+- This app reduces cost with:
+  - Forward geocode only on explicit search submit (no live autocomplete)
+  - Forward geocode uses `country:in` + `region=in` bias
+  - Reverse geocode only on `cameraIdle` (700ms debounce) and skip moves &lt; 50m
+  - Skip reverse-geocode HTTP when pin is outside Kerala bbox **and** outside hub radius
+  - In-memory LRU geocode cache (~111m grid + query cache, 96 entries)
+  - Plus-code stripping for cleaner display (no extra API calls)
   - **Local Haversine** serviceability (no Distance Matrix)
   - Saved addresses store lat/lng so list/cart/home never re-call Google
 
@@ -48,7 +66,32 @@ If a key was previously committed, rotate it in Google Cloud Console.
 
 Configured in `LocationConfig`:
 
-- Hub: Mumbai `19.0760, 72.8777`
-- Radius: `25` km
+- Default map center: Thrissur, Kerala `10.5241, 76.2121`
+- Hub (Haversine fallback): Thrissur `10.5241, 76.2121`
+- Radius fallback: `150` km (before geocode returns state)
+- State match: `Kerala` (from reverse/forward geocode — primary check)
 
-Out-of-radius picks show `Strings.locationNotServiceable` and block confirm.
+Out-of-area picks show `Strings.locationNotServiceable` and block confirm.
+
+## Blank map tiles (search works, map is beige)
+
+Geocoding and **Maps SDK** use different keys. If the address card updates but tiles are empty:
+
+1. **Enable** [Maps SDK for Android](https://console.cloud.google.com/apis/library/maps-android-backend.googleapis.com) on the project that owns `GOOGLE_MAPS_ANDROID_KEY`.
+2. **Enable billing** on the Google Cloud project (required for map tiles).
+3. **Restrict the Android key** (Credentials → your Android key):
+   - Application restriction: **Android apps**
+   - Package name: `com.medpik`
+   - SHA-1 (debug): run `./tool/print_android_sha1.sh` — see output for your machine's fingerprint
+   - API restriction: **Maps SDK for Android** only
+4. **Rebuild** after key changes (hot reload is not enough):
+   ```bash
+   flutter clean
+   flutter run --dart-define-from-file=config/dart_defines.json
+   ```
+5. **Verify logs** (optional):
+   ```bash
+   adb logcat | grep -iE "Authorization failure|Google Maps Android|DEVELOPER_ERROR"
+   ```
+
+**Quick test:** Temporarily set the Android key to unrestricted. If tiles load, fix package name + SHA-1 restrictions and re-apply.

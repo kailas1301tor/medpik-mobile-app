@@ -2,19 +2,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/product_detail/notifier/product_detail_notifier.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_content_widget.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_floating_action.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_shimmer_widget.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_sticky_footer.dart';
-import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
-import 'package:tsuite/utils/common_widgets/common_wishlist_button.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/product_detail/notifier/product_detail_notifier.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_content_widget.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_floating_action.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_hero_image.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_shimmer_widget.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_sticky_footer.dart';
+import 'package:medpik/utils/common_widgets/cart_mutation_overlay.dart';
+import 'package:medpik/utils/common_widgets/common_empty_state.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/common_switch_state.dart';
+import 'package:medpik/utils/common_widgets/common_wishlist_button.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 import 'package:tuple/tuple.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
@@ -69,30 +71,53 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         child: detail == null
             ? const SizedBox.shrink()
             : Stack(
+                fit: StackFit.expand,
                 children: [
-                  ProductDetailContentWidget(detail: detail),
                   Positioned(
-                    top: topInset + 8.h,
-                    left: 16.w,
-                    right: 16.w,
-                    child: Row(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: ProductDetailHeroImage.heightFor(context),
+                    child: RepaintBoundary(
+                      child: ProductDetailHeroImage(
+                        key: ValueKey(detail.product.imageUrl),
+                        imageUrl: detail.product.imageUrl,
+                      ),
+                    ),
+                  ),
+                  CartMutationOverlay(
+                    child: Stack(
+                      fit: StackFit.expand,
                       children: [
-                        ProductDetailFloatingAction(
-                          icon: Icons.arrow_back_ios_new_rounded,
-                          onTap: () => Navigator.of(context).pop(),
+                        ProductDetailContentWidget(
+                          detail: detail,
+                          scrollController: notifier.scrollController,
                         ),
-                        const Spacer(),
-                        _ProductDetailWishlistButton(
-                          onToggle: notifier.toggleWishlist,
+                        Positioned(
+                          top: topInset + 8.h,
+                          left: 16.w,
+                          right: 16.w,
+                          child: Row(
+                            children: [
+                              ProductDetailFloatingAction(
+                                icon: Icons.arrow_back_ios_new_rounded,
+                                onTap: () => Navigator.of(context).pop(),
+                              ),
+                              const Spacer(),
+                              _ProductDetailWishlistButton(
+                                onToggle: notifier.toggleWishlist,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: ProductDetailStickyFooter(),
                         ),
                       ],
                     ),
-                  ),
-                  const Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: ProductDetailStickyFooter(),
                   ),
                 ],
               ),

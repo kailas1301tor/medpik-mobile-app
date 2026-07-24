@@ -1,6 +1,6 @@
 // lib/src/product_detail/view/widget/product_detail_floating_action.dart
 import 'package:flutter/material.dart';
-import 'package:tsuite/utils/common_widgets/common_back_button.dart';
+import 'package:medpik/utils/common_widgets/common_back_button.dart';
 
 class ProductDetailFloatingAction extends StatelessWidget {
   const ProductDetailFloatingAction({

@@ -1,23 +1,21 @@
 // lib/services/repo_di.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/data/remote/network_services.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/src/address/repo/address_repository.dart';
-import 'package:tsuite/src/auth/repo/auth_repo.dart';
-import 'package:tsuite/src/cart/repo/cart_repository.dart';
-import 'package:tsuite/src/checkout/repo/checkout_repository.dart';
-import 'package:tsuite/src/home/repo/home_repository.dart';
-import 'package:tsuite/src/orders/repo/orders_repository.dart';
-import 'package:tsuite/src/orders/repo/orders_repository_mock.dart';
-import 'package:tsuite/src/notifications/repo/notifications_repository.dart';
-import 'package:tsuite/src/notifications/repo/notifications_repository_mock.dart';
-import 'package:tsuite/src/prescription/repo/customer_products_repository.dart';
-import 'package:tsuite/src/prescription/repo/prescription_repository.dart';
-import 'package:tsuite/src/product_detail/repo/product_detail_repository.dart';
-import 'package:tsuite/src/search/repo/search_repository.dart';
-import 'package:tsuite/src/search/repo/search_repository_mock.dart';
-import 'package:tsuite/src/wishlist/repo/wishlist_repository.dart';
+import 'package:medpik/data/remote/network_services.dart';
+import 'package:medpik/src/address/repo/address_repository.dart';
+import 'package:medpik/src/auth/repo/auth_repo.dart';
+import 'package:medpik/src/cart/repo/cart_repository.dart';
+import 'package:medpik/src/checkout/repo/checkout_repository.dart';
+import 'package:medpik/src/device/repo/device_repository.dart';
+import 'package:medpik/src/emergency/repo/emergency_repository.dart';
+import 'package:medpik/src/home/repo/home_repository.dart';
+import 'package:medpik/src/orders/repo/orders_repository.dart';
+import 'package:medpik/src/notifications/repo/notifications_repository.dart';
+import 'package:medpik/src/prescription/repo/customer_products_repository.dart';
+import 'package:medpik/src/prescription/repo/prescription_repository.dart';
+import 'package:medpik/src/product_detail/repo/product_detail_repository.dart';
+import 'package:medpik/src/search/repo/search_repository.dart';
+import 'package:medpik/src/wishlist/repo/wishlist_repository.dart';
 
 part 'repo_di.g.dart';
 
@@ -35,9 +33,6 @@ HomeRepo homeRepository(Ref ref) {
 
 @Riverpod(keepAlive: false)
 SearchRepo searchRepository(Ref ref) {
-  if (AppConstants.useMockData) {
-    return SearchRepoMock();
-  }
   final services = ref.watch(networkServicesProvider);
   return SearchRepoImpl(services);
 }
@@ -80,18 +75,12 @@ CheckoutRepo checkoutRepository(Ref ref) {
 
 @Riverpod(keepAlive: false)
 OrdersRepo ordersRepository(Ref ref) {
-  if (AppConstants.useMockData) {
-    return OrdersRepoMock();
-  }
   final services = ref.watch(networkServicesProvider);
   return OrdersRepoImpl(services);
 }
 
 @Riverpod(keepAlive: false)
 NotificationsRepo notificationsRepository(Ref ref) {
-  if (AppConstants.useMockData) {
-    return NotificationsRepoMock();
-  }
   final services = ref.watch(networkServicesProvider);
   return NotificationsRepoImpl(services);
 }
@@ -100,4 +89,16 @@ NotificationsRepo notificationsRepository(Ref ref) {
 WishlistRepo wishlistRepository(Ref ref) {
   final services = ref.watch(networkServicesProvider);
   return WishlistRepoImpl(services);
+}
+
+@Riverpod(keepAlive: true)
+DeviceRepo deviceRepository(Ref ref) {
+  final services = ref.watch(networkServicesProvider);
+  return DeviceRepoImpl(services);
+}
+
+@Riverpod(keepAlive: false)
+EmergencyRepo emergencyRepository(Ref ref) {
+  final services = ref.watch(networkServicesProvider);
+  return EmergencyRepoImpl(services);
 }

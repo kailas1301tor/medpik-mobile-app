@@ -2,17 +2,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/home/model/home_model.dart';
-import 'package:tsuite/src/home/notifier/home_notifier.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/providers/customer_general_providers.dart';
+import 'package:medpik/data/models/category_model.dart';
+import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 import 'package:tuple/tuple.dart';
 
-/// Horizontal category filter chips backed by [homeNotifierProvider].
+/// Horizontal category filter chips backed by customer general data.
 class CatalogCategoryChips extends ConsumerWidget {
   const CatalogCategoryChips({
     super.key,
@@ -25,13 +25,16 @@ class CatalogCategoryChips extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final homeData = ref.watch(
-      homeNotifierProvider.select(
-        (s) => Tuple2(s.loaderState, s.data?.categories ?? const <CategoryModel>[]),
+    final categoryData = ref.watch(
+      customerGeneralNotifierProvider.select(
+        (s) => Tuple2(
+          s.loaderState,
+          s.data?.categories ?? const <CategoryModel>[],
+        ),
       ),
     );
-    final loaderState = homeData.item1;
-    final categories = homeData.item2;
+    final loaderState = categoryData.item1;
+    final categories = categoryData.item2;
 
     if (loaderState == LoaderState.loading && categories.isEmpty) {
       return const _CategoryChipsShimmer();
@@ -46,6 +49,8 @@ class CatalogCategoryChips extends ConsumerWidget {
       child: ListView.separated(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         scrollDirection: Axis.horizontal,
+        addAutomaticKeepAlives: false,
+        addRepaintBoundaries: true,
         itemCount: categories.length + 1,
         separatorBuilder: (_, __) => 8.horizontalSpace,
         itemBuilder: (context, index) {

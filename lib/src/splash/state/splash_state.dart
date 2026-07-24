@@ -1,6 +1,6 @@
 // lib/src/splash/state/splash_state.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:tsuite/res/enums/enums.dart';
+import 'package:medpik/res/enums/enums.dart';
 
 part 'splash_state.freezed.dart';
 

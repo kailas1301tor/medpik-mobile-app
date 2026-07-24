@@ -4,6 +4,7 @@ class MedpikImageAssets {
 
   static const String _base = 'assets/images/png';
 
+  static const String appLogo = '$_base/app_logo_large.png';
   static const String primaryBackground = '$_base/primary_background.png';
   static const String prescriptionCardBg =
       '$_base/Messhu Flow (Speed_ 0.63).png';
@@ -16,4 +17,6 @@ class MedpikImageAssets {
   static const String offerGradientTeal =
       '$_base/Messhu Flow (Speed_ 0.22).png';
   static const String offerGradientMint = '$_base/Background 3.png';
+  static const String productPlaceholder = '$_base/product_placeholder.jpg';
+  static const String categoryPlaceholder = '$_base/category placeholder.jpg';
 }

@@ -2,13 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/prescription_selected_product_model.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_product_quantity_sheet.dart';
-import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
-import 'package:tsuite/utils/common_widgets/common_delete_icon.dart';
+import 'package:medpik/data/models/prescription_selected_product_model.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/prescription/notifier/prescription_notifier.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_product_quantity_sheet.dart';
+import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
+import 'package:medpik/utils/common_widgets/common_delete_icon.dart';
 
 class PrescriptionSelectedProductsList extends ConsumerWidget {
   const PrescriptionSelectedProductsList({super.key});
@@ -86,8 +86,6 @@ class _SelectedProductCard extends StatelessWidget {
                   imageUrl: product.imageUrl,
                   width: imageSize,
                   height: imageSize,
-                  memCacheWidth: 100,
-                  memCacheHeight: 100,
                 ),
               ),
               12.horizontalSpace,

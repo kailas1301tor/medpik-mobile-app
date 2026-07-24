@@ -1,14 +1,14 @@
 // lib/src/checkout/view/order_confirmation_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/src/checkout/model/order_confirmation_args.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/common_widgets/common_success_lottie.dart';
-import 'package:tsuite/utils/common_widgets/primary_button.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/data/models/order_confirmation_args.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/common_success_lottie.dart';
+import 'package:medpik/utils/common_widgets/primary_button.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 
 class OrderConfirmationScreen extends StatelessWidget {
   const OrderConfirmationScreen({super.key, required this.args});
@@ -26,7 +26,8 @@ class OrderConfirmationScreen extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(16.w),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const CommonSuccessLottie(),
@@ -47,30 +48,12 @@ class OrderConfirmationScreen extends StatelessWidget {
                 '${Strings.orderIdLabel}: ${args.orderId}',
                 style: FontPalette.base500(16, color: colors.secondaryText),
               ),
-              40.verticalSpace,
-              SizedBox(
-                width: double.infinity,
-                child: PrimaryButton(
-                  text: Strings.trackOrder,
-                  onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      RouteConstants.routeTrackingScreen,
-                      (route) =>
-                          route.settings.name == RouteConstants.mainScreen,
-                      arguments: args.orderId,
-                    );
-                  },
-                ),
-              ),
-              12.verticalSpace,
+              const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: PrimaryButton(
                   text: Strings.continueShopping,
-                  height: 44.h,
-                  backgroundColor: colors.surface,
-                  textColor: colors.primary,
+                  height: 48.h,
                   onPressed: () {
                     Navigator.pushNamedAndRemoveUntil(
                       context,

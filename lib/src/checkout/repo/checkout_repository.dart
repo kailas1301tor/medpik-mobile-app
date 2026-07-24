@@ -1,10 +1,10 @@
 // lib/src/checkout/repo/checkout_repository.dart
 import 'package:either_dart/either.dart';
-import 'package:tsuite/data/remote/network_base_services.dart';
-import 'package:tsuite/data/remote/network_services.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/src/checkout/model/cart_order_response_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/remote/network_base_services.dart';
+import 'package:medpik/data/remote/network_services.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/src/checkout/model/cart_order_response_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 abstract class CheckoutRepo {
   Future<Either<ResponseError, CartOrderResponse>> placeOrder({

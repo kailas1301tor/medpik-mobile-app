@@ -1,5 +1,5 @@
 // lib/src/checkout/model/cart_order_response_model.dart
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class CartOrderResponse {
   const CartOrderResponse({

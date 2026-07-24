@@ -3,25 +3,93 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tsuite/res/constants/medpik_svg_assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/services/cart_facade_service.dart';
-import 'package:tsuite/src/main/notifier/main_shell_notifier.dart';
-import 'package:tsuite/src/product_detail/notifier/product_detail_notifier.dart';
-import 'package:tsuite/utils/common_widgets/common_sticky_bottom_bar.dart';
-import 'package:tsuite/utils/common_widgets/primary_button.dart';
-import 'package:tsuite/utils/extensions/context_extensions.dart';
-import 'package:tsuite/utils/extensions/num_extensions.dart';
+import 'package:medpik/res/constants/medpik_svg_assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/providers/cart_providers.dart';
+import 'package:medpik/providers/shell_providers.dart';
+import 'package:medpik/src/product_detail/notifier/product_detail_notifier.dart';
+import 'package:medpik/utils/helpers/cart_quantity_helper.dart';
+import 'package:medpik/utils/common_widgets/common_sticky_bottom_bar.dart';
+import 'package:medpik/utils/common_widgets/primary_button.dart';
+import 'package:medpik/utils/extensions/context_extensions.dart';
+import 'package:medpik/utils/extensions/num_extensions.dart';
 import 'package:tuple/tuple.dart';
 
-class ProductDetailStickyFooter extends ConsumerWidget {
+class ProductDetailStickyFooter extends ConsumerStatefulWidget {
   const ProductDetailStickyFooter({super.key});
 
+  @override
+  ConsumerState<ProductDetailStickyFooter> createState() =>
+      _ProductDetailStickyFooterState();
+}
+
+class _ProductDetailStickyFooterState extends ConsumerState<ProductDetailStickyFooter>
+    with SingleTickerProviderStateMixin {
   static const int _cartTabIndex = 2;
+  static const Duration _morphDuration = Duration(milliseconds: 340);
+
+  late final AnimationController _morphController;
+  late final Animation<double> _morph;
+  bool? _wasInCart;
+  bool _wasMutating = false;
+  bool _morphInitialized = false;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    _morphController = AnimationController(
+      vsync: this,
+      duration: _morphDuration,
+    );
+    _morph = CurvedAnimation(
+      parent: _morphController,
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    _morphController.dispose();
+    super.dispose();
+  }
+
+  void _syncMorphAnimation({
+    required bool isInCart,
+    required bool isCartMutating,
+  }) {
+    if (!_morphInitialized) {
+      _morphInitialized = true;
+      _morphController.value = isInCart ? 1 : 0;
+      _wasInCart = isInCart;
+      return;
+    }
+
+    if (isCartMutating) {
+      _wasMutating = true;
+      return;
+    }
+
+    if (_wasMutating) {
+      _wasMutating = false;
+      if (isInCart) {
+        _morphController.forward(from: _morphController.value);
+      } else {
+        _morphController.reverse(from: _morphController.value);
+      }
+    } else if (_wasInCart != isInCart) {
+      if (isInCart) {
+        _morphController.forward(from: _morphController.value);
+      } else {
+        _morphController.reverse(from: _morphController.value);
+      }
+    }
+
+    _wasInCart = isInCart;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final detailData = ref.watch(
       productDetailNotifierProvider.select(
         (s) => Tuple3(
@@ -36,38 +104,78 @@ class ProductDetailStickyFooter extends ConsumerWidget {
     final localQuantity = detailData.item3;
     final cartQuantity = productId == null
         ? 0
-        : ref.watch(cartProductQuantityProvider(productId));
+        : ref.watch(
+            cartNotifierProvider.select(
+              (s) => cartQuantityForProduct(s.items, productId),
+            ),
+          );
     final isInCart = cartQuantity > 0;
+    final isCartMutating = ref.watch(
+      cartNotifierProvider.select((s) => s.isMutating),
+    );
+    _syncMorphAnimation(isInCart: isInCart, isCartMutating: isCartMutating);
+
     final notifier = ref.read(productDetailNotifierProvider.notifier);
-
-    if (isInCart) {
-      return CommonStickyBottomBar(
-        child: PrimaryButton(
-          text: Strings.goToCart,
-          height: 48,
-          onPressed: () => _goToCart(context, ref),
-        ),
-      );
-    }
-
     final lineTotal = (unitPrice ?? 0) * localQuantity;
     final ctaLabel = unitPrice != null && unitPrice > 0
         ? '${Strings.addToCart} · ${lineTotal.toCurrency(decimalDigits: 0)}'
         : Strings.addToCart;
 
     return CommonStickyBottomBar(
-      child: Row(
-        children: [
-          Expanded(
-            child: PrimaryButton(
-              text: ctaLabel,
-              height: 48,
-              onPressed: notifier.addToCart,
-            ),
-          ),
-          12.horizontalSpace,
-          _GoToCartButton(onTap: () => _goToCart(context, ref)),
-        ],
+      child: AnimatedBuilder(
+        animation: _morph,
+        builder: (context, _) {
+          final morph = _morph.value;
+
+          return Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 48.h,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      IgnorePointer(
+                        ignoring: morph > 0.5,
+                        child: Opacity(
+                          opacity: 1 - morph,
+                          child: PrimaryButton(
+                            text: ctaLabel,
+                            height: 48,
+                            onPressed: notifier.addToCart,
+                          ),
+                        ),
+                      ),
+                      IgnorePointer(
+                        ignoring: morph < 0.5,
+                        child: Opacity(
+                          opacity: morph,
+                          child: PrimaryButton(
+                            text: Strings.goToCart,
+                            height: 48,
+                            onPressed: () => _goToCart(context, ref),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              ClipRect(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  widthFactor: 1 - morph,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 12.w),
+                    child: _GoToCartButton(
+                      onTap: () => _goToCart(context, ref),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

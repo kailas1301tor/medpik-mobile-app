@@ -1,16 +1,24 @@
 // lib/src/cart/repo/cart_repository.dart
 import 'package:either_dart/either.dart';
-import 'package:tsuite/data/remote/network_base_services.dart';
-import 'package:tsuite/data/remote/network_services.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/src/cart/model/cart_response_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/remote/network_base_services.dart';
+import 'package:medpik/data/remote/network_services.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/src/cart/model/cart_response_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 abstract class CartRepo {
   Future<Either<ResponseError, CartResponse>> getCart();
 
+  /// POST add — `quantity` must be > 0 (additive for existing lines).
   Future<Either<ResponseError, void>> addToCart({
     required int productId,
+    required int quantity,
+  });
+
+  /// Remove line then re-add at [quantity] — API has no decrement delta.
+  Future<Either<ResponseError, void>> setCartLineQuantity({
+    required int productId,
+    required int lineId,
     required int quantity,
   });
 
@@ -51,6 +59,23 @@ class CartRepoImpl implements CartRepo {
         .thenRight(_networkServices.checkHttpStatus)
         .thenRight(_networkServices.parseJson)
         .mapRight((_) {});
+  }
+
+  @override
+  Future<Either<ResponseError, void>> setCartLineQuantity({
+    required int productId,
+    required int lineId,
+    required int quantity,
+  }) async {
+    if (quantity <= 0) {
+      return removeCartItems(itemIds: [lineId]);
+    }
+
+    final removeResult = await removeCartItems(itemIds: [lineId]);
+    return removeResult.fold(
+      (error) => Left(error),
+      (_) => addToCart(productId: productId, quantity: quantity),
+    );
   }
 
   @override

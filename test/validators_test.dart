@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/utils/helpers/validators.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/utils/helpers/validators.dart';
 
 void main() {
   group('Validators Unit Tests', () {

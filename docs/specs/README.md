@@ -13,10 +13,10 @@ Spec-driven development artifacts for the Medpik user mobile app.
 
 ## Structure
 
-- `00-foundation.md` — architecture, navigation, entities, mock strategy
+- `00-foundation.md` — architecture, navigation, entities, API layer
 - `flows/` — end-to-end user journeys
 - `screens/` — per-screen specs (16 total)
-- `api-contracts/` — mock/real API contracts
+- `api-contracts/` — API contracts
 
 ## Engineering Standard
 

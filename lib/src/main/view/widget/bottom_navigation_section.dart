@@ -3,22 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tsuite/res/constants/medpik_svg_assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/services/cart_facade_service.dart';
-import 'package:tsuite/src/main/notifier/main_shell_notifier.dart';
+import 'package:medpik/res/constants/medpik_svg_assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/providers/cart_providers.dart';
+import 'package:medpik/providers/shell_providers.dart';
+import 'package:medpik/utils/helpers/shell_insets_helper.dart' as shell_insets;
 
 class BottomNavigationSection extends StatelessWidget {
   const BottomNavigationSection({super.key});
 
   /// Clearance below a docked tab CTA.
-  ///
-  /// With [Scaffold.extendBody], [MediaQuery.padding] already includes the
-  /// floating bottom-nav height — do not add the pill height again.
   static double dockedFooterInset(BuildContext context, {double gap = 8}) {
-    return MediaQuery.paddingOf(context).bottom + gap.h;
+    return shell_insets.dockedFooterInset(context, gap: gap);
   }
 
   @override
@@ -92,7 +90,11 @@ class _CartBottomNavTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cartCount = ref.watch(cartTotalItemCountProvider);
+    final cartCount = ref.watch(
+      cartNotifierProvider.select(
+        (s) => s.items.fold<int>(0, (sum, item) => sum + item.quantity),
+      ),
+    );
 
     return BottomNavTile(
       index: 2,

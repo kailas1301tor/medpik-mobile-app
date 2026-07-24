@@ -1,8 +1,8 @@
-// /Users/wac/Documents/wac projects/tsuite/lib/utils/common_widgets/common_shimmer_box.dart
+// /Users/wac/Documents/tortilon/medpik/lib/utils/common_widgets/common_shimmer_box.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/color_palette.dart';
 
 class CommonShimmerBox extends StatelessWidget {
   const CommonShimmerBox({

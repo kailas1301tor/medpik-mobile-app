@@ -2,7 +2,7 @@
 
 ## App Identity
 
-- Package: `tsuite`
+- Package: `medpik`
 - Display name: `medpik` via `Strings.appName`
 
 ## Navigation
@@ -34,19 +34,17 @@ OTP → suspended → blocked error, no entry
 - Address: id, label, lines, city, state, pincode, isDefault
 - Product: id, name, category, price, imageUrl, requiresPrescription
 - CartItem: product ref, quantity, lineTotal
-- PrescriptionDraft: file, notes
+- PrescriptionDraft: in-memory upload/checkout state (notifier); order placed via `POST /api/orders` multipart
 - Order: id, items, amount, status, address, timestamps
 
 ## Order Statuses
 
 placed, confirmed, packed, outForDelivery, delivered, cancelled
 
-## Mock Strategy
+## API Layer
 
-- `AppConstants.useMockData = true` switches repo DI to mock implementations
-- All mocks return `Either<ResponseError, T>`
-- Test OTP: `123456`
-- Suspended test phone: `9999999999`
+- All repositories use live API implementations via `repo_di.dart`
+- Repositories return `Either<ResponseError, T>`
 
 ## AGENTS.md Checklist (per screen)
 

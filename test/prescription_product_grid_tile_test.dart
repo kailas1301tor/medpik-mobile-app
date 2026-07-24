@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/res/styles/app_theme.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_product_grid_tile.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/res/styles/app_theme.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_product_grid_tile.dart';
 
 void main() {
   testWidgets('PrescriptionProductGridTile uses dark theme card colors', (

@@ -1,12 +1,12 @@
 // lib/src/home/view/widget/home_hero_header.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/medpik_image_assets.dart';
-import 'package:tsuite/res/constants/medpik_svg_assets.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/home/view/widget/home_header_shared.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/res/constants/medpik_svg_assets.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/home/view/widget/home_header_shared.dart';
+import 'package:medpik/utils/helpers/pre_cache_images.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 
 class HomeHeroHeader extends StatelessWidget {
   const HomeHeroHeader({
@@ -38,10 +38,11 @@ class HomeHeroHeader extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              MedpikImageAssets.primaryBackground,
+            Image(
+              image: PreCacheImages.primaryBackground.image,
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
+              gaplessPlayback: true,
             ),
             DecoratedBox(
               decoration: BoxDecoration(

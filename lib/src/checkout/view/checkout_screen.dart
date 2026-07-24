@@ -2,26 +2,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/address/model/address_book_args.dart';
-import 'package:tsuite/src/cart/notifier/cart_notifier.dart';
-import 'package:tsuite/src/cart/view/widget/cart_pricing_banner.dart';
-import 'package:tsuite/src/checkout/model/order_confirmation_args.dart';
-import 'package:tsuite/services/cart_facade_service.dart';
-import 'package:tsuite/src/checkout/notifier/checkout_notifier.dart';
-import 'package:tsuite/src/checkout/view/widget/checkout_address_card.dart';
-import 'package:tsuite/src/checkout/view/widget/checkout_bill_summary_section.dart';
-import 'package:tsuite/src/checkout/view/widget/checkout_order_summary.dart';
-import 'package:tsuite/src/checkout/view/widget/checkout_pharmacist_instructions_card.dart';
-import 'package:tsuite/src/checkout/view/widget/checkout_place_order_footer.dart';
-import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
-import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
-import 'package:tsuite/src/checkout/view/widget/checkout_shimmer_widget.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/data/models/address_book_args.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/data/models/order_confirmation_args.dart';
+import 'package:medpik/providers/cart_providers.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/checkout/notifier/checkout_notifier.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_address_card.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_bill_summary_section.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_order_summary.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_pharmacist_instructions_card.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_place_order_footer.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_shimmer_widget.dart';
+import 'package:medpik/utils/common_widgets/cart_pricing_banner.dart';
+import 'package:medpik/utils/common_widgets/common_app_bar.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/common_switch_state.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 import 'package:tuple/tuple.dart';
 
 class CheckoutScreen extends ConsumerWidget {
@@ -44,81 +43,61 @@ class CheckoutScreen extends ConsumerWidget {
     final errorMessage = checkoutData.item2;
     final address = checkoutData.item3;
     final isPlacingOrder = checkoutData.item4;
-    final cartItems = ref.watch(cartItemsProvider);
-    final isCartMutating = ref.watch(
-      cartNotifierProvider.select((s) => s.isMutating),
+    final cartItems = ref.watch(
+      cartNotifierProvider.select((s) => s.items),
     );
     final notifier = ref.read(checkoutNotifierProvider.notifier);
-    final itemCount = cartItems.fold<int>(0, (sum, item) => sum + item.quantity);
-
-    if (loaderState == LoaderState.loading) {
-      return CommonScaffold(
-        appBar: const CommonAppBar(title: Strings.medicineCartCheckoutTitle),
-        backgroundColor: colors.background,
-        safeAreaBottom: false,
-        body: const CheckoutShimmerWidget(),
-      );
-    }
-
-    if (loaderState == LoaderState.error ||
-        loaderState == LoaderState.noData) {
-      return CommonScaffold(
-        appBar: const CommonAppBar(title: Strings.medicineCartCheckoutTitle),
-        body: CommonEmptyState(
-          title: Strings.errorTitle,
-          message: errorMessage ?? Strings.cartEmptyMessage,
-          buttonText: Strings.goBackButton,
-          onPressed: () => Navigator.pop(context),
-        ),
-      );
-    }
-
-    if (loaderState == LoaderState.networkError ||
-        loaderState == LoaderState.serverError) {
-      return CommonScaffold(
-        appBar: const CommonAppBar(title: Strings.medicineCartCheckoutTitle),
-        body: CommonEmptyState(
-          title: Strings.errorTitle,
-          message: errorMessage ?? Strings.errorDescription,
-          buttonText: Strings.refresh,
-          onPressed: notifier.prepareCheckout,
-        ),
-      );
-    }
+    final itemCount =
+        cartItems.fold<int>(0, (sum, item) => sum + item.quantity);
 
     return CommonScaffold(
       appBar: const CommonAppBar(title: Strings.medicineCartCheckoutTitle),
       backgroundColor: colors.background,
       safeAreaBottom: false,
-      body: IgnorePointer(
-        ignoring: isPlacingOrder || isCartMutating,
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 20.h),
-                children: [
-                  const CartPricingBanner(),
-                  20.verticalSpace,
-                  const CheckoutPharmacistInstructionsCard(),
-                  20.verticalSpace,
-                  CheckoutAddressCard(
-                    address: address,
-                    onChangeAddress: () => _changeAddress(context, ref, notifier),
-                  ),
-                  20.verticalSpace,
-                  CheckoutOrderSummary(cartItems: cartItems),
-                  20.verticalSpace,
-                  CheckoutBillSummarySection(itemCount: itemCount),
-                ],
+      body: CommonSwitchState(
+        loaderState: loaderState,
+        reload: notifier.prepareCheckout,
+        loader: const CheckoutShimmerWidget(),
+        errorMessage: errorMessage,
+        buttonText: loaderState == LoaderState.noData
+            ? Strings.goBackButton
+            : Strings.refresh,
+        customButtonFunction: loaderState == LoaderState.noData
+            ? () => Navigator.pop(context)
+            : notifier.prepareCheckout,
+        emptyScreenTitle: Strings.errorTitle,
+        emptyScreenDescription: errorMessage ?? Strings.cartEmptyMessage,
+        child: IgnorePointer(
+          ignoring: isPlacingOrder,
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 20.h),
+                  children: [
+                    const CartPricingBanner(),
+                    20.verticalSpace,
+                    const CheckoutPharmacistInstructionsCard(),
+                    20.verticalSpace,
+                    CheckoutAddressCard(
+                      address: address,
+                      onChangeAddress: () =>
+                          _changeAddress(context, ref, notifier),
+                    ),
+                    20.verticalSpace,
+                    CheckoutOrderSummary(cartItems: cartItems),
+                    20.verticalSpace,
+                    CheckoutBillSummarySection(itemCount: itemCount),
+                  ],
+                ),
               ),
-            ),
-            CheckoutPlaceOrderFooter(
-              isLoading: isPlacingOrder,
-              isEnabled: address != null && !isCartMutating,
-              onPlaceOrder: () => _placeOrder(context, ref, notifier),
-            ),
-          ],
+              CheckoutPlaceOrderFooter(
+                isLoading: isPlacingOrder,
+                isEnabled: address != null,
+                onPlaceOrder: () => _placeOrder(context, ref, notifier),
+              ),
+            ],
+          ),
         ),
       ),
     );

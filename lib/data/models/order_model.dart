@@ -1,22 +1,33 @@
 // lib/data/models/order_model.dart
 import 'package:intl/intl.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/utils/helpers/order_bill_pdf_loader.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class OrderBillBreakdown {
   const OrderBillBreakdown({
     required this.itemTotal,
     required this.deliveryCharges,
-    required this.packagingCharges,
+    this.packagingCharges = 0,
+    this.tax = 0,
+    this.isSentToCustomer = false,
+    this.totalOverride,
+    this.billPdfUrl,
   });
 
   final double itemTotal;
   final double deliveryCharges;
   final double packagingCharges;
+  final double tax;
+  final bool isSentToCustomer;
+  final double? totalOverride;
+  final String? billPdfUrl;
 
-  double get grandTotal => itemTotal + deliveryCharges + packagingCharges;
+  double get grandTotal =>
+      totalOverride ??
+      (itemTotal + deliveryCharges + packagingCharges + tax);
 
   factory OrderBillBreakdown.fromJson(Map<String, dynamic> json) =>
       OrderBillBreakdown(
@@ -24,24 +35,64 @@ class OrderBillBreakdown {
         deliveryCharges: convertToDouble(json['delivery_charges']),
         packagingCharges: convertToDouble(json['packaging_charges']),
       );
+
+  factory OrderBillBreakdown.fromBillJson(Map<String, dynamic> json) {
+    final total = convertToDouble(json['total']);
+    final billPdfRaw = convertToString(json['bill_pdf']).trim();
+    final resolvedPdfUrl = resolveBillPdfUrl(billPdfRaw);
+    return OrderBillBreakdown(
+      itemTotal: convertToDouble(json['subtotal']),
+      deliveryCharges: convertToDouble(json['delivery_fee']),
+      tax: convertToDouble(json['tax']),
+      isSentToCustomer: convertToBool(json['is_sent_to_customer']),
+      totalOverride: total > 0 ? total : null,
+      billPdfUrl: resolvedPdfUrl.isEmpty ? null : resolvedPdfUrl,
+    );
+  }
 }
 
 class OrderItemModel {
   const OrderItemModel({
     required this.product,
     required this.quantity,
+    this.unitPrice = 0,
+    this.totalPrice = 0,
+    this.status = '',
+    this.expiryDate = '',
+    this.sgst = 0,
+    this.cgst = 0,
   });
 
   final ProductModel product;
   final int quantity;
+  final double unitPrice;
+  final double totalPrice;
+  final String status;
+  final String expiryDate;
+  final double sgst;
+  final double cgst;
 
-  double get lineTotal => product.price * quantity;
+  double get lineTotal =>
+      totalPrice > 0 ? totalPrice : unitPrice * quantity;
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
     final productJson = json['product_detail'] ?? json['product'];
+    final product = ProductModel.fromJson(convertToMap(productJson));
+    final quantity = convertToInt(json['quantity']);
+    final unitPrice = json.containsKey('price')
+        ? convertToDouble(json['price'])
+        : product.price;
+    final totalPrice = convertToDouble(json['total_price']);
+
     return OrderItemModel(
-      product: ProductModel.fromJson(convertToMap(productJson)),
-      quantity: convertToInt(json['quantity']),
+      product: product,
+      quantity: quantity,
+      unitPrice: unitPrice,
+      totalPrice: totalPrice,
+      status: convertToString(json['status']),
+      expiryDate: convertToString(json['expiry_date']),
+      sgst: convertToDouble(json['sgst']),
+      cgst: convertToDouble(json['cgst']),
     );
   }
 }
@@ -68,7 +119,7 @@ class OrderModel {
     this.prescriptionDescription = '',
   });
 
-  /// Numeric (or mock) id used for navigation / detail lookup.
+  /// Id used for navigation / detail lookup.
   final String id;
 
   /// Backend display code (`order_id`). Null/empty → UI shows an em dash.
@@ -97,7 +148,7 @@ class OrderModel {
   final String deliveryInstructions;
   final String prescriptionDescription;
 
-  /// Prefer `order_id`; fall back to legacy/mock non-numeric `id`; else dash token.
+  /// Prefer `order_id`; fall back to legacy non-numeric `id`; else dash token.
   String get displayOrderId {
     final code = orderCode?.trim() ?? '';
     if (code.isNotEmpty) return code;
@@ -121,6 +172,11 @@ class OrderModel {
       };
 
   double get displayGrandTotal => billBreakdown?.grandTotal ?? amount;
+
+  bool get hasBillPdf =>
+      billBreakdown?.billPdfUrl?.trim().isNotEmpty ?? false;
+
+  String? get billPdfUrl => billBreakdown?.billPdfUrl;
 
   List<String> get previewImageUrls {
     final urls = <String>[];
@@ -147,13 +203,21 @@ class OrderModel {
     final addressJson = json['address_detail'] ?? json['address'];
     final address = AddressModel.fromJson(convertToMap(addressJson));
 
+    final billBreakdown = _parseBillBreakdown(json);
+
     final hasTotalAmountKey = json.containsKey('total_amount');
-    final hasKnownAmount = hasTotalAmountKey
-        ? json['total_amount'] != null
-        : true;
-    final amount = hasTotalAmountKey
+    var hasKnownAmount =
+        hasTotalAmountKey ? json['total_amount'] != null : true;
+    var amount = hasTotalAmountKey
         ? convertToDouble(json['total_amount'])
         : convertToDouble(json['amount']);
+
+    if (!hasKnownAmount &&
+        billBreakdown != null &&
+        billBreakdown.grandTotal > 0) {
+      hasKnownAmount = true;
+      amount = billBreakdown.grandTotal;
+    }
 
     final prescriptionUrls = convertToList(json['prescriptions'])
         .map((e) {
@@ -170,6 +234,10 @@ class OrderModel {
         convertToString(json['delivery_instructions']).trim();
     final prescriptionDescription =
         convertToString(json['prescription_description']).trim();
+
+    final customerName = customer.$1.isNotEmpty
+        ? customer.$1
+        : address.label.trim();
 
     return OrderModel(
       id: convertToString(json['id']),
@@ -191,19 +259,25 @@ class OrderModel {
       rejectionReason: convertToString(json['rejection_reason']).isEmpty
           ? null
           : convertToString(json['rejection_reason']),
-      billBreakdown: json['bill_breakdown'] == null
-          ? null
-          : OrderBillBreakdown.fromJson(
-              convertToMap(json['bill_breakdown']),
-            ),
+      billBreakdown: billBreakdown,
       prescriptionImageUrls: prescriptionUrls,
-      customerName: customer.$1,
+      customerName: customerName,
       customerPhone: customer.$2.isNotEmpty
           ? customer.$2
           : address.phoneNumber.trim(),
       deliveryInstructions: deliveryInstructions,
       prescriptionDescription: prescriptionDescription,
     );
+  }
+
+  static OrderBillBreakdown? _parseBillBreakdown(Map<String, dynamic> json) {
+    if (json['bill'] != null) {
+      return OrderBillBreakdown.fromBillJson(convertToMap(json['bill']));
+    }
+    if (json['bill_breakdown'] != null) {
+      return OrderBillBreakdown.fromJson(convertToMap(json['bill_breakdown']));
+    }
+    return null;
   }
 
   static (String, String) _parseCustomerContact(Map<String, dynamic> json) {
@@ -252,14 +326,15 @@ class OrderModel {
       'pending' => OrderStatus.underReview,
       'prescription_uploaded' => OrderStatus.prescriptionUploaded,
       'under_review' => OrderStatus.underReview,
-      'prescription_accepted' => OrderStatus.prescriptionAccepted,
+      'prescription_accepted' || 'accepted' => OrderStatus.prescriptionAccepted,
       'prescription_rejected' => OrderStatus.prescriptionRejected,
       'bill_generated' => OrderStatus.billGenerated,
+      'bill_sent' => OrderStatus.awaitingBillApproval,
       'awaiting_bill_approval' => OrderStatus.awaitingBillApproval,
       'bill_accepted' => OrderStatus.billAccepted,
       'bill_rejected' => OrderStatus.billRejected,
       'payment_pending' => OrderStatus.paymentPending,
-      'payment_completed' => OrderStatus.paymentCompleted,
+      'payment_completed' || 'payment_received' => OrderStatus.paymentCompleted,
       'cash_on_delivery' => OrderStatus.cashOnDelivery,
       'order_confirmed' => OrderStatus.orderConfirmed,
       'preparing_order' => OrderStatus.preparingOrder,

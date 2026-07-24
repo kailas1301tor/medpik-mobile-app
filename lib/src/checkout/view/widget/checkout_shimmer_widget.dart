@@ -1,10 +1,12 @@
 // lib/src/checkout/view/widget/checkout_shimmer_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/cart/view/widget/cart_pricing_banner_shimmer.dart';
-import 'package:tsuite/src/checkout/view/widget/checkout_shimmer_sections.dart';
-import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/utils/common_widgets/cart_pricing_banner_shimmer.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_address_card_shimmer.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_bill_summary_shimmer.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_product_tile_shimmer.dart';
+import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 
 class CheckoutShimmerWidget extends StatelessWidget {
   const CheckoutShimmerWidget({super.key});
@@ -58,10 +60,8 @@ class CheckoutShimmerWidget extends StatelessWidget {
                 borderRadius: 6.r,
               ),
               12.verticalSpace,
-              for (var i = 0; i < 2; i++) ...[
-                if (i > 0) 10.verticalSpace,
-                const CheckoutProductTileShimmer(),
-              ],
+              for (var i = 0; i < 2; i++)
+                CheckoutProductTileShimmer(showDivider: i < 1),
               20.verticalSpace,
               CommonShimmerBox(
                 height: 16.h,

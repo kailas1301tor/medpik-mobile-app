@@ -1,16 +1,17 @@
 // lib/src/wishlist/notifier/wishlist_notifier.dart
 import 'package:either_dart/either.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/src/wishlist/repo/wishlist_repository.dart';
-import 'package:tsuite/src/wishlist/state/wishlist_state.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
-import 'package:tsuite/utils/helpers/api_error_handler.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/wishlist/repo/wishlist_repository.dart';
+import 'package:medpik/src/wishlist/state/wishlist_state.dart';
+import 'package:medpik/utils/common_widgets/custom_toast.dart';
+import 'package:medpik/utils/helpers/api_error_handler.dart';
 
 part 'wishlist_notifier.g.dart';
 
@@ -29,16 +30,20 @@ class WishlistNotifier extends _$WishlistNotifier {
     return state.items.any((item) => item.id == productId);
   }
 
-  Future<void> fetchWishlist() async {
+  Future<void> fetchWishlist({bool showLoader = true}) async {
     if (!AppConstants.hasSession) {
       debugPrint('🟡 WISHLIST: skip fetch — no session');
       state = state.copyWith(
-        loaderState: state.items.isEmpty ? LoaderState.noData : LoaderState.loaded,
+        loaderState: state.items.isEmpty
+            ? LoaderState.noData
+            : LoaderState.loaded,
       );
       return;
     }
 
-    state = state.copyWith(loaderState: LoaderState.loading);
+    if (showLoader) {
+      state = state.copyWith(loaderState: LoaderState.loading);
+    }
 
     return await _wishlistRepo
         .getWishlist()
@@ -46,21 +51,38 @@ class WishlistNotifier extends _$WishlistNotifier {
           (left) {
             final loaderState = handleResponseError(left.key);
             debugPrint('🔴 WISHLIST ERROR: ${left.message}');
-            state = state.copyWith(loaderState: loaderState);
+            if (showLoader || state.items.isEmpty) {
+              state = state.copyWith(loaderState: loaderState);
+            } else {
+              showCustomToast(
+                message: (left.message == null || left.message!.trim().isEmpty)
+                    ? Strings.somethingWentWrong
+                    : left.message!,
+                isSuccess: false,
+              );
+            }
           },
           (right) {
             final products = right.productsDetail;
             debugPrint('🟢 WISHLIST SUCCESS: ${products.length} items');
             state = state.copyWith(
-              loaderState:
-                  products.isEmpty ? LoaderState.noData : LoaderState.loaded,
+              loaderState: products.isEmpty
+                  ? LoaderState.noData
+                  : LoaderState.loaded,
               items: products,
             );
           },
         )
         .catchError((e) {
           debugPrint('🔴 UNEXPECTED WISHLIST ERROR: $e');
-          state = state.copyWith(loaderState: LoaderState.error);
+          if (showLoader || state.items.isEmpty) {
+            state = state.copyWith(loaderState: LoaderState.error);
+          } else {
+            showCustomToast(
+              message: Strings.somethingWentWrong,
+              isSuccess: false,
+            );
+          }
         });
   }
 
@@ -123,11 +145,12 @@ class WishlistNotifier extends _$WishlistNotifier {
                 isSuccess: false,
               );
             },
-            (right) {
+            (right) async {
               debugPrint(
                 '🟢 WISHLIST TOGGLE SUCCESS: ${right.message} '
                 'productId=${product.id}',
               );
+              await fetchWishlist(showLoader: false);
             },
           )
           .catchError((e) {
@@ -182,4 +205,24 @@ class WishlistNotifier extends _$WishlistNotifier {
       loaderState: items.isEmpty ? LoaderState.noData : LoaderState.loaded,
     );
   }
+}
+
+@Riverpod(keepAlive: false)
+void wishlistScreenOpened(Ref ref) {
+  Future.microtask(() {
+    if (!AppConstants.hasSession) return;
+    final state = ref.read(wishlistNotifierProvider);
+    ref
+        .read(wishlistNotifierProvider.notifier)
+        .fetchWishlist(showLoader: state.items.isEmpty);
+  });
+}
+
+@Riverpod(keepAlive: false)
+bool isProductWishlisted(Ref ref, int productId) {
+  return ref.watch(
+    wishlistNotifierProvider.select(
+      (s) => s.items.any((item) => item.id == productId),
+    ),
+  );
 }

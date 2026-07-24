@@ -2,34 +2,52 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/splash/notifier/splash_notifier.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/splash/notifier/splash_notifier.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/helpers/pre_cache_images.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 
-class SplashScreen extends ConsumerWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    PreCacheImages.initializeAllImages();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    PreCacheImages.preCacheImages(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.appColors;
 
-    ref.listen(
-      splashNotifierProvider.select((s) => s.loaderState),
-      (previous, next) {
-        if (next != LoaderState.loaded) return;
-        final hasSession = ref.read(
-          splashNotifierProvider.select((s) => s.hasSession),
-        );
-        final route = hasSession
-            ? RouteConstants.mainScreen
-            : RouteConstants.routeLoginScreen;
-        Navigator.pushNamedAndRemoveUntil(context, route, (route) => false);
-      },
-    );
+    ref.listen(splashNotifierProvider.select((s) => s.loaderState), (
+      previous,
+      next,
+    ) {
+      if (next != LoaderState.loaded) return;
+      final hasSession = ref.read(
+        splashNotifierProvider.select((s) => s.hasSession),
+      );
+      final route = hasSession
+          ? RouteConstants.mainScreen
+          : RouteConstants.routeLoginScreen;
+      Navigator.pushNamedAndRemoveUntil(context, route, (route) => false);
+    });
 
     return CommonScaffold(
       backgroundColor: colors.primary,

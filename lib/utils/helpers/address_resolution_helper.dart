@@ -1,6 +1,6 @@
 // lib/utils/helpers/address_resolution_helper.dart
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
 
 AddressModel? resolveDefaultAddress(List<AddressModel> addresses) {
   for (final address in addresses) {

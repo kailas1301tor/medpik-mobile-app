@@ -1,12 +1,12 @@
 // lib/src/orders/view/widget/order_detail_prescriptions_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
-import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/utils/common_widgets/common_app_bar.dart';
+import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 
 class OrderDetailPrescriptionsSection extends StatelessWidget {
   const OrderDetailPrescriptionsSection({
@@ -49,8 +49,11 @@ class OrderDetailPrescriptionsSection extends StatelessWidget {
                   height: 88.r,
                   borderRadius: 12.r,
                   fit: BoxFit.cover,
-                  memCacheWidth: 176,
-                  memCacheHeight: 176,
+                  errorWidget: CommonNetworkImageIconFallback(
+                    width: 88.r,
+                    height: 88.r,
+                    borderRadius: 12.r,
+                  ),
                 ),
               );
             },
@@ -108,7 +111,12 @@ class _OrderPrescriptionPreviewScreen extends StatelessWidget {
             height: MediaQuery.sizeOf(context).height * 0.7,
             fit: BoxFit.contain,
             borderRadius: 0,
-            memCacheWidth: 1200,
+            memCacheMax: 1200,
+            errorWidget: CommonNetworkImageIconFallback(
+              width: MediaQuery.sizeOf(context).width,
+              height: MediaQuery.sizeOf(context).height * 0.7,
+              borderRadius: 0,
+            ),
           ),
         ),
       ),

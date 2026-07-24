@@ -40,7 +40,7 @@ final homeRepositoryProvider = AutoDisposeProvider<HomeRepo>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef HomeRepositoryRef = AutoDisposeProviderRef<HomeRepo>;
-String _$searchRepositoryHash() => r'8f8ccb5d88accc79935f3d909d19763f6a21a635';
+String _$searchRepositoryHash() => r'5d91310071ed5336df31ec1b7db13f9cb2ad9483';
 
 /// See also [searchRepository].
 @ProviderFor(searchRepository)
@@ -166,7 +166,7 @@ final checkoutRepositoryProvider = AutoDisposeProvider<CheckoutRepo>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CheckoutRepositoryRef = AutoDisposeProviderRef<CheckoutRepo>;
-String _$ordersRepositoryHash() => r'306e0c7c850231318962cae4538b4eaf9981ba26';
+String _$ordersRepositoryHash() => r'95c04561e156811eaa0a62fee1b2085d082824af';
 
 /// See also [ordersRepository].
 @ProviderFor(ordersRepository)
@@ -184,7 +184,7 @@ final ordersRepositoryProvider = AutoDisposeProvider<OrdersRepo>.internal(
 // ignore: unused_element
 typedef OrdersRepositoryRef = AutoDisposeProviderRef<OrdersRepo>;
 String _$notificationsRepositoryHash() =>
-    r'57aa631f9659e1b71d93d15e13bc3cc7e8dd0de4';
+    r'f10d8d0a6e430c80449d228871f7490d5ead8260';
 
 /// See also [notificationsRepository].
 @ProviderFor(notificationsRepository)
@@ -220,5 +220,40 @@ final wishlistRepositoryProvider = AutoDisposeProvider<WishlistRepo>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef WishlistRepositoryRef = AutoDisposeProviderRef<WishlistRepo>;
+String _$deviceRepositoryHash() => r'd42707966999d5d1a9810fee18899ac46827ca2b';
+
+/// See also [deviceRepository].
+@ProviderFor(deviceRepository)
+final deviceRepositoryProvider = Provider<DeviceRepo>.internal(
+  deviceRepository,
+  name: r'deviceRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$deviceRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef DeviceRepositoryRef = ProviderRef<DeviceRepo>;
+String _$emergencyRepositoryHash() =>
+    r'3bbb5522d69c41866537f1ddb28325286355ee2d';
+
+/// See also [emergencyRepository].
+@ProviderFor(emergencyRepository)
+final emergencyRepositoryProvider = AutoDisposeProvider<EmergencyRepo>.internal(
+  emergencyRepository,
+  name: r'emergencyRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$emergencyRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef EmergencyRepositoryRef = AutoDisposeProviderRef<EmergencyRepo>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -1,6 +1,6 @@
 // lib/src/wishlist/model/wishlist_model.dart
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class WishlistResponse {
   const WishlistResponse({

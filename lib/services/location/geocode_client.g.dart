@@ -23,24 +23,5 @@ final geocodeClientProvider = Provider<GeocodeClient>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GeocodeClientRef = ProviderRef<GeocodeClient>;
-String _$placesSessionClientHash() =>
-    r'4331b8a93b059559796b3f78b8b7c02dbf904220';
-
-/// See also [placesSessionClient].
-@ProviderFor(placesSessionClient)
-final placesSessionClientProvider =
-    AutoDisposeProvider<PlacesSessionClient>.internal(
-      placesSessionClient,
-      name: r'placesSessionClientProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$placesSessionClientHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef PlacesSessionClientRef = AutoDisposeProviderRef<PlacesSessionClient>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

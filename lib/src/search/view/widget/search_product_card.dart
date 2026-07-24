@@ -1,11 +1,11 @@
 // lib/src/search/view/widget/search_product_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/services/wishlist_facade_service.dart';
-import 'package:tsuite/utils/common_widgets/common_glass_product_card.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/providers/wishlist_providers.dart';
+import 'package:medpik/utils/common_widgets/common_glass_product_card.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 
 class SearchProductCard extends StatelessWidget {
   const SearchProductCard({super.key, required this.product});
@@ -42,7 +42,7 @@ class _SearchProductCardWishlistScope extends ConsumerWidget {
           Navigator.pushNamed(context, RouteConstants.routeLoginScreen);
           return;
         }
-        ref.read(wishlistFacadeServiceProvider).toggle(product);
+        ref.read(wishlistNotifierProvider.notifier).toggle(product);
       },
     );
   }

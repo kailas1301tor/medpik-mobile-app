@@ -2,13 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tsuite/res/constants/medpik_svg_assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/home/view/widget/home_header_shared.dart';
-import 'package:tsuite/utils/common_widgets/common_search_bar.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/res/constants/medpik_svg_assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/home/view/widget/home_header_shared.dart';
+import 'package:medpik/utils/common_widgets/common_search_bar.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 
 class HomeHeaderSection extends StatelessWidget {
   const HomeHeaderSection({
@@ -106,26 +106,11 @@ class HomeHeaderSection extends StatelessWidget {
             ),
           ),
           14.verticalSpace,
-          GestureDetector(
+          CommonSearchBar(
+            controller: searchController,
+            readOnly: true,
+            hintText: Strings.searchMedicinesHealthcare,
             onTap: onSearchTap,
-            behavior: HitTestBehavior.opaque,
-            child: IgnorePointer(
-              child: CommonSearchBar(
-                controller: searchController,
-                hintText: Strings.searchMedicinesHealthcare,
-                prefixIcon: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 12.h,
-                  ),
-                  child: SvgPicture.asset(
-                    MedpikSvgAssets.search,
-                    width: 24.w,
-                    height: 24.w,
-                  ),
-                ),
-              ),
-            ),
           ),
         ],
       ),

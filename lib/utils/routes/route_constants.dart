@@ -22,9 +22,13 @@ class RouteConstants {
   static const String routeOrderDetailScreen = '/order-detail';
   static const String routeOrderReviewBillScreen = '/order-review-bill';
   static const String routeOrderReviewPayScreen = '/order-review-pay';
+  static const String routeOrderPaymentSuccessScreen = '/order-payment-success';
+  static const String routeOrderPaymentFailureScreen = '/order-payment-failure';
+  static const String routeOrderBillPdfScreen = '/order-bill-pdf';
   static const String routeTrackingScreen = '/tracking';
   static const String routeAddressBookScreen = '/address-book';
   static const String routeLocationPickerScreen = '/location-picker';
   static const String routeWishlistScreen = '/wishlist';
   static const String routeNotificationsScreen = '/notifications';
+  static const String routeEmergencyServicesScreen = '/emergency-services';
 }

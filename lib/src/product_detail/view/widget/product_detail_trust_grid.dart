@@ -1,10 +1,10 @@
 // lib/src/product_detail/view/widget/product_detail_trust_grid.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/product_detail/model/product_trust_badge_model.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_icon_helper.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/product_detail/model/product_trust_badge_model.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_icon_helper.dart';
 
 class ProductDetailTrustGrid extends StatelessWidget {
   const ProductDetailTrustGrid({super.key, required this.badges});
