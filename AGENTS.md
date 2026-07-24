@@ -1,17 +1,17 @@
 # AGENTS.md — Flutter Production Engineering Rules
 
-## PROJECT ADAPTERS (VyapApp)
+## PROJECT ADAPTERS (Medpik)
 
 This repo uses the following mappings from generic rule names to actual project code:
 
-| Rule / template name | VyapApp implementation |
+| Rule / template name | Medpik implementation |
 |----------------------|------------------------|
-| Package imports | `package:vyapapp/...` |
+| Package imports | `package:medpik/...` |
 | Font styles | [`FontPalette`](lib/res/styles/font_palette.dart) (`onest` family) |
 | Primary CTA button | [`PrimaryButton`](lib/utils/common_widgets/primary_button.dart) |
 | Text inputs | [`CommonTextFormField`](lib/utils/common_widgets/common_text_form_field.dart) |
 | Body text | `Text` with `FontPalette` styles (no `CommonTextWidget` in this repo yet) |
-| App display name | `Strings.appName` → **VyapApp** |
+| App display name | `Strings.appName` → **medpik** |
 
 ---
 
@@ -138,20 +138,28 @@ sealed class FeatureState with _$FeatureState {
     @Default(LoaderState.loaded) LoaderState loaderState,
     FeatureData? data,
     String? errorMessage,
+    // Use bool flags only for button/inline action loaders; use LoaderState for screen content.
   }) = _FeatureState;
 }
 ```
 
 - Always use `copyWith` for updates.
-- Always include `LoaderState loaderState` for API-backed features.
+- Always include `LoaderState loaderState` for API-backed screen/content loading.
+- Use `bool` flags only for button/inline action loaders (see **Button and inline loaders** below).
 - Never store derived or computed values in state.
-- NEVER use raw `bool` flags like `isLoading` — use `LoaderState`.
+
+**Loader type choice:**
+- **Screen / content / list loading** → `LoaderState` (`loaderState`, `detailLoaderState`, etc.) with full switch (`loading`, `error`, `noData`, `networkError`, `serverError`, `loaded`)
+- **Button / inline / small loaders** → `bool isSubmitting` / `isPaymentLoading` / `isBillActionLoading` — `true` only while an action is in-flight; reset to `false` in `finally`; surface errors via toast/dialog, not via the bool
 
 ---
 
 ## LOADER STATE
 
-ALWAYS use this enum for API-backed features. NEVER substitute raw booleans.
+Use `LoaderState` for **screen and content** loading (lists, detail fetches, full-page shimmers).
+NEVER substitute raw booleans for screen/content loaders.
+
+For **button spinners** and **inline loaders**, use `bool` instead — see **Button and inline loaders** below.
 
 ```dart
 enum LoaderState {
@@ -164,17 +172,21 @@ enum LoaderState {
 }
 ```
 
-UI MUST switch exhaustively on `loaderState`. Use `CommonSwitchStateNoExpand` for standard
-list/scroll screens, and a manual switch for custom layouts:
+UI MUST switch exhaustively on `loaderState`. Use `CommonSwitchState` for standard
+list/scroll screens (inside `CommonRefreshIndicator` when pull-to-refresh is needed), and a
+manual switch for custom layouts:
 
 ```dart
 // Standard screens — use the shared widget:
-CommonSwitchStateNoExpand(
-  loaderState: state.loaderState,
-  reload: () => ref.read(featureNotifierProvider.notifier).fetchData(),
-  loader: const FeatureShimmerWidget(),
-  buttonText: Strings.refresh,
-  child: FeatureContentWidget(data: state.data),
+CommonRefreshIndicator(
+  onRefresh: () => ref.read(featureNotifierProvider.notifier).fetchData(),
+  child: CommonSwitchState(
+    loaderState: state.loaderState,
+    reload: () => ref.read(featureNotifierProvider.notifier).fetchData(),
+    loader: const FeatureShimmerWidget(),
+    buttonText: Strings.refresh,
+    child: FeatureContentWidget(data: state.data),
+  ),
 )
 
 // Custom layouts — switch manually:
@@ -187,6 +199,41 @@ switch (state.loaderState) {
   case LoaderState.loaded       => FeatureContentWidget(data: state.data),
 }
 ```
+
+### Button and inline loaders (bool)
+
+Use a `bool` for `PrimaryButton.isLoading`, inline spinners, and sheet action buttons.
+Do NOT use `LoaderState` for these — they only need loading vs idle.
+
+```dart
+// state/feature_state.dart
+@Default(false) bool isPaymentLoading,
+
+// notifier/feature_notifier.dart
+state = state.copyWith(isPaymentLoading: true);
+try {
+  await repo.submit(...).fold(
+    (error) { showCustomErrorToast(...); },
+    (right) { ... },
+  );
+} finally {
+  state = state.copyWith(isPaymentLoading: false);
+}
+
+// view — use .select()
+final isLoading = ref.watch(
+  featureNotifierProvider.select((s) => s.isPaymentLoading),
+);
+PrimaryButton(
+  isLoading: isLoading,
+  onPressed: isLoading ? null : _submit,
+);
+```
+
+Rules:
+- `handleResponseError` maps to `LoaderState` for **screen** loaders only.
+- Button/inline actions: toast on error + `false` in `finally` — never assign `LoaderState` to a button bool.
+- During Razorpay checkout (SDK modal), set the button bool to `false` so the UI is not blocked behind the modal.
 
 ---
 
@@ -521,8 +568,19 @@ final selectedDate = data.item3;
 
 ### Rule 3 — Inline `Consumer` for isolated hot fields
 
-If a single text, badge, counter, or timer inside a larger `StatelessWidget` tree depends on
-state, wrap ONLY that widget in a `Consumer` — do NOT promote the whole parent to `ConsumerWidget`.
+Wrap **only** the widget that actually depends on state (card, text, badge, counter, or
+timer) with a `Consumer`. Inside that `Consumer`, use `.select()` to watch only the specific
+state fields the widget requires. If multiple fields are needed, group them using
+Tuple2–Tuple4. This ensures each widget subscribes only to the data it needs, minimizing
+unnecessary rebuilds.
+
+Steps:
+
+1. Keep the parent as `StatelessWidget` when possible.
+2. Wrap **only** the state-dependent leaf in `Consumer`.
+3. Inside `Consumer`, always `ref.watch(...select(...))`.
+4. For 2–4 fields from the same provider, group with `Tuple2`–`Tuple4` in one `.select()`.
+5. Never `ref.watch(provider)` on a notifier when only a subset of fields is used.
 
 ```dart
 // Isolate the rebuild to only the changing text
@@ -532,7 +590,45 @@ Consumer(
     return Text('$count', style: FontPalette.f0E0F0C_14_400);
   },
 )
+
+// Parent stays StatelessWidget — isolate wishlist state in a child Consumer
+class HomeProductCard extends StatelessWidget {
+  const HomeProductCard({super.key, required this.product});
+  final ProductModel product;
+
+  @override
+  Widget build(BuildContext context) {
+    return _HomeProductCardWishlistScope(product: product);
+  }
+}
+
+class _HomeProductCardWishlistScope extends ConsumerWidget {
+  const _HomeProductCardWishlistScope({required this.product});
+  final ProductModel product;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isWishlisted = ref.watch(isProductWishlistedProvider(product.id));
+    return CommonGlassProductCard(
+      product: product,
+      isWishlisted: isWishlisted,
+      onWishlistTap: () => ref.read(wishlistFacadeServiceProvider).toggle(product),
+    );
+  }
+}
 ```
+
+### Rule 4 — Widget type selection (rebuild scope)
+
+| Widget | When to Use |
+|--------|-------------|
+| `StatelessWidget` | Default for layout shells, static sections, list item chrome |
+| `Consumer` (inline) | **Only** the badge, counter, button, text, or card leaf that reads Riverpod state |
+| `ConsumerWidget` | Entire subtree genuinely depends on watched state (e.g. loader-switch screens with no stable children) |
+| `ConsumerStatefulWidget` | AnimationController only (see exception above) |
+
+Decision rule: if fewer than ~80% of the build tree needs state, use `StatelessWidget` +
+inline `Consumer` on the hot leaf — do NOT promote the whole parent to `ConsumerWidget`.
 
 ---
 
@@ -702,16 +798,40 @@ CommonTextFormField(
 )
 ```
 
-### CommonSwitchStateNoExpand
+### CommonSwitchState
 Use for ALL loader/error/empty/content switching in scrollable or list screens.
+Defined in `utils/common_widgets/common_switch_state.dart`. Does **not** wrap the loaded
+child in `Expanded`, so `ListView` / `CustomScrollView` children are safe.
+
+For `CustomScrollView` / sliver-based screens, use `CommonSwitchStateSliver` instead.
 
 ```dart
-CommonSwitchStateNoExpand(
-  loaderState: loaderState,
-  reload: () => ref.read(featureNotifierProvider.notifier).fetchData(),
-  loader: const FeatureShimmerWidget(),
-  buttonText: Strings.refresh,
-  child: const FeatureContent(),
+CommonRefreshIndicator(
+  onRefresh: () => ref.read(featureNotifierProvider.notifier).fetchData(),
+  child: CommonSwitchState(
+    loaderState: loaderState,
+    reload: () => ref.read(featureNotifierProvider.notifier).fetchData(),
+    loader: const FeatureShimmerWidget(),
+    buttonText: Strings.refresh,
+    noData: const FeatureEmptyState(), // optional — overrides default empty UI
+    child: const FeatureContent(),
+  ),
+)
+```
+
+When the switch sits below a fixed header inside a `Column`, wrap it in `Expanded`:
+
+```dart
+Column(
+  children: [
+    const FeatureHeader(),
+    Expanded(
+      child: CommonSwitchState(
+        loaderState: loaderState,
+        child: const FeatureContent(),
+      ),
+    ),
+  ],
 )
 ```
 
@@ -949,8 +1069,14 @@ Enforce strictly. Exceed the limit → extract immediately into sub-files.
 | `ScreenUtil()` called directly          | Use suffix extensions `.h` `.w` `.r` `.sp`                  |
 | `TextEditingController` in widget                | Move to notifier, dispose via `ref.onDispose`               |
 | `ScrollController` / `FocusNode` in widget       | Move to notifier, dispose via `ref.onDispose`               |
-| `ConsumerStatefulWidget` for non-animation state | Use notifier + `ConsumerWidget`                             |
+| `ConsumerStatefulWidget` for non-animation state | Use `StatelessWidget` + inline `Consumer` on hot leaf |
+| `ConsumerWidget` when only 1 small child needs state | `StatelessWidget` + inline `Consumer` on that child |
+| Multiple `ref.watch` on same provider in one build | Single `.select()` returning `Tuple2`–`Tuple4` |
+| `ref.watch(provider.select((s) => s))` on object state | Field-level `.select()` or dedicated derived provider |
+| Promoting parent to `ConsumerWidget` for badge/counter | Inline `Consumer` on badge/counter only |
 | `Tuple` with >4 items                | Extract into a sub-widget or dedicated state model  |
+| `LoaderState` for button `isLoading` | `bool isXLoading` in state                          |
+| `bool` for full-screen list/content loading | `LoaderState`                               |
 | Importing across feature folders     | Use `utils/`, `res/`, or `data/` only               |
 | `ListView(children: buildList())`   | `ListView.builder`                                  |
 | `MediaQuery.of(context).size`        | `MediaQuery.sizeOf(context)`                        |
@@ -1031,6 +1157,7 @@ debugPrint("🔵 ACTION: fetchData called");
 | Not disposing controllers                        | Use `ref.onDispose` in notifier; `dispose()` only for `AnimationController` |
 | Full-res images in thumbnails                    | Set `memCacheWidth`/`memCacheHeight` in `CommonCachedNetworkImage` |
 | `ref.watch(provider)` — full state              | `.select()` for each field                                   |
+| `ConsumerWidget` for badge/counter/text only    | `StatelessWidget` + inline `Consumer` on hot leaf            |
 
 ---
 
@@ -1066,6 +1193,10 @@ When assigned a task:
 7. **Verify imports** — all `part` directives and imports must be correct and complete.
 8. **One file per section** — label each file with its full path as the first line comment.
 9. **Add missing constants first** — if a string, color, or style is missing, add it to the correct shared file before referencing it.
+10. **Granular rebuild check** — before finishing UI work:
+    - No `ref.watch(fooNotifierProvider)` without `.select()` in views (primitive providers like `mainShellNotifierProvider` are OK).
+    - Prefer `Tuple2`–`Tuple4` over multiple watches on the same provider.
+    - Use inline `Consumer` on hot leaves; demote unnecessary `ConsumerWidget`s to `StatelessWidget`.
 
 ---
 

@@ -1,6 +1,8 @@
 // lib/src/address/model/addresses_response_model.dart
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+//
+// ? GET /api/addresses envelope: { message, results: { data: [AddressModel] } }
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class AddressesResponse {
   const AddressesResponse({
@@ -11,6 +13,7 @@ class AddressesResponse {
   final AddressesResults results;
   final String message;
 
+  // * Convenience list used by AddressNotifier.fetchAddresses
   List<AddressModel> get addresses => results.data;
 
   factory AddressesResponse.fromJson(Map<String, dynamic> json) =>

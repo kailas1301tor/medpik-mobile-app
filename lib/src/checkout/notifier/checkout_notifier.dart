@@ -2,25 +2,30 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/src/address/notifier/address_notifier.dart';
-import 'package:tsuite/src/cart/notifier/cart_notifier.dart';
-import 'package:tsuite/src/checkout/repo/checkout_repository.dart';
-import 'package:tsuite/src/checkout/state/checkout_state.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/providers/address_providers.dart';
+import 'package:medpik/providers/cart_providers.dart';
+import 'package:medpik/providers/orders_providers.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/checkout/repo/checkout_repository.dart';
+import 'package:medpik/src/checkout/state/checkout_state.dart';
+import 'package:medpik/utils/common_widgets/custom_toast.dart';
+import 'package:medpik/utils/helpers/address_resolution_helper.dart';
 
 part 'checkout_notifier.g.dart';
 
 @Riverpod(keepAlive: false)
 class CheckoutNotifier extends _$CheckoutNotifier {
-  late CheckoutRepo checkoutRepo;
+  late final TextEditingController pharmacistInstructionsController;
+  late final CheckoutRepo _checkoutRepo;
 
   @override
   CheckoutState build() {
-    checkoutRepo = ref.read(checkoutRepositoryProvider);
+    pharmacistInstructionsController = TextEditingController();
+    _checkoutRepo = ref.read(checkoutRepositoryProvider);
+    ref.onDispose(pharmacistInstructionsController.dispose);
     Future.microtask(prepareCheckout);
     return const CheckoutState(loaderState: LoaderState.loading);
   }
@@ -29,6 +34,18 @@ class CheckoutNotifier extends _$CheckoutNotifier {
     final cartItems = ref.read(cartNotifierProvider).items;
 
     await ref.read(addressNotifierProvider.notifier).fetchAddresses();
+    final addressLoaderState = ref.read(addressNotifierProvider).loaderState;
+    if (addressLoaderState == LoaderState.networkError ||
+        addressLoaderState == LoaderState.serverError ||
+        addressLoaderState == LoaderState.error) {
+      state = state.copyWith(
+        loaderState: addressLoaderState,
+        errorMessage: Strings.errorDescription,
+        isPlacingOrder: false,
+      );
+      return;
+    }
+
     final addresses = ref.read(addressNotifierProvider).addresses;
 
     if (cartItems.isEmpty) {
@@ -39,21 +56,25 @@ class CheckoutNotifier extends _$CheckoutNotifier {
       return;
     }
 
-    final subtotal = cartItems.fold<double>(0, (sum, i) => sum + i.lineTotal);
-
     state = state.copyWith(
       loaderState: LoaderState.loaded,
-      selectedAddress: _resolveDefaultAddress(addresses),
-      payableTotal: subtotal,
+      selectedAddress: resolveSelectedAddress(
+        addresses,
+        current: state.selectedAddress,
+      ),
+      pharmacistInstructions: state.pharmacistInstructions,
       isPlacingOrder: false,
     );
+    pharmacistInstructionsController.text = state.pharmacistInstructions;
   }
 
   Future<void> refreshSelectedAddress() async {
     await ref.read(addressNotifierProvider.notifier).fetchAddresses();
-    final addresses = ref.read(addressNotifierProvider).addresses;
     state = state.copyWith(
-      selectedAddress: _resolveSelectedAddress(addresses),
+      selectedAddress: resolveSelectedAddress(
+        ref.read(addressNotifierProvider).addresses,
+        current: state.selectedAddress,
+      ),
     );
   }
 
@@ -61,7 +82,13 @@ class CheckoutNotifier extends _$CheckoutNotifier {
     state = state.copyWith(selectedAddress: address);
   }
 
-  Future<String?> placeOrder() async {
+  void savePharmacistInstructions(String value) {
+    final trimmed = value.trim();
+    pharmacistInstructionsController.text = trimmed;
+    state = state.copyWith(pharmacistInstructions: trimmed);
+  }
+
+  Future<String?> placeMedicineCartOrder() async {
     if (state.isPlacingOrder) return null;
 
     final cartItems = ref.read(cartNotifierProvider).items;
@@ -78,15 +105,15 @@ class CheckoutNotifier extends _$CheckoutNotifier {
     }
 
     state = state.copyWith(isPlacingOrder: true);
-    return await checkoutRepo
+
+    return await _checkoutRepo
         .placeOrder(
-          items: cartItems,
-          address: address,
-          amount: state.payableTotal,
+          addressId: address.id,
+          deliveryInstructions: state.pharmacistInstructions,
         )
         .fold(
           (error) {
-            debugPrint("🔴 PLACE ORDER ERROR: ${error.message}");
+            debugPrint('🔴 PLACE ORDER ERROR: ${error.message}');
             state = state.copyWith(isPlacingOrder: false);
             showCustomToast(
               message: error.message ?? Strings.somethingWentWrong,
@@ -94,18 +121,29 @@ class CheckoutNotifier extends _$CheckoutNotifier {
             );
             return null;
           },
-          (order) async {
-            debugPrint("🟢 ORDER PLACED: ${order.id}");
-            ref.read(cartNotifierProvider.notifier).clearCart();
-            state = state.copyWith(
-              isPlacingOrder: false,
-              placedOrderId: order.id,
-            );
-            return order.id;
+          (response) async {
+            final orderId = response.orderId.trim();
+            if (orderId.isEmpty) {
+              debugPrint('🔴 PLACE ORDER ERROR: empty order id');
+              state = state.copyWith(isPlacingOrder: false);
+              showCustomToast(
+                message: Strings.somethingWentWrong,
+                isSuccess: false,
+              );
+              return null;
+            }
+
+            debugPrint('🟢 ORDER PLACED: $orderId');
+             ref
+                .read(cartNotifierProvider.notifier)
+                .fetchCart(showLoader: false);
+             ref.read(ordersNotifierProvider.notifier).fetchOrders();
+            state = state.copyWith(isPlacingOrder: false);
+            return orderId;
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED PLACE ORDER ERROR: $error");
+          debugPrint('🔴 UNEXPECTED PLACE ORDER ERROR: $error');
           state = state.copyWith(isPlacingOrder: false);
           showCustomToast(
             message: Strings.somethingWentWrong,
@@ -113,22 +151,5 @@ class CheckoutNotifier extends _$CheckoutNotifier {
           );
           return null;
         });
-  }
-
-  AddressModel? _resolveSelectedAddress(List<AddressModel> addresses) {
-    final selectedId = state.selectedAddress?.id;
-    if (selectedId != null) {
-      for (final address in addresses) {
-        if (address.id == selectedId) return address;
-      }
-    }
-    return _resolveDefaultAddress(addresses);
-  }
-
-  AddressModel? _resolveDefaultAddress(List<AddressModel> addresses) {
-    for (final address in addresses) {
-      if (address.isDefault) return address;
-    }
-    return addresses.isNotEmpty ? addresses.first : null;
   }
 }

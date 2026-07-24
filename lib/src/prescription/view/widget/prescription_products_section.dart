@@ -2,17 +2,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_products_notifier.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_add_missing_product_card.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_product_grid.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_products_shimmer_widget.dart';
-import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
-import 'package:tsuite/utils/common_widgets/common_search_bar.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/prescription/notifier/prescription_products_notifier.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_add_missing_product_card.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_product_grid.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_products_shimmer_widget.dart';
+import 'package:medpik/utils/common_widgets/common_empty_state.dart';
+import 'package:medpik/utils/common_widgets/common_search_bar.dart';
 import 'package:tuple/tuple.dart';
 
 class PrescriptionProductsSection extends ConsumerWidget {

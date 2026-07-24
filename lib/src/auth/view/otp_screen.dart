@@ -2,25 +2,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
-import 'package:tsuite/utils/common_widgets/common_loader.dart';
-import 'package:tsuite/utils/common_widgets/common_otp_field.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
-import '../notifier/auth_notifier.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/auth/notifier/auth_notifier.dart';
+import 'package:medpik/utils/common_widgets/common_app_bar.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
+import 'widget/otp_input_section.dart';
+import 'widget/otp_phone_header.dart';
+import 'widget/otp_resend_row.dart';
+import 'widget/otp_verify_button.dart';
 
-class OtpScreen extends ConsumerWidget {
+class OtpScreen extends ConsumerStatefulWidget {
   const OtpScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OtpScreen> createState() => _OtpScreenState();
+}
+
+class _OtpScreenState extends ConsumerState<OtpScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _redirectIfNoSession());
+  }
+
+  void _redirectIfNoSession() {
+    if (!mounted) return;
+    final phone = ref.read(authNotifierProvider).otpPhone;
+    if (phone != null && phone.isNotEmpty) return;
+    Navigator.pushReplacementNamed(context, RouteConstants.routeLoginScreen);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.appColors;
-    final notifier = ref.read(authNotifierProvider.notifier);
-    final phone = notifier.phoneController.text;
+
+    ref.listen(
+      authNotifierProvider.select((s) => s.otpPhone),
+      (previous, next) {
+        if (next != null && next.isNotEmpty) return;
+        if (!context.mounted) return;
+        Navigator.pushReplacementNamed(
+          context,
+          RouteConstants.routeLoginScreen,
+        );
+      },
+    );
 
     return CommonScaffold(
       appBar: const CommonAppBar(title: Strings.verification),
@@ -31,105 +59,13 @@ class OtpScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              50.verticalSpace,
-              Text(
-                Strings.enterVerificationCode,
-                style: FontPalette.base700(24, color: colors.primaryText),
-              ),
-              12.verticalSpace,
-              RichText(
-                text: TextSpan(
-                  style: FontPalette.base400(15, color: colors.secondaryText),
-                  children: [
-                    TextSpan(text: Strings.otpSentPrefix),
-                    TextSpan(
-                      text: '${Strings.countryCodeIndia} $phone',
-                      style: FontPalette.base500(14, color: colors.primaryText),
-                    ),
-                  ],
-                ),
-              ),
+              const OtpPhoneHeader(),
               30.verticalSpace,
-              Consumer(
-                builder: (context, ref, _) {
-                  final isLoading = ref.watch(
-                    authNotifierProvider.select(
-                      (s) => s.loaderState == LoaderState.loading,
-                    ),
-                  );
-                  return Column(
-                    children: [
-                      CommonOtpField(
-                        length: 6,
-                        onCompleted: isLoading
-                            ? null
-                            : (pin) async {
-                                final success =
-                                    await notifier.verifyOtpCode(pin);
-                                if (success && context.mounted) {
-                                  Navigator.pushNamedAndRemoveUntil(
-                                    context,
-                                    RouteConstants.mainScreen,
-                                    (route) => false,
-                                  );
-                                }
-                              },
-                      ),
-                      if (isLoading) ...[
-                        24.verticalSpace,
-                        const CommonLoader(),
-                      ],
-                    ],
-                  );
-                },
-              ),
+              const OtpInputSection(),
+              32.verticalSpace,
+              const OtpVerifyButton(),
               40.verticalSpace,
-              Consumer(
-                builder: (context, ref, _) {
-                  final countdown = ref.watch(
-                    authNotifierProvider.select((s) => s.resendCountdown),
-                  );
-                  final isLoading = ref.watch(
-                    authNotifierProvider.select(
-                      (s) => s.loaderState == LoaderState.loading,
-                    ),
-                  );
-
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        Strings.didntReceiveCode,
-                        style: FontPalette.base400(
-                          14,
-                          color: colors.secondaryText,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: countdown == 0 && !isLoading
-                            ? () => notifier.resendOtp()
-                            : null,
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          countdown == 0
-                              ? Strings.resendCode
-                              : '${Strings.resendIn} ${countdown}s',
-                          style: FontPalette.base600(
-                            14,
-                            color: countdown == 0
-                                ? colors.primary
-                                : colors.secondaryText,
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+              const OtpResendRow(),
             ],
           ),
         ),

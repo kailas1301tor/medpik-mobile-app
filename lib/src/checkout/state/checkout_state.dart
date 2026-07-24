@@ -1,7 +1,7 @@
 // lib/src/checkout/state/checkout_state.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/enums/enums.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/res/enums/enums.dart';
 
 part 'checkout_state.freezed.dart';
 
@@ -10,9 +10,8 @@ sealed class CheckoutState with _$CheckoutState {
   const factory CheckoutState({
     @Default(LoaderState.loaded) LoaderState loaderState,
     AddressModel? selectedAddress,
-    @Default(0) double payableTotal,
+    @Default('') String pharmacistInstructions,
     @Default(false) bool isPlacingOrder,
     String? errorMessage,
-    String? placedOrderId,
   }) = _CheckoutState;
 }

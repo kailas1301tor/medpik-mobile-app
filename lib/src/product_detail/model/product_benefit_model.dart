@@ -1,5 +1,5 @@
 // lib/src/product_detail/model/product_benefit_model.dart
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class ProductBenefitModel {
   const ProductBenefitModel({

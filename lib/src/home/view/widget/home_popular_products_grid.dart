@@ -3,9 +3,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/src/home/view/widget/home_glass_product_card.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/src/home/view/widget/home_product_card.dart';
 
 /// 2-column popular products list for the home [CustomScrollView].
 /// Uses content-sized rows (not a fixed aspect-ratio grid) so cards
@@ -39,12 +38,12 @@ abstract final class HomePopularProductsGrid {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _productCard(context, left)),
+                  Expanded(child: HomeProductCard(product: left)),
                   12.horizontalSpace,
                   Expanded(
                     child: right == null
                         ? const SizedBox.shrink()
-                        : _productCard(context, right),
+                        : HomeProductCard(product: right),
                   ),
                 ],
               ),
@@ -55,19 +54,6 @@ abstract final class HomePopularProductsGrid {
           addRepaintBoundaries: true,
         ),
       ),
-    );
-  }
-
-  static Widget _productCard(BuildContext context, ProductModel product) {
-    return HomeGlassProductCard(
-      product: product,
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          RouteConstants.routeProductDetailScreen,
-          arguments: product.id,
-        );
-      },
     );
   }
 }

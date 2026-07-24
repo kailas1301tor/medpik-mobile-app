@@ -18,6 +18,8 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$PrescriptionState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
+  bool get isPickingFiles => throw _privateConstructorUsedError;
+  bool get isSubmitting => throw _privateConstructorUsedError;
   PrescriptionDraftModel? get draft => throw _privateConstructorUsedError;
   List<String> get pickedPaths => throw _privateConstructorUsedError;
   List<PrescriptionSelectedProductModel> get selectedProducts =>
@@ -40,6 +42,8 @@ abstract class $PrescriptionStateCopyWith<$Res> {
   @useResult
   $Res call({
     LoaderState loaderState,
+    bool isPickingFiles,
+    bool isSubmitting,
     PrescriptionDraftModel? draft,
     List<String> pickedPaths,
     List<PrescriptionSelectedProductModel> selectedProducts,
@@ -63,6 +67,8 @@ class _$PrescriptionStateCopyWithImpl<$Res, $Val extends PrescriptionState>
   @override
   $Res call({
     Object? loaderState = null,
+    Object? isPickingFiles = null,
+    Object? isSubmitting = null,
     Object? draft = freezed,
     Object? pickedPaths = null,
     Object? selectedProducts = null,
@@ -74,6 +80,14 @@ class _$PrescriptionStateCopyWithImpl<$Res, $Val extends PrescriptionState>
                 ? _value.loaderState
                 : loaderState // ignore: cast_nullable_to_non_nullable
                       as LoaderState,
+            isPickingFiles: null == isPickingFiles
+                ? _value.isPickingFiles
+                : isPickingFiles // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isSubmitting: null == isSubmitting
+                ? _value.isSubmitting
+                : isSubmitting // ignore: cast_nullable_to_non_nullable
+                      as bool,
             draft: freezed == draft
                 ? _value.draft
                 : draft // ignore: cast_nullable_to_non_nullable
@@ -107,6 +121,8 @@ abstract class _$$PrescriptionStateImplCopyWith<$Res>
   @useResult
   $Res call({
     LoaderState loaderState,
+    bool isPickingFiles,
+    bool isSubmitting,
     PrescriptionDraftModel? draft,
     List<String> pickedPaths,
     List<PrescriptionSelectedProductModel> selectedProducts,
@@ -129,6 +145,8 @@ class __$$PrescriptionStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? loaderState = null,
+    Object? isPickingFiles = null,
+    Object? isSubmitting = null,
     Object? draft = freezed,
     Object? pickedPaths = null,
     Object? selectedProducts = null,
@@ -140,6 +158,14 @@ class __$$PrescriptionStateImplCopyWithImpl<$Res>
             ? _value.loaderState
             : loaderState // ignore: cast_nullable_to_non_nullable
                   as LoaderState,
+        isPickingFiles: null == isPickingFiles
+            ? _value.isPickingFiles
+            : isPickingFiles // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isSubmitting: null == isSubmitting
+            ? _value.isSubmitting
+            : isSubmitting // ignore: cast_nullable_to_non_nullable
+                  as bool,
         draft: freezed == draft
             ? _value.draft
             : draft // ignore: cast_nullable_to_non_nullable
@@ -166,6 +192,8 @@ class __$$PrescriptionStateImplCopyWithImpl<$Res>
 class _$PrescriptionStateImpl implements _PrescriptionState {
   const _$PrescriptionStateImpl({
     this.loaderState = LoaderState.loaded,
+    this.isPickingFiles = false,
+    this.isSubmitting = false,
     this.draft,
     final List<String> pickedPaths = const <String>[],
     final List<PrescriptionSelectedProductModel> selectedProducts =
@@ -177,6 +205,12 @@ class _$PrescriptionStateImpl implements _PrescriptionState {
   @override
   @JsonKey()
   final LoaderState loaderState;
+  @override
+  @JsonKey()
+  final bool isPickingFiles;
+  @override
+  @JsonKey()
+  final bool isSubmitting;
   @override
   final PrescriptionDraftModel? draft;
   final List<String> _pickedPaths;
@@ -203,7 +237,7 @@ class _$PrescriptionStateImpl implements _PrescriptionState {
 
   @override
   String toString() {
-    return 'PrescriptionState(loaderState: $loaderState, draft: $draft, pickedPaths: $pickedPaths, selectedProducts: $selectedProducts, errorMessage: $errorMessage)';
+    return 'PrescriptionState(loaderState: $loaderState, isPickingFiles: $isPickingFiles, isSubmitting: $isSubmitting, draft: $draft, pickedPaths: $pickedPaths, selectedProducts: $selectedProducts, errorMessage: $errorMessage)';
   }
 
   @override
@@ -213,6 +247,10 @@ class _$PrescriptionStateImpl implements _PrescriptionState {
             other is _$PrescriptionStateImpl &&
             (identical(other.loaderState, loaderState) ||
                 other.loaderState == loaderState) &&
+            (identical(other.isPickingFiles, isPickingFiles) ||
+                other.isPickingFiles == isPickingFiles) &&
+            (identical(other.isSubmitting, isSubmitting) ||
+                other.isSubmitting == isSubmitting) &&
             (identical(other.draft, draft) || other.draft == draft) &&
             const DeepCollectionEquality().equals(
               other._pickedPaths,
@@ -230,6 +268,8 @@ class _$PrescriptionStateImpl implements _PrescriptionState {
   int get hashCode => Object.hash(
     runtimeType,
     loaderState,
+    isPickingFiles,
+    isSubmitting,
     draft,
     const DeepCollectionEquality().hash(_pickedPaths),
     const DeepCollectionEquality().hash(_selectedProducts),
@@ -251,6 +291,8 @@ class _$PrescriptionStateImpl implements _PrescriptionState {
 abstract class _PrescriptionState implements PrescriptionState {
   const factory _PrescriptionState({
     final LoaderState loaderState,
+    final bool isPickingFiles,
+    final bool isSubmitting,
     final PrescriptionDraftModel? draft,
     final List<String> pickedPaths,
     final List<PrescriptionSelectedProductModel> selectedProducts,
@@ -259,6 +301,10 @@ abstract class _PrescriptionState implements PrescriptionState {
 
   @override
   LoaderState get loaderState;
+  @override
+  bool get isPickingFiles;
+  @override
+  bool get isSubmitting;
   @override
   PrescriptionDraftModel? get draft;
   @override

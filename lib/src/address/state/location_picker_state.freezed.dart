@@ -20,12 +20,12 @@ mixin _$LocationPickerState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   double get latitude => throw _privateConstructorUsedError;
   double get longitude => throw _privateConstructorUsedError;
-  List<PlacePrediction> get predictions => throw _privateConstructorUsedError;
   ReverseGeocodeResult? get reverseResult => throw _privateConstructorUsedError;
   bool get isSearching => throw _privateConstructorUsedError;
   bool get isReverseLoading => throw _privateConstructorUsedError;
   bool get isServiceable => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
+  String? get searchErrorMessage => throw _privateConstructorUsedError;
   PickedLocationModel? get confirmedPick => throw _privateConstructorUsedError;
 
   /// Create a copy of LocationPickerState
@@ -46,12 +46,12 @@ abstract class $LocationPickerStateCopyWith<$Res> {
     LoaderState loaderState,
     double latitude,
     double longitude,
-    List<PlacePrediction> predictions,
     ReverseGeocodeResult? reverseResult,
     bool isSearching,
     bool isReverseLoading,
     bool isServiceable,
     String? errorMessage,
+    String? searchErrorMessage,
     PickedLocationModel? confirmedPick,
   });
 }
@@ -74,12 +74,12 @@ class _$LocationPickerStateCopyWithImpl<$Res, $Val extends LocationPickerState>
     Object? loaderState = null,
     Object? latitude = null,
     Object? longitude = null,
-    Object? predictions = null,
     Object? reverseResult = freezed,
     Object? isSearching = null,
     Object? isReverseLoading = null,
     Object? isServiceable = null,
     Object? errorMessage = freezed,
+    Object? searchErrorMessage = freezed,
     Object? confirmedPick = freezed,
   }) {
     return _then(
@@ -96,10 +96,6 @@ class _$LocationPickerStateCopyWithImpl<$Res, $Val extends LocationPickerState>
                 ? _value.longitude
                 : longitude // ignore: cast_nullable_to_non_nullable
                       as double,
-            predictions: null == predictions
-                ? _value.predictions
-                : predictions // ignore: cast_nullable_to_non_nullable
-                      as List<PlacePrediction>,
             reverseResult: freezed == reverseResult
                 ? _value.reverseResult
                 : reverseResult // ignore: cast_nullable_to_non_nullable
@@ -119,6 +115,10 @@ class _$LocationPickerStateCopyWithImpl<$Res, $Val extends LocationPickerState>
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            searchErrorMessage: freezed == searchErrorMessage
+                ? _value.searchErrorMessage
+                : searchErrorMessage // ignore: cast_nullable_to_non_nullable
                       as String?,
             confirmedPick: freezed == confirmedPick
                 ? _value.confirmedPick
@@ -143,12 +143,12 @@ abstract class _$$LocationPickerStateImplCopyWith<$Res>
     LoaderState loaderState,
     double latitude,
     double longitude,
-    List<PlacePrediction> predictions,
     ReverseGeocodeResult? reverseResult,
     bool isSearching,
     bool isReverseLoading,
     bool isServiceable,
     String? errorMessage,
+    String? searchErrorMessage,
     PickedLocationModel? confirmedPick,
   });
 }
@@ -170,12 +170,12 @@ class __$$LocationPickerStateImplCopyWithImpl<$Res>
     Object? loaderState = null,
     Object? latitude = null,
     Object? longitude = null,
-    Object? predictions = null,
     Object? reverseResult = freezed,
     Object? isSearching = null,
     Object? isReverseLoading = null,
     Object? isServiceable = null,
     Object? errorMessage = freezed,
+    Object? searchErrorMessage = freezed,
     Object? confirmedPick = freezed,
   }) {
     return _then(
@@ -192,10 +192,6 @@ class __$$LocationPickerStateImplCopyWithImpl<$Res>
             ? _value.longitude
             : longitude // ignore: cast_nullable_to_non_nullable
                   as double,
-        predictions: null == predictions
-            ? _value._predictions
-            : predictions // ignore: cast_nullable_to_non_nullable
-                  as List<PlacePrediction>,
         reverseResult: freezed == reverseResult
             ? _value.reverseResult
             : reverseResult // ignore: cast_nullable_to_non_nullable
@@ -216,6 +212,10 @@ class __$$LocationPickerStateImplCopyWithImpl<$Res>
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
                   as String?,
+        searchErrorMessage: freezed == searchErrorMessage
+            ? _value.searchErrorMessage
+            : searchErrorMessage // ignore: cast_nullable_to_non_nullable
+                  as String?,
         confirmedPick: freezed == confirmedPick
             ? _value.confirmedPick
             : confirmedPick // ignore: cast_nullable_to_non_nullable
@@ -232,14 +232,14 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
     this.loaderState = LoaderState.loaded,
     this.latitude = LocationConfig.defaultLat,
     this.longitude = LocationConfig.defaultLng,
-    final List<PlacePrediction> predictions = const [],
     this.reverseResult,
     this.isSearching = false,
     this.isReverseLoading = false,
     this.isServiceable = false,
     this.errorMessage,
+    this.searchErrorMessage,
     this.confirmedPick,
-  }) : _predictions = predictions;
+  });
 
   @override
   @JsonKey()
@@ -250,15 +250,6 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
   @override
   @JsonKey()
   final double longitude;
-  final List<PlacePrediction> _predictions;
-  @override
-  @JsonKey()
-  List<PlacePrediction> get predictions {
-    if (_predictions is EqualUnmodifiableListView) return _predictions;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_predictions);
-  }
-
   @override
   final ReverseGeocodeResult? reverseResult;
   @override
@@ -273,11 +264,13 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
   @override
   final String? errorMessage;
   @override
+  final String? searchErrorMessage;
+  @override
   final PickedLocationModel? confirmedPick;
 
   @override
   String toString() {
-    return 'LocationPickerState(loaderState: $loaderState, latitude: $latitude, longitude: $longitude, predictions: $predictions, reverseResult: $reverseResult, isSearching: $isSearching, isReverseLoading: $isReverseLoading, isServiceable: $isServiceable, errorMessage: $errorMessage, confirmedPick: $confirmedPick)';
+    return 'LocationPickerState(loaderState: $loaderState, latitude: $latitude, longitude: $longitude, reverseResult: $reverseResult, isSearching: $isSearching, isReverseLoading: $isReverseLoading, isServiceable: $isServiceable, errorMessage: $errorMessage, searchErrorMessage: $searchErrorMessage, confirmedPick: $confirmedPick)';
   }
 
   @override
@@ -291,10 +284,6 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
                 other.latitude == latitude) &&
             (identical(other.longitude, longitude) ||
                 other.longitude == longitude) &&
-            const DeepCollectionEquality().equals(
-              other._predictions,
-              _predictions,
-            ) &&
             (identical(other.reverseResult, reverseResult) ||
                 other.reverseResult == reverseResult) &&
             (identical(other.isSearching, isSearching) ||
@@ -305,6 +294,8 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
                 other.isServiceable == isServiceable) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage) &&
+            (identical(other.searchErrorMessage, searchErrorMessage) ||
+                other.searchErrorMessage == searchErrorMessage) &&
             (identical(other.confirmedPick, confirmedPick) ||
                 other.confirmedPick == confirmedPick));
   }
@@ -315,12 +306,12 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
     loaderState,
     latitude,
     longitude,
-    const DeepCollectionEquality().hash(_predictions),
     reverseResult,
     isSearching,
     isReverseLoading,
     isServiceable,
     errorMessage,
+    searchErrorMessage,
     confirmedPick,
   );
 
@@ -341,12 +332,12 @@ abstract class _LocationPickerState implements LocationPickerState {
     final LoaderState loaderState,
     final double latitude,
     final double longitude,
-    final List<PlacePrediction> predictions,
     final ReverseGeocodeResult? reverseResult,
     final bool isSearching,
     final bool isReverseLoading,
     final bool isServiceable,
     final String? errorMessage,
+    final String? searchErrorMessage,
     final PickedLocationModel? confirmedPick,
   }) = _$LocationPickerStateImpl;
 
@@ -357,8 +348,6 @@ abstract class _LocationPickerState implements LocationPickerState {
   @override
   double get longitude;
   @override
-  List<PlacePrediction> get predictions;
-  @override
   ReverseGeocodeResult? get reverseResult;
   @override
   bool get isSearching;
@@ -368,6 +357,8 @@ abstract class _LocationPickerState implements LocationPickerState {
   bool get isServiceable;
   @override
   String? get errorMessage;
+  @override
+  String? get searchErrorMessage;
   @override
   PickedLocationModel? get confirmedPick;
 

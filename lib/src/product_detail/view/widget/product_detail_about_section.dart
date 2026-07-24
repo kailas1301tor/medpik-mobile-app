@@ -1,10 +1,10 @@
 // lib/src/product_detail/view/widget/product_detail_about_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/product_detail/model/product_detail_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/product_detail/model/product_detail_model.dart';
 
 class ProductDetailAboutSection extends StatelessWidget {
   const ProductDetailAboutSection({super.key, required this.detail});

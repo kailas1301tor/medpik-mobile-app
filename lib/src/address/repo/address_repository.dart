@@ -1,22 +1,36 @@
 // lib/src/address/repo/address_repository.dart
+//
+// * REST layer for saved addresses — all methods return Either<ResponseError, T>.
+//
+// ? Base path: AppConstants.addresses → /api/addresses
+// ? GET    — list addresses for authenticated user
+// ? POST   — create (AddressModel.toCreateJson)
+// ? PUT    — update (body includes id + fields)
+// ? DELETE — remove (body { id })
+//
+// ! Errors are never thrown to the UI — always map via handleResponseError in notifier.
+// ? JSON envelopes parsed in feature models; repo passes full response map.
 import 'package:either_dart/either.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/data/remote/network_base_services.dart';
-import 'package:tsuite/data/remote/network_services.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/src/address/model/address_create_response_model.dart';
-import 'package:tsuite/src/address/model/addresses_response_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/data/remote/network_base_services.dart';
+import 'package:medpik/data/remote/network_services.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/src/address/model/address_save_response_model.dart';
+import 'package:medpik/src/address/model/addresses_response_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 abstract class AddressRepo {
-  Future<Either<ResponseError, List<AddressModel>>> getAddresses();
+  Future<Either<ResponseError, AddressesResponse>> getAddresses();
 
-  Future<Either<ResponseError, AddressModel>> saveAddress(AddressModel address);
+  Future<Either<ResponseError, AddressSaveResponse>> createAddress(
+    AddressModel address,
+  );
+
+  Future<Either<ResponseError, AddressSaveResponse>> updateAddress(
+    AddressModel address,
+  );
 
   Future<Either<ResponseError, bool>> deleteAddress(int id);
-
-  Future<Either<ResponseError, AddressModel>> setDefaultAddress(int id);
 }
 
 class AddressRepoImpl implements AddressRepo {
@@ -25,32 +39,22 @@ class AddressRepoImpl implements AddressRepo {
   final NetworkServices _networkServices;
 
   @override
-  Future<Either<ResponseError, List<AddressModel>>> getAddresses() async {
+  Future<Either<ResponseError, AddressesResponse>> getAddresses() async {
     return await _networkServices
         .safe(
           _networkServices.getRequest(endPoint: AppConstants.addresses),
         )
         .thenRight(_networkServices.checkHttpStatus)
         .thenRight(_networkServices.parseJson)
-        .mapRight((right) {
-          final response = AddressesResponse.fromJson(convertToMap(right));
-          return response.addresses;
-        });
+        .mapRight(
+          (right) => AddressesResponse.fromJson(convertToMap(right)),
+        );
   }
 
   @override
-  Future<Either<ResponseError, AddressModel>> saveAddress(
+  Future<Either<ResponseError, AddressSaveResponse>> createAddress(
     AddressModel address,
   ) async {
-    if (address.id != 0) {
-      return const Left(
-        ResponseError(
-          key: ApiErrorTypes.oops,
-          message: Strings.addressUpdateUnavailable,
-        ),
-      );
-    }
-
     return await _networkServices
         .safe(
           _networkServices.postRequest(
@@ -61,44 +65,42 @@ class AddressRepoImpl implements AddressRepo {
         .thenRight(_networkServices.checkHttpStatus)
         .thenRight(_networkServices.parseJson)
         .mapRight(
-          (right) => AddressCreateResponse.fromJson(convertToMap(right)),
-        )
-        .then((either) {
-          return either.fold(
-            (error) => Left(error),
-            (response) {
-              final saved = response.address;
-              if (saved == null || saved.id == 0) {
-                return const Left(
-                  ResponseError(
-                    key: ApiErrorTypes.jsonParsing,
-                    message: Strings.somethingWentWrong,
-                  ),
-                );
-              }
-              return Right(saved);
+          (right) => AddressSaveResponse.fromJson(convertToMap(right)),
+        );
+  }
+
+  @override
+  Future<Either<ResponseError, AddressSaveResponse>> updateAddress(
+    AddressModel address,
+  ) async {
+    return await _networkServices
+        .safe(
+          _networkServices.putRequest(
+            endPoint: AppConstants.addresses,
+            parameters: {
+              'id': address.id,
+              ...address.toCreateJson(),
             },
-          );
-        });
+          ),
+        )
+        .thenRight(_networkServices.checkHttpStatus)
+        .thenRight(_networkServices.parseJson)
+        .mapRight(
+          (right) => AddressSaveResponse.fromJson(convertToMap(right)),
+        );
   }
 
   @override
   Future<Either<ResponseError, bool>> deleteAddress(int id) async {
-    return const Left(
-      ResponseError(
-        key: ApiErrorTypes.oops,
-        message: Strings.addressDeleteUnavailable,
-      ),
-    );
-  }
-
-  @override
-  Future<Either<ResponseError, AddressModel>> setDefaultAddress(int id) async {
-    return const Left(
-      ResponseError(
-        key: ApiErrorTypes.oops,
-        message: Strings.setDefaultAddressUnavailable,
-      ),
-    );
+    return await _networkServices
+        .safe(
+          _networkServices.deleteRequest(
+            endPoint: AppConstants.addresses,
+            parameters: {'id': id},
+          ),
+        )
+        .thenRight(_networkServices.checkHttpStatus)
+        .thenRight(_networkServices.parseJson)
+        .mapRight((_) => true);
   }
 }

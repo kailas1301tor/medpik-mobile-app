@@ -1,9 +1,9 @@
-// /Users/wac/Documents/wac projects/tsuite/lib/utils/common_widgets/common_otp_field.dart
+// /Users/wac/Documents/tortilon/medpik/lib/utils/common_widgets/common_otp_field.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pinput/pinput.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
 
 class CommonOtpField extends StatelessWidget {
   const CommonOtpField({
@@ -12,12 +12,14 @@ class CommonOtpField extends StatelessWidget {
     this.length = 4,
     this.onChanged,
     this.onCompleted,
+    this.hasError = false,
   });
 
   final TextEditingController? controller;
   final int length;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onCompleted;
+  final bool hasError;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,9 @@ class CommonOtpField extends StatelessWidget {
           decoration: BoxDecoration(
             color: colors.inputBackground,
             borderRadius: borderRadius,
-            border: Border.all(color: colors.inputBorder),
+            border: Border.all(
+              color: hasError ? colors.errorText : colors.inputBorder,
+            ),
           ),
         );
 
@@ -48,10 +52,12 @@ class CommonOtpField extends StatelessWidget {
           length: length,
           defaultPinTheme: pinTheme,
           focusedPinTheme: pinTheme.copyDecorationWith(
-            border: Border.all(color: colors.accent),
+            border: Border.all(
+              color: hasError ? colors.errorText : colors.accent,
+            ),
             borderRadius: borderRadius,
           ),
-          submittedPinTheme: pinTheme,
+          errorPinTheme: pinTheme,
           onChanged: onChanged,
           onCompleted: onCompleted,
           separatorBuilder: (_) => SizedBox(width: separatorWidth),

@@ -1,7 +1,7 @@
 // lib/src/prescription/state/prescription_checkout_state.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/enums/enums.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/res/enums/enums.dart';
 
 part 'prescription_checkout_state.freezed.dart';
 

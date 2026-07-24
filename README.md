@@ -14,7 +14,19 @@ Medpik mobile application — a Flutter app for medicine delivery and pharmacy s
 ```bash
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
-flutter run
+```
+
+### Google Maps keys (location picker)
+
+1. Copy `config/secrets.example.json` → `config/secrets.local.json`
+2. Add your Maps SDK keys (Android/iOS) and Geocoding API key
+3. Run `./tool/bootstrap_secrets.sh`
+4. Launch with `flutter run --dart-define-from-file=config/dart_defines.json`
+
+See [`docs/location_maps_quota.md`](docs/location_maps_quota.md) for Cloud Console setup.
+
+```bash
+flutter run --dart-define-from-file=config/dart_defines.json
 ```
 
 ## Project structure
@@ -26,4 +38,4 @@ flutter run
 
 ## Development
 
-Mock data is enabled by default (`AppConstants.useMockData = true`).
+All features use the live backend API. Configure Google Maps keys for the location picker (see above).

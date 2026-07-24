@@ -1,12 +1,12 @@
 // lib/src/product_detail/view/widget/product_detail_shimmer_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_floating_action.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_hero_image.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_shimmer_sections.dart';
-import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
-import 'package:tsuite/utils/extensions/context_extensions.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_floating_action.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_hero_image.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_shimmer_sections.dart';
+import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
+import 'package:medpik/utils/extensions/context_extensions.dart';
 
 /// Skeleton that mirrors product detail layout while the API loads.
 class ProductDetailShimmerWidget extends StatelessWidget {

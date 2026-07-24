@@ -1,9 +1,10 @@
 // lib/utils/helpers/order_status_helper.dart
 import 'package:intl/intl.dart';
-import 'package:tsuite/data/models/order_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
+import 'package:medpik/data/models/order_model.dart';
+import 'package:medpik/data/models/order_status_option_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/res/styles/color_palette.dart';
 import 'package:flutter/material.dart';
 
 String orderStatusLabel(OrderStatus status) {
@@ -293,6 +294,15 @@ bool orderDetailShowsBillCard(OrderStatus status) {
       status == OrderStatus.awaitingBillApproval;
 }
 
+bool orderDetailShowsBillSummary(OrderModel order) =>
+    order.billBreakdown != null;
+
+bool orderDetailUsesBillPricing(OrderModel order) {
+  if (order.billBreakdown == null) return false;
+  if (order.items.isEmpty) return true;
+  return order.items.every((item) => item.lineTotal <= 0);
+}
+
 class OrderDetailCta {
   const OrderDetailCta({
     required this.label,
@@ -355,6 +365,18 @@ OrderBillBreakdown resolveOrderBillBreakdown(OrderModel order) {
 
 int orderItemCount(OrderModel order) {
   return order.items.fold<int>(0, (sum, item) => sum + item.quantity);
+}
+
+String orderCardCountLabel(OrderModel order) {
+  final itemCount = orderItemCount(order);
+  if (itemCount > 0) {
+    return '$itemCount ${Strings.itemsLabel}';
+  }
+  final rxCount = order.prescriptionImageUrls.length;
+  if (rxCount > 0) {
+    return '$rxCount ${Strings.prescriptionsLabel}';
+  }
+  return '0 ${Strings.itemsLabel}';
 }
 
 int orderLifecycleIndex(OrderStatus status) {
@@ -435,5 +457,83 @@ List<OrderTrackingStep> orderTrackingSteps(OrderStatus currentStatus) {
           isFailed: false,
         );
       })
+      .toList();
+}
+
+const _terminalFailureStatusIds = {
+  'cancelled',
+  'cancelledbyadmin',
+  'rejected',
+  'billrejected',
+};
+
+String normalizeOrderStatusId(String value) {
+  return value.toLowerCase().replaceAll(RegExp(r'[\s_]+'), '');
+}
+
+bool isTerminalFailureOrderStatus(String statusId) {
+  return _terminalFailureStatusIds.contains(normalizeOrderStatusId(statusId));
+}
+
+List<OrderTrackingStep> orderTrackingStepsFromApi({
+  required String currentStatusId,
+  required List<OrderStatusOptionModel> statuses,
+  OrderStatus? fallbackStatus,
+}) {
+  if (statuses.isEmpty) {
+    if (fallbackStatus != null) {
+      return orderTrackingSteps(fallbackStatus);
+    }
+    return const [];
+  }
+
+  final normalizedCurrent = normalizeOrderStatusId(currentStatusId);
+
+  if (isTerminalFailureOrderStatus(currentStatusId)) {
+    final failedStatus = statuses.firstWhere(
+      (status) => normalizeOrderStatusId(status.id) == normalizedCurrent,
+      orElse: () => OrderStatusOptionModel(
+        id: currentStatusId,
+        name: currentStatusId,
+      ),
+    );
+    return [
+      OrderTrackingStep(
+        label: failedStatus.name,
+        isCompleted: true,
+        isFailed: true,
+      ),
+    ];
+  }
+
+  final currentIndex = statuses.indexWhere(
+    (status) => normalizeOrderStatusId(status.id) == normalizedCurrent,
+  );
+
+  if (currentIndex < 0) {
+    if (fallbackStatus != null) {
+      return orderTrackingSteps(fallbackStatus);
+    }
+    return statuses
+        .map(
+          (status) => OrderTrackingStep(
+            label: status.name,
+            isCompleted: false,
+            isFailed: false,
+          ),
+        )
+        .toList();
+  }
+
+  return statuses
+      .asMap()
+      .entries
+      .map(
+        (entry) => OrderTrackingStep(
+          label: entry.value.name,
+          isCompleted: entry.key <= currentIndex,
+          isFailed: false,
+        ),
+      )
       .toList();
 }

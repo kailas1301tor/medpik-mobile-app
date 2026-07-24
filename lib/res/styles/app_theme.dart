@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/color_palette.dart';
 
 class AppTheme {
   AppTheme._(); // ✅ Prevent instantiation — pure static class

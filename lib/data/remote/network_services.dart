@@ -4,14 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/src/root/tsuite_app.dart';
+import 'package:medpik/src/root/medpik_app.dart';
 import '../../res/constants/app_constants.dart';
 import '../../utils/helpers/common_functions.dart';
+import '../../utils/helpers/api_error_handler.dart';
 import '../../utils/helpers/network_logger.dart';
 import '../../utils/routes/route_constants.dart';
 import 'network_base_services.dart';
-import '../../services/auth_session_service.dart';
 import '../../services/connectivity_service.dart';
+import '../../src/auth/notifier/auth_notifier.dart';
 
 part 'network_services.g.dart';
 
@@ -330,6 +331,28 @@ class NetworkServices extends NetWorkBaseServices {
     }
   }
 
+  Future<List<int>> getBytesWithUrl({required String url}) async {
+    await _assertInternetAvailable();
+
+    try {
+      final response = await _dio.get<List<int>>(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      final bytes = response.data;
+      if (response.statusCode != 200 || bytes == null || bytes.isEmpty) {
+        throw ApiExceptions.oops();
+      }
+      return bytes;
+    } on DioException catch (error) {
+      debugPrint('🔴 PDF download error: ${error.message}');
+      throw ApiExceptions.oops();
+    } catch (e) {
+      debugPrint('🔴 Unexpected Error in getBytesWithUrl: $e');
+      throw ApiExceptions.oops();
+    }
+  }
+
   @override
   Future<BaseResponse> downloadFile({
     required String endPoint,
@@ -379,14 +402,21 @@ class NetworkServices extends NetWorkBaseServices {
       404 => Left(
         ResponseError(
           key: ApiErrorTypes.notFound,
-          message: "Not Found",
+          message: extractApiErrorMessage(response.data) ?? "Not Found",
+          response: response.data,
+        ),
+      ),
+      400 => Left(
+        ResponseError(
+          key: ApiErrorTypes.badRequest,
+          message: extractApiErrorMessage(response.data) ?? "Bad Request",
           response: response.data,
         ),
       ),
       422 => Left(
         ResponseError(
           key: ApiErrorTypes.badRequest,
-          message: "Validation Error",
+          message: extractApiErrorMessage(response.data) ?? "Validation Error",
           response: response.data,
         ),
       ),
@@ -414,7 +444,7 @@ class NetworkServices extends NetWorkBaseServices {
       _ => Left(
         ResponseError(
           key: ApiErrorTypes.unknown,
-          message: "Unknown",
+          message: extractApiErrorMessage(response.data) ?? "Unknown",
           response: response.data,
         ),
       ),
@@ -465,7 +495,7 @@ class NetworkServices extends NetWorkBaseServices {
 
   Future<void> _forceLogout() async {
     debugPrint('🔴 401 UNAUTHORIZED — clearing session and forcing logout');
-    await _ref.read(authSessionServiceProvider).clear();
+    await _ref.read(authNotifierProvider.notifier).clearSessionOnUnauthorized();
 
     final navKey = _ref.read(navigatorKeyProvider);
     if (navKey.currentState != null) {

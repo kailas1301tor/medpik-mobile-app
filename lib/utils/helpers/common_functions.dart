@@ -3,9 +3,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-export 'package:tsuite/utils/helpers/debounce_helper.dart';
-export 'package:tsuite/utils/helpers/throttle_helper.dart';
-export 'package:tsuite/utils/helpers/toast_helper.dart';
+export 'package:medpik/utils/helpers/debounce_helper.dart';
+export 'package:medpik/utils/helpers/throttle_helper.dart';
+export 'package:medpik/utils/helpers/toast_helper.dart';
 
 /// Check if the device has an active internet connection.
 Future<bool> isInternetAvailable() async {
@@ -36,4 +36,9 @@ int getPhoneMaxLength(String countryCode) {
     '+44' => 10,
     _ => 15,
   };
+}
+void configureImageCache() {
+  final imageCache = PaintingBinding.instance.imageCache;
+  imageCache.maximumSize = 500;
+  imageCache.maximumSizeBytes = 200 << 20;
 }

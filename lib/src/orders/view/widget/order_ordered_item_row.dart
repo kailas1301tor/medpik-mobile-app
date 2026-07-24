@@ -1,12 +1,12 @@
 // lib/src/orders/view/widget/order_ordered_item_row.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/order_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
-import 'package:tsuite/utils/extensions/num_extensions.dart';
+import 'package:medpik/data/models/order_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
+import 'package:medpik/utils/extensions/num_extensions.dart';
 
 class OrderOrderedItemRow extends StatelessWidget {
   const OrderOrderedItemRow({
@@ -40,8 +40,6 @@ class OrderOrderedItemRow extends StatelessWidget {
                 height: imageSize,
                 borderRadius: 10.r,
                 fit: BoxFit.cover,
-                memCacheWidth: 112,
-                memCacheHeight: 112,
               ),
               12.horizontalSpace,
               Expanded(

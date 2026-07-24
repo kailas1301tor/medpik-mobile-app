@@ -2,139 +2,92 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/search/notifier/search_notifier.dart';
-import 'package:tsuite/src/search/view/widget/search_results_content_widget.dart';
-import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
-import 'package:tsuite/utils/common_widgets/common_loader.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/data/models/product_catalog_args.dart';
+import 'package:medpik/src/search/notifier/search_notifier.dart';
+import 'package:medpik/src/search/view/widget/catalog_category_chips.dart';
+import 'package:medpik/src/search/view/widget/search_results_content_widget.dart';
+import 'package:medpik/src/search/view/widget/search_results_shimmer_widget.dart';
+import 'package:medpik/utils/common_widgets/common_app_bar.dart';
+import 'package:medpik/utils/common_widgets/common_refresh_indicator.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/common_search_bar.dart';
+import 'package:medpik/utils/common_widgets/common_switch_state.dart';
+import 'package:tuple/tuple.dart';
 
 class SearchResultsScreen extends ConsumerWidget {
-  const SearchResultsScreen({super.key, required this.initialQuery});
+  const SearchResultsScreen({super.key, required this.args});
 
-  final String initialQuery;
+  final ProductCatalogArgs args;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(searchCatalogInitProvider(args));
+
     final colors = context.appColors;
     final notifier = ref.read(searchNotifierProvider.notifier);
-    final loaderState = ref.watch(
-      searchNotifierProvider.select((s) => s.loaderState),
+    final catalogTitle = ref.watch(
+      searchNotifierProvider.select((s) => s.catalogTitle),
     );
-    final results = ref.watch(searchNotifierProvider.select((s) => s.results));
-    final categories = ref.watch(
-      searchNotifierProvider.select((s) => s.categories),
+    final searchData = ref.watch(
+      searchNotifierProvider.select(
+        (s) => Tuple3(s.loaderState, s.results, s.categoryId),
+      ),
     );
-    final selectedCategory = ref.watch(
-      searchNotifierProvider.select((s) => s.selectedCategory),
+    final paging = ref.watch(
+      searchNotifierProvider.select(
+        (s) => Tuple2(s.hasMore, s.isLoadingMore),
+      ),
     );
 
-    Future.microtask(() => notifier.initResults(initialQuery));
+    final loaderState = searchData.item1;
+    final results = searchData.item2;
+    final categoryId = searchData.item3;
+    final hasMore = paging.item1;
+    final isLoadingMore = paging.item2;
+    final title = catalogTitle.isNotEmpty ? catalogTitle : args.title;
 
     return CommonScaffold(
-      appBar: CommonAppBar(title: '${Strings.resultsFor} "$initialQuery"'),
+      appBar: CommonAppBar(title: title),
       backgroundColor: colors.background,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (categories.isNotEmpty)
-            Padding(
-              padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
-              child: SizedBox(
-                height: 40.h,
-                child: ListView.separated(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length + 1,
-                  separatorBuilder: (_, __) => 8.horizontalSpace,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return _FilterChip(
-                        label: Strings.allCategories,
-                        isSelected: selectedCategory == null,
-                        onTap: () => notifier.selectCategory(null),
-                      );
-                    }
-                    final category = categories[index - 1];
-                    return _FilterChip(
-                      label: category.name,
-                      isSelected: selectedCategory == category.name,
-                      onTap: () => notifier.selectCategory(category.name),
-                    );
-                  },
+          Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 4.h),
+            child: CommonSearchBar(
+              controller: notifier.catalogSearchController,
+              focusNode: notifier.catalogSearchFocusNode,
+              hintText: Strings.searchMedicines,
+              onChanged: notifier.onCatalogSearchChanged,
+              onClear: notifier.clearCatalogSearch,
+            ),
+          ),
+          8.verticalSpace,
+          CatalogCategoryChips(
+            selectedCategoryId: categoryId,
+            onSelected: notifier.selectCategory,
+          ),
+          4.verticalSpace,
+          Expanded(
+            child: CommonRefreshIndicator(
+              onRefresh: notifier.refreshCatalog,
+              child: CommonSwitchState(
+                loaderState: loaderState,
+                reload: notifier.refreshCatalog,
+                loader: const SearchResultsShimmerWidget(),
+                buttonText: Strings.refresh,
+                child: SearchResultsContentWidget(
+                  results: results,
+                  hasMore: hasMore,
+                  isLoadingMore: isLoadingMore,
+                  onLoadMore: notifier.loadMore,
                 ),
               ),
             ),
-          Expanded(
-            child: switch (loaderState) {
-              LoaderState.loading => const Center(child: CommonLoader()),
-              LoaderState.noData => const CommonEmptyState(
-                  title: Strings.noResultsFound,
-                  message: Strings.noResultsDesc,
-                ),
-              LoaderState.error ||
-              LoaderState.networkError ||
-              LoaderState.serverError =>
-                CommonEmptyState(
-                  title: Strings.errorTitle,
-                  message: Strings.errorDescription,
-                  buttonText: Strings.refresh,
-                  onPressed: () => notifier.performSearch(query: initialQuery),
-                ),
-              LoaderState.loaded =>
-                SearchResultsContentWidget(results: results),
-              _ => const SizedBox.shrink(),
-            },
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: CommonContainer(
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
-        borderRadius: 20.r,
-        color: isSelected ? colors.primary : colors.surface,
-        side: BorderSide(
-          color: isSelected
-              ? colors.primary
-              : colors.cardBorder,
-          width: 1.w,
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: FontPalette.base500(
-              13,
-              color: isSelected ? ColorPalette.white : colors.primaryText,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
       ),
     );
   }

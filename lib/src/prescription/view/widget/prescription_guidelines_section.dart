@@ -1,8 +1,8 @@
 // lib/src/prescription/view/widget/prescription_guidelines_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_guidelines_content.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_guidelines_content.dart';
 
 class PrescriptionGuidelinesSection extends StatelessWidget {
   const PrescriptionGuidelinesSection({super.key});

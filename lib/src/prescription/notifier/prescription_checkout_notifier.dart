@@ -2,15 +2,17 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/src/address/notifier/address_notifier.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
-import 'package:tsuite/src/prescription/repo/prescription_repository.dart';
-import 'package:tsuite/src/prescription/state/prescription_checkout_state.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/providers/address_providers.dart';
+import 'package:medpik/providers/orders_providers.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/prescription/notifier/prescription_notifier.dart';
+import 'package:medpik/src/prescription/repo/prescription_repository.dart';
+import 'package:medpik/src/prescription/state/prescription_checkout_state.dart';
+import 'package:medpik/utils/common_widgets/custom_toast.dart';
+import 'package:medpik/utils/helpers/address_resolution_helper.dart';
 
 part 'prescription_checkout_notifier.g.dart';
 
@@ -29,6 +31,18 @@ class PrescriptionCheckoutNotifier extends _$PrescriptionCheckoutNotifier {
     final draft = ref.read(prescriptionNotifierProvider).draft;
 
     await ref.read(addressNotifierProvider.notifier).fetchAddresses();
+    final addressLoaderState = ref.read(addressNotifierProvider).loaderState;
+    if (addressLoaderState == LoaderState.networkError ||
+        addressLoaderState == LoaderState.serverError ||
+        addressLoaderState == LoaderState.error) {
+      state = state.copyWith(
+        loaderState: addressLoaderState,
+        errorMessage: Strings.errorDescription,
+        isPlacingOrder: false,
+      );
+      return;
+    }
+
     final addresses = ref.read(addressNotifierProvider).addresses;
 
     if (draft == null || draft.filePaths.isEmpty) {
@@ -41,16 +55,18 @@ class PrescriptionCheckoutNotifier extends _$PrescriptionCheckoutNotifier {
 
     state = state.copyWith(
       loaderState: LoaderState.loaded,
-      selectedAddress: _resolveDefaultAddress(addresses),
+      selectedAddress: resolveDefaultAddress(addresses),
       isPlacingOrder: false,
     );
   }
 
   Future<void> refreshSelectedAddress() async {
     await ref.read(addressNotifierProvider.notifier).fetchAddresses();
-    final addresses = ref.read(addressNotifierProvider).addresses;
     state = state.copyWith(
-      selectedAddress: _resolveSelectedAddress(addresses),
+      selectedAddress: resolveSelectedAddress(
+        ref.read(addressNotifierProvider).addresses,
+        current: state.selectedAddress,
+      ),
     );
   }
 
@@ -58,7 +74,7 @@ class PrescriptionCheckoutNotifier extends _$PrescriptionCheckoutNotifier {
     state = state.copyWith(selectedAddress: address);
   }
 
-  Future<String?> placeOrder() async {
+  Future<String?> placePrescriptionOrder() async {
     if (state.isPlacingOrder) return null;
 
     final address = state.selectedAddress;
@@ -83,7 +99,7 @@ class PrescriptionCheckoutNotifier extends _$PrescriptionCheckoutNotifier {
         .placeOrder(
           addressId: address.id,
           prescriptionDescription: draft.notes,
-          deliveryInstructions: '',
+          deliveryInstructions: draft.notes,
           products: draft.selectedProducts,
           filePaths: draft.filePaths,
         )
@@ -109,8 +125,8 @@ class PrescriptionCheckoutNotifier extends _$PrescriptionCheckoutNotifier {
               return null;
             }
             debugPrint("🟢 PRESCRIPTION ORDER PLACED: $orderId");
-            await prescriptionRepo.clearDraft();
-            await ref.read(prescriptionNotifierProvider.notifier).loadDraft();
+            ref.read(prescriptionNotifierProvider.notifier).clearDraft();
+            ref.read(ordersNotifierProvider.notifier).fetchOrders();
             state = state.copyWith(
               isPlacingOrder: false,
               placedOrderId: orderId,
@@ -127,22 +143,5 @@ class PrescriptionCheckoutNotifier extends _$PrescriptionCheckoutNotifier {
           );
           return null;
         });
-  }
-
-  AddressModel? _resolveSelectedAddress(List<AddressModel> addresses) {
-    final selectedId = state.selectedAddress?.id;
-    if (selectedId != null) {
-      for (final address in addresses) {
-        if (address.id == selectedId) return address;
-      }
-    }
-    return _resolveDefaultAddress(addresses);
-  }
-
-  AddressModel? _resolveDefaultAddress(List<AddressModel> addresses) {
-    for (final address in addresses) {
-      if (address.isDefault) return address;
-    }
-    return addresses.isNotEmpty ? addresses.first : null;
   }
 }

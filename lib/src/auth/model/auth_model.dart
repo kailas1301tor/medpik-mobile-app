@@ -1,6 +1,6 @@
 // lib/src/auth/model/auth_model.dart
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class AuthModel {
   const AuthModel({
@@ -8,6 +8,7 @@ class AuthModel {
     required this.name,
     required this.phone,
     required this.email,
+    this.profileImageUrl = '',
     this.customerId,
     this.countryCode,
     this.status = UserAccountStatus.active,
@@ -19,6 +20,7 @@ class AuthModel {
   final String name;
   final String phone;
   final String email;
+  final String profileImageUrl;
   final int? customerId;
   final String? countryCode;
   final UserAccountStatus status;
@@ -34,6 +36,9 @@ class AuthModel {
           json['phone_number'] ?? json['phone'],
         ),
         email: convertToString(json['email']),
+        profileImageUrl: convertToString(
+          json['profile_image_url'] ?? json['avatar_url'],
+        ),
         customerId: json['customer_id'] == null
             ? null
             : convertToInt(json['customer_id']),
@@ -53,6 +58,7 @@ class AuthModel {
         'phoneNumber': phone,
         'name': name,
         'email': email,
+        'profileImageUrl': profileImageUrl,
         'isNewUser': isNewUser,
         'accessToken': accessToken ?? '',
         'refreshToken': refreshToken ?? '',
@@ -63,6 +69,7 @@ class AuthModel {
         name: convertToString(map['name']),
         phone: convertToString(map['phoneNumber']),
         email: convertToString(map['email']),
+        profileImageUrl: convertToString(map['profileImageUrl']),
         customerId: convertToInt(map['customerId']),
         countryCode: convertToString(map['countryCode']),
         accessToken: convertToString(map['accessToken']),
@@ -119,56 +126,6 @@ class CustomerModel {
   factory CustomerModel.fromJson(Map<String, dynamic> json) => CustomerModel(
         id: convertToInt(json['id']),
       );
-}
-
-/// Parsed verify-otp payload from `results.data`.
-class VerifyOtpResult {
-  const VerifyOtpResult({
-    required this.verified,
-    required this.isNewUser,
-    required this.user,
-    required this.customer,
-    required this.tokens,
-    required this.authModel,
-    this.message = '',
-  });
-
-  final bool verified;
-  final bool isNewUser;
-  final AuthUserModel user;
-  final CustomerModel customer;
-  final AuthTokensModel tokens;
-  final AuthModel authModel;
-  final String message;
-
-  factory VerifyOtpResult.fromApiJson(Map<String, dynamic> json) {
-    final topMessage = convertToString(json['message']);
-    final results = convertToMap(json['results']);
-    final data = convertToMap(results['data']);
-    final user = AuthUserModel.fromJson(convertToMap(data['user']));
-    final customer = CustomerModel.fromJson(convertToMap(data['customer']));
-    final tokens = AuthTokensModel.fromJson(convertToMap(data['tokens']));
-    final dataMessage = convertToString(data['message']);
-
-    return VerifyOtpResult(
-      verified: convertToBool(data['verified']),
-      isNewUser: convertToBool(data['is_new_user']),
-      user: user,
-      customer: customer,
-      tokens: tokens,
-      message: dataMessage.isNotEmpty ? dataMessage : topMessage,
-      authModel: AuthModel(
-        id: user.id,
-        name: '',
-        phone: user.phoneNumber,
-        email: '',
-        customerId: customer.id,
-        countryCode: user.countryCode,
-        accessToken: tokens.access,
-        refreshToken: tokens.refresh,
-      ),
-    );
-  }
 }
 
 class CommonResponseModel {

@@ -1,4 +1,9 @@
 // lib/src/address/model/picked_location_model.dart
+//
+// * DTO from LocationPickerScreen → AddressNotifier (Navigator.pop result).
+//
+// ? Contains display (formattedAddress) + structured lines for form prefill.
+// ? Not persisted directly — merged into AddressModel on save.
 class PickedLocationModel {
   const PickedLocationModel({
     required this.latitude,

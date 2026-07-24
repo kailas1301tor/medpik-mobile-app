@@ -1,13 +1,13 @@
 // lib/src/product_detail/view/widget/product_detail_hero_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/product_detail/model/product_detail_model.dart';
-import 'package:tsuite/src/product_detail/view/widget/product_detail_trust_row.dart';
-import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/helpers/product_pack_label_helper.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/product_detail/model/product_detail_model.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_trust_row.dart';
+import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
+import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/utils/helpers/product_pack_label_helper.dart';
 
 class ProductDetailHeroCard extends StatelessWidget {
   const ProductDetailHeroCard({super.key, required this.detail});
@@ -47,8 +47,6 @@ class ProductDetailHeroCard extends StatelessWidget {
                       height: imageSize * 0.75,
                       borderRadius: 0,
                       fit: BoxFit.contain,
-                      memCacheWidth: 256,
-                      memCacheHeight: 256,
                     ),
                   ),
                   if (packBadge.isNotEmpty)

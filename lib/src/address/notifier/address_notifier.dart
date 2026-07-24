@@ -1,21 +1,39 @@
 // lib/src/address/notifier/address_notifier.dart
+//
+// * Address feature — CRUD + add/edit form business logic.
+//
+// ? Module role: owns address book list and bottom-sheet form state.
+// ? Map picking is handled by LocationPickerNotifier; this notifier receives
+// ? PickedLocationModel and merges it into the form.
+//
+// ? User flows:
+// ? 1. List / manage — fetchAddresses on startup; delete via deleteAddress.
+// ? 2. Add — startAdd after map picker → form → addAddress.
+// ? 3. Edit — startEdit loads row → updateAddress on save.
+//
+// ! keepAlive: true — TextEditingControllers and picked coordinates MUST survive
+// ! AddressBook → LocationPicker → AddressFormSheet navigation.
+//
+// * Entry points: AddressBookScreen, checkout/prescription (select mode), home header.
+// ? Shared domain model: data/models/address_model.dart
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/src/address/model/picked_location_model.dart';
-import 'package:tsuite/src/address/repo/address_repository.dart';
-import 'package:tsuite/src/address/state/address_state.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
-import 'package:tsuite/utils/helpers/api_error_handler.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/address/model/picked_location_model.dart';
+import 'package:medpik/src/address/repo/address_repository.dart';
+import 'package:medpik/src/address/state/address_state.dart';
+import 'package:medpik/utils/helpers/api_error_handler.dart';
+import 'package:medpik/utils/helpers/toast_helper.dart';
 
 part 'address_notifier.g.dart';
 
 @Riverpod(keepAlive: true)
 class AddressNotifier extends _$AddressNotifier {
+  // ? Form controllers — owned here per project convention; disposed in build.
   late final TextEditingController labelController;
   late final TextEditingController phoneController;
   late final TextEditingController line1Controller;
@@ -25,7 +43,11 @@ class AddressNotifier extends _$AddressNotifier {
   late final TextEditingController pincodeController;
 
   late AddressRepo addressRepo;
+
+  // ? Non-null when editing; null when adding a new address.
   int? _editingId;
+
+  // ? Map metadata — form-only fields from PickedLocationModel or AddressModel.
   double? _pickedLatitude;
   double? _pickedLongitude;
   String? _pickedPlaceId;
@@ -56,6 +78,7 @@ class AddressNotifier extends _$AddressNotifier {
     return const AddressState(loaderState: LoaderState.loading);
   }
 
+  // ? GET /api/addresses — drives AddressBookScreen loader / empty / error states.
   Future<void> fetchAddresses() async {
     state = state.copyWith(loaderState: LoaderState.loading);
     return await addressRepo
@@ -66,7 +89,8 @@ class AddressNotifier extends _$AddressNotifier {
             debugPrint("🔴 ADDRESS ERROR: ${error.message}");
             state = state.copyWith(loaderState: loaderState);
           },
-          (addresses) {
+          (response) {
+            final addresses = response.addresses;
             state = state.copyWith(
               loaderState:
                   addresses.isEmpty ? LoaderState.noData : LoaderState.loaded,
@@ -80,6 +104,7 @@ class AddressNotifier extends _$AddressNotifier {
         });
   }
 
+  // ? Resets form for a new address. Pass [pick] when returning from LocationPickerScreen.
   void startAdd({PickedLocationModel? pick}) {
     _editingId = null;
     labelController.clear();
@@ -90,11 +115,17 @@ class AddressNotifier extends _$AddressNotifier {
     stateController.clear();
     pincodeController.clear();
     _clearPickMeta();
+    state = state.copyWith(
+      // * First address in the book is always default.
+      isDefaultSelected: state.addresses.isEmpty,
+      pickedLocationSummary: '',
+    );
     if (pick != null) {
       applyPickedLocation(pick);
     }
   }
 
+  // ? Hydrates controllers and map metadata from an existing AddressModel.
   void startEdit(AddressModel address) {
     _editingId = address.id;
     labelController.text = address.label;
@@ -108,8 +139,36 @@ class AddressNotifier extends _$AddressNotifier {
     _pickedLongitude = address.longitude;
     _pickedPlaceId = address.placeId;
     _pickedFormattedAddress = address.formattedAddress;
+    state = state.copyWith(
+      isDefaultSelected: address.isDefault,
+      pickedLocationSummary: _formatLocationSummary(
+        formattedAddress: address.formattedAddress,
+        line1: address.line1,
+        city: address.city,
+      ),
+    );
   }
 
+  // ? One-liner shown in AddressFormMapPickRow.
+  String _formatLocationSummary({
+    required String? formattedAddress,
+    required String line1,
+    required String city,
+  }) {
+    final formatted = formattedAddress?.trim() ?? '';
+    if (formatted.isNotEmpty) return formatted;
+    return [line1, city].where((part) => part.trim().isNotEmpty).join(', ');
+  }
+
+  void setDefaultSelection(bool value) {
+    state = state.copyWith(isDefaultSelected: value);
+  }
+
+  void toggleDefaultSelection() {
+    state = state.copyWith(isDefaultSelected: !state.isDefaultSelected);
+  }
+
+  // ? Merges map pick into form. Only overwrites non-empty fields (keeps manual edits).
   void applyPickedLocation(PickedLocationModel pick) {
     _pickedLatitude = pick.latitude;
     _pickedLongitude = pick.longitude;
@@ -131,6 +190,14 @@ class AddressNotifier extends _$AddressNotifier {
     if (pick.pincode.isNotEmpty) {
       pincodeController.text = pick.pincode;
     }
+
+    state = state.copyWith(
+      pickedLocationSummary: _formatLocationSummary(
+        formattedAddress: pick.formattedAddress,
+        line1: pick.line1,
+        city: pick.city,
+      ),
+    );
   }
 
   void _clearPickMeta() {
@@ -140,9 +207,18 @@ class AddressNotifier extends _$AddressNotifier {
     _pickedFormattedAddress = null;
   }
 
-  Future<bool> saveCurrent({bool isDefault = false}) async {
-    if (state.isSaving) return false;
+  double? get pickedLatitude => _pickedLatitude;
 
+  double? get pickedLongitude => _pickedLongitude;
+
+  String? get pickedFormattedAddress => _pickedFormattedAddress;
+
+  bool get hasPickedCoordinates =>
+      _pickedLatitude != null && _pickedLongitude != null;
+
+  // ? Validates required fields; returns null + toast on failure.
+  AddressModel? _buildAddressFromForm() {
+    final isDefault = state.isDefaultSelected || state.addresses.isEmpty;
     final address = AddressModel(
       id: _editingId ?? 0,
       label: labelController.text.trim(),
@@ -152,7 +228,7 @@ class AddressNotifier extends _$AddressNotifier {
       city: cityController.text.trim(),
       state: stateController.text.trim(),
       pincode: pincodeController.text.trim(),
-      isDefault: isDefault || state.addresses.isEmpty,
+      isDefault: isDefault,
       latitude: _pickedLatitude,
       longitude: _pickedLongitude,
       placeId: _pickedPlaceId,
@@ -165,23 +241,39 @@ class AddressNotifier extends _$AddressNotifier {
         address.city.isEmpty ||
         address.state.isEmpty ||
         address.pincode.isEmpty) {
-      showCustomToast(message: Strings.fieldRequired, isSuccess: false);
-      return false;
+      showCustomErrorToast(message: Strings.fieldRequired);
+      return null;
     }
+    return address;
+  }
+
+  // ? POST /api/addresses — refreshes list on success.
+  Future<bool> addAddress() async {
+    if (state.isSaving) return false;
+
+    final address = _buildAddressFromForm();
+    if (address == null) return false;
 
     state = state.copyWith(isSaving: true);
     return await addressRepo
-        .saveAddress(address)
+        .createAddress(address)
         .fold(
           (error) {
+            debugPrint("🔴 ADDRESS CREATE ERROR: ${error.message}");
             state = state.copyWith(isSaving: false);
-            showCustomToast(
+            showCustomErrorToast(
               message: error.message ?? Strings.somethingWentWrong,
-              isSuccess: false,
             );
             return false;
           },
-          (saved) async {
+          (response) async {
+            final saved = response.address;
+            if (saved == null || saved.id == 0) {
+              debugPrint("🔴 ADDRESS CREATE ERROR: missing saved address");
+              showCustomErrorToast(message: Strings.somethingWentWrong);
+              return false;
+            }
+            debugPrint("🟢 ADDRESS CREATED: ${saved.id}");
             showCustomToast(message: Strings.addressSaved, isSuccess: true);
             await fetchAddresses();
             state = state.copyWith(isSaving: false);
@@ -189,40 +281,95 @@ class AddressNotifier extends _$AddressNotifier {
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED ADDRESS SAVE ERROR: $error");
+          debugPrint("🔴 UNEXPECTED ADDRESS CREATE ERROR: $error");
           state = state.copyWith(isSaving: false);
-          showCustomToast(
-            message: Strings.somethingWentWrong,
-            isSuccess: false,
-          );
+          showCustomErrorToast(message: Strings.somethingWentWrong);
           return false;
         });
   }
 
-  Future<void> deleteAddress(int id) async {
-    await addressRepo.deleteAddress(id).fold(
+  // ? PUT /api/addresses with id in body.
+  Future<bool> updateAddress() async {
+    if (state.isSaving) return false;
+
+    final editingId = _editingId;
+    if (editingId == null || editingId == 0) {
+      debugPrint("🔴 ADDRESS UPDATE ERROR: missing editing id");
+      showCustomErrorToast(message: Strings.somethingWentWrong);
+      return false;
+    }
+
+    final address = _buildAddressFromForm();
+    if (address == null) return false;
+
+    state = state.copyWith(isSaving: true);
+    return await addressRepo
+        .updateAddress(address.copyWith(id: editingId))
+        .fold(
           (error) {
-            showCustomToast(
+            debugPrint("🔴 ADDRESS UPDATE ERROR: ${error.message}");
+            state = state.copyWith(isSaving: false);
+            showCustomErrorToast(
               message: error.message ?? Strings.somethingWentWrong,
-              isSuccess: false,
+            );
+            return false;
+          },
+          (response) async {
+            final saved = response.address;
+            if (saved == null || saved.id == 0) {
+              debugPrint("🔴 ADDRESS UPDATE ERROR: missing saved address");
+              showCustomErrorToast(message: Strings.somethingWentWrong);
+              return false;
+            }
+            debugPrint("🟢 ADDRESS UPDATED: ${saved.id}");
+            showCustomToast(message: Strings.addressSaved, isSuccess: true);
+            await fetchAddresses();
+            state = state.copyWith(isSaving: false);
+            return true;
+          },
+        )
+        .catchError((error) {
+          debugPrint("🔴 UNEXPECTED ADDRESS UPDATE ERROR: $error");
+          state = state.copyWith(isSaving: false);
+          showCustomErrorToast(message: Strings.somethingWentWrong);
+          return false;
+        });
+  }
+
+  // * Form save entry — routes to addAddress or updateAddress via _editingId.
+  Future<bool> saveCurrent() {
+    final editingId = _editingId;
+    if (editingId != null && editingId != 0) {
+      return updateAddress();
+    }
+    return addAddress();
+  }
+
+  // ? DELETE /api/addresses — deletingAddressId drives per-tile loader in AddressBookTile.
+  Future<void> deleteAddress(int id) async {
+    if (state.deletingAddressId != null) return;
+
+    state = state.copyWith(deletingAddressId: id);
+    await addressRepo
+        .deleteAddress(id)
+        .fold(
+          (error) {
+            debugPrint("🔴 ADDRESS DELETE ERROR: ${error.message}");
+            state = state.copyWith(deletingAddressId: null);
+            showCustomErrorToast(
+              message: error.message ?? Strings.somethingWentWrong,
             );
           },
           (_) async {
             showCustomToast(message: Strings.addressDeleted, isSuccess: true);
             await fetchAddresses();
+            state = state.copyWith(deletingAddressId: null);
           },
-        );
-  }
-
-  Future<void> setDefault(int id) async {
-    await addressRepo.setDefaultAddress(id).fold(
-          (error) {
-            showCustomToast(
-              message: error.message ?? Strings.somethingWentWrong,
-              isSuccess: false,
-            );
-          },
-          (_) => fetchAddresses(),
-        );
+        )
+        .catchError((error) {
+          debugPrint("🔴 UNEXPECTED ADDRESS DELETE ERROR: $error");
+          state = state.copyWith(deletingAddressId: null);
+          showCustomErrorToast(message: Strings.somethingWentWrong);
+        });
   }
 }

@@ -1,5 +1,5 @@
 // lib/data/models/prescription_requested_product_model.dart
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class PrescriptionRequestedProductModel {
   const PrescriptionRequestedProductModel({

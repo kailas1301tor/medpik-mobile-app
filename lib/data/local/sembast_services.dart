@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sembast/sembast_io.dart';
-import 'package:tsuite/data/local/local_base_services.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/local/local_base_services.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 part 'sembast_services.g.dart';
 

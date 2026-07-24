@@ -1,58 +1,41 @@
 // lib/src/home/view/widget/home_shimmer_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/src/home/view/widget/home_hero_header.dart';
-import 'package:tsuite/src/home/view/widget/home_prescription_card.dart';
-import 'package:tsuite/src/home/view/widget/home_section_header.dart';
-import 'package:tsuite/src/home/view/widget/home_shimmer_sections.dart';
-import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
-import 'package:tsuite/utils/helpers/time_of_day_greeting_helper.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/src/home/view/widget/home_hero_header.dart';
+import 'package:medpik/src/home/view/widget/home_prescription_card.dart';
+import 'package:medpik/src/home/view/widget/home_section_header.dart';
+import 'package:medpik/src/home/view/widget/home_shimmer_sections.dart';
+import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
+import 'package:medpik/utils/helpers/time_of_day_greeting_helper.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 
-class HomeShimmerWidget extends StatefulWidget {
-  const HomeShimmerWidget({super.key});
+class HomeShimmerWidget extends StatelessWidget {
+  const HomeShimmerWidget({super.key, required this.searchController});
 
-  @override
-  State<HomeShimmerWidget> createState() => _HomeShimmerWidgetState();
-}
-
-class _HomeShimmerWidgetState extends State<HomeShimmerWidget> {
-  late final TextEditingController _searchController;
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
+  final TextEditingController searchController;
 
   @override
   Widget build(BuildContext context) {
     final topInset = MediaQuery.paddingOf(context).top;
 
     return CustomScrollView(
-      physics: const ClampingScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       slivers: [
-        // Same hero shell as loaded home (background image, greeting, actions).
         SliverToBoxAdapter(
           child: HomeHeroHeader(
             topInset: topInset,
             greeting: timeOfDayGreeting(),
             deliveryHint: Strings.selectDeliveryAddress,
-            searchController: _searchController,
+            searchController: searchController,
             onSearchTap: () {
               Navigator.pushNamed(context, RouteConstants.routeSearchScreen);
             },
           ),
         ),
-        SliverToBoxAdapter(child: Padding(padding: EdgeInsets.only(top: 10.h))),
-        // Same prescription card as loaded home (no API dependency).
+        SliverToBoxAdapter(
+          child: Padding(padding: EdgeInsets.only(top: 10.h)),
+        ),
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),

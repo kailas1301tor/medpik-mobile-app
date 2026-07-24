@@ -1,8 +1,8 @@
-// /Users/wac/Documents/wac projects/tsuite/lib/utils/common_widgets/common_container.dart
+// /Users/wac/Documents/tortilon/medpik/lib/utils/common_widgets/common_container.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_corner/smooth_corner.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/color_palette.dart';
 
 class CommonContainer extends StatelessWidget {
   const CommonContainer({
@@ -49,12 +49,7 @@ class CommonContainer extends StatelessWidget {
       margin: margin,
       smoothness: smoothness ?? 2,
       borderRadius: BorderRadius.circular(borderRadiusValue),
-      side:
-          side ??
-          BorderSide(
-            color: context.appColors.cardBorder.withValues(alpha: 0.6),
-            width: 1.w,
-          ),
+      side: side ?? BorderSide(color: context.appColors.cardBorder, width: 1.w),
       color: color ?? context.appColors.surface,
       child: Material(
         color: Colors.transparent,

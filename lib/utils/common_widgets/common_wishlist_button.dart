@@ -1,7 +1,8 @@
 // lib/utils/common_widgets/common_wishlist_button.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/utils/common_widgets/common_floating_circle_button.dart';
 
 /// Shared favorite control used on product cards, detail, and grids.
 ///
@@ -16,6 +17,8 @@ class CommonWishlistButton extends StatefulWidget {
     this.backgroundColor,
     this.inactiveColor,
     this.showShadow = true,
+    this.overlayStyle = false,
+    this.margin,
   });
 
   final bool isWishlisted;
@@ -25,6 +28,9 @@ class CommonWishlistButton extends StatefulWidget {
   final Color? backgroundColor;
   final Color? inactiveColor;
   final bool showShadow;
+  /// Matches [CommonBackButton] frosted/dark circle on hero overlays.
+  final bool overlayStyle;
+  final EdgeInsetsGeometry? margin;
 
   @override
   State<CommonWishlistButton> createState() => _CommonWishlistButtonState();
@@ -75,16 +81,65 @@ class _CommonWishlistButtonState extends State<CommonWishlistButton>
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final size = widget.size ?? 30.r;
-    final iconSize = widget.iconSize ?? 16.r;
-    final inactiveColor =
-        widget.inactiveColor ?? colors.primaryText.withValues(alpha: 0.55);
+  Widget _buildHeartIcon({
+    required double iconSize,
+    required Color inactiveColor,
+  }) {
     final heartColor = widget.isWishlisted
         ? ColorPalette.wishlistHeart
         : inactiveColor;
+
+    return ScaleTransition(
+      scale: _scale,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(scale: animation, child: child),
+          );
+        },
+        child: Icon(
+          widget.isWishlisted
+              ? Icons.favorite_rounded
+              : Icons.favorite_border_rounded,
+          key: ValueKey<bool>(widget.isWishlisted),
+          size: iconSize,
+          color: heartColor,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final size = widget.size ?? (widget.overlayStyle ? 44.r : 30.r);
+    final iconSize = widget.iconSize ?? (widget.overlayStyle ? 20.r : 16.r);
+    final inactiveColor = widget.inactiveColor ??
+        (widget.overlayStyle
+            ? CommonFloatingCircleButton.foregroundColor(
+                context,
+                overlayStyle: true,
+              )
+            : colors.primaryText.withValues(alpha: 0.55));
+
+    final heart = _buildHeartIcon(
+      iconSize: iconSize,
+      inactiveColor: inactiveColor,
+    );
+
+    if (widget.overlayStyle) {
+      return CommonFloatingCircleButton(
+        onTap: widget.onTap,
+        size: size,
+        margin: widget.margin,
+        overlayStyle: true,
+        child: heart,
+      );
+    }
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -105,30 +160,7 @@ class _CommonWishlistButtonState extends State<CommonWishlistButton>
                 ]
               : null,
         ),
-        child: Center(
-          child: ScaleTransition(
-            scale: _scale,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 220),
-              switchInCurve: Curves.easeOut,
-              switchOutCurve: Curves.easeIn,
-              transitionBuilder: (child, animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: ScaleTransition(scale: animation, child: child),
-                );
-              },
-              child: Icon(
-                widget.isWishlisted
-                    ? Icons.favorite_rounded
-                    : Icons.favorite_border_rounded,
-                key: ValueKey<bool>(widget.isWishlisted),
-                size: iconSize,
-                color: heartColor,
-              ),
-            ),
-          ),
-        ),
+        child: Center(child: heart),
       ),
     );
   }

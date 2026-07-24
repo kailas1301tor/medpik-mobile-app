@@ -23,7 +23,9 @@ mixin _$OrdersState {
   OrderModel? get selectedOrder => throw _privateConstructorUsedError;
   OrderPaymentMethod get selectedPaymentMethod =>
       throw _privateConstructorUsedError;
-  String? get errorMessage => throw _privateConstructorUsedError;
+  bool get isAcceptBillLoading => throw _privateConstructorUsedError;
+  bool get isRejectBillLoading => throw _privateConstructorUsedError;
+  bool get isPaymentLoading => throw _privateConstructorUsedError;
 
   /// Create a copy of OrdersState
   /// with the given fields replaced by the non-null parameter values.
@@ -45,7 +47,9 @@ abstract class $OrdersStateCopyWith<$Res> {
     List<OrderModel> orders,
     OrderModel? selectedOrder,
     OrderPaymentMethod selectedPaymentMethod,
-    String? errorMessage,
+    bool isAcceptBillLoading,
+    bool isRejectBillLoading,
+    bool isPaymentLoading,
   });
 }
 
@@ -69,7 +73,9 @@ class _$OrdersStateCopyWithImpl<$Res, $Val extends OrdersState>
     Object? orders = null,
     Object? selectedOrder = freezed,
     Object? selectedPaymentMethod = null,
-    Object? errorMessage = freezed,
+    Object? isAcceptBillLoading = null,
+    Object? isRejectBillLoading = null,
+    Object? isPaymentLoading = null,
   }) {
     return _then(
       _value.copyWith(
@@ -93,10 +99,18 @@ class _$OrdersStateCopyWithImpl<$Res, $Val extends OrdersState>
                 ? _value.selectedPaymentMethod
                 : selectedPaymentMethod // ignore: cast_nullable_to_non_nullable
                       as OrderPaymentMethod,
-            errorMessage: freezed == errorMessage
-                ? _value.errorMessage
-                : errorMessage // ignore: cast_nullable_to_non_nullable
-                      as String?,
+            isAcceptBillLoading: null == isAcceptBillLoading
+                ? _value.isAcceptBillLoading
+                : isAcceptBillLoading // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isRejectBillLoading: null == isRejectBillLoading
+                ? _value.isRejectBillLoading
+                : isRejectBillLoading // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isPaymentLoading: null == isPaymentLoading
+                ? _value.isPaymentLoading
+                : isPaymentLoading // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -118,7 +132,9 @@ abstract class _$$OrdersStateImplCopyWith<$Res>
     List<OrderModel> orders,
     OrderModel? selectedOrder,
     OrderPaymentMethod selectedPaymentMethod,
-    String? errorMessage,
+    bool isAcceptBillLoading,
+    bool isRejectBillLoading,
+    bool isPaymentLoading,
   });
 }
 
@@ -141,7 +157,9 @@ class __$$OrdersStateImplCopyWithImpl<$Res>
     Object? orders = null,
     Object? selectedOrder = freezed,
     Object? selectedPaymentMethod = null,
-    Object? errorMessage = freezed,
+    Object? isAcceptBillLoading = null,
+    Object? isRejectBillLoading = null,
+    Object? isPaymentLoading = null,
   }) {
     return _then(
       _$OrdersStateImpl(
@@ -165,10 +183,18 @@ class __$$OrdersStateImplCopyWithImpl<$Res>
             ? _value.selectedPaymentMethod
             : selectedPaymentMethod // ignore: cast_nullable_to_non_nullable
                   as OrderPaymentMethod,
-        errorMessage: freezed == errorMessage
-            ? _value.errorMessage
-            : errorMessage // ignore: cast_nullable_to_non_nullable
-                  as String?,
+        isAcceptBillLoading: null == isAcceptBillLoading
+            ? _value.isAcceptBillLoading
+            : isAcceptBillLoading // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isRejectBillLoading: null == isRejectBillLoading
+            ? _value.isRejectBillLoading
+            : isRejectBillLoading // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isPaymentLoading: null == isPaymentLoading
+            ? _value.isPaymentLoading
+            : isPaymentLoading // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -183,7 +209,9 @@ class _$OrdersStateImpl implements _OrdersState {
     final List<OrderModel> orders = const [],
     this.selectedOrder,
     this.selectedPaymentMethod = OrderPaymentMethod.online,
-    this.errorMessage,
+    this.isAcceptBillLoading = false,
+    this.isRejectBillLoading = false,
+    this.isPaymentLoading = false,
   }) : _orders = orders;
 
   @override
@@ -207,11 +235,18 @@ class _$OrdersStateImpl implements _OrdersState {
   @JsonKey()
   final OrderPaymentMethod selectedPaymentMethod;
   @override
-  final String? errorMessage;
+  @JsonKey()
+  final bool isAcceptBillLoading;
+  @override
+  @JsonKey()
+  final bool isRejectBillLoading;
+  @override
+  @JsonKey()
+  final bool isPaymentLoading;
 
   @override
   String toString() {
-    return 'OrdersState(loaderState: $loaderState, detailLoaderState: $detailLoaderState, orders: $orders, selectedOrder: $selectedOrder, selectedPaymentMethod: $selectedPaymentMethod, errorMessage: $errorMessage)';
+    return 'OrdersState(loaderState: $loaderState, detailLoaderState: $detailLoaderState, orders: $orders, selectedOrder: $selectedOrder, selectedPaymentMethod: $selectedPaymentMethod, isAcceptBillLoading: $isAcceptBillLoading, isRejectBillLoading: $isRejectBillLoading, isPaymentLoading: $isPaymentLoading)';
   }
 
   @override
@@ -228,8 +263,12 @@ class _$OrdersStateImpl implements _OrdersState {
                 other.selectedOrder == selectedOrder) &&
             (identical(other.selectedPaymentMethod, selectedPaymentMethod) ||
                 other.selectedPaymentMethod == selectedPaymentMethod) &&
-            (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage));
+            (identical(other.isAcceptBillLoading, isAcceptBillLoading) ||
+                other.isAcceptBillLoading == isAcceptBillLoading) &&
+            (identical(other.isRejectBillLoading, isRejectBillLoading) ||
+                other.isRejectBillLoading == isRejectBillLoading) &&
+            (identical(other.isPaymentLoading, isPaymentLoading) ||
+                other.isPaymentLoading == isPaymentLoading));
   }
 
   @override
@@ -240,7 +279,9 @@ class _$OrdersStateImpl implements _OrdersState {
     const DeepCollectionEquality().hash(_orders),
     selectedOrder,
     selectedPaymentMethod,
-    errorMessage,
+    isAcceptBillLoading,
+    isRejectBillLoading,
+    isPaymentLoading,
   );
 
   /// Create a copy of OrdersState
@@ -259,7 +300,9 @@ abstract class _OrdersState implements OrdersState {
     final List<OrderModel> orders,
     final OrderModel? selectedOrder,
     final OrderPaymentMethod selectedPaymentMethod,
-    final String? errorMessage,
+    final bool isAcceptBillLoading,
+    final bool isRejectBillLoading,
+    final bool isPaymentLoading,
   }) = _$OrdersStateImpl;
 
   @override
@@ -273,7 +316,11 @@ abstract class _OrdersState implements OrdersState {
   @override
   OrderPaymentMethod get selectedPaymentMethod;
   @override
-  String? get errorMessage;
+  bool get isAcceptBillLoading;
+  @override
+  bool get isRejectBillLoading;
+  @override
+  bool get isPaymentLoading;
 
   /// Create a copy of OrdersState
   /// with the given fields replaced by the non-null parameter values.

@@ -1,12 +1,12 @@
 // lib/src/prescription/view/widget/prescription_checkout_product_tile.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/prescription_selected_product_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_cached_network_image.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
+import 'package:medpik/data/models/prescription_selected_product_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
+import 'package:medpik/utils/common_widgets/common_container.dart';
 
 class PrescriptionCheckoutProductTile extends StatelessWidget {
   const PrescriptionCheckoutProductTile({super.key, required this.item});
@@ -32,8 +32,6 @@ class PrescriptionCheckoutProductTile extends StatelessWidget {
               imageUrl: product.imageUrl,
               width: imageSize,
               height: imageSize,
-              memCacheWidth: 100,
-              memCacheHeight: 100,
             ),
           ),
           12.horizontalSpace,

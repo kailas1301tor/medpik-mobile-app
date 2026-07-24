@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:path/path.dart' as p;
-import 'package:tsuite/res/constants/medpik_svg_assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_full_preview.dart';
-import 'package:tsuite/utils/helpers/file_picker.dart';
+import 'package:medpik/res/constants/medpik_svg_assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_full_preview.dart';
+import 'package:medpik/utils/helpers/file_picker.dart';
 
 class PrescriptionCheckoutFiles extends StatelessWidget {
   const PrescriptionCheckoutFiles({super.key, required this.filePaths});

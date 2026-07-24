@@ -1,14 +1,14 @@
-// /Users/wac/Documents/wac projects/tsuite/lib/utils/common_widgets/common_switch_state.dart
+// /Users/wac/Documents/tortilon/medpik/lib/utils/common_widgets/common_switch_state.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tsuite/res/constants/assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/connectivity_service.dart';
-import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
-import 'package:tsuite/utils/common_widgets/common_error_state.dart';
-import 'package:tsuite/utils/common_widgets/common_loader.dart';
+import 'package:medpik/res/constants/assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/connectivity_service.dart';
+import 'package:medpik/utils/common_widgets/common_empty_state.dart';
+import 'package:medpik/utils/common_widgets/common_error_state.dart';
+import 'package:medpik/utils/common_widgets/common_loader.dart';
 
 class CommonSwitchState extends ConsumerStatefulWidget {
   const CommonSwitchState({

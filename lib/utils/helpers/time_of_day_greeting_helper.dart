@@ -1,5 +1,5 @@
 // lib/utils/helpers/time_of_day_greeting_helper.dart
-import 'package:tsuite/res/constants/string_constants.dart';
+import 'package:medpik/res/constants/string_constants.dart';
 
 /// Returns a time-of-day greeting for the local clock.
 String timeOfDayGreeting([DateTime? now]) {

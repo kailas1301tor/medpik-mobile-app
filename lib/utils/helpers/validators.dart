@@ -1,5 +1,5 @@
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/utils/extensions/string_extensions.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/utils/extensions/string_extensions.dart';
 
 /// Common form validators.
 class Validators {

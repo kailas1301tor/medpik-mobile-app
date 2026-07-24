@@ -7,7 +7,7 @@ part of 'prescription_checkout_notifier.dart';
 // **************************************************************************
 
 String _$prescriptionCheckoutNotifierHash() =>
-    r'0bac26951516a9df1a301e85fb1ebd7b8fd3b319';
+    r'54849c67b12a9a439e47d4fcf87dbfbb07c24f25';
 
 /// See also [PrescriptionCheckoutNotifier].
 @ProviderFor(PrescriptionCheckoutNotifier)

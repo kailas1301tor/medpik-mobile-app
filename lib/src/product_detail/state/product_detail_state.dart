@@ -1,7 +1,7 @@
 // lib/src/product_detail/state/product_detail_state.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/src/product_detail/model/product_detail_model.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/src/product_detail/model/product_detail_model.dart';
 
 part 'product_detail_state.freezed.dart';
 

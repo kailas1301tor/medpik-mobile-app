@@ -1,15 +1,15 @@
 // lib/src/home/view/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/home/notifier/home_notifier.dart';
-import 'package:tsuite/src/home/view/widget/home_content_widget.dart';
-import 'package:tsuite/src/home/view/widget/home_shimmer_widget.dart';
-import 'package:tsuite/utils/common_widgets/common_refresh_indicator.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
-import 'package:tsuite/utils/extensions/context_extensions.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/src/home/notifier/home_notifier.dart';
+import 'package:medpik/src/home/view/widget/home_content_widget.dart';
+import 'package:medpik/src/home/view/widget/home_shimmer_widget.dart';
+import 'package:medpik/utils/common_widgets/common_refresh_indicator.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/common_switch_state.dart';
+import 'package:tuple/tuple.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -17,25 +17,21 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
-    final loaderState = ref.watch(
-      homeNotifierProvider.select((s) => s.loaderState),
+    final feed = ref.watch(
+      homeNotifierProvider.select(
+        (s) => Tuple2(s.loaderState, s.data),
+      ),
     );
-    final data = ref.watch(homeNotifierProvider.select((s) => s.data));
-    final compactProgress = ref.watch(
-      homeNotifierProvider.select((s) => s.compactHeaderProgress),
-    );
+    final loaderState = feed.item1;
+    final data = feed.item2;
     final notifier = ref.read(homeNotifierProvider.notifier);
-    final useDarkStatusIcons =
-        compactProgress > 0.5 && !context.isDarkMode;
 
     return CommonScaffold(
       backgroundColor: colors.background,
       safeAreaTop: false,
       safeAreaBottom: false,
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: useDarkStatusIcons
-          ? Brightness.dark
-          : Brightness.light,
+      statusBarColor: ColorPalette.transparent,
+      statusBarIconBrightness: Brightness.light,
       enableFadeIn: false,
       body: CommonRefreshIndicator(
         onRefresh: () =>
@@ -44,11 +40,14 @@ class HomeScreen extends ConsumerWidget {
           loaderState: loaderState,
           reload: () =>
               ref.read(homeNotifierProvider.notifier).fetchHomeFeed(),
-          loader: const HomeShimmerWidget(),
+          loader: HomeShimmerWidget(
+            searchController: notifier.searchController,
+          ),
           buttonText: Strings.refresh,
           child: HomeContentWidget(
             data: data,
             searchController: notifier.searchController,
+            scrollController: notifier.scrollController,
           ),
         ),
       ),

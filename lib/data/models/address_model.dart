@@ -1,5 +1,5 @@
 // lib/data/models/address_model.dart
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class AddressModel {
   const AddressModel({

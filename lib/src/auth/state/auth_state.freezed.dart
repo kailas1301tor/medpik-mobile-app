@@ -17,12 +17,16 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$AuthState {
-  LoaderState get loaderState => throw _privateConstructorUsedError;
-  String? get phoneErrorText => throw _privateConstructorUsedError;
-  bool get isPhoneValid => throw _privateConstructorUsedError;
-  int get resendCountdown => throw _privateConstructorUsedError;
   AuthModel? get authModel => throw _privateConstructorUsedError;
-  bool get isNewUser => throw _privateConstructorUsedError;
+  String? get otpPhone => throw _privateConstructorUsedError;
+  String? get phoneErrorText => throw _privateConstructorUsedError;
+  String? get otpErrorMessage => throw _privateConstructorUsedError;
+  bool get isPhoneValid => throw _privateConstructorUsedError;
+  bool get isOtpValid => throw _privateConstructorUsedError;
+  bool get isRequestingOtp => throw _privateConstructorUsedError;
+  bool get isVerifyingOtp => throw _privateConstructorUsedError;
+  bool get isSigningOut => throw _privateConstructorUsedError;
+  int get resendCountdown => throw _privateConstructorUsedError;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
@@ -37,12 +41,16 @@ abstract class $AuthStateCopyWith<$Res> {
       _$AuthStateCopyWithImpl<$Res, AuthState>;
   @useResult
   $Res call({
-    LoaderState loaderState,
-    String? phoneErrorText,
-    bool isPhoneValid,
-    int resendCountdown,
     AuthModel? authModel,
-    bool isNewUser,
+    String? otpPhone,
+    String? phoneErrorText,
+    String? otpErrorMessage,
+    bool isPhoneValid,
+    bool isOtpValid,
+    bool isRequestingOtp,
+    bool isVerifyingOtp,
+    bool isSigningOut,
+    int resendCountdown,
   });
 }
 
@@ -61,39 +69,59 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? loaderState = null,
-    Object? phoneErrorText = freezed,
-    Object? isPhoneValid = null,
-    Object? resendCountdown = null,
     Object? authModel = freezed,
-    Object? isNewUser = null,
+    Object? otpPhone = freezed,
+    Object? phoneErrorText = freezed,
+    Object? otpErrorMessage = freezed,
+    Object? isPhoneValid = null,
+    Object? isOtpValid = null,
+    Object? isRequestingOtp = null,
+    Object? isVerifyingOtp = null,
+    Object? isSigningOut = null,
+    Object? resendCountdown = null,
   }) {
     return _then(
       _value.copyWith(
-            loaderState: null == loaderState
-                ? _value.loaderState
-                : loaderState // ignore: cast_nullable_to_non_nullable
-                      as LoaderState,
+            authModel: freezed == authModel
+                ? _value.authModel
+                : authModel // ignore: cast_nullable_to_non_nullable
+                      as AuthModel?,
+            otpPhone: freezed == otpPhone
+                ? _value.otpPhone
+                : otpPhone // ignore: cast_nullable_to_non_nullable
+                      as String?,
             phoneErrorText: freezed == phoneErrorText
                 ? _value.phoneErrorText
                 : phoneErrorText // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            otpErrorMessage: freezed == otpErrorMessage
+                ? _value.otpErrorMessage
+                : otpErrorMessage // ignore: cast_nullable_to_non_nullable
                       as String?,
             isPhoneValid: null == isPhoneValid
                 ? _value.isPhoneValid
                 : isPhoneValid // ignore: cast_nullable_to_non_nullable
                       as bool,
+            isOtpValid: null == isOtpValid
+                ? _value.isOtpValid
+                : isOtpValid // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isRequestingOtp: null == isRequestingOtp
+                ? _value.isRequestingOtp
+                : isRequestingOtp // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isVerifyingOtp: null == isVerifyingOtp
+                ? _value.isVerifyingOtp
+                : isVerifyingOtp // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isSigningOut: null == isSigningOut
+                ? _value.isSigningOut
+                : isSigningOut // ignore: cast_nullable_to_non_nullable
+                      as bool,
             resendCountdown: null == resendCountdown
                 ? _value.resendCountdown
                 : resendCountdown // ignore: cast_nullable_to_non_nullable
                       as int,
-            authModel: freezed == authModel
-                ? _value.authModel
-                : authModel // ignore: cast_nullable_to_non_nullable
-                      as AuthModel?,
-            isNewUser: null == isNewUser
-                ? _value.isNewUser
-                : isNewUser // ignore: cast_nullable_to_non_nullable
-                      as bool,
           )
           as $Val,
     );
@@ -110,12 +138,16 @@ abstract class _$$AuthStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    LoaderState loaderState,
-    String? phoneErrorText,
-    bool isPhoneValid,
-    int resendCountdown,
     AuthModel? authModel,
-    bool isNewUser,
+    String? otpPhone,
+    String? phoneErrorText,
+    String? otpErrorMessage,
+    bool isPhoneValid,
+    bool isOtpValid,
+    bool isRequestingOtp,
+    bool isVerifyingOtp,
+    bool isSigningOut,
+    int resendCountdown,
   });
 }
 
@@ -133,39 +165,59 @@ class __$$AuthStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? loaderState = null,
-    Object? phoneErrorText = freezed,
-    Object? isPhoneValid = null,
-    Object? resendCountdown = null,
     Object? authModel = freezed,
-    Object? isNewUser = null,
+    Object? otpPhone = freezed,
+    Object? phoneErrorText = freezed,
+    Object? otpErrorMessage = freezed,
+    Object? isPhoneValid = null,
+    Object? isOtpValid = null,
+    Object? isRequestingOtp = null,
+    Object? isVerifyingOtp = null,
+    Object? isSigningOut = null,
+    Object? resendCountdown = null,
   }) {
     return _then(
       _$AuthStateImpl(
-        loaderState: null == loaderState
-            ? _value.loaderState
-            : loaderState // ignore: cast_nullable_to_non_nullable
-                  as LoaderState,
+        authModel: freezed == authModel
+            ? _value.authModel
+            : authModel // ignore: cast_nullable_to_non_nullable
+                  as AuthModel?,
+        otpPhone: freezed == otpPhone
+            ? _value.otpPhone
+            : otpPhone // ignore: cast_nullable_to_non_nullable
+                  as String?,
         phoneErrorText: freezed == phoneErrorText
             ? _value.phoneErrorText
             : phoneErrorText // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        otpErrorMessage: freezed == otpErrorMessage
+            ? _value.otpErrorMessage
+            : otpErrorMessage // ignore: cast_nullable_to_non_nullable
                   as String?,
         isPhoneValid: null == isPhoneValid
             ? _value.isPhoneValid
             : isPhoneValid // ignore: cast_nullable_to_non_nullable
                   as bool,
+        isOtpValid: null == isOtpValid
+            ? _value.isOtpValid
+            : isOtpValid // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isRequestingOtp: null == isRequestingOtp
+            ? _value.isRequestingOtp
+            : isRequestingOtp // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isVerifyingOtp: null == isVerifyingOtp
+            ? _value.isVerifyingOtp
+            : isVerifyingOtp // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isSigningOut: null == isSigningOut
+            ? _value.isSigningOut
+            : isSigningOut // ignore: cast_nullable_to_non_nullable
+                  as bool,
         resendCountdown: null == resendCountdown
             ? _value.resendCountdown
             : resendCountdown // ignore: cast_nullable_to_non_nullable
                   as int,
-        authModel: freezed == authModel
-            ? _value.authModel
-            : authModel // ignore: cast_nullable_to_non_nullable
-                  as AuthModel?,
-        isNewUser: null == isNewUser
-            ? _value.isNewUser
-            : isNewUser // ignore: cast_nullable_to_non_nullable
-                  as bool,
       ),
     );
   }
@@ -175,34 +227,48 @@ class __$$AuthStateImplCopyWithImpl<$Res>
 
 class _$AuthStateImpl implements _AuthState {
   const _$AuthStateImpl({
-    this.loaderState = LoaderState.loaded,
-    this.phoneErrorText,
-    this.isPhoneValid = false,
-    this.resendCountdown = 0,
     this.authModel,
-    this.isNewUser = false,
+    this.otpPhone,
+    this.phoneErrorText,
+    this.otpErrorMessage,
+    this.isPhoneValid = false,
+    this.isOtpValid = false,
+    this.isRequestingOtp = false,
+    this.isVerifyingOtp = false,
+    this.isSigningOut = false,
+    this.resendCountdown = 0,
   });
 
   @override
-  @JsonKey()
-  final LoaderState loaderState;
+  final AuthModel? authModel;
+  @override
+  final String? otpPhone;
   @override
   final String? phoneErrorText;
+  @override
+  final String? otpErrorMessage;
   @override
   @JsonKey()
   final bool isPhoneValid;
   @override
   @JsonKey()
-  final int resendCountdown;
-  @override
-  final AuthModel? authModel;
+  final bool isOtpValid;
   @override
   @JsonKey()
-  final bool isNewUser;
+  final bool isRequestingOtp;
+  @override
+  @JsonKey()
+  final bool isVerifyingOtp;
+  @override
+  @JsonKey()
+  final bool isSigningOut;
+  @override
+  @JsonKey()
+  final int resendCountdown;
 
   @override
   String toString() {
-    return 'AuthState(loaderState: $loaderState, phoneErrorText: $phoneErrorText, isPhoneValid: $isPhoneValid, resendCountdown: $resendCountdown, authModel: $authModel, isNewUser: $isNewUser)';
+    return 'AuthState(authModel: $authModel, otpPhone: $otpPhone, phoneErrorText: $phoneErrorText, otpErrorMessage: $otpErrorMessage, isPhoneValid: $isPhoneValid, isOtpValid: $isOtpValid, isRequestingOtp: $isRequestingOtp, isVerifyingOtp: $isVerifyingOtp, isSigningOut: $isSigningOut, resendCountdown: $resendCountdown)';
   }
 
   @override
@@ -210,29 +276,41 @@ class _$AuthStateImpl implements _AuthState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$AuthStateImpl &&
-            (identical(other.loaderState, loaderState) ||
-                other.loaderState == loaderState) &&
-            (identical(other.phoneErrorText, phoneErrorText) ||
-                other.phoneErrorText == phoneErrorText) &&
-            (identical(other.isPhoneValid, isPhoneValid) ||
-                other.isPhoneValid == isPhoneValid) &&
-            (identical(other.resendCountdown, resendCountdown) ||
-                other.resendCountdown == resendCountdown) &&
             (identical(other.authModel, authModel) ||
                 other.authModel == authModel) &&
-            (identical(other.isNewUser, isNewUser) ||
-                other.isNewUser == isNewUser));
+            (identical(other.otpPhone, otpPhone) ||
+                other.otpPhone == otpPhone) &&
+            (identical(other.phoneErrorText, phoneErrorText) ||
+                other.phoneErrorText == phoneErrorText) &&
+            (identical(other.otpErrorMessage, otpErrorMessage) ||
+                other.otpErrorMessage == otpErrorMessage) &&
+            (identical(other.isPhoneValid, isPhoneValid) ||
+                other.isPhoneValid == isPhoneValid) &&
+            (identical(other.isOtpValid, isOtpValid) ||
+                other.isOtpValid == isOtpValid) &&
+            (identical(other.isRequestingOtp, isRequestingOtp) ||
+                other.isRequestingOtp == isRequestingOtp) &&
+            (identical(other.isVerifyingOtp, isVerifyingOtp) ||
+                other.isVerifyingOtp == isVerifyingOtp) &&
+            (identical(other.isSigningOut, isSigningOut) ||
+                other.isSigningOut == isSigningOut) &&
+            (identical(other.resendCountdown, resendCountdown) ||
+                other.resendCountdown == resendCountdown));
   }
 
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    loaderState,
-    phoneErrorText,
-    isPhoneValid,
-    resendCountdown,
     authModel,
-    isNewUser,
+    otpPhone,
+    phoneErrorText,
+    otpErrorMessage,
+    isPhoneValid,
+    isOtpValid,
+    isRequestingOtp,
+    isVerifyingOtp,
+    isSigningOut,
+    resendCountdown,
   );
 
   /// Create a copy of AuthState
@@ -246,26 +324,38 @@ class _$AuthStateImpl implements _AuthState {
 
 abstract class _AuthState implements AuthState {
   const factory _AuthState({
-    final LoaderState loaderState,
-    final String? phoneErrorText,
-    final bool isPhoneValid,
-    final int resendCountdown,
     final AuthModel? authModel,
-    final bool isNewUser,
+    final String? otpPhone,
+    final String? phoneErrorText,
+    final String? otpErrorMessage,
+    final bool isPhoneValid,
+    final bool isOtpValid,
+    final bool isRequestingOtp,
+    final bool isVerifyingOtp,
+    final bool isSigningOut,
+    final int resendCountdown,
   }) = _$AuthStateImpl;
 
   @override
-  LoaderState get loaderState;
+  AuthModel? get authModel;
+  @override
+  String? get otpPhone;
   @override
   String? get phoneErrorText;
   @override
+  String? get otpErrorMessage;
+  @override
   bool get isPhoneValid;
   @override
+  bool get isOtpValid;
+  @override
+  bool get isRequestingOtp;
+  @override
+  bool get isVerifyingOtp;
+  @override
+  bool get isSigningOut;
+  @override
   int get resendCountdown;
-  @override
-  AuthModel? get authModel;
-  @override
-  bool get isNewUser;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.

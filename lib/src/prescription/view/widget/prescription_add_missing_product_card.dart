@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_products_notifier.dart';
-import 'package:tsuite/utils/common_widgets/common_text_form_field.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
-import 'package:tsuite/utils/common_widgets/primary_button.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/prescription/notifier/prescription_notifier.dart';
+import 'package:medpik/src/prescription/notifier/prescription_products_notifier.dart';
+import 'package:medpik/utils/common_widgets/common_text_form_field.dart';
+import 'package:medpik/utils/common_widgets/custom_toast.dart';
+import 'package:medpik/utils/common_widgets/primary_button.dart';
 
 class PrescriptionAddMissingProductCard extends ConsumerWidget {
   const PrescriptionAddMissingProductCard({super.key, required this.query});
@@ -65,7 +65,7 @@ class PrescriptionAddMissingProductCard extends ConsumerWidget {
           CommonTextFormField(
             controller: productsNotifier.missingProductQuantityController,
             title: Strings.requestedProductQuantity,
-            hintText: '1',
+            hintText: Strings.defaultQuantityHint,
             inputType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             borderRadius: 12,

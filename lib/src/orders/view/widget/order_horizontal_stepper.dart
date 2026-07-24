@@ -1,10 +1,10 @@
 // lib/src/orders/view/widget/order_horizontal_stepper.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/utils/helpers/order_status_helper.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/utils/helpers/order_status_helper.dart';
 
 class OrderHorizontalStepper extends StatelessWidget {
   const OrderHorizontalStepper({super.key, required this.steps});

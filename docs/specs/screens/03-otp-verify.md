@@ -14,7 +14,7 @@
 - Verify creates session tokens
 - Suspended account blocked
 
-## Mock Contract
+## API Contract
 - `POST /otp/verify` `{ phone, otp }` → `AuthModel`
 - Test OTP: `123456`
 - Suspended phone: `9999999999`

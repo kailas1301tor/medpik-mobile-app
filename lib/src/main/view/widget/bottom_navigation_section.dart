@@ -3,38 +3,45 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tsuite/res/constants/medpik_svg_assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/cart/notifier/cart_notifier.dart';
-import 'package:tsuite/src/main/notifier/main_shell_notifier.dart';
+import 'package:medpik/res/constants/medpik_svg_assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/providers/cart_providers.dart';
+import 'package:medpik/providers/shell_providers.dart';
+import 'package:medpik/utils/helpers/shell_insets_helper.dart' as shell_insets;
 
-class BottomNavigationSection extends ConsumerWidget {
+class BottomNavigationSection extends StatelessWidget {
   const BottomNavigationSection({super.key});
+
+  /// Clearance below a docked tab CTA.
+  static double dockedFooterInset(BuildContext context, {double gap = 8}) {
+    return shell_insets.dockedFooterInset(context, gap: gap);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const _BottomNavigationBody();
+  }
+}
+
+class _BottomNavigationBody extends ConsumerWidget {
+  const _BottomNavigationBody();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final selectedTab = ref.watch(mainShellNotifierProvider);
-    final cartCount = ref.watch(
-      cartNotifierProvider.select(
-        (s) => s.items.fold<int>(0, (sum, item) => sum + item.quantity),
-      ),
-    );
 
     return SafeArea(
+      top: false,
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 12.w),
         padding: EdgeInsets.symmetric(vertical: 10.h),
-        // height: 80.h,
         decoration: BoxDecoration(
           color: colors.cardBackground,
           borderRadius: BorderRadius.circular(100.r),
-          border: Border.all(
-            color: colors.cardBorder.withValues(alpha: 0.7),
-            width: 1.w,
-          ),
+          border: Border.all(color: colors.cardBorder, width: 1.w),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -55,12 +62,8 @@ class BottomNavigationSection extends ConsumerWidget {
               onTap: () =>
                   ref.read(mainShellNotifierProvider.notifier).setTab(1),
             ),
-            BottomNavTile(
-              index: 2,
+            _CartBottomNavTile(
               selectedIndex: selectedTab,
-              label: Strings.navCart,
-              icon: MedpikSvgAssets.shopping,
-              badgeCount: cartCount,
               onTap: () =>
                   ref.read(mainShellNotifierProvider.notifier).setTab(2),
             ),
@@ -75,6 +78,31 @@ class BottomNavigationSection extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _CartBottomNavTile extends ConsumerWidget {
+  const _CartBottomNavTile({required this.selectedIndex, required this.onTap});
+
+  final int selectedIndex;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cartCount = ref.watch(
+      cartNotifierProvider.select(
+        (s) => s.items.fold<int>(0, (sum, item) => sum + item.quantity),
+      ),
+    );
+
+    return BottomNavTile(
+      index: 2,
+      selectedIndex: selectedIndex,
+      label: Strings.navCart,
+      icon: MedpikSvgAssets.shopping,
+      badgeCount: cartCount,
+      onTap: onTap,
     );
   }
 }
@@ -106,54 +134,70 @@ class BottomNavTile extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 70.w,
+        width: 64.w,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                AnimatedScale(
-                  duration: const Duration(milliseconds: 200),
-                  scale: isSelected ? 1.06 : 1,
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    opacity: isSelected ? 1 : 0.88,
+            SizedBox(
+              width: 32.r,
+              height: 32.r,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  AnimatedScale(
+                    scale: isSelected ? 1 : 0.875,
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOut,
                     child: SvgPicture.asset(
                       icon,
-                      width: isSelected ? 34.r : 32.r,
-                      height: isSelected ? 34.r : 32.r,
+                      width: 32.r,
+                      height: 32.r,
+                      colorFilter: isSelected
+                          ? ColorFilter.mode(colors.primary, BlendMode.srcIn)
+                          : null,
                     ),
                   ),
-                ),
-                if (badgeCount > 0)
-                  Positioned(
-                    right: -6.w,
-                    top: -4.h,
-                    child: Container(
-                      padding: EdgeInsets.all(4.r),
-                      decoration: BoxDecoration(
-                        color: colors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        '$badgeCount',
-                        style: FontPalette.base600(
-                          8,
-                          color: ColorPalette.white,
+                  if (badgeCount > 0)
+                    Positioned(
+                      top: -2.h,
+                      right: -4.w,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 5.w,
+                          vertical: 1.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: ColorPalette.productAccentTeal,
+                          borderRadius: BorderRadius.circular(999.r),
+                        ),
+                        constraints: BoxConstraints(minWidth: 16.r),
+                        child: Text(
+                          badgeCount > 99 ? '99+' : '$badgeCount',
+                          textAlign: TextAlign.center,
+                          style: FontPalette.base700(
+                            9,
+                            color: ColorPalette.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-            6.verticalSpace,
-            Text(
-              label,
-              style: isSelected
-                  ? FontPalette.base600(11, color: colors.primary)
-                  : FontPalette.base500(10, color: colors.secondaryText),
+            4.verticalSpace,
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              style: FontPalette.base500(
+                10,
+                color: isSelected ? colors.primary : colors.secondaryText,
+              ),
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

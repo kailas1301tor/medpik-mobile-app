@@ -1,7 +1,7 @@
 // lib/src/product_detail/view/widget/product_detail_icon_helper.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tsuite/res/constants/medpik_svg_assets.dart';
+import 'package:medpik/res/constants/medpik_svg_assets.dart';
 
 class ProductDetailIconHelper {
   const ProductDetailIconHelper._();

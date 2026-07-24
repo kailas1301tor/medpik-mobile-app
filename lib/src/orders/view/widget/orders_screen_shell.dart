@@ -1,6 +1,7 @@
 // lib/src/orders/view/widget/orders_screen_shell.dart
 import 'package:flutter/material.dart';
-import 'package:tsuite/src/orders/view/widget/orders_screen_header.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/utils/common_widgets/shell_tab_header.dart';
 
 class OrdersScreenShell extends StatelessWidget {
   const OrdersScreenShell({super.key, required this.child});
@@ -12,7 +13,7 @@ class OrdersScreenShell extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const OrdersScreenHeader(),
+        const ShellTabHeader(title: Strings.ordersTitle),
         Expanded(child: child),
       ],
     );

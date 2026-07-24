@@ -1,6 +1,6 @@
 // lib/data/models/prescription_model.dart
-import 'package:tsuite/data/models/prescription_selected_product_model.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/models/prescription_selected_product_model.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class PrescriptionDraftModel {
   const PrescriptionDraftModel({

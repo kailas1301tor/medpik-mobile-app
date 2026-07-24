@@ -3,50 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tsuite/data/models/order_model.dart';
-import 'package:tsuite/res/constants/medpik_svg_assets.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/orders/notifier/orders_notifier.dart';
-import 'package:tsuite/src/orders/view/widget/order_tracking_step_tile.dart';
-import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/common_widgets/common_loader.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/common_widgets/common_switch_state.dart';
-import 'package:tsuite/utils/helpers/order_status_helper.dart';
+import 'package:medpik/data/models/order_model.dart';
+import 'package:medpik/res/constants/medpik_svg_assets.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/providers/order_status_options_provider.dart';
+import 'package:medpik/src/orders/notifier/orders_notifier.dart';
+import 'package:medpik/src/orders/view/widget/order_tracking_step_tile.dart';
+import 'package:medpik/utils/common_widgets/common_app_bar.dart';
+import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/src/orders/view/widget/order_detail_shimmer_widget.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/common_switch_state.dart';
+import 'package:medpik/utils/helpers/order_status_helper.dart';
+import 'package:tuple/tuple.dart';
 
-class OrderTrackingScreen extends ConsumerStatefulWidget {
+class OrderTrackingScreen extends ConsumerWidget {
   const OrderTrackingScreen({super.key, required this.orderId});
 
   final String orderId;
 
   @override
-  ConsumerState<OrderTrackingScreen> createState() =>
-      _OrderTrackingScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(orderDetailLoaderProvider(orderId));
 
-class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(
-      () => ref
-          .read(ordersNotifierProvider.notifier)
-          .loadOrderDetail(widget.orderId),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final colors = context.appColors;
-    final loaderState = ref.watch(
-      ordersNotifierProvider.select((s) => s.detailLoaderState),
+    final orderData = ref.watch(
+      ordersNotifierProvider.select(
+        (s) => Tuple2(s.detailLoaderState, s.selectedOrder),
+      ),
     );
-    final order = ref.watch(
-      ordersNotifierProvider.select((s) => s.selectedOrder),
-    );
+    final loaderState = orderData.item1;
+    final order = orderData.item2;
 
     return CommonScaffold(
       appBar: const CommonAppBar(title: Strings.trackOrder),
@@ -55,9 +44,9 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
         loaderState: loaderState,
         reload: () => ref
             .read(ordersNotifierProvider.notifier)
-            .loadOrderDetail(widget.orderId),
+            .loadOrderDetail(orderId),
         buttonText: Strings.refresh,
-        loader: const Center(child: CommonLoader()),
+        loader: const OrderDetailShimmerWidget(),
         child: order == null
             ? const SizedBox.shrink()
             : _OrderTrackingBody(order: order),
@@ -66,15 +55,25 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
   }
 }
 
-class _OrderTrackingBody extends StatelessWidget {
+class _OrderTrackingBody extends ConsumerWidget {
   const _OrderTrackingBody({required this.order});
 
   final OrderModel order;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
-    final steps = orderTrackingSteps(order.status);
+    final statusOptions = ref.watch(
+      orderStatusOptionsProvider.select((options) => options),
+    );
+    final currentStatusId = order.statusRaw.trim().isNotEmpty
+        ? order.statusRaw
+        : orderDetailStatusLabel(order.status);
+    final steps = orderTrackingStepsFromApi(
+      currentStatusId: currentStatusId,
+      statuses: statusOptions,
+      fallbackStatus: order.status,
+    );
 
     return ListView.builder(
       padding: EdgeInsets.all(20.r),
@@ -92,7 +91,7 @@ class _OrderTrackingBody extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${Strings.orderIdLabel}: ${order.id}',
+                      '${Strings.orderIdLabel}: ${order.displayOrderId.isNotEmpty ? order.displayOrderId : Strings.emDash}',
                       style: FontPalette.base700(
                         16,
                         color: colors.primaryText,
@@ -111,7 +110,7 @@ class _OrderTrackingBody extends StatelessWidget {
                           8.horizontalSpace,
                           Expanded(
                             child: Text(
-                              order.etaText!,
+                              order.etaText ?? '',
                               style: FontPalette.base500(
                                 14,
                                 color: colors.primary,

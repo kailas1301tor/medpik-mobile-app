@@ -1,5 +1,5 @@
 // lib/src/prescription/model/prescription_order_model.dart
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class PrescriptionOrderResponse {
   const PrescriptionOrderResponse({
@@ -10,7 +10,11 @@ class PrescriptionOrderResponse {
   final PrescriptionOrderResults results;
   final String message;
 
-  String get orderId => '${results.data?.orderId ?? ''}';
+  String get orderId {
+    final raw = results.data?.orderId;
+    if (raw == null || raw.isEmpty) return '';
+    return raw;
+  }
 
   factory PrescriptionOrderResponse.fromJson(Map<String, dynamic> json) =>
       PrescriptionOrderResponse(
@@ -37,10 +41,13 @@ class PrescriptionOrderResults {
 class PrescriptionOrderData {
   const PrescriptionOrderData({required this.orderId});
 
-  final int orderId;
+  final String orderId;
 
-  factory PrescriptionOrderData.fromJson(Map<String, dynamic> json) =>
-      PrescriptionOrderData(
-        orderId: convertToInt(json['order_id']),
-      );
+  factory PrescriptionOrderData.fromJson(Map<String, dynamic> json) {
+    final raw = json['order_id'] ?? json['id'];
+    if (raw == null) {
+      return const PrescriptionOrderData(orderId: '');
+    }
+    return PrescriptionOrderData(orderId: convertToString(raw));
+  }
 }

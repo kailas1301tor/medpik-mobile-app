@@ -1,8 +1,8 @@
 // lib/src/prescription/view/widget/prescription_checkout_shimmer_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 
 class PrescriptionCheckoutShimmerWidget extends StatelessWidget {
   const PrescriptionCheckoutShimmerWidget({super.key});

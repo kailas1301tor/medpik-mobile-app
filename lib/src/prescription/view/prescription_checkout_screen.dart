@@ -2,22 +2,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/src/address/model/address_book_args.dart';
-import 'package:tsuite/src/orders/view/widget/order_sticky_bottom_bar.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_checkout_notifier.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_checkout_address_card.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_checkout_order_summary.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_checkout_shimmer_widget.dart';
-import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
-import 'package:tsuite/utils/common_widgets/common_empty_state.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/common_widgets/primary_button.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/data/models/address_book_args.dart';
+import 'package:medpik/data/models/order_confirmation_args.dart';
+import 'package:medpik/utils/common_widgets/common_sticky_bottom_bar.dart';
+import 'package:medpik/src/prescription/notifier/prescription_checkout_notifier.dart';
+import 'package:medpik/src/prescription/notifier/prescription_notifier.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_checkout_address_card.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_checkout_order_summary.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_checkout_shimmer_widget.dart';
+import 'package:medpik/utils/common_widgets/common_app_bar.dart';
+import 'package:medpik/utils/common_widgets/common_empty_state.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/primary_button.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 import 'package:tuple/tuple.dart';
 
 class PrescriptionCheckoutScreen extends ConsumerWidget {
@@ -26,19 +27,20 @@ class PrescriptionCheckoutScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
-    final prepare = ref.watch(
+    final checkoutData = ref.watch(
       prescriptionCheckoutNotifierProvider.select(
-        (s) => Tuple2(s.loaderState, s.errorMessage),
+        (s) => Tuple4(
+          s.loaderState,
+          s.errorMessage,
+          s.selectedAddress,
+          s.isPlacingOrder,
+        ),
       ),
     );
-    final loaderState = prepare.item1;
-    final errorMessage = prepare.item2;
-    final address = ref.watch(
-      prescriptionCheckoutNotifierProvider.select((s) => s.selectedAddress),
-    );
-    final isPlacingOrder = ref.watch(
-      prescriptionCheckoutNotifierProvider.select((s) => s.isPlacingOrder),
-    );
+    final loaderState = checkoutData.item1;
+    final errorMessage = checkoutData.item2;
+    final address = checkoutData.item3;
+    final isPlacingOrder = checkoutData.item4;
     final draft = ref.watch(
       prescriptionNotifierProvider.select((s) => s.draft),
     );
@@ -46,7 +48,8 @@ class PrescriptionCheckoutScreen extends ConsumerWidget {
 
     if (loaderState == LoaderState.loading) {
       return const CommonScaffold(
-        appBar: CommonAppBar(title: Strings.checkout),
+        appBar: CommonAppBar(title: Strings.prescriptionOrderCheckoutTitle),
+        safeAreaBottom: false,
         body: PrescriptionCheckoutShimmerWidget(),
       );
     }
@@ -54,7 +57,8 @@ class PrescriptionCheckoutScreen extends ConsumerWidget {
     if (loaderState == LoaderState.error ||
         loaderState == LoaderState.noData) {
       return CommonScaffold(
-        appBar: const CommonAppBar(title: Strings.checkout),
+        appBar: const CommonAppBar(title: Strings.prescriptionOrderCheckoutTitle),
+        safeAreaBottom: false,
         body: CommonEmptyState(
           title: Strings.errorTitle,
           message: errorMessage ?? Strings.attachPrescriptionToContinue,
@@ -67,7 +71,8 @@ class PrescriptionCheckoutScreen extends ConsumerWidget {
     if (loaderState == LoaderState.networkError ||
         loaderState == LoaderState.serverError) {
       return CommonScaffold(
-        appBar: const CommonAppBar(title: Strings.checkout),
+        appBar: const CommonAppBar(title: Strings.prescriptionOrderCheckoutTitle),
+        safeAreaBottom: false,
         body: CommonEmptyState(
           title: Strings.errorTitle,
           message: errorMessage ?? Strings.errorDescription,
@@ -78,8 +83,9 @@ class PrescriptionCheckoutScreen extends ConsumerWidget {
     }
 
     return CommonScaffold(
-      appBar: const CommonAppBar(title: Strings.checkout),
+      appBar: const CommonAppBar(title: Strings.prescriptionOrderCheckoutTitle),
       backgroundColor: colors.background,
+      safeAreaBottom: false,
       body: IgnorePointer(
         ignoring: isPlacingOrder,
         child: Column(
@@ -115,15 +121,16 @@ class PrescriptionCheckoutScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            OrderStickyBottomBar(
+            CommonStickyBottomBar(
               child: PrimaryButton(
-                text: Strings.placeOrder,
+                text: Strings.submitPrescriptionOrder,
                 height: 48.h,
                 isLoading: isPlacingOrder,
                 onPressed: address == null
                     ? null
                     : () async {
-                        final orderId = await notifier.placeOrder();
+                        final orderId =
+                            await notifier.placePrescriptionOrder();
                         if (orderId != null && context.mounted) {
                           Navigator.pushNamedAndRemoveUntil(
                             context,
@@ -131,7 +138,10 @@ class PrescriptionCheckoutScreen extends ConsumerWidget {
                             (route) =>
                                 route.settings.name ==
                                 RouteConstants.mainScreen,
-                            arguments: orderId,
+                            arguments: OrderConfirmationArgs(
+                              orderId: orderId,
+                              source: OrderSubmissionSource.prescription,
+                            ),
                           );
                         }
                       },

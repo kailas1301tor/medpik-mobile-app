@@ -1,7 +1,7 @@
 // lib/services/location/haversine.dart
 import 'dart:math' as math;
 
-import 'package:tsuite/services/location/location_config.dart';
+import 'package:medpik/services/location/location_config.dart';
 
 double distanceMeters({
   required double fromLat,
@@ -32,6 +32,66 @@ bool isWithinDeliveryRadius({
     toLng: longitude,
   );
   return meters <= LocationConfig.deliveryRadiusKm * 1000;
+}
+
+bool isDeliveryState(String? state) {
+  if (state == null || state.trim().isEmpty) return false;
+  return state.trim().toLowerCase() ==
+      LocationConfig.deliveryState.toLowerCase();
+}
+
+/// Serviceable when geocoded state is Kerala, or coords within hub radius.
+bool isLocationServiceable({
+  required double latitude,
+  required double longitude,
+  String? state,
+}) {
+  if (isDeliveryState(state)) return true;
+  return isWithinDeliveryRadius(latitude: latitude, longitude: longitude);
+}
+
+bool isWithinKeralaBoundingBox({
+  required double latitude,
+  required double longitude,
+}) {
+  return latitude >= LocationConfig.keralaMinLat &&
+      latitude <= LocationConfig.keralaMaxLat &&
+      longitude >= LocationConfig.keralaMinLng &&
+      longitude <= LocationConfig.keralaMaxLng;
+}
+
+/// Skips reverse-geocode HTTP when the pin is clearly outside the service area.
+bool shouldSkipReverseGeocodeApi({
+  required double latitude,
+  required double longitude,
+}) {
+  if (isWithinDeliveryRadius(latitude: latitude, longitude: longitude)) {
+    return false;
+  }
+  if (isWithinKeralaBoundingBox(
+    latitude: latitude,
+    longitude: longitude,
+  )) {
+    return false;
+  }
+  return true;
+}
+
+/// True when the geocoded point matches the map pin within [toleranceMeters].
+bool isReverseGeocodeMatchingPin({
+  required double pinLat,
+  required double pinLng,
+  required double resultLat,
+  required double resultLng,
+  double toleranceMeters = LocationConfig.minMoveMetersForReverseGeocode,
+}) {
+  return distanceMeters(
+        fromLat: pinLat,
+        fromLng: pinLng,
+        toLat: resultLat,
+        toLng: resultLng,
+      ) <=
+      toleranceMeters;
 }
 
 double _toRadians(double degrees) => degrees * math.pi / 180;

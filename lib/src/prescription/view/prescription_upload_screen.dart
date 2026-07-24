@@ -2,24 +2,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/prescription/notifier/prescription_notifier.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_file_grid.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_guidelines_sheet.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_products_section.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_selected_products_list.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_source_sheet.dart';
-import 'package:tsuite/src/prescription/view/widget/prescription_upload_area.dart';
-import 'package:tsuite/utils/common_widgets/common_app_bar.dart';
-import 'package:tsuite/utils/common_widgets/common_loader.dart';
-import 'package:tsuite/utils/common_widgets/common_nav_bar_button.dart';
-import 'package:tsuite/utils/common_widgets/common_scaffold.dart';
-import 'package:tsuite/utils/common_widgets/common_text_form_field.dart';
-import 'package:tsuite/utils/common_widgets/primary_button.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/prescription/notifier/prescription_notifier.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_file_grid.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_guidelines_sheet.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_products_section.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_selected_products_list.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_source_sheet.dart';
+import 'package:medpik/src/prescription/view/widget/prescription_upload_area.dart';
+import 'package:medpik/utils/common_widgets/common_app_bar.dart';
+import 'package:medpik/utils/common_widgets/common_loader.dart';
+import 'package:medpik/utils/common_widgets/common_nav_bar_button.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/common_text_form_field.dart';
+import 'package:medpik/utils/common_widgets/primary_button.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
+import 'package:tuple/tuple.dart';
 
 class PrescriptionUploadScreen extends ConsumerWidget {
   const PrescriptionUploadScreen({super.key});
@@ -28,15 +28,20 @@ class PrescriptionUploadScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final notifier = ref.read(prescriptionNotifierProvider.notifier);
-    final pickedPaths = ref.watch(
-      prescriptionNotifierProvider.select((s) => s.pickedPaths),
-    );
-    final isLoading = ref.watch(
+    final uploadData = ref.watch(
       prescriptionNotifierProvider.select(
-        (s) => s.loaderState == LoaderState.loading,
+        (s) => Tuple3(
+          s.pickedPaths,
+          s.isSubmitting,
+          s.isPickingFiles,
+        ),
       ),
     );
+    final pickedPaths = uploadData.item1;
+    final isSubmitting = uploadData.item2;
+    final isPickingFiles = uploadData.item3;
     final hasFiles = pickedPaths.isNotEmpty;
+    final isBusy = isSubmitting || isPickingFiles;
 
     return CommonScaffold(
       appBar: CommonAppBar(
@@ -87,7 +92,7 @@ class PrescriptionUploadScreen extends ConsumerWidget {
                   const PrescriptionSelectedProductsList(),
                   24.verticalSpace,
                   const PrescriptionProductsSection(),
-                  if (isLoading) ...[
+                  if (isBusy) ...[
                     24.verticalSpace,
                     const Center(child: CommonLoader()),
                   ],
@@ -101,8 +106,8 @@ class PrescriptionUploadScreen extends ConsumerWidget {
               width: double.infinity,
               child: PrimaryButton(
                 text: Strings.submit,
-                isLoading: isLoading,
-                onPressed: !hasFiles || isLoading
+                isLoading: isSubmitting,
+                onPressed: !hasFiles || isBusy
                     ? null
                     : () async {
                         final ok = await notifier.submit();

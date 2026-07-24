@@ -2,22 +2,22 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/data/models/address_model.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/src/address/notifier/address_notifier.dart';
-import 'package:tsuite/src/home/repo/home_repository.dart';
-import 'package:tsuite/src/home/state/home_state.dart';
-import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
-import 'package:tsuite/utils/helpers/api_error_handler.dart';
-import 'package:tsuite/utils/helpers/time_of_day_greeting_helper.dart';
-import 'package:tsuite/utils/helpers/toast_helper.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/providers/address_providers.dart';
+import 'package:medpik/providers/wishlist_providers.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/home/repo/home_repository.dart';
+import 'package:medpik/src/home/state/home_state.dart';
+import 'package:medpik/utils/helpers/address_resolution_helper.dart';
+import 'package:medpik/utils/helpers/api_error_handler.dart';
+import 'package:medpik/utils/helpers/time_of_day_greeting_helper.dart';
+import 'package:medpik/utils/helpers/toast_helper.dart';
 
 part 'home_notifier.g.dart';
 
-@Riverpod(keepAlive: false)
+@Riverpod(keepAlive: true)
 class HomeNotifier extends _$HomeNotifier {
   late final TextEditingController searchController;
   late final ScrollController scrollController;
@@ -37,22 +37,62 @@ class HomeNotifier extends _$HomeNotifier {
       scrollController.dispose();
     });
 
-    ref.listen(
-      addressNotifierProvider.select((s) => s.addresses),
-      (previous, next) {
-        final data = state.data;
-        if (data == null) return;
-        final deliveryHint = _deliveryHintFromAddresses(next);
-        if (data.deliveryHint == deliveryHint) return;
-        state = state.copyWith(
-          data: data.copyWith(deliveryHint: deliveryHint),
-        );
-      },
-    );
+    ref.listen(addressNotifierProvider.select((s) => s.addresses), (
+      previous,
+      next,
+    ) {
+      final data = state.data;
+      if (data == null) return;
+      final deliveryHint = deliveryHintFromAddresses(next);
+      if (data.deliveryHint == deliveryHint) return;
+      state = state.copyWith(data: data.copyWith(deliveryHint: deliveryHint));
+    });
 
     homeRepo = ref.read(homeRepositoryProvider);
-    Future.microtask(fetchHomeFeed);
+    Future.microtask(_loadHomeData);
     return const HomeState(loaderState: LoaderState.loading);
+  }
+
+  Future<void> _loadHomeData() async {
+    fetchCustomerGeneralData();
+    fetchHomeFeed();
+  }
+
+  Future<void> fetchCustomerGeneralData() async {
+    state = state.copyWith(generalDataLoaderState: LoaderState.loading);
+
+    return await homeRepo
+        .getCustomerGeneralData()
+        .fold(
+          (error) {
+            final loaderState = handleResponseError(error.key);
+            debugPrint('🔴 GENERAL DATA ERROR: ${error.message}');
+            state = state.copyWith(generalDataLoaderState: loaderState);
+          },
+          (right) {
+            final generalData = right.data;
+            if (generalData == null) {
+              debugPrint('🔴 GENERAL DATA: no data in response');
+              state = state.copyWith(
+                generalDataLoaderState: LoaderState.noData,
+              );
+              return;
+            }
+            debugPrint(
+              '🟢 GENERAL DATA SUCCESS: '
+              'categories=${generalData.categories.length} '
+              'orderStatuses=${generalData.orderStatuses.length}',
+            );
+            state = state.copyWith(
+              generalDataLoaderState: LoaderState.loaded,
+              generalData: generalData,
+            );
+          },
+        )
+        .catchError((error) {
+          debugPrint('🔴 UNEXPECTED GENERAL DATA ERROR: $error');
+          state = state.copyWith(generalDataLoaderState: LoaderState.error);
+        });
   }
 
   void _onScroll() {
@@ -67,6 +107,11 @@ class HomeNotifier extends _$HomeNotifier {
   }
 
   Future<void> fetchHomeFeed() async {
+    if (state.generalData == null &&
+        state.generalDataLoaderState != LoaderState.loading) {
+      await fetchCustomerGeneralData();
+    }
+
     state = state.copyWith(loaderState: LoaderState.loading);
 
     return await homeRepo
@@ -86,10 +131,7 @@ class HomeNotifier extends _$HomeNotifier {
               deliveryHint: _resolveDeliveryHint(),
             );
             debugPrint('🟢 HOME SUCCESS: categories=${feed.categories.length}');
-            state = state.copyWith(
-              loaderState: LoaderState.loaded,
-              data: feed,
-            );
+            state = state.copyWith(loaderState: LoaderState.loaded, data: feed);
             if (AppConstants.hasSession) {
               ref
                   .read(wishlistNotifierProvider.notifier)
@@ -104,19 +146,8 @@ class HomeNotifier extends _$HomeNotifier {
   }
 
   String _resolveDeliveryHint() {
-    final addresses = ref.read(addressNotifierProvider).addresses;
-    return _deliveryHintFromAddresses(addresses);
-  }
-
-  String _deliveryHintFromAddresses(List<AddressModel> addresses) {
-    AddressModel? selected;
-    for (final address in addresses) {
-      if (address.isDefault) {
-        selected = address;
-        break;
-      }
-    }
-    selected ??= addresses.isEmpty ? null : addresses.first;
-    return selected?.deliveryHint ?? Strings.selectDeliveryAddress;
+    return deliveryHintFromAddresses(
+      ref.read(addressNotifierProvider).addresses,
+    );
   }
 }

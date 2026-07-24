@@ -20,6 +20,10 @@ mixin _$NotificationsState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   List<NotificationModel> get notifications =>
       throw _privateConstructorUsedError;
+  int get currentPage => throw _privateConstructorUsedError;
+  bool get hasMore => throw _privateConstructorUsedError;
+  bool get isLoadingMore => throw _privateConstructorUsedError;
+  bool get isMarkAllReadLoading => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of NotificationsState
@@ -39,6 +43,10 @@ abstract class $NotificationsStateCopyWith<$Res> {
   $Res call({
     LoaderState loaderState,
     List<NotificationModel> notifications,
+    int currentPage,
+    bool hasMore,
+    bool isLoadingMore,
+    bool isMarkAllReadLoading,
     String? errorMessage,
   });
 }
@@ -60,6 +68,10 @@ class _$NotificationsStateCopyWithImpl<$Res, $Val extends NotificationsState>
   $Res call({
     Object? loaderState = null,
     Object? notifications = null,
+    Object? currentPage = null,
+    Object? hasMore = null,
+    Object? isLoadingMore = null,
+    Object? isMarkAllReadLoading = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -72,6 +84,22 @@ class _$NotificationsStateCopyWithImpl<$Res, $Val extends NotificationsState>
                 ? _value.notifications
                 : notifications // ignore: cast_nullable_to_non_nullable
                       as List<NotificationModel>,
+            currentPage: null == currentPage
+                ? _value.currentPage
+                : currentPage // ignore: cast_nullable_to_non_nullable
+                      as int,
+            hasMore: null == hasMore
+                ? _value.hasMore
+                : hasMore // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isLoadingMore: null == isLoadingMore
+                ? _value.isLoadingMore
+                : isLoadingMore // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isMarkAllReadLoading: null == isMarkAllReadLoading
+                ? _value.isMarkAllReadLoading
+                : isMarkAllReadLoading // ignore: cast_nullable_to_non_nullable
+                      as bool,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -94,6 +122,10 @@ abstract class _$$NotificationsStateImplCopyWith<$Res>
   $Res call({
     LoaderState loaderState,
     List<NotificationModel> notifications,
+    int currentPage,
+    bool hasMore,
+    bool isLoadingMore,
+    bool isMarkAllReadLoading,
     String? errorMessage,
   });
 }
@@ -114,6 +146,10 @@ class __$$NotificationsStateImplCopyWithImpl<$Res>
   $Res call({
     Object? loaderState = null,
     Object? notifications = null,
+    Object? currentPage = null,
+    Object? hasMore = null,
+    Object? isLoadingMore = null,
+    Object? isMarkAllReadLoading = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -126,6 +162,22 @@ class __$$NotificationsStateImplCopyWithImpl<$Res>
             ? _value._notifications
             : notifications // ignore: cast_nullable_to_non_nullable
                   as List<NotificationModel>,
+        currentPage: null == currentPage
+            ? _value.currentPage
+            : currentPage // ignore: cast_nullable_to_non_nullable
+                  as int,
+        hasMore: null == hasMore
+            ? _value.hasMore
+            : hasMore // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isLoadingMore: null == isLoadingMore
+            ? _value.isLoadingMore
+            : isLoadingMore // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isMarkAllReadLoading: null == isMarkAllReadLoading
+            ? _value.isMarkAllReadLoading
+            : isMarkAllReadLoading // ignore: cast_nullable_to_non_nullable
+                  as bool,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -141,6 +193,10 @@ class _$NotificationsStateImpl implements _NotificationsState {
   const _$NotificationsStateImpl({
     this.loaderState = LoaderState.loaded,
     final List<NotificationModel> notifications = const [],
+    this.currentPage = 0,
+    this.hasMore = false,
+    this.isLoadingMore = false,
+    this.isMarkAllReadLoading = false,
     this.errorMessage,
   }) : _notifications = notifications;
 
@@ -157,11 +213,23 @@ class _$NotificationsStateImpl implements _NotificationsState {
   }
 
   @override
+  @JsonKey()
+  final int currentPage;
+  @override
+  @JsonKey()
+  final bool hasMore;
+  @override
+  @JsonKey()
+  final bool isLoadingMore;
+  @override
+  @JsonKey()
+  final bool isMarkAllReadLoading;
+  @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'NotificationsState(loaderState: $loaderState, notifications: $notifications, errorMessage: $errorMessage)';
+    return 'NotificationsState(loaderState: $loaderState, notifications: $notifications, currentPage: $currentPage, hasMore: $hasMore, isLoadingMore: $isLoadingMore, isMarkAllReadLoading: $isMarkAllReadLoading, errorMessage: $errorMessage)';
   }
 
   @override
@@ -175,6 +243,13 @@ class _$NotificationsStateImpl implements _NotificationsState {
               other._notifications,
               _notifications,
             ) &&
+            (identical(other.currentPage, currentPage) ||
+                other.currentPage == currentPage) &&
+            (identical(other.hasMore, hasMore) || other.hasMore == hasMore) &&
+            (identical(other.isLoadingMore, isLoadingMore) ||
+                other.isLoadingMore == isLoadingMore) &&
+            (identical(other.isMarkAllReadLoading, isMarkAllReadLoading) ||
+                other.isMarkAllReadLoading == isMarkAllReadLoading) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -184,6 +259,10 @@ class _$NotificationsStateImpl implements _NotificationsState {
     runtimeType,
     loaderState,
     const DeepCollectionEquality().hash(_notifications),
+    currentPage,
+    hasMore,
+    isLoadingMore,
+    isMarkAllReadLoading,
     errorMessage,
   );
 
@@ -203,6 +282,10 @@ abstract class _NotificationsState implements NotificationsState {
   const factory _NotificationsState({
     final LoaderState loaderState,
     final List<NotificationModel> notifications,
+    final int currentPage,
+    final bool hasMore,
+    final bool isLoadingMore,
+    final bool isMarkAllReadLoading,
     final String? errorMessage,
   }) = _$NotificationsStateImpl;
 
@@ -210,6 +293,14 @@ abstract class _NotificationsState implements NotificationsState {
   LoaderState get loaderState;
   @override
   List<NotificationModel> get notifications;
+  @override
+  int get currentPage;
+  @override
+  bool get hasMore;
+  @override
+  bool get isLoadingMore;
+  @override
+  bool get isMarkAllReadLoading;
   @override
   String? get errorMessage;
 

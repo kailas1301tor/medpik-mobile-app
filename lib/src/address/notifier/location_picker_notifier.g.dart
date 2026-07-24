@@ -7,7 +7,7 @@ part of 'location_picker_notifier.dart';
 // **************************************************************************
 
 String _$locationPickerNotifierHash() =>
-    r'4476cfd1669d1f16d9f9d46a273d9e33a0e5c1e3';
+    r'bff5957adb8384a48fd8b0b8dba585aef994c033';
 
 /// See also [LocationPickerNotifier].
 @ProviderFor(LocationPickerNotifier)

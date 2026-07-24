@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tsuite/services/connectivity_service.dart';
+import 'package:medpik/services/connectivity_service.dart';
 
 /// A single, app-root-level widget that observes connectivity changes
 /// and shows a global snackbar (online / offline).

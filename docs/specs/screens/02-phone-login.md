@@ -13,7 +13,7 @@
 - Calls `requestOtp` repo method
 - No password field
 
-## Mock Contract
+## API Contract
 - `POST /otp/request` `{ phone: string }` → `{ status: true, message: string }`
 
 ## Acceptance

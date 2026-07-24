@@ -1,9 +1,10 @@
 // lib/src/orders/view/widget/orders_content_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/order_model.dart';
-import 'package:tsuite/src/orders/view/widget/order_tile.dart';
-import 'package:tsuite/utils/routes/route_constants.dart';
+import 'package:medpik/data/models/order_model.dart';
+import 'package:medpik/src/orders/view/widget/order_tile.dart';
+import 'package:medpik/utils/helpers/shell_insets_helper.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 
 class OrdersContentWidget extends StatelessWidget {
   const OrdersContentWidget({
@@ -16,7 +17,12 @@ class OrdersContentWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 24.h),
+      padding: EdgeInsets.fromLTRB(
+        16.w,
+        0,
+        16.w,
+        shellScrollBottomPadding(context),
+      ),
       itemCount: orders.length,
       itemBuilder: (context, index) {
         final order = orders[index];

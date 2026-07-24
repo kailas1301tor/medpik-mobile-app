@@ -4,229 +4,278 @@ import 'dart:async';
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:tsuite/res/constants/app_constants.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/services/auth_session_service.dart';
-import 'package:tsuite/services/repo_di.dart';
-import 'package:tsuite/src/auth/repo/auth_repo.dart';
-import 'package:tsuite/src/auth/state/auth_state.dart';
-import 'package:tsuite/src/wishlist/notifier/wishlist_notifier.dart';
-import 'package:tsuite/utils/common_widgets/custom_toast.dart';
-import 'package:tsuite/utils/helpers/api_error_handler.dart';
-import 'package:tsuite/utils/helpers/validators.dart';
+import 'package:medpik/data/local/sembast_services.dart';
+import 'package:medpik/providers/cart_providers.dart';
+import 'package:medpik/providers/wishlist_providers.dart';
+import 'package:medpik/res/constants/app_constants.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/services/invalidate_di.dart';
+import 'package:medpik/services/onesignal_service.dart';
+import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/auth/model/auth_model.dart';
+import 'package:medpik/src/auth/state/auth_state.dart';
+import 'package:medpik/utils/helpers/api_error_handler.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
+import 'package:medpik/utils/helpers/toast_helper.dart';
+import 'package:medpik/utils/helpers/validators.dart';
+
+import '../../../utils/routes/route_constants.dart';
 
 part 'auth_notifier.g.dart';
 
-@Riverpod(keepAlive: true)
+@Riverpod(keepAlive: false)
 class AuthNotifier extends _$AuthNotifier {
   late final TextEditingController phoneController;
+  late final TextEditingController otpController;
 
-  late AuthRepo authRepo;
   Timer? _resendTimer;
 
   @override
   AuthState build() {
     phoneController = TextEditingController();
-    authRepo = ref.read(authRepositoryProvider);
+    otpController = TextEditingController();
+
     phoneController.addListener(_onPhoneChanged);
+    otpController.addListener(_onOtpChanged);
 
     ref.onDispose(() {
-      _resendTimer?.cancel();
       phoneController.removeListener(_onPhoneChanged);
+      otpController.removeListener(_onOtpChanged);
+      _cancelResendTimer();
       phoneController.dispose();
+      otpController.dispose();
     });
 
     return const AuthState();
   }
 
   void _onPhoneChanged() {
-    final text = phoneController.text.trim();
-    final isValid = Validators.validatePhone(text) == null;
-    if (state.isPhoneValid != isValid) {
-      state = state.copyWith(isPhoneValid: isValid);
-    }
+    final isValid =
+        Validators.validatePhone(phoneController.text.trim()) == null;
+    if (isValid == state.isPhoneValid && state.phoneErrorText == null) return;
+    state = state.copyWith(isPhoneValid: isValid, phoneErrorText: null);
   }
 
-  bool validatePhoneField() {
-    final phoneError = Validators.validatePhone(phoneController.text);
-    state = state.copyWith(phoneErrorText: phoneError);
-    return phoneError == null;
+  void _onOtpChanged() {
+    final isValid = otpController.text.trim().length == AppConstants.otpLength;
+    if (isValid == state.isOtpValid && state.otpErrorMessage == null) return;
+    state = state.copyWith(isOtpValid: isValid, otpErrorMessage: null);
   }
 
-  void clearPhoneError() {
-    state = state.copyWith(phoneErrorText: null);
+  void onOtpCompleted(BuildContext context) {
+    if (state.isVerifyingOtp) return;
+    if (otpController.text.trim().length != AppConstants.otpLength) return;
+    verifyOtp(context);
   }
 
-  void _toastError(String? message) {
-    showCustomToast(
-      message: (message == null || message.trim().isEmpty)
-          ? Strings.somethingWentWrong
-          : message,
-      isSuccess: false,
-    );
+  Future<String?> bootstrap() async {
+    await ref.read(sembastServicesProvider).initialize();
+    final authModel = await _restoreSession();
+    if (authModel == null) return null;
+    state = state.copyWith(authModel: authModel);
+    return authModel.id.toString();
   }
 
-  void _toastSuccess(String? message, {String fallback = ''}) {
-    final text = (message == null || message.trim().isEmpty)
-        ? fallback
-        : message;
-    if (text.isEmpty) return;
-    showCustomToast(message: text, isSuccess: true);
-  }
-
-  Future<void> restoreSessionToState() async {
-    final session = await ref.read(authSessionServiceProvider).restore();
-    if (session == null) {
-      state = const AuthState();
+  Future<void> requestOtp(BuildContext context) async {
+    final phone = phoneController.text.trim();
+    final phoneError = Validators.validatePhone(phone);
+    if (phoneError != null) {
+      state = state.copyWith(phoneErrorText: phoneError, isPhoneValid: false);
       return;
     }
-    state = state.copyWith(
-      authModel: session.authModel,
-      isNewUser: session.isNewUser,
-      loaderState: LoaderState.loaded,
-    );
-    debugPrint('🟢 AUTH: session restored to state');
+    state = state.copyWith(isRequestingOtp: true, phoneErrorText: null);
+    await ref
+        .read(authRepositoryProvider)
+        .requestOtp(phone: phone, countryCode: AppConstants.defaultCountryCode)
+        .fold(
+          (left) {
+            debugPrint('🔴 API ERROR: ${left.message}');
+            state = state.copyWith(isRequestingOtp: false);
+            _toastError(
+              resolveApiErrorMessage(
+                error: left,
+                fallback: Strings.somethingWentWrong,
+              ),
+            );
+          },
+          (right) async {
+            debugPrint('🟢 API SUCCESS: ${right.message}');
+            otpController.clear();
+            Navigator.pushNamed(context, RouteConstants.routeOtpScreen);
+            _toastSuccess(right.message, fallback: Strings.otpSentSuccess);
+            await startResendTimer();
+            state = state.copyWith(
+              otpPhone: phone,
+              otpErrorMessage: null,
+              isRequestingOtp: false,
+            );
+          },
+        )
+        .catchError((error) {
+          debugPrint('🔴 UNEXPECTED ERROR: $error');
+          _toastError(Strings.somethingWentWrong);
+          state = state.copyWith(isRequestingOtp: false);
+        });
   }
 
-  Future<bool> requestOtp() async {
-    if (!validatePhoneField()) {
-      return false;
+  Future<void> resendOtp() async {
+    final phone = state.otpPhone?.trim() ?? '';
+    if (phone.isEmpty) return;
+
+    state = state.copyWith(isRequestingOtp: true);
+
+    await ref
+        .read(authRepositoryProvider)
+        .resendOtp(phone: phone, countryCode: AppConstants.defaultCountryCode)
+        .fold(
+          (left) {
+            debugPrint('🔴 API ERROR: ${left.message}');
+            _toastError(
+              resolveApiErrorMessage(
+                error: left,
+                fallback: Strings.somethingWentWrong,
+              ),
+            );
+          },
+          (right) {
+            debugPrint('🟢 API SUCCESS: ${right.message}');
+            _toastSuccess(right.message, fallback: Strings.otpSentSuccess);
+            startResendTimer();
+          },
+        )
+        .catchError((error) {
+          debugPrint('🔴 UNEXPECTED ERROR: $error');
+          _toastError(Strings.somethingWentWrong);
+        });
+
+    state = state.copyWith(isRequestingOtp: false);
+  }
+
+  Future<void> verifyOtp(BuildContext context) async {
+    final phone = state.otpPhone?.trim() ?? '';
+    final otp = otpController.text.trim();
+    if (phone.isEmpty ||
+        state.isVerifyingOtp ||
+        otp.length != AppConstants.otpLength) {
+      return;
     }
 
-    state = state.copyWith(loaderState: LoaderState.loading);
-    final phone = phoneController.text.trim();
+    state = state.copyWith(isVerifyingOtp: true, otpErrorMessage: null);
 
-    return await authRepo
-        .requestOtp(
-          phone: phone,
-          countryCode: AppConstants.defaultCountryCode,
-        )
-        .fold(
-          (error) {
-            final loaderState = handleResponseError(error.key);
-            debugPrint('🔴 REQUEST OTP ERROR: ${error.message}');
-            state = state.copyWith(loaderState: loaderState);
-            _toastError(error.message);
-            return false;
-          },
-          (response) {
-            debugPrint('🟢 REQUEST OTP SUCCESS: ${response.message}');
-            state = state.copyWith(loaderState: LoaderState.loaded);
-            _toastSuccess(
-              response.message,
-              fallback: Strings.otpSentSuccess,
-            );
-            startResendTimer();
-            return true;
-          },
-        )
-        .catchError((error) {
-          debugPrint('🔴 UNEXPECTED REQUEST OTP ERROR: $error');
-          state = state.copyWith(loaderState: LoaderState.error);
-          _toastError(Strings.somethingWentWrong);
-          return false;
-        });
-  }
-
-  Future<bool> resendOtp() async {
-    final phone = phoneController.text.trim();
-    state = state.copyWith(loaderState: LoaderState.loading);
-
-    return await authRepo
-        .resendOtp(
-          phone: phone,
-          countryCode: AppConstants.defaultCountryCode,
-        )
-        .fold(
-          (error) {
-            final loaderState = handleResponseError(error.key);
-            debugPrint('🔴 RESEND OTP ERROR: ${error.message}');
-            state = state.copyWith(loaderState: loaderState);
-            _toastError(error.message);
-            return false;
-          },
-          (response) {
-            debugPrint('🟢 RESEND OTP SUCCESS: ${response.message}');
-            state = state.copyWith(loaderState: LoaderState.loaded);
-            _toastSuccess(
-              response.message,
-              fallback: Strings.otpSentSuccess,
-            );
-            startResendTimer();
-            return true;
-          },
-        )
-        .catchError((error) {
-          debugPrint('🔴 UNEXPECTED RESEND OTP ERROR: $error');
-          state = state.copyWith(loaderState: LoaderState.error);
-          _toastError(Strings.somethingWentWrong);
-          return false;
-        });
-  }
-
-  Future<bool> verifyOtpCode(String code) async {
-    state = state.copyWith(loaderState: LoaderState.loading);
-    final phone = phoneController.text.trim();
-
-    return await authRepo
+    await ref
+        .read(authRepositoryProvider)
         .verifyOtp(
           phone: phone,
-          otp: code,
+          otp: otp,
           countryCode: AppConstants.defaultCountryCode,
         )
         .fold(
-          (error) {
-            final loaderState = handleResponseError(error.key);
-            debugPrint('🔴 VERIFY OTP ERROR: ${error.message}');
-            state = state.copyWith(loaderState: loaderState);
-            _toastError(error.message ?? Strings.otpVerificationFailed);
-            return false;
-          },
-          (result) async {
-            if (!result.verified) {
-              debugPrint('🔴 VERIFY OTP: verified=false');
-              state = state.copyWith(loaderState: LoaderState.error);
-              _toastError(Strings.otpVerificationFailed);
-              return false;
-            }
-
-            if (result.authModel.isSuspended) {
-              debugPrint('🔴 ACCOUNT SUSPENDED: ${result.authModel.phone}');
-              state = state.copyWith(loaderState: LoaderState.error);
-              _toastError(Strings.accountSuspended);
-              return false;
-            }
-
-            final authModel =
-                await ref.read(authSessionServiceProvider).save(result);
-            debugPrint(
-              '🟢 VERIFY OTP SUCCESS: phone=${authModel.phone} '
-              'isNewUser=${result.isNewUser}',
+          (left) {
+            debugPrint('🔴 API ERROR: ${left.message}');
+            final message = resolveApiErrorMessage(
+              error: left,
+              fallback: Strings.otpVerificationFailed,
             );
             state = state.copyWith(
-              loaderState: LoaderState.loaded,
-              authModel: authModel,
-              isNewUser: result.isNewUser,
+              otpErrorMessage: message,
+              isVerifyingOtp: false,
             );
+            _toastError(message);
+          },
+          (right) async {
+            final error = right.validationError;
+            if (error != null) {
+              debugPrint('🔴 VERIFY OTP: $error');
+              state = state.copyWith(
+                otpErrorMessage: error,
+                isVerifyingOtp: false,
+              );
+              _toastError(error);
+              return;
+            }
+
+            final authModel = right.authModel!;
+            debugPrint('🟢 API SUCCESS: ${right.resolvedMessage}');
+            final saved = await _saveSession(
+              authModel: authModel,
+              isNewUser: right.isNewUser,
+            );
+
+            await _syncAfterLogin();
             _toastSuccess(
-              result.message,
+              right.resolvedMessage,
               fallback: Strings.otpVerifiedSuccess,
             );
-            await ref.read(wishlistNotifierProvider.notifier).fetchWishlist();
-            return true;
+            if (context.mounted) {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                RouteConstants.mainScreen,
+                (_) => false,
+              );
+            }
+
+            state = state.copyWith(
+              authModel: saved,
+              otpErrorMessage: null,
+              isVerifyingOtp: false,
+            );
           },
         )
         .catchError((error) {
-          debugPrint('🔴 UNEXPECTED VERIFY OTP ERROR: $error');
-          state = state.copyWith(loaderState: LoaderState.error);
+          debugPrint('🔴 UNEXPECTED ERROR: $error');
           _toastError(Strings.somethingWentWrong);
-          return false;
+          state = state.copyWith(isVerifyingOtp: false);
         });
   }
 
-  void startResendTimer() {
-    _resendTimer?.cancel();
+  Future<void> signOut() async {
+    final refresh = AppConstants.refreshToken ?? '';
+
+    state = state.copyWith(isSigningOut: true);
+
+    if (refresh.isNotEmpty) {
+      await ref
+          .read(authRepositoryProvider)
+          .logout(refresh: refresh)
+          .fold(
+            (left) {
+              debugPrint('🔴 API ERROR: ${left.message}');
+              _toastError(
+                resolveApiErrorMessage(
+                  error: left,
+                  fallback: Strings.somethingWentWrong,
+                ),
+              );
+            },
+            (right) {
+              debugPrint('🟢 API SUCCESS: ${right.message}');
+            },
+          )
+          .catchError((error) {
+            debugPrint('🔴 UNEXPECTED ERROR: $error');
+          });
+    }
+
+    await _clearSession();
+    await _syncAfterLogout();
+    _cancelResendTimer();
+    phoneController.clear();
+    otpController.clear();
+    state = const AuthState();
+    _toastSuccess(null, fallback: Strings.signedOut);
+  }
+
+  Future<void> clearSessionOnUnauthorized() async {
+    await _clearSession();
+    await _syncAfterLogout();
+    _cancelResendTimer();
+    phoneController.clear();
+    otpController.clear();
+    state = const AuthState();
+  }
+
+  Future<void> startResendTimer() async {
+    _cancelResendTimer();
     state = state.copyWith(resendCountdown: AppConstants.otpResendDuration);
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.resendCountdown <= 1) {
@@ -238,20 +287,69 @@ class AuthNotifier extends _$AuthNotifier {
     });
   }
 
-  Future<void> signOut() async {
-    await authRepo.logout().fold(
-          (error) {
-            debugPrint('🔴 LOGOUT API ERROR: ${error.message}');
-          },
-          (response) {
-            debugPrint('🟢 LOGOUT API SUCCESS: ${response.message}');
-          },
-        );
+  Future<AuthModel?> _restoreSession() async {
+    final session = await ref.read(sembastServicesProvider).getUserData();
+    if (session == null) {
+      AppConstants.clearSessionTokens();
+      return null;
+    }
 
-    await ref.read(authSessionServiceProvider).clear();
-    ref.read(wishlistNotifierProvider.notifier).clear();
-    state = const AuthState();
-    phoneController.clear();
-    showCustomToast(message: Strings.signedOut, isSuccess: true);
+    final access = convertToString(session['accessToken']);
+    final refresh = convertToString(session['refreshToken']);
+    if (access.isEmpty) {
+      AppConstants.clearSessionTokens();
+      return null;
+    }
+
+    AppConstants.setSessionTokens(access: access, refresh: refresh);
+    return AuthModel.fromSessionMap(session);
+  }
+
+  Future<AuthModel> _saveSession({
+    required AuthModel authModel,
+    required bool isNewUser,
+  }) async {
+    await ref
+        .read(sembastServicesProvider)
+        .insertUserData(authModel.toSessionMap(isNewUser: isNewUser));
+    AppConstants.setSessionTokens(
+      access: authModel.accessToken ?? '',
+      refresh: authModel.refreshToken ?? '',
+    );
+    return authModel;
+  }
+
+  Future<void> _clearSession() async {
+    await ref.read(sembastServicesProvider).clearLocalDb();
+    AppConstants.clearSessionTokens();
+  }
+
+  Future<void> _syncAfterLogin() async {
+    await ref.read(oneSignalServiceProvider).refreshDeviceRegistration();
+    await ref.read(oneSignalServiceProvider).registerDeviceWithBackend();
+    await ref.read(cartNotifierProvider.notifier).fetchCart(showLoader: false);
+    await ref.read(wishlistNotifierProvider.notifier).fetchWishlist(showLoader: false);
+  }
+
+  Future<void> _syncAfterLogout() async {
+    await ref.read(oneSignalServiceProvider).clearIdentity();
+    InvalidateDI.invalidate(ref);
+  }
+
+  void _toastError(String message) {
+    showCustomErrorToast(message: message);
+  }
+
+  void _toastSuccess(String? message, {required String fallback}) {
+    final text = (message == null || message.trim().isEmpty)
+        ? fallback
+        : message;
+    if (text.isEmpty) return;
+    showCustomToast(message: text, isSuccess: true);
+  }
+
+  void _cancelResendTimer() {
+    _resendTimer?.cancel();
+    _resendTimer = null;
   }
 }

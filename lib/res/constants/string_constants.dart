@@ -41,6 +41,7 @@ class Strings {
   static const String login = "Login";
   static const String mobileNumber = "Mobile Number";
   static const String getOtp = "Get OTP";
+  static const String verifyOtp = "Verify OTP";
   static const String refresh = "Refresh";
   static const String error500Title = "Server Error";
   static const String error500Message = "Internal server error occurred.";
@@ -188,7 +189,11 @@ class Strings {
   static const String searchResults = "Search Results";
   static const String resultsFor = "Results for";
   static const String addToCart = "Add to Cart";
+  static const String goToCart = "Go to Cart";
   static const String addedToCart = "Added to cart";
+  static const String loginToAddToCart = "Please login to add items to cart";
+  static const String cartUpdatingPleaseWait =
+      "Please wait while your cart is updating";
   static const String productDetails = "Product Details";
   static const String aboutThisMedicine = "About this medicine";
   static const String readMore = "Read more";
@@ -244,6 +249,7 @@ class Strings {
   // Profile & orders
   static const String profile = "Profile";
   static const String guestUser = "Guest";
+  static const String member = "Member";
   static const String ordersTitle = "My Orders";
   static const String noOrdersYet = "No orders yet";
   static const String noOrdersMessage =
@@ -256,6 +262,7 @@ class Strings {
   static const String cartTitle = "Cart";
   static const String cartEmptyMessage =
       "Your cart is empty. Add medicines to get started.";
+  static const String startShopping = "Start Shopping";
   static const String cartPricingDisclaimer =
       "Final pricing will be shared after our pharmacist reviews your order. You can review and approve the bill before making any payment.";
   static const String clearAll = "Clear All";
@@ -264,6 +271,7 @@ class Strings {
   static const String pharmacistInstructionsHint =
       "E.g. deliver after 6 PM, call before delivery...";
   static const String submitOrder = "Submit Order";
+  static const String medicineCartCheckoutTitle = "Medicine Cart Checkout";
   static const String secureAndPrivate = "Secure & Private";
   static const String orderSubmittedSuccessTitle =
       "Order Submitted Successfully!";
@@ -287,6 +295,24 @@ class Strings {
   static const String activeMember = "Active member";
   static const String myAccountSection = "My account";
   static const String accountSection = "Account";
+  static const String emergencySection = "Emergency";
+  static const String emergencyServices = "Emergency Services";
+  static const String emergencyServicesSubtitle =
+      "Ambulances and on-call doctors";
+  static const String ambulances = "Ambulances";
+  static const String doctors = "Doctors";
+  static const String callNow = "Call";
+  static const String noEmergencyServices = "No emergency services";
+  static const String noEmergencyServicesDesc =
+      "Emergency contacts are not available right now. Please try again later.";
+  static const String noAmbulances = "No ambulances available";
+  static const String noAmbulancesDesc =
+      "No ambulance contacts are listed for your area right now.";
+  static const String noDoctors = "No doctors available";
+  static const String noDoctorsDesc =
+      "No on-call doctor contacts are listed right now.";
+  static const String couldNotLaunchPhoneCall =
+      "Unable to open the phone dialer. Please try again.";
   static const String supportSection = "Support";
   static const String legalSection = "Legal";
   static const String personalInformation = "Personal Information";
@@ -346,6 +372,12 @@ class Strings {
       "Preview not available for this file type";
   static const String prescriptionUploaded =
       "Prescription uploaded successfully";
+  static const String prescriptionOrderCheckoutTitle =
+      "Prescription Order Checkout";
+  static const String prescriptionOrderSubmittedSuccessTitle =
+      "Prescription Order Submitted Successfully!";
+  static const String prescriptionOrderSubmittedSuccessMessage =
+      "Your prescription order has been sent to our pharmacist for review. We'll notify you when the next step is ready.";
   static const String prescriptionRequiredToContinue =
       "Please upload a valid prescription to continue";
   static const String prescriptionValidContainsTitle =
@@ -371,6 +403,7 @@ class Strings {
   static const String addToOrder = "Add to order";
   static const String requestedProductName = "Product name";
   static const String requestedProductQuantity = "Quantity";
+  static const String defaultQuantityHint = "1";
   static const String productAddedToDescription =
       "Product added to description";
   static const String productNotFoundInCatalogPrefix =
@@ -387,6 +420,8 @@ class Strings {
   static const String deliveryAddress = "Delivery Address";
   static const String orderSummary = "Order Summary";
   static const String placeOrder = "Place Order";
+  static const String placeMedicineCartOrder = "Place Order";
+  static const String submitPrescriptionOrder = "Submit Prescription Order";
   static const String changeAddress = "Change";
   static const String noAddressSaved = "No delivery address saved";
   static const String addAddressToContinue =
@@ -403,16 +438,12 @@ class Strings {
       "Could not load products. Please try again.";
   static const String cartCheckoutUnavailable =
       "Cart checkout is not available yet";
-  static const String addressUpdateUnavailable =
-      "Address update is not available yet";
-  static const String addressDeleteUnavailable =
-      "Address delete is not available yet";
-  static const String setDefaultAddressUnavailable =
-      "Set default address is not available yet";
 
   static String quantityTimes(int quantity) => 'x$quantity';
   static const String orderPlacedSuccess = "Order placed successfully!";
   static const String orderIdLabel = "Order ID";
+  static const String emDash = "—";
+  static const String unavailableValue = "-----";
   static const String trackOrder = "Track Order";
   static const String continueShopping = "Continue Shopping";
 
@@ -423,6 +454,12 @@ class Strings {
   static const String orderStatus = "Order Status";
   static const String orderItems = "Items";
   static const String totalLabel = "Total";
+  static const String prescriptionOrder = "Prescription";
+  static const String prescriptionsLabel = "prescriptions";
+  static const String orderCustomerDetails = "Customer details";
+  static const String orderDeliveryInstructions = "Delivery instructions";
+  static const String orderPrescriptionNotes = "Prescription notes";
+  static const String attachedPrescriptionsTitle = "Prescriptions";
   static const String orderStatusPrescriptionUploaded = "Prescription Uploaded";
   static const String orderStatusUnderReview = "Under Review";
   static const String orderStatusPrescriptionAccepted = "Prescription Accepted";
@@ -456,6 +493,12 @@ class Strings {
   static const String itemTotal = "Item Total";
   static const String deliveryCharges = "Delivery Charges";
   static const String packagingCharges = "Packaging Charges";
+  static const String tax = "Tax";
+  static const String viewBillPdf = "View Bill PDF";
+  static const String billPdfTitle = "Bill PDF";
+  static const String billPdfLoadError = "Unable to load bill PDF";
+  static const String billPdfNotFoundError =
+      "This bill PDF is not available on the server. Please ask the pharmacy to resend the bill.";
   static const String grandTotal = "Grand Total";
   static const String orderStatusBillReceived = "Bill Received";
   static const String orderStatusRejectedByAdmin = "Rejected by Admin";
@@ -481,6 +524,11 @@ class Strings {
   static const String acceptAndContinue = "Accept & Continue";
   static const String rejectBillHint =
       "You can reject the bill if you find any issue or items not required.";
+  static const String rejectBillTitle = "Reject Bill";
+  static const String rejectBillReasonLabel = "Reason for rejection (optional)";
+  static const String rejectBillReasonHint = "Tell us why you are rejecting this bill";
+  static const String rejectBillConfirm = "Confirm Rejection";
+  static const String billActionFailed = "Unable to process bill action. Please try again.";
   static const String uploadNewPrescription = "Upload New Prescription";
   static const String payNow = "Pay Now";
   static const String choosePaymentMethod = "Choose Payment Method";
@@ -508,6 +556,22 @@ class Strings {
   static const String billAcceptedToast = "Bill accepted successfully";
   static const String billRejectedToast = "Bill rejected";
   static const String paymentSuccessToast = "Payment initiated successfully";
+  static const String paymentVerifiedSuccess = "Payment completed successfully";
+  static const String paymentFailed = "Payment failed. Please try again.";
+  static const String paymentCancelled = "Payment was cancelled.";
+  static const String paymentSuccessTitle = "Payment Successful";
+  static const String paymentSuccessMessage =
+      "Your payment has been completed successfully.";
+  static const String paymentFailureTitle = "Payment Failed";
+  static const String paymentFailureMessage =
+      "We could not complete your payment. Please try again.";
+  static const String paymentCancelledTitle = "Payment Cancelled";
+  static const String paymentCancelledMessage =
+      "You cancelled the payment. You can try again when ready.";
+  static const String tryPaymentAgain = "Try Again";
+  static const String viewOrder = "View Order";
+  static const String codOrderPlacedSuccess =
+      "Order placed successfully with Cash on Delivery";
   static String itemTotalWithCount(int count) => 'Item Total ($count items)';
   static String orderedItemsWithCount(int count) => 'Ordered Items ($count)';
   static String payNowWithAmount(String amount) => 'Pay Now $amount';
@@ -531,19 +595,22 @@ class Strings {
   static const String completeAddressDetails = "Complete address details";
   static const String searchDeliveryLocation =
       "Search for area, street name...";
+  static const String searchLocationHint =
+      "Search area, street, or landmark";
   static const String useCurrentLocation = "Use current location";
   static const String deliveryLocation = "Delivery location";
   static const String selectLocationOnMap = "Move the map to select a location";
   static const String fetchingAddress = "Fetching address...";
   static const String confirmLocation = "Confirm location";
+  static const String changeLocationOnMap = "Change on map";
   static const String locationNotServiceable =
       "Sorry, we don't deliver to this location yet.";
   static const String locationPermissionDenied =
       "Location permission denied. Showing a default area — move the pin or search.";
   static const String locationLookupFailed =
       "Couldn't fetch this address. Try moving the pin or searching again.";
-  static const String locationMockMapHint =
-      "Dev mode: search or use current location works without Google billing. Map tiles need a billed API key.";
+  static const String locationMapsKeyMissing =
+      "Maps configuration missing. Add keys to config/secrets.local.json and run bootstrap.";
   static const String phoneNumber = "Phone Number";
   static const String signedOut = "Signed out successfully";
 }

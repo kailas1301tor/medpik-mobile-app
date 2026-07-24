@@ -2,17 +2,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/data/models/order_model.dart';
-import 'package:tsuite/res/constants/string_constants.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/orders/notifier/orders_notifier.dart';
-import 'package:tsuite/src/orders/view/widget/order_bill_summary_widget.dart';
-import 'package:tsuite/src/orders/view/widget/order_detail_header_card.dart';
-import 'package:tsuite/src/orders/view/widget/order_payment_method_card.dart';
-import 'package:tsuite/src/orders/view/widget/order_status_banner.dart';
-import 'package:tsuite/utils/helpers/order_status_helper.dart';
+import 'package:medpik/data/models/order_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/orders/notifier/orders_notifier.dart';
+import 'package:medpik/src/orders/view/widget/order_bill_summary_widget.dart';
+import 'package:medpik/src/orders/view/widget/order_detail_header_card.dart';
+import 'package:medpik/src/orders/view/widget/order_payment_method_card.dart';
+import 'package:medpik/src/orders/view/widget/order_status_banner.dart';
+import 'package:medpik/utils/helpers/order_status_helper.dart';
 
 class OrderReviewPayContentWidget extends ConsumerWidget {
   const OrderReviewPayContentWidget({super.key, required this.order});

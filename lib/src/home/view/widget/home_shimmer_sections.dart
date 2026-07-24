@@ -1,7 +1,7 @@
 // lib/src/home/view/widget/home_shimmer_sections.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/utils/common_widgets/common_shimmer_box.dart';
+import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 
 class HomeCategoryShimmerRow extends StatelessWidget {
   const HomeCategoryShimmerRow({super.key});
@@ -9,6 +9,7 @@ class HomeCategoryShimmerRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
       scrollDirection: Axis.horizontal,
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Row(

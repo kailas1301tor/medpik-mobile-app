@@ -1,9 +1,9 @@
 // lib/src/product_detail/model/product_detail_model.dart
-import 'package:tsuite/data/models/product_model.dart';
-import 'package:tsuite/src/product_detail/model/product_benefit_model.dart';
-import 'package:tsuite/src/product_detail/model/product_trust_badge_model.dart';
-import 'package:tsuite/utils/helpers/product_pack_label_helper.dart';
-import 'package:tsuite/utils/helpers/safe_converters.dart';
+import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/src/product_detail/model/product_benefit_model.dart';
+import 'package:medpik/src/product_detail/model/product_trust_badge_model.dart';
+import 'package:medpik/utils/helpers/product_pack_label_helper.dart';
+import 'package:medpik/utils/helpers/safe_converters.dart';
 
 class ProductDetailResponse {
   const ProductDetailResponse({
@@ -16,7 +16,9 @@ class ProductDetailResponse {
   final String message;
   final bool status;
 
-  ProductModel? get product => results.data?.product;
+  ProductDetailModel? get detail => results.data?.detail;
+
+  ProductModel? get product => detail?.product;
 
   factory ProductDetailResponse.fromJson(Map<String, dynamic> json) {
     final hasStatus = json.containsKey('status');
@@ -44,14 +46,18 @@ class ProductDetailResultsModel {
 }
 
 class ProductDetailDataModel {
-  const ProductDetailDataModel({required this.product});
+  const ProductDetailDataModel({required this.detail});
 
-  final ProductModel product;
+  final ProductDetailModel detail;
 
-  factory ProductDetailDataModel.fromJson(Map<String, dynamic> json) =>
-      ProductDetailDataModel(
-        product: ProductModel.fromJson(json),
-      );
+  ProductModel get product => detail.product;
+
+  factory ProductDetailDataModel.fromJson(Map<String, dynamic> json) {
+    final product = ProductModel.fromJson(json);
+    return ProductDetailDataModel(
+      detail: ProductDetailModel.fromProductJson(json, product),
+    );
+  }
 }
 
 class ProductDetailModel {
@@ -83,15 +89,29 @@ class ProductDetailModel {
   }
 
   factory ProductDetailModel.fromApiProduct(ProductModel product) =>
+      ProductDetailModel.fromProductJson(const {}, product);
+
+  factory ProductDetailModel.fromProductJson(
+    Map<String, dynamic> json,
+    ProductModel product,
+  ) =>
       ProductDetailModel(
         product: product,
-        dosage: '',
-        packLabel: productPackDisplayLabel(product),
-        aboutText: product.description.trim(),
-        howToUse: '',
-        safetyInformation: '',
-        trustBadges: const [],
-        keyBenefits: const [],
+        dosage: convertToString(json['dosage']),
+        packLabel: convertToString(json['pack_label']).isNotEmpty
+            ? convertToString(json['pack_label'])
+            : productPackDisplayLabel(product),
+        aboutText: convertToString(json['about_text']).isNotEmpty
+            ? convertToString(json['about_text'])
+            : product.description.trim(),
+        howToUse: convertToString(json['how_to_use']),
+        safetyInformation: convertToString(json['safety_information']),
+        trustBadges: convertToList(json['trust_badges'])
+            .map((e) => ProductTrustBadgeModel.fromJson(convertToMap(e)))
+            .toList(),
+        keyBenefits: convertToList(json['key_benefits'])
+            .map((e) => ProductBenefitModel.fromJson(convertToMap(e)))
+            .toList(),
       );
 
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) =>

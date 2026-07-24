@@ -1,12 +1,13 @@
 // lib/src/notifications/view/widget/notification_tile.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tsuite/res/enums/enums.dart';
-import 'package:tsuite/res/styles/color_palette.dart';
-import 'package:tsuite/res/styles/font_palette.dart';
-import 'package:tsuite/src/notifications/model/notification_model.dart';
-import 'package:tsuite/utils/common_widgets/common_container.dart';
-import 'package:tsuite/utils/helpers/order_status_helper.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/notifications/model/notification_model.dart';
+import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
+import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/utils/helpers/order_status_helper.dart';
 
 class NotificationTile extends StatelessWidget {
   const NotificationTile({
@@ -22,6 +23,7 @@ class NotificationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final isUnread = !notification.isRead;
+    final imageUrl = notification.image?.trim() ?? '';
 
     return CommonContainer(
       margin: EdgeInsets.only(bottom: 12.h),
@@ -34,19 +36,30 @@ class NotificationTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 40.r,
-            height: 40.r,
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Icon(
-              _iconForType(notification.type),
-              size: 20.r,
-              color: colors.primary,
-            ),
-          ),
+          imageUrl.isNotEmpty
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: CommonCachedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 40.r,
+                    height: 40.r,
+                    borderRadius: 12.r,
+                    fit: BoxFit.cover,
+                  ),
+                )
+              : Container(
+                  width: 40.r,
+                  height: 40.r,
+                  decoration: BoxDecoration(
+                    color: colors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Icon(
+                    _iconForType(notification.type),
+                    size: 20.r,
+                    color: colors.primary,
+                  ),
+                ),
           12.horizontalSpace,
           Expanded(
             child: Column(

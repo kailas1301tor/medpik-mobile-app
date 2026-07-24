@@ -41,10 +41,13 @@ migrate_working_dir/
 
 # Local secrets — never commit API keys
 **/Secrets.xcconfig
+config/secrets.local.json
+config/dart_defines.json
 **/.env
 **/.env.*
 !**/.env.example
 !**/Secrets.xcconfig.example
+!config/secrets.example.json
 
 # Symbolication related
 app.*.symbols

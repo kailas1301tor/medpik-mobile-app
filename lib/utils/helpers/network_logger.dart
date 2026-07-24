@@ -156,6 +156,10 @@ class NetworkLogger {
   }
 
   static void _jsonBody(dynamic data) {
+    if (data is List<int>) {
+      _bodyLine('[binary data: ${data.length} bytes]');
+      return;
+    }
     final pretty = _prettyJson(data);
     for (final line in pretty.split('\n')) {
       _bodyLine(line);
