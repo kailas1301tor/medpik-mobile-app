@@ -217,6 +217,20 @@ class Strings {
       "Read the label carefully before use. Keep out of reach of children.";
   static const String howToUseBody =
       "Take as directed by the physician. Do not exceed the recommended dose.";
+  static const String genericHowToUseOtc =
+      "Read the package label and leaflet carefully. Follow the recommended dosage. Consult a pharmacist or doctor if symptoms persist.";
+  static const String genericSafetyBody =
+      "Read the label before use.\n"
+      "Keep out of reach of children.\n"
+      "Do not use if allergic to any ingredient.\n"
+      "Stop use and seek medical advice if adverse reactions occur.\n"
+      "Do not use beyond the expiry date.";
+  static const String storageAndHandling = "Storage and handling";
+  static const String genericStorageBody =
+      "Store in a cool, dry place away from direct sunlight.\n"
+      "Keep the original packaging intact until use.\n"
+      "Do not freeze unless stated on the label.\n"
+      "Dispose of unused or expired medicine responsibly.";
   static const String quantityLabel = "Quantity";
   static const String safeAndEffective = "Safe & Effective";
   static const String safeAndEffectiveSubtitle =
@@ -318,6 +332,14 @@ class Strings {
   static const String personalInformation = "Personal Information";
   static const String personalInformationSubtitle =
       "Manage your personal details";
+  static const String firstName = "First Name";
+  static const String lastName = "Last Name";
+  static const String firstNameHint = "Enter your first name";
+  static const String lastNameHint = "Enter your last name";
+  static const String firstNameRequired = "First name is required";
+  static const String profileUpdatedSuccess = "Profile updated successfully";
+  static const String profilePhoneReadOnlyHint =
+      "Phone number cannot be changed here";
   static const String notifications = "Notifications";
   static const String notificationsSubtitle = "Manage your alerts & updates";
   static const String privacyAndSecurity = "Privacy & Security";
@@ -526,9 +548,11 @@ class Strings {
       "You can reject the bill if you find any issue or items not required.";
   static const String rejectBillTitle = "Reject Bill";
   static const String rejectBillReasonLabel = "Reason for rejection (optional)";
-  static const String rejectBillReasonHint = "Tell us why you are rejecting this bill";
+  static const String rejectBillReasonHint =
+      "Tell us why you are rejecting this bill";
   static const String rejectBillConfirm = "Confirm Rejection";
-  static const String billActionFailed = "Unable to process bill action. Please try again.";
+  static const String billActionFailed =
+      "Unable to process bill action. Please try again.";
   static const String uploadNewPrescription = "Upload New Prescription";
   static const String payNow = "Pay Now";
   static const String choosePaymentMethod = "Choose Payment Method";
@@ -595,8 +619,7 @@ class Strings {
   static const String completeAddressDetails = "Complete address details";
   static const String searchDeliveryLocation =
       "Search for area, street name...";
-  static const String searchLocationHint =
-      "Search area, street, or landmark";
+  static const String searchLocationHint = "Search area, street, or landmark";
   static const String useCurrentLocation = "Use current location";
   static const String deliveryLocation = "Delivery location";
   static const String selectLocationOnMap = "Move the map to select a location";

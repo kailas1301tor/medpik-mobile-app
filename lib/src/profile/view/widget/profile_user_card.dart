@@ -6,18 +6,30 @@ import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/providers/auth_providers.dart';
+import 'package:medpik/src/profile/model/profile_model.dart';
 import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
 import 'package:medpik/utils/extensions/string_extensions.dart';
 
 class ProfileUserCard extends StatelessWidget {
-  const ProfileUserCard({super.key, this.authModel});
+  const ProfileUserCard({
+    super.key,
+    this.profile,
+    this.authModel,
+  });
 
+  final ProfileModel? profile;
   final AuthModel? authModel;
 
   @override
   Widget build(BuildContext context) {
-    final rawName = authModel?.name.trim() ?? '';
-    final phone = authModel?.phone.trim() ?? '';
+    final profileName = profile?.displayName.trim() ?? '';
+    final authName = authModel?.name.trim() ?? '';
+    final rawName = profileName.isNotEmpty ? profileName : authName;
+
+    final profilePhone = profile?.phoneNumber.trim() ?? '';
+    final authPhone = authModel?.phone.trim() ?? '';
+    final phone = profilePhone.isNotEmpty ? profilePhone : authPhone;
+
     final profileImageUrl = authModel?.profileImageUrl.trim() ?? '';
     final displayName =
         rawName.isNotEmpty ? rawName : Strings.member;

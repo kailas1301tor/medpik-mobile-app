@@ -1,110 +1,165 @@
 // lib/src/orders/view/widget/order_horizontal_stepper.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/res/styles/color_palette.dart';
-import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/src/orders/view/widget/order_horizontal_stepper_node.dart';
+import 'package:medpik/src/orders/view/widget/order_horizontal_stepper_painter.dart';
 import 'package:medpik/utils/helpers/order_status_helper.dart';
 
-class OrderHorizontalStepper extends StatelessWidget {
+class OrderHorizontalStepper extends StatefulWidget {
   const OrderHorizontalStepper({super.key, required this.steps});
 
   final List<OrderHorizontalStep> steps;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
+  State<OrderHorizontalStepper> createState() => _OrderHorizontalStepperState();
+}
 
-    return Row(
-      children: [
-        for (var i = 0; i < steps.length; i++) ...[
-          if (i > 0)
-            Expanded(
-              child: Container(
-                height: 2.h,
-                margin: EdgeInsets.only(bottom: 18.h),
-                color: _connectorColor(steps[i - 1].state, steps[i].state, colors),
-              ),
-            ),
-          _StepNode(step: steps[i], primaryColor: colors.primary),
-        ],
-      ],
+class _OrderHorizontalStepperState extends State<OrderHorizontalStepper>
+    with TickerProviderStateMixin {
+  late final AnimationController _entranceController;
+  late final AnimationController _pulseController;
+  late final Animation<double> _entranceAnimation;
+  int? _pressedIndex;
+
+  static const double _nodeAreaHeight = 40;
+
+  @override
+  void initState() {
+    super.initState();
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+    _entranceAnimation = CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOutCubic,
+    );
+    _entranceController.forward();
+  }
+
+  @override
+  void didUpdateWidget(covariant OrderHorizontalStepper oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.steps != widget.steps) {
+      _entranceController
+        ..reset()
+        ..forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  double _targetProgress(List<OrderHorizontalStep> steps) {
+    for (var i = 0; i < steps.length; i++) {
+      switch (steps[i].state) {
+        case OrderStepperNodeState.completed:
+          continue;
+        case OrderStepperNodeState.current:
+          return i + 0.55;
+        case OrderStepperNodeState.failed:
+          return i + 0.2;
+        case OrderStepperNodeState.pending:
+          return i.toDouble();
+      }
+    }
+    return (steps.length - 1).toDouble();
+  }
+
+  int? _failedSegmentIndex(List<OrderHorizontalStep> steps) {
+    for (var i = 0; i < steps.length; i++) {
+      if (steps[i].state == OrderStepperNodeState.failed) return i;
+    }
+    return null;
+  }
+
+  List<Offset> _nodeCenters(double width) {
+    if (widget.steps.isEmpty) return const [];
+    final stepWidth = width / widget.steps.length;
+    final centerY = _nodeAreaHeight.h / 2;
+    return List.generate(
+      widget.steps.length,
+      (index) => Offset(stepWidth * index + stepWidth / 2, centerY),
     );
   }
 
-  Color _connectorColor(
-    OrderStepperNodeState left,
-    OrderStepperNodeState right,
-    AppColors colors,
-  ) {
-    if (left == OrderStepperNodeState.failed) {
-      return colors.inputBorder;
-    }
-    if (left == OrderStepperNodeState.completed ||
-        left == OrderStepperNodeState.current) {
-      return colors.primary;
-    }
-    return colors.inputBorder;
+  Future<void> _onStepTap(int index) async {
+    HapticFeedback.selectionClick();
+    setState(() => _pressedIndex = index);
+    await Future<void>.delayed(const Duration(milliseconds: 160));
+    if (mounted) setState(() => _pressedIndex = null);
   }
-}
-
-class _StepNode extends StatelessWidget {
-  const _StepNode({required this.step, required this.primaryColor});
-
-  final OrderHorizontalStep step;
-  final Color primaryColor;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final isCurrent = step.state == OrderStepperNodeState.current;
-    final isFailed = step.state == OrderStepperNodeState.failed;
-    final isCompleted = step.state == OrderStepperNodeState.completed;
-    final dotSize = isCurrent ? 32.r : 28.r;
+    final strokeWidth = 3.h;
 
-    final dotColor = isFailed
-        ? colors.statusErrorText
-        : isCompleted || isCurrent
-        ? primaryColor
-        : colors.inputBorder;
+    return AnimatedBuilder(
+      animation: Listenable.merge([_entranceAnimation, _pulseController]),
+      builder: (context, _) {
+        final progress =
+            _targetProgress(widget.steps) * _entranceAnimation.value;
 
-    final iconColor = isFailed || isCompleted || isCurrent
-        ? ColorPalette.white
-        : colors.secondaryText;
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final centers = _nodeCenters(constraints.maxWidth);
+            final lineY = centers.isEmpty ? 0.0 : centers.first.dy;
 
-    return SizedBox(
-      width: 56.w,
-      child: Column(
-        children: [
-          Container(
-            width: dotSize,
-            height: dotSize,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: dotColor,
-              border: isCurrent
-                  ? Border.all(color: primaryColor, width: 2.w)
-                  : null,
-            ),
-            child: Icon(step.icon, size: isCurrent ? 16.r : 14.r, color: iconColor),
-          ),
-          6.verticalSpace,
-          Text(
-            step.label,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: FontPalette.base400(
-              9,
-              color: isFailed
-                  ? colors.statusErrorText
-                  : isCompleted || isCurrent
-                  ? colors.primaryText
-                  : colors.secondaryText,
-            ),
-          ),
-        ],
-      ),
+            return SizedBox(
+              height: 74.h,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  if (centers.length >= 2)
+                    CustomPaint(
+                      size: Size(constraints.maxWidth, 74.h),
+                      painter: OrderStepperTrackPainter(
+                        nodeCenters: centers,
+                        progress: progress,
+                        activeColor: colors.primary,
+                        inactiveColor:
+                            colors.inputBorder.withValues(alpha: 0.55),
+                        failedSegmentIndex:
+                            _failedSegmentIndex(widget.steps),
+                        lineY: lineY,
+                        strokeWidth: strokeWidth,
+                      ),
+                    ),
+                  Row(
+                    children: [
+                      for (var i = 0; i < widget.steps.length; i++)
+                        Expanded(
+                          child: OrderHorizontalStepperNode(
+                            step: widget.steps[i],
+                            primaryColor: colors.primary,
+                            isPressed: _pressedIndex == i,
+                            pulseValue: widget.steps[i].state ==
+                                    OrderStepperNodeState.current
+                                ? _pulseController.value
+                                : 0,
+                            onTap: () => _onStepTap(i),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

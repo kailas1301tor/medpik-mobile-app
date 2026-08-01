@@ -34,7 +34,11 @@ class HomeContentWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final topInset = MediaQuery.paddingOf(context).top;
     void onSearchTap() {
-      Navigator.pushNamed(context, RouteConstants.routeSearchScreen);
+      Navigator.pushNamed(
+        context,
+        RouteConstants.routeSearchResultsScreen,
+        arguments: ProductCatalogArgs.searchEntry,
+      );
     }
 
     return Stack(
@@ -135,7 +139,11 @@ class HomeContentWidget extends StatelessWidget {
             HomePopularProductsGrid.sliver(
               products: data?.featuredProducts ?? [],
             ),
-            SliverToBoxAdapter(child: 140.verticalSpace),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 140.h + MediaQuery.viewPaddingOf(context).bottom,
+              ),
+            ),
           ],
         ),
         Positioned(
@@ -175,6 +183,12 @@ class _HomeCompactHeaderScope extends ConsumerWidget {
     final useDarkStatusIcons =
         compactProgress > 0.5 && !context.isDarkMode;
 
+    final colors = context.appColors;
+    final navBarIconBrightness =
+        colors.background.computeLuminance() > 0.179
+            ? Brightness.dark
+            : Brightness.light;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: ColorPalette.transparent,
@@ -182,6 +196,9 @@ class _HomeCompactHeaderScope extends ConsumerWidget {
             useDarkStatusIcons ? Brightness.dark : Brightness.light,
         statusBarBrightness:
             useDarkStatusIcons ? Brightness.light : Brightness.dark,
+        systemNavigationBarColor: colors.background,
+        systemNavigationBarIconBrightness: navBarIconBrightness,
+        systemNavigationBarContrastEnforced: true,
       ),
       child: HomeCompactHeader(
         progress: compactProgress,

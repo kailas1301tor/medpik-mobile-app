@@ -99,9 +99,9 @@ class AuthNotifier extends _$AuthNotifier {
             );
           },
           (right) async {
+            Navigator.pushNamed(context, RouteConstants.routeOtpScreen);
             debugPrint('🟢 API SUCCESS: ${right.message}');
             otpController.clear();
-            Navigator.pushNamed(context, RouteConstants.routeOtpScreen);
             _toastSuccess(right.message, fallback: Strings.otpSentSuccess);
             await startResendTimer();
             state = state.copyWith(
@@ -202,10 +202,6 @@ class AuthNotifier extends _$AuthNotifier {
             );
 
             await _syncAfterLogin();
-            _toastSuccess(
-              right.resolvedMessage,
-              fallback: Strings.otpVerifiedSuccess,
-            );
             if (context.mounted) {
               Navigator.pushNamedAndRemoveUntil(
                 context,
@@ -213,6 +209,10 @@ class AuthNotifier extends _$AuthNotifier {
                 (_) => false,
               );
             }
+            _toastSuccess(
+              right.resolvedMessage,
+              fallback: Strings.otpVerifiedSuccess,
+            );
 
             state = state.copyWith(
               authModel: saved,
@@ -226,6 +226,31 @@ class AuthNotifier extends _$AuthNotifier {
           _toastError(Strings.somethingWentWrong);
           state = state.copyWith(isVerifyingOtp: false);
         });
+  }
+
+  Future<void> updateSessionProfile({
+    required String name,
+    required String phone,
+  }) async {
+    final current = state.authModel;
+    if (current == null) return;
+
+    final updated = AuthModel(
+      id: current.id,
+      name: name,
+      phone: phone,
+      email: current.email,
+      profileImageUrl: current.profileImageUrl,
+      customerId: current.customerId,
+      countryCode: current.countryCode,
+      status: current.status,
+      accessToken: current.accessToken,
+      refreshToken: current.refreshToken,
+    );
+
+    final isNewUser = await ref.read(sembastServicesProvider).isNewUser();
+    final saved = await _saveSession(authModel: updated, isNewUser: isNewUser);
+    state = state.copyWith(authModel: saved);
   }
 
   Future<void> signOut() async {
@@ -327,8 +352,10 @@ class AuthNotifier extends _$AuthNotifier {
   Future<void> _syncAfterLogin() async {
     await ref.read(oneSignalServiceProvider).refreshDeviceRegistration();
     await ref.read(oneSignalServiceProvider).registerDeviceWithBackend();
-    await ref.read(cartNotifierProvider.notifier).fetchCart(showLoader: false);
-    await ref.read(wishlistNotifierProvider.notifier).fetchWishlist(showLoader: false);
+    await ref.read(cartNotifierProvider.notifier).fetchCart(showLoader: true);
+    await ref
+        .read(wishlistNotifierProvider.notifier)
+        .fetchWishlist(showLoader: true);
   }
 
   Future<void> _syncAfterLogout() async {

@@ -14,6 +14,7 @@ import 'package:medpik/src/notifications/repo/notifications_repository.dart';
 import 'package:medpik/src/prescription/repo/customer_products_repository.dart';
 import 'package:medpik/src/prescription/repo/prescription_repository.dart';
 import 'package:medpik/src/product_detail/repo/product_detail_repository.dart';
+import 'package:medpik/src/profile/repo/profile_repository.dart';
 import 'package:medpik/src/search/repo/search_repository.dart';
 import 'package:medpik/src/wishlist/repo/wishlist_repository.dart';
 
@@ -101,4 +102,10 @@ DeviceRepo deviceRepository(Ref ref) {
 EmergencyRepo emergencyRepository(Ref ref) {
   final services = ref.watch(networkServicesProvider);
   return EmergencyRepoImpl(services);
+}
+
+@Riverpod(keepAlive: false)
+ProfileRepo profileRepository(Ref ref) {
+  final services = ref.watch(networkServicesProvider);
+  return ProfileRepoImpl(services);
 }

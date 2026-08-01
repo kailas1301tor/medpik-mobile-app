@@ -34,6 +34,7 @@ class MainScreen extends ConsumerWidget {
       },
       child: CommonScaffold(
         backgroundColor: colors.background,
+        navigationBarColor: colors.background,
         enableFadeIn: false,
         extendBody: true,
         safeAreaTop: false,

@@ -2,10 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/res/styles/color_palette.dart';
-import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/splash/view/widget/splash_animated_logo.dart';
 import 'package:medpik/src/splash/notifier/splash_notifier.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/helpers/pre_cache_images.dart';
@@ -50,22 +49,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     });
 
     return CommonScaffold(
-      backgroundColor: colors.primary,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              Strings.appName,
-              style: FontPalette.base700(40, color: ColorPalette.white),
-            ),
-            12.verticalSpace,
-            Text(
-              Strings.splashTagline,
-              style: FontPalette.base400(16, color: ColorPalette.white),
-              textAlign: TextAlign.center,
-            ),
-          ],
+      backgroundColor: colors.background,
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Align(
+          alignment: const Alignment(0, -0.28),
+          child: const SplashAnimatedLogo(),
         ),
       ),
     );

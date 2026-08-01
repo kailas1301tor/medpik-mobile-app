@@ -8,6 +8,7 @@ import 'package:medpik/src/home/view/widget/home_section_header.dart';
 import 'package:medpik/src/home/view/widget/home_shimmer_sections.dart';
 import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 import 'package:medpik/utils/helpers/time_of_day_greeting_helper.dart';
+import 'package:medpik/data/models/product_catalog_args.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
 
 class HomeShimmerWidget extends StatelessWidget {
@@ -29,7 +30,11 @@ class HomeShimmerWidget extends StatelessWidget {
             deliveryHint: Strings.selectDeliveryAddress,
             searchController: searchController,
             onSearchTap: () {
-              Navigator.pushNamed(context, RouteConstants.routeSearchScreen);
+              Navigator.pushNamed(
+                context,
+                RouteConstants.routeSearchResultsScreen,
+                arguments: ProductCatalogArgs.searchEntry,
+              );
             },
           ),
         ),

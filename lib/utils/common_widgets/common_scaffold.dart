@@ -138,7 +138,9 @@ class _CommonScaffoldState extends State<CommonScaffold>
         systemNavigationBarIconBrightness: _iconBrightness(resolvedNavBarColor),
         systemNavigationBarDividerColor: Colors.transparent,
         systemStatusBarContrastEnforced: false,
-        systemNavigationBarContrastEnforced: false,
+        // Keep the Android system nav bar opaque so edge-to-edge content
+        // does not show through behind the back/home/recents buttons.
+        systemNavigationBarContrastEnforced: true,
       ),
       child: Scaffold(
         backgroundColor: resolvedBg,

@@ -28,6 +28,8 @@ class OrderDetailContentWidget extends StatelessWidget {
     final banner = orderDetailStatusBanner(order.status, order);
     final hasPrescriptions = order.prescriptionImageUrls.isNotEmpty;
     final showBillPdf = order.hasBillPdf;
+    final hasNotes = order.deliveryInstructions.trim().isNotEmpty ||
+        order.prescriptionDescription.trim().isNotEmpty;
 
     return ListView(
       padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 16.h),
@@ -61,11 +63,13 @@ class OrderDetailContentWidget extends StatelessWidget {
             imageUrls: order.prescriptionImageUrls,
           ),
         ],
-        20.verticalSpace,
-        OrderDetailNotesSection(
-          deliveryInstructions: order.deliveryInstructions,
-          prescriptionDescription: order.prescriptionDescription,
-        ),
+        if (hasNotes) ...[
+          20.verticalSpace,
+          OrderDetailNotesSection(
+            deliveryInstructions: order.deliveryInstructions,
+            prescriptionDescription: order.prescriptionDescription,
+          ),
+        ],
       ],
     );
   }

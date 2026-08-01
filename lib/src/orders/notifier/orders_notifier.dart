@@ -50,8 +50,9 @@ class OrdersNotifier extends _$OrdersNotifier {
             final orders = List<OrderModel>.from(response.orders)
               ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
             state = state.copyWith(
-              loaderState:
-                  orders.isEmpty ? LoaderState.noData : LoaderState.loaded,
+              loaderState: orders.isEmpty
+                  ? LoaderState.noData
+                  : LoaderState.loaded,
               orders: orders,
             );
           },
@@ -210,7 +211,8 @@ class OrdersNotifier extends _$OrdersNotifier {
 
     state = state.copyWith(isPaymentLoading: true);
 
-    final result = state.selectedPaymentMethod == OrderPaymentMethod.cashOnDelivery
+    final result =
+        state.selectedPaymentMethod == OrderPaymentMethod.cashOnDelivery
         ? await _submitCodPayment(
             orderId: orderId,
             parsedOrderId: parsedOrderId,
@@ -246,7 +248,9 @@ class OrdersNotifier extends _$OrdersNotifier {
           (response) async {
             debugPrint('🟢 COD PAYMENT SUCCESS: ${response.message}');
             await _refreshOrderData(orderId);
-            return const OrderPaymentResult(outcome: OrderPaymentOutcome.success);
+            return const OrderPaymentResult(
+              outcome: OrderPaymentOutcome.success,
+            );
           },
         )
         .catchError((error) {
@@ -259,16 +263,16 @@ class OrdersNotifier extends _$OrdersNotifier {
     required String orderId,
     required int parsedOrderId,
   }) async {
-    final initResult = await ordersRepo.initPayment(orderId: parsedOrderId).fold(
-      (error) async {
-        debugPrint('🔴 INIT PAYMENT ERROR: ${error.message}');
-        return null;
-      },
-      (response) async => response,
-    ).catchError((error) {
-      debugPrint('🔴 UNEXPECTED INIT PAYMENT ERROR: $error');
-      return null;
-    });
+    final initResult = await ordersRepo
+        .initPayment(orderId: parsedOrderId)
+        .fold((error) async {
+          debugPrint('🔴 INIT PAYMENT ERROR: ${error.message}');
+          return null;
+        }, (response) async => response)
+        .catchError((error) {
+          debugPrint('🔴 UNEXPECTED INIT PAYMENT ERROR: $error');
+          return null;
+        });
 
     if (initResult == null) {
       return const OrderPaymentResult(
@@ -290,7 +294,6 @@ class OrdersNotifier extends _$OrdersNotifier {
     }
 
     final razorpayService = ref.read(razorpayPaymentServiceProvider);
-    state = state.copyWith(isPaymentLoading: false);
     final checkoutResult = await razorpayService.openCheckout(
       buildRazorpayCheckoutOptions(checkoutData),
     );
@@ -402,7 +405,9 @@ class OrdersNotifier extends _$OrdersNotifier {
           (response) async {
             debugPrint('🟢 SUBMIT PAYMENT SUCCESS: ${response.message}');
             await _refreshOrderData(orderId);
-            return const OrderPaymentResult(outcome: OrderPaymentOutcome.success);
+            return const OrderPaymentResult(
+              outcome: OrderPaymentOutcome.success,
+            );
           },
         )
         .catchError((error) {

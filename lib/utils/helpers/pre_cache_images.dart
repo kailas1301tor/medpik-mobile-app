@@ -12,7 +12,9 @@ class PreCacheImages {
   static late Image primaryBackground;
   static late Image productPlaceholder;
   static late Image categoryPlaceholder;
-  static late Image appLogo;
+  static late Image appLogoVertical;
+  static late Image appLogoHorizontal;
+  static late Image appCrest;
 
   static void initializeAllImages() {
     if (_initialized) return;
@@ -33,8 +35,18 @@ class PreCacheImages {
       fit: BoxFit.cover,
       gaplessPlayback: true,
     );
-    appLogo = Image.asset(
+    appLogoVertical = Image.asset(
       MedpikImageAssets.appLogo,
+      fit: BoxFit.contain,
+      gaplessPlayback: true,
+    );
+    appLogoHorizontal = Image.asset(
+      MedpikImageAssets.appLogoHorizontal,
+      fit: BoxFit.contain,
+      gaplessPlayback: true,
+    );
+    appCrest = Image.asset(
+      MedpikImageAssets.appCrest,
       fit: BoxFit.contain,
       gaplessPlayback: true,
     );
@@ -51,7 +63,9 @@ class PreCacheImages {
       precacheImage(primaryBackground.image, context),
       precacheImage(productPlaceholder.image, context),
       precacheImage(categoryPlaceholder.image, context),
-      precacheImage(appLogo.image, context),
+      precacheImage(appLogoVertical.image, context),
+      precacheImage(appLogoHorizontal.image, context),
+      precacheImage(appCrest.image, context),
     ]);
   }
 
@@ -62,7 +76,9 @@ class PreCacheImages {
       MedpikImageAssets.primaryBackground => primaryBackground.image,
       MedpikImageAssets.productPlaceholder => productPlaceholder.image,
       MedpikImageAssets.categoryPlaceholder => categoryPlaceholder.image,
-      MedpikImageAssets.appLogo => appLogo.image,
+      MedpikImageAssets.appLogo => appLogoVertical.image,
+      MedpikImageAssets.appLogoHorizontal => appLogoHorizontal.image,
+      MedpikImageAssets.appCrest => appCrest.image,
       _ => null,
     };
   }

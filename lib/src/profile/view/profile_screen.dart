@@ -6,17 +6,22 @@ import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/providers/auth_providers.dart';
+import 'package:medpik/src/profile/notifier/profile_notifier.dart';
 import 'package:medpik/src/profile/view/widget/profile_dark_mode_tile.dart';
 import 'package:medpik/src/profile/view/widget/profile_menu_section.dart';
 import 'package:medpik/src/profile/view/widget/profile_menu_tile.dart';
 import 'package:medpik/src/profile/view/widget/profile_user_card.dart';
+import 'package:medpik/src/profile/view/widget/profile_user_card_shimmer.dart';
 import 'package:medpik/utils/common_widgets/common_container.dart';
 import 'package:medpik/utils/common_widgets/common_dialog_box.dart';
 import 'package:medpik/utils/common_widgets/common_loader.dart';
+import 'package:medpik/utils/common_widgets/common_refresh_indicator.dart';
+import 'package:medpik/utils/common_widgets/common_switch_state.dart';
 import 'package:medpik/utils/common_widgets/shell_tab_header.dart';
 import 'package:medpik/utils/helpers/shell_insets_helper.dart';
 import 'package:medpik/utils/helpers/toast_helper.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
+import 'package:tuple/tuple.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -30,6 +35,13 @@ class ProfileScreen extends ConsumerWidget {
     final isSigningOut = ref.watch(
       authNotifierProvider.select((s) => s.isSigningOut),
     );
+    final profileData = ref.watch(
+      profileNotifierProvider.select(
+        (s) => Tuple2(s.loaderState, s.profile),
+      ),
+    );
+    final loaderState = profileData.item1;
+    final profile = profileData.item2;
 
     return Stack(
       children: [
@@ -37,109 +49,132 @@ class ProfileScreen extends ConsumerWidget {
           children: [
             const ShellTabHeader(title: Strings.profileTitle),
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                  16.w,
-                  0,
-                  16.w,
-                  shellScrollBottomPadding(context),
-                ),
-                children: [
-                  ProfileUserCard(authModel: authModel),
-                  24.verticalSpace,
-                  ProfileMenuSection(
-                    title: Strings.myAccountSection,
-                    children: [
-                      ProfileMenuTile(
-                        icon: Icons.person_outline_rounded,
-                        title: Strings.personalInformation,
-                        subtitle: Strings.personalInformationSubtitle,
-                        onTap: () =>
-                            showCustomToast(message: Strings.supportComingSoon),
-                      ),
-                      ProfileMenuTile(
-                        icon: Icons.shield_outlined,
-                        title: Strings.privacyAndSecurity,
-                        subtitle: Strings.privacyAndSecuritySubtitle,
-                        onTap: () =>
-                            showCustomToast(message: Strings.supportComingSoon),
-                      ),
-                      const ProfileDarkModeTile(),
-                    ],
+              child: CommonRefreshIndicator(
+                onRefresh: () =>
+                    ref.read(profileNotifierProvider.notifier).fetchProfile(),
+                child: ListView(
+                  padding: EdgeInsets.fromLTRB(
+                    16.w,
+                    0,
+                    16.w,
+                    shellScrollBottomPadding(context),
                   ),
-                  20.verticalSpace,
-                  ProfileMenuSection(
-                    title: Strings.emergencySection,
-                    children: [
-                      ProfileMenuTile(
-                        icon: Icons.local_hospital_outlined,
-                        iconColor: ColorPalette.prescriptionUploadBtn,
-                        title: Strings.emergencyServices,
-                        subtitle: Strings.emergencyServicesSubtitle,
-                        showDivider: false,
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          RouteConstants.routeEmergencyServicesScreen,
-                        ),
+                  children: [
+                    CommonSwitchState(
+                      loaderState: loaderState,
+                      reload: () => ref
+                          .read(profileNotifierProvider.notifier)
+                          .fetchProfile(),
+                      loader: const ProfileUserCardShimmer(),
+                      buttonText: Strings.refresh,
+                      emptyScreenTitle: Strings.profileEmptyMessage,
+                      child: ProfileUserCard(
+                        profile: profile,
+                        authModel: authModel,
                       ),
-                    ],
-                  ),
-                  20.verticalSpace,
-                  ProfileMenuSection(
-                    title: Strings.supportSection,
-                    children: [
-                      ProfileMenuTile(
-                        icon: Icons.help_outline_rounded,
-                        title: Strings.helpAndSupport,
-                        subtitle: Strings.helpAndSupportSubtitle,
-                        onTap: () =>
-                            showCustomToast(message: Strings.supportComingSoon),
-                      ),
-                      ProfileMenuTile(
-                        icon: Icons.phone_outlined,
-                        title: Strings.contactSupport,
-                        subtitle: Strings.contactSupportSubtitle,
-                        onTap: () =>
-                            showCustomToast(message: Strings.supportComingSoon),
-                      ),
-                      ProfileMenuTile(
-                        icon: Icons.info_outline_rounded,
-                        title: Strings.aboutUs,
-                        subtitle: Strings.aboutUsSubtitle,
-                        showDivider: false,
-                        onTap: () =>
-                            showCustomToast(message: Strings.supportComingSoon),
-                      ),
-                    ],
-                  ),
-                  24.verticalSpace,
-                  CommonContainer(
-                    padding: EdgeInsets.symmetric(vertical: 14.h),
-                    borderRadius: 14.r,
-                    color: colors.surface,
-                    onTap: isSigningOut
-                        ? null
-                        : () => _confirmSignOut(context, ref),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    ),
+                    24.verticalSpace,
+                    ProfileMenuSection(
+                      title: Strings.myAccountSection,
                       children: [
-                        Icon(
-                          Icons.logout_rounded,
-                          size: 18.r,
-                          color: ColorPalette.prescriptionUploadBtn,
+                        ProfileMenuTile(
+                          icon: Icons.person_outline_rounded,
+                          title: Strings.personalInformation,
+                          subtitle: Strings.personalInformationSubtitle,
+                          onTap: () {
+                            ref
+                                .read(profileNotifierProvider.notifier)
+                                .initEditForm();
+                            Navigator.pushNamed(
+                              context,
+                              RouteConstants.routePersonalInformationScreen,
+                            );
+                          },
                         ),
-                        8.horizontalSpace,
-                        Text(
-                          Strings.signOut,
-                          style: FontPalette.base600(
-                            15,
-                            color: ColorPalette.prescriptionUploadBtn,
+                        ProfileMenuTile(
+                          icon: Icons.shield_outlined,
+                          title: Strings.privacyAndSecurity,
+                          subtitle: Strings.privacyAndSecuritySubtitle,
+                          onTap: () =>
+                              showCustomToast(message: Strings.supportComingSoon),
+                        ),
+                        const ProfileDarkModeTile(),
+                      ],
+                    ),
+                    20.verticalSpace,
+                    ProfileMenuSection(
+                      title: Strings.emergencySection,
+                      children: [
+                        ProfileMenuTile(
+                          icon: Icons.local_hospital_outlined,
+                          iconColor: ColorPalette.prescriptionUploadBtn,
+                          title: Strings.emergencyServices,
+                          subtitle: Strings.emergencyServicesSubtitle,
+                          showDivider: false,
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            RouteConstants.routeEmergencyServicesScreen,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    20.verticalSpace,
+                    ProfileMenuSection(
+                      title: Strings.supportSection,
+                      children: [
+                        ProfileMenuTile(
+                          icon: Icons.help_outline_rounded,
+                          title: Strings.helpAndSupport,
+                          subtitle: Strings.helpAndSupportSubtitle,
+                          onTap: () =>
+                              showCustomToast(message: Strings.supportComingSoon),
+                        ),
+                        ProfileMenuTile(
+                          icon: Icons.phone_outlined,
+                          title: Strings.contactSupport,
+                          subtitle: Strings.contactSupportSubtitle,
+                          onTap: () =>
+                              showCustomToast(message: Strings.supportComingSoon),
+                        ),
+                        ProfileMenuTile(
+                          icon: Icons.info_outline_rounded,
+                          title: Strings.aboutUs,
+                          subtitle: Strings.aboutUsSubtitle,
+                          showDivider: false,
+                          onTap: () =>
+                              showCustomToast(message: Strings.supportComingSoon),
+                        ),
+                      ],
+                    ),
+                    24.verticalSpace,
+                    CommonContainer(
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      borderRadius: 14.r,
+                      color: colors.surface,
+                      onTap: isSigningOut
+                          ? null
+                          : () => _confirmSignOut(context, ref),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.logout_rounded,
+                            size: 18.r,
+                            color: ColorPalette.prescriptionUploadBtn,
+                          ),
+                          8.horizontalSpace,
+                          Text(
+                            Strings.signOut,
+                            style: FontPalette.base600(
+                              15,
+                              color: ColorPalette.prescriptionUploadBtn,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

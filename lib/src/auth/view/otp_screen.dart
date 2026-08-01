@@ -38,17 +38,14 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
-    ref.listen(
-      authNotifierProvider.select((s) => s.otpPhone),
-      (previous, next) {
-        if (next != null && next.isNotEmpty) return;
-        if (!context.mounted) return;
-        Navigator.pushReplacementNamed(
-          context,
-          RouteConstants.routeLoginScreen,
-        );
-      },
-    );
+    ref.listen(authNotifierProvider.select((s) => s.otpPhone), (
+      previous,
+      next,
+    ) {
+      if (next != null && next.isNotEmpty) return;
+      if (!context.mounted) return;
+      Navigator.pushReplacementNamed(context, RouteConstants.routeLoginScreen);
+    });
 
     return CommonScaffold(
       appBar: const CommonAppBar(title: Strings.verification),

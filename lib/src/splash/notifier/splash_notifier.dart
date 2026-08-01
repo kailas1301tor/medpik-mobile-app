@@ -21,7 +21,9 @@ class SplashNotifier extends _$SplashNotifier {
     state = state.copyWith(loaderState: LoaderState.loading);
 
     try {
-      await Future.delayed(const Duration(milliseconds: 1200));
+      await Future.delayed(
+        Duration(milliseconds: AppConstants.splashMinDurationMs),
+      );
 
       if (AppConstants.hasSession) {
         await ref.read(oneSignalServiceProvider).refreshDeviceRegistration();

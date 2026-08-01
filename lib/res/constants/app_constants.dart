@@ -4,6 +4,9 @@ class AppConstants {
   static const int otpResendDuration = 60;
   static const int otpLength = 6;
 
+  /// Minimum time splash stays visible before navigating onward.
+  static const int splashMinDurationMs = 3000;
+
   /// Hardcoded country code for OTP auth (India).
   static const String defaultCountryCode = '+91';
 
@@ -62,7 +65,7 @@ class AppConstants {
   static String addresses = '$api/addresses';
 
   // Profile endpoints
-  static String getProfileData = '$prefix$user/profile';
+  static String customerProfile = '$api/customer-profile';
 
   // Device endpoints
   static String devicesRegister = '$api/devices/register';

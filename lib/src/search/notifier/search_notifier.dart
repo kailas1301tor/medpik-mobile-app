@@ -29,8 +29,6 @@ class SearchNotifier extends _$SearchNotifier {
 
   late final TextEditingController searchController;
   late final FocusNode searchFocusNode;
-  late final TextEditingController catalogSearchController;
-  late final FocusNode catalogSearchFocusNode;
   late SearchRepo searchRepo;
 
   int _requestId = 0;
@@ -40,37 +38,19 @@ class SearchNotifier extends _$SearchNotifier {
   SearchState build() {
     searchController = TextEditingController();
     searchFocusNode = FocusNode();
-    catalogSearchController = TextEditingController();
-    catalogSearchFocusNode = FocusNode();
     searchRepo = ref.read(searchRepositoryProvider);
 
     ref.onDispose(() {
       _debounceTimer?.cancel();
       searchController.dispose();
       searchFocusNode.dispose();
-      catalogSearchController.dispose();
-      catalogSearchFocusNode.dispose();
     });
 
-    Future.microtask(loadInitialData);
     return const SearchState();
   }
 
-  Future<void> loadInitialData() async {
-    await searchRepo.getRecentSearches().fold(
-      (error) {
-        handleResponseError(error.key);
-        debugPrint("🔴 RECENT SEARCH ERROR: ${error.message}");
-      },
-      (recent) {
-        state = state.copyWith(recentSearches: recent);
-      },
-    );
-  }
-
   Future<void> initCatalog(ProductCatalogArgs args) async {
-    final sameFilters = state.catalogInitialized &&
-        state.catalogTitle == args.title &&
+    final sameFilters = state.catalogTitle == args.title &&
         state.query == args.search.trim() &&
         state.categoryId == args.categoryId &&
         state.offerId == args.offerId &&
@@ -79,13 +59,12 @@ class SearchNotifier extends _$SearchNotifier {
             state.loaderState == LoaderState.noSearchData);
     if (sameFilters) return;
 
-    catalogSearchController.text = args.search;
+    searchController.text = args.search;
     state = state.copyWith(
       catalogTitle: args.title,
       query: args.search.trim(),
       categoryId: args.categoryId,
       offerId: args.offerId,
-      catalogInitialized: true,
     );
     await fetchCatalog(page: 1);
   }
@@ -140,13 +119,6 @@ class SearchNotifier extends _$SearchNotifier {
           (response) async {
             if (requestId != _requestId) return;
 
-            if (!append && search.isNotEmpty) {
-              await searchRepo.getRecentSearches().fold(
-                (left) => null,
-                (recent) => state = state.copyWith(recentSearches: recent),
-              );
-            }
-
             final pageProducts = response.products;
             final merged = append
                 ? [...state.results, ...pageProducts]
@@ -190,13 +162,7 @@ class SearchNotifier extends _$SearchNotifier {
     await fetchCatalog(page: state.currentPage + 1, append: true);
   }
 
-  /// Landing search field — updates local query only (no catalog fetch).
   void onSearchChanged(String value) {
-    state = state.copyWith(query: value.trim());
-  }
-
-  /// Results search field — debounced catalog refetch.
-  void onCatalogSearchChanged(String value) {
     final query = value.trim();
     state = state.copyWith(query: query);
 
@@ -211,15 +177,7 @@ class SearchNotifier extends _$SearchNotifier {
     _debounceTimer?.cancel();
     searchController.clear();
     state = state.copyWith(query: '');
-  }
-
-  void clearCatalogSearch() {
-    _debounceTimer?.cancel();
-    catalogSearchController.clear();
-    state = state.copyWith(query: '');
-    if (state.catalogInitialized) {
-      fetchCatalog(page: 1);
-    }
+    fetchCatalog(page: 1);
   }
 
   void selectCategory(CategoryModel? category) {
@@ -228,13 +186,6 @@ class SearchNotifier extends _$SearchNotifier {
       offerId: null,
       catalogTitle: category?.name ?? Strings.popularProducts,
     );
-    if (state.catalogInitialized) {
-      fetchCatalog(page: 1);
-    }
-  }
-
-  void applyRecentSearch(String query) {
-    searchController.text = query;
-    state = state.copyWith(query: query.trim());
+    fetchCatalog(page: 1);
   }
 }

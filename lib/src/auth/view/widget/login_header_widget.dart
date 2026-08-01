@@ -13,7 +13,6 @@ class LoginHeaderWidget extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-
       children: [
         Text(
           Strings.letsGetStarted,

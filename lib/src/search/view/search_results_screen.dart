@@ -57,11 +57,11 @@ class SearchResultsScreen extends ConsumerWidget {
           Padding(
             padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 4.h),
             child: CommonSearchBar(
-              controller: notifier.catalogSearchController,
-              focusNode: notifier.catalogSearchFocusNode,
+              controller: notifier.searchController,
+              focusNode: notifier.searchFocusNode,
               hintText: Strings.searchMedicines,
-              onChanged: notifier.onCatalogSearchChanged,
-              onClear: notifier.clearCatalogSearch,
+              onChanged: notifier.onSearchChanged,
+              onClear: notifier.clearSearch,
             ),
           ),
           8.verticalSpace,

@@ -18,13 +18,26 @@ class OrderDetailNotesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final delivery = deliveryInstructions.trim();
+    final prescription = prescriptionDescription.trim();
+    final rows = <Widget>[
+      if (delivery.isNotEmpty)
+        _NoteRow(
+          title: Strings.orderDeliveryInstructions,
+          body: delivery,
+        ),
+      if (prescription.isNotEmpty)
+        _NoteRow(
+          title: Strings.orderPrescriptionNotes,
+          body: prescription,
+        ),
+    ];
+
+    if (rows.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final colors = context.appColors;
-    final delivery = deliveryInstructions.trim().isEmpty
-        ? Strings.unavailableValue
-        : deliveryInstructions.trim();
-    final prescription = prescriptionDescription.trim().isEmpty
-        ? Strings.unavailableValue
-        : prescriptionDescription.trim();
 
     return CommonContainer(
       padding: EdgeInsets.all(14.r),
@@ -34,15 +47,10 @@ class OrderDetailNotesSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _NoteRow(
-            title: Strings.orderDeliveryInstructions,
-            body: delivery,
-          ),
-          12.verticalSpace,
-          _NoteRow(
-            title: Strings.orderPrescriptionNotes,
-            body: prescription,
-          ),
+          for (var i = 0; i < rows.length; i++) ...[
+            if (i > 0) 12.verticalSpace,
+            rows[i],
+          ],
         ],
       ),
     );

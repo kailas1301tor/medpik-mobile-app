@@ -16,8 +16,6 @@ sealed class SearchState with _$SearchState {
     @Default(0) int currentPage,
     @Default(false) bool hasMore,
     @Default(false) bool isLoadingMore,
-    @Default(false) bool catalogInitialized,
-    @Default([]) List<String> recentSearches,
     @Default([]) List<ProductModel> results,
     String? errorMessage,
   }) = _SearchState;

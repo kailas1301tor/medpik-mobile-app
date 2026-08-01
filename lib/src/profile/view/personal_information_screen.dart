@@ -1,0 +1,105 @@
+// lib/src/profile/view/personal_information_screen.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/profile/notifier/profile_notifier.dart';
+import 'package:medpik/utils/common_widgets/common_app_bar.dart';
+import 'package:medpik/utils/common_widgets/common_scaffold.dart';
+import 'package:medpik/utils/common_widgets/common_text_form_field.dart';
+import 'package:medpik/utils/common_widgets/primary_button.dart';
+import 'package:tuple/tuple.dart';
+
+class PersonalInformationScreen extends ConsumerWidget {
+  const PersonalInformationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
+    final notifier = ref.read(profileNotifierProvider.notifier);
+
+    final formData = ref.watch(
+      profileNotifierProvider.select(
+        (s) => Tuple4(
+          s.profile?.phoneNumber ?? '',
+          s.isSaving,
+          s.firstNameError,
+          s.lastNameError,
+        ),
+      ),
+    );
+    final phoneNumber = formData.item1;
+    final isSaving = formData.item2;
+    final firstNameError = formData.item3;
+    final lastNameError = formData.item4;
+
+    return CommonScaffold(
+      appBar: const CommonAppBar(title: Strings.personalInformation),
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      CommonTextFormField(
+                        controller: notifier.firstNameController,
+                        title: Strings.firstName,
+                        hintText: Strings.firstNameHint,
+                        errorText: firstNameError,
+                        textCapitalization: TextCapitalization.words,
+                      ),
+                      16.verticalSpace,
+                      CommonTextFormField(
+                        controller: notifier.lastNameController,
+                        title: Strings.lastName,
+                        hintText: Strings.lastNameHint,
+                        errorText: lastNameError,
+                        textCapitalization: TextCapitalization.words,
+                      ),
+                      16.verticalSpace,
+                      CommonTextFormField(
+                        title: Strings.phoneNumber,
+                        hintText: phoneNumber,
+                        readOnly: true,
+                        filledColor: colors.surface,
+                      ),
+                      8.verticalSpace,
+                      Text(
+                        Strings.profilePhoneReadOnlyHint,
+                        style: FontPalette.base400(
+                          12,
+                          color: colors.secondaryText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              16.verticalSpace,
+              PrimaryButton(
+                text: Strings.save,
+                isLoading: isSaving,
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        final success =
+                            await notifier.updateProfile();
+                        if (success && context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

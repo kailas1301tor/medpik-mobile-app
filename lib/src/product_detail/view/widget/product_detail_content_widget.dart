@@ -9,9 +9,10 @@ import 'package:medpik/src/product_detail/view/widget/product_detail_hero_image.
 import 'package:medpik/src/product_detail/view/widget/product_detail_how_to_use_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_quantity_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_safety_section.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_storage_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_title_section.dart';
-import 'package:medpik/src/product_detail/view/widget/product_detail_trust_grid.dart';
 import 'package:medpik/utils/extensions/context_extensions.dart';
+import 'package:medpik/utils/helpers/product_detail_content_resolver.dart';
 
 class ProductDetailContentWidget extends StatelessWidget {
   const ProductDetailContentWidget({
@@ -33,12 +34,7 @@ class ProductDetailContentWidget extends StatelessWidget {
     final sheetTopInset = heroHeight - _sheetOverlap.h;
     final minSheetHeight = context.screenHeight - sheetTopInset;
     final footerClearance = 96.h + MediaQuery.paddingOf(context).bottom;
-
-    final hasAbout = detail.aboutText.isNotEmpty;
-    final hasTrust = detail.trustBadges.isNotEmpty;
-    final hasBenefits = detail.keyBenefits.isNotEmpty;
-    final hasHowToUse = detail.howToUse.isNotEmpty;
-    final hasSafety = detail.safetyInformation.isNotEmpty;
+    final display = resolveProductDetailDisplay(detail);
 
     return CustomScrollView(
       controller: scrollController,
@@ -75,26 +71,22 @@ class ProductDetailContentWidget extends StatelessWidget {
                       ProductDetailQuantitySection(
                         productId: detail.product.id,
                       ),
-                      if (hasAbout) ...[
+                      if (display.showAbout) ...[
                         24.verticalSpace,
                         ProductDetailAboutSection(detail: detail),
                       ],
-                      if (hasTrust) ...[
-                        24.verticalSpace,
-                        ProductDetailTrustGrid(badges: detail.trustBadges),
-                      ],
-                      if (hasBenefits) ...[
+                      if (display.showBenefits) ...[
                         24.verticalSpace,
                         ProductDetailBenefitsSection(detail: detail),
                       ],
-                      if (hasHowToUse) ...[
-                        24.verticalSpace,
-                        ProductDetailHowToUseSection(detail: detail),
-                      ],
-                      if (hasSafety) ...[
-                        24.verticalSpace,
-                        ProductDetailSafetySection(detail: detail),
-                      ],
+                      24.verticalSpace,
+                      ProductDetailHowToUseSection(howToUse: display.howToUse),
+                      24.verticalSpace,
+                      ProductDetailSafetySection(
+                        safetyInformation: display.safetyInformation,
+                      ),
+                      24.verticalSpace,
+                      const ProductDetailStorageSection(),
                     ],
                   ),
                 ),

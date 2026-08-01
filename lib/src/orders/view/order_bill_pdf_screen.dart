@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:syncfusion_flutter_core/theme.dart'; // ignore: depend_on_referenced_packages
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
@@ -68,18 +69,24 @@ class _OrderBillPdfScreenState extends State<OrderBillPdfScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
-
     return CommonScaffold(
-      appBar: const CommonAppBar(title: Strings.billPdfTitle),
-      backgroundColor: colors.background,
+      appBar: const CommonAppBar(
+        title: Strings.billPdfTitle,
+        backgroundColor: ColorPalette.white,
+      ),
+      backgroundColor: ColorPalette.white,
       body: switch ((_isLoading, _errorMessage, _pdfBytes)) {
         (true, _, _) => const Center(child: CommonLoader()),
         (_, final message?, _) => _BillPdfErrorView(
             message: message,
             onRetry: _loadPdf,
           ),
-        (_, _, final bytes?) => SfPdfViewer.memory(bytes),
+        (_, _, final bytes?) => SfPdfViewerTheme(
+            data: const SfPdfViewerThemeData(
+              backgroundColor: ColorPalette.white,
+            ),
+            child: SfPdfViewer.memory(bytes),
+          ),
         _ => const SizedBox.shrink(),
       },
     );

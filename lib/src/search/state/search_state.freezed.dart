@@ -25,8 +25,6 @@ mixin _$SearchState {
   int get currentPage => throw _privateConstructorUsedError;
   bool get hasMore => throw _privateConstructorUsedError;
   bool get isLoadingMore => throw _privateConstructorUsedError;
-  bool get catalogInitialized => throw _privateConstructorUsedError;
-  List<String> get recentSearches => throw _privateConstructorUsedError;
   List<ProductModel> get results => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
@@ -53,8 +51,6 @@ abstract class $SearchStateCopyWith<$Res> {
     int currentPage,
     bool hasMore,
     bool isLoadingMore,
-    bool catalogInitialized,
-    List<String> recentSearches,
     List<ProductModel> results,
     String? errorMessage,
   });
@@ -83,8 +79,6 @@ class _$SearchStateCopyWithImpl<$Res, $Val extends SearchState>
     Object? currentPage = null,
     Object? hasMore = null,
     Object? isLoadingMore = null,
-    Object? catalogInitialized = null,
-    Object? recentSearches = null,
     Object? results = null,
     Object? errorMessage = freezed,
   }) {
@@ -122,14 +116,6 @@ class _$SearchStateCopyWithImpl<$Res, $Val extends SearchState>
                 ? _value.isLoadingMore
                 : isLoadingMore // ignore: cast_nullable_to_non_nullable
                       as bool,
-            catalogInitialized: null == catalogInitialized
-                ? _value.catalogInitialized
-                : catalogInitialized // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            recentSearches: null == recentSearches
-                ? _value.recentSearches
-                : recentSearches // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
             results: null == results
                 ? _value.results
                 : results // ignore: cast_nullable_to_non_nullable
@@ -162,8 +148,6 @@ abstract class _$$SearchStateImplCopyWith<$Res>
     int currentPage,
     bool hasMore,
     bool isLoadingMore,
-    bool catalogInitialized,
-    List<String> recentSearches,
     List<ProductModel> results,
     String? errorMessage,
   });
@@ -191,8 +175,6 @@ class __$$SearchStateImplCopyWithImpl<$Res>
     Object? currentPage = null,
     Object? hasMore = null,
     Object? isLoadingMore = null,
-    Object? catalogInitialized = null,
-    Object? recentSearches = null,
     Object? results = null,
     Object? errorMessage = freezed,
   }) {
@@ -230,14 +212,6 @@ class __$$SearchStateImplCopyWithImpl<$Res>
             ? _value.isLoadingMore
             : isLoadingMore // ignore: cast_nullable_to_non_nullable
                   as bool,
-        catalogInitialized: null == catalogInitialized
-            ? _value.catalogInitialized
-            : catalogInitialized // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        recentSearches: null == recentSearches
-            ? _value._recentSearches
-            : recentSearches // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
         results: null == results
             ? _value._results
             : results // ignore: cast_nullable_to_non_nullable
@@ -263,12 +237,9 @@ class _$SearchStateImpl implements _SearchState {
     this.currentPage = 0,
     this.hasMore = false,
     this.isLoadingMore = false,
-    this.catalogInitialized = false,
-    final List<String> recentSearches = const [],
     final List<ProductModel> results = const [],
     this.errorMessage,
-  }) : _recentSearches = recentSearches,
-       _results = results;
+  }) : _results = results;
 
   @override
   @JsonKey()
@@ -292,18 +263,6 @@ class _$SearchStateImpl implements _SearchState {
   @override
   @JsonKey()
   final bool isLoadingMore;
-  @override
-  @JsonKey()
-  final bool catalogInitialized;
-  final List<String> _recentSearches;
-  @override
-  @JsonKey()
-  List<String> get recentSearches {
-    if (_recentSearches is EqualUnmodifiableListView) return _recentSearches;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_recentSearches);
-  }
-
   final List<ProductModel> _results;
   @override
   @JsonKey()
@@ -318,7 +277,7 @@ class _$SearchStateImpl implements _SearchState {
 
   @override
   String toString() {
-    return 'SearchState(loaderState: $loaderState, query: $query, catalogTitle: $catalogTitle, categoryId: $categoryId, offerId: $offerId, currentPage: $currentPage, hasMore: $hasMore, isLoadingMore: $isLoadingMore, catalogInitialized: $catalogInitialized, recentSearches: $recentSearches, results: $results, errorMessage: $errorMessage)';
+    return 'SearchState(loaderState: $loaderState, query: $query, catalogTitle: $catalogTitle, categoryId: $categoryId, offerId: $offerId, currentPage: $currentPage, hasMore: $hasMore, isLoadingMore: $isLoadingMore, results: $results, errorMessage: $errorMessage)';
   }
 
   @override
@@ -339,12 +298,6 @@ class _$SearchStateImpl implements _SearchState {
             (identical(other.hasMore, hasMore) || other.hasMore == hasMore) &&
             (identical(other.isLoadingMore, isLoadingMore) ||
                 other.isLoadingMore == isLoadingMore) &&
-            (identical(other.catalogInitialized, catalogInitialized) ||
-                other.catalogInitialized == catalogInitialized) &&
-            const DeepCollectionEquality().equals(
-              other._recentSearches,
-              _recentSearches,
-            ) &&
             const DeepCollectionEquality().equals(other._results, _results) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
@@ -361,8 +314,6 @@ class _$SearchStateImpl implements _SearchState {
     currentPage,
     hasMore,
     isLoadingMore,
-    catalogInitialized,
-    const DeepCollectionEquality().hash(_recentSearches),
     const DeepCollectionEquality().hash(_results),
     errorMessage,
   );
@@ -386,8 +337,6 @@ abstract class _SearchState implements SearchState {
     final int currentPage,
     final bool hasMore,
     final bool isLoadingMore,
-    final bool catalogInitialized,
-    final List<String> recentSearches,
     final List<ProductModel> results,
     final String? errorMessage,
   }) = _$SearchStateImpl;
@@ -408,10 +357,6 @@ abstract class _SearchState implements SearchState {
   bool get hasMore;
   @override
   bool get isLoadingMore;
-  @override
-  bool get catalogInitialized;
-  @override
-  List<String> get recentSearches;
   @override
   List<ProductModel> get results;
   @override

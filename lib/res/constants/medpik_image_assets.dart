@@ -4,7 +4,14 @@ class MedpikImageAssets {
 
   static const String _base = 'assets/images/png';
 
-  static const String appLogo = '$_base/app_logo_large.png';
+  /// Vertical lockup — splash and centered branding.
+  static const String appLogo = '$_base/Medpik Logo #02.png';
+
+  /// Horizontal lockup — wide headers (login, etc.).
+  static const String appLogoHorizontal = '$_base/Medpik Logo #01.png';
+
+  /// Icon mark only — launcher, compact UI.
+  static const String appCrest = '$_base/Medpik Crest #01.png';
   static const String primaryBackground = '$_base/primary_background.png';
   static const String prescriptionCardBg =
       '$_base/Messhu Flow (Speed_ 0.63).png';

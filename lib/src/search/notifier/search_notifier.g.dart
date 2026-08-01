@@ -144,7 +144,7 @@ class _SearchCatalogInitProviderElement extends AutoDisposeProviderElement<void>
   ProductCatalogArgs get args => (origin as SearchCatalogInitProvider).args;
 }
 
-String _$searchNotifierHash() => r'fce2cf2ffe6d673708756ddf078269f3fcc5ed21';
+String _$searchNotifierHash() => r'254dd6674d05c29e17d589b9db4e7f80f1576483';
 
 /// See also [SearchNotifier].
 @ProviderFor(SearchNotifier)

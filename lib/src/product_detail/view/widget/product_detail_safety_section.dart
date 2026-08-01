@@ -4,22 +4,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
-import 'package:medpik/src/product_detail/model/product_detail_model.dart';
-import 'package:medpik/utils/common_widgets/common_bottom_sheet.dart';
-import 'package:medpik/utils/common_widgets/common_container.dart';
 
 class ProductDetailSafetySection extends StatelessWidget {
-  const ProductDetailSafetySection({super.key, required this.detail});
+  const ProductDetailSafetySection({super.key, required this.safetyInformation});
 
-  final ProductDetailModel detail;
+  final String safetyInformation;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-
-    if (detail.safetyInformation.isEmpty) {
-      return const SizedBox.shrink();
-    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,59 +22,32 @@ class ProductDetailSafetySection extends StatelessWidget {
           style: FontPalette.base700(16, color: colors.primaryText),
         ),
         10.verticalSpace,
-        GestureDetector(
-          onTap: () => _showSafetySheet(context),
-          behavior: HitTestBehavior.opaque,
-          child: CommonContainer(
-            padding: EdgeInsets.all(14.r),
-            borderRadius: 12.r,
-            color: colors.surface,
-            border: Border.all(color: colors.inputBorder),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.shield_outlined,
-                  size: 20.r,
-                  color: ColorPalette.productAccentTeal,
+        Container(
+          padding: EdgeInsets.all(14.r),
+          decoration: BoxDecoration(
+            color: colors.bannerInfoBg,
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(color: colors.bannerInfoBorder),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.shield_outlined,
+                size: 20.r,
+                color: ColorPalette.productAccentTeal,
+              ),
+              10.horizontalSpace,
+              Expanded(
+                child: Text(
+                  safetyInformation,
+                  style: FontPalette.base400(13, color: colors.secondaryText),
                 ),
-                10.horizontalSpace,
-                Expanded(
-                  child: Text(
-                    detail.safetyInformation,
-                    style: FontPalette.base400(
-                      13,
-                      color: colors.secondaryText,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 20.r,
-                  color: colors.secondaryText,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],
-    );
-  }
-
-  void _showSafetySheet(BuildContext context) {
-    final colors = context.appColors;
-
-    CommonBottomSheet.show(
-      context: context,
-      title: Strings.safetyInformation,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 20.h),
-        child: Text(
-          detail.safetyInformation,
-          style: FontPalette.base400(14, color: colors.secondaryText),
-        ),
-      ),
     );
   }
 }

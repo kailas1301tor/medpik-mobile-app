@@ -52,7 +52,28 @@ void main() {
 
       final options = buildRazorpayCheckoutOptions(data);
 
-      expect(options.containsKey('prefill'), isFalse);
+      expect(options.containsKey('prefill'), isTrue);
+      expect(options['prefill'], {'email': 'customer@medpik.app'});
+    });
+
+    test('uses fallback email when contact is present but email is empty', () {
+      const data = OrderPaymentCheckoutData(
+        razorpayKey: 'rzp_test_key',
+        razorpayOrderId: 'order_123',
+        amount: 100,
+        prefill: OrderPaymentPrefillData(
+          name: 'Jane Doe',
+          contact: '8888888888',
+        ),
+      );
+
+      final options = buildRazorpayCheckoutOptions(data);
+
+      expect(options['prefill'], {
+        'name': 'Jane Doe',
+        'contact': '8888888888',
+        'email': 'customer@medpik.app',
+      });
     });
   });
 }

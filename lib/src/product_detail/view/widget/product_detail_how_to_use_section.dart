@@ -4,20 +4,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
-import 'package:medpik/src/product_detail/model/product_detail_model.dart';
 
 class ProductDetailHowToUseSection extends StatelessWidget {
-  const ProductDetailHowToUseSection({super.key, required this.detail});
+  const ProductDetailHowToUseSection({super.key, required this.howToUse});
 
-  final ProductDetailModel detail;
+  final String howToUse;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-
-    if (detail.howToUse.isEmpty) {
-      return const SizedBox.shrink();
-    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +40,7 @@ class ProductDetailHowToUseSection extends StatelessWidget {
               10.horizontalSpace,
               Expanded(
                 child: Text(
-                  detail.howToUse,
+                  howToUse,
                   style: FontPalette.base400(13, color: colors.secondaryText),
                 ),
               ),

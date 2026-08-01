@@ -255,5 +255,22 @@ final emergencyRepositoryProvider = AutoDisposeProvider<EmergencyRepo>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef EmergencyRepositoryRef = AutoDisposeProviderRef<EmergencyRepo>;
+String _$profileRepositoryHash() => r'dca486774e369a2c5373791f97e96b20dc50d97d';
+
+/// See also [profileRepository].
+@ProviderFor(profileRepository)
+final profileRepositoryProvider = AutoDisposeProvider<ProfileRepo>.internal(
+  profileRepository,
+  name: r'profileRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$profileRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ProfileRepositoryRef = AutoDisposeProviderRef<ProfileRepo>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -27,11 +27,7 @@ class ProductDetailIconHelper {
       );
     }
 
-    return Icon(
-      iconForKey(iconKey),
-      size: size,
-      color: color,
-    );
+    return Icon(iconForKey(iconKey), size: size, color: color);
   }
 
   static IconData iconForKey(String iconKey) {
@@ -43,8 +39,11 @@ class ProductDetailIconHelper {
       'medal' => Icons.workspace_premium_outlined,
       'healing' => Icons.healing_outlined,
       'thermometer' => Icons.thermostat_outlined,
-      'schedule' || 'calendar' || 'time' || 'clock' || 'date' =>
-        Icons.calendar_today_outlined,
+      'schedule' ||
+      'calendar' ||
+      'time' ||
+      'clock' ||
+      'date' => Icons.calendar_today_outlined,
       _ => Icons.check_circle_outline_rounded,
     };
   }

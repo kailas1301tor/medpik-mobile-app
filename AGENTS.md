@@ -268,6 +268,79 @@ LoaderState handleResponseError(ApiErrorTypes errorType) {
 
 ---
 
+## ERROR HANDLING, VALIDATION, AND API RULES — MANDATORY
+
+### Field validation (state)
+
+- State error fields are **only** for inline validation beneath text fields or other form inputs (e.g. `firstNameError`, `lastNameError`).
+- **Every validated input must have its own dedicated error state.** If a form has `firstName` and `lastName`, state must include `firstNameError` and `lastNameError`. Never reuse one error field for multiple inputs or leave validated fields without a matching error state.
+- Clear the matching error state when the user edits that field (controller listener in the notifier).
+- Do **not** store general API error messages in state.
+
+### API error handling (toast)
+
+- For all API calls (GET, POST, PUT, PATCH, DELETE), do **not** store error messages in state for UI display.
+- Display API errors with `showCustomErrorToast`. Display success with `showCustomToast` where appropriate.
+- Screen/content loaders still use `LoaderState` via `handleResponseError` — toasts are additive, not a replacement for loader state.
+
+### Avoid redundant try-catch
+
+- Do **not** wrap API `.fold()` chains in extra `try-catch` unless there is a specific, justified need.
+- Rely on `.fold()` left/right branches plus `.catchError()` for unexpected failures.
+- Do **not** add `try-catch` solely for toast or notification display.
+
+```dart
+// GET — loader state + toast on failure
+return await ref.read(featureRepositoryProvider)
+    .getFeatureData()
+    .fold(
+      (left) {
+        final loaderState = handleResponseError(left.key);
+        debugPrint("🔴 API ERROR: ${left.message}");
+        showCustomErrorToast(message: left.message ?? Strings.somethingWentWrong);
+        state = state.copyWith(loaderState: loaderState);
+      },
+      (right) { /* success */ },
+    )
+    .catchError((e) {
+      debugPrint("🔴 UNEXPECTED ERROR: $e");
+      showCustomErrorToast(message: Strings.somethingWentWrong);
+      state = state.copyWith(loaderState: LoaderState.error);
+    });
+
+// PUT — bool action loader + toast; per-field errors in state only
+if (firstName.isEmpty) {
+  state = state.copyWith(firstNameError: Strings.firstNameRequired);
+  return false;
+}
+state = state.copyWith(isSaving: true, firstNameError: null, lastNameError: null);
+return await repo.update(payload).fold(
+  (left) {
+    state = state.copyWith(isSaving: false);
+    showCustomErrorToast(message: left.message ?? Strings.somethingWentWrong);
+    return false;
+  },
+  (right) async {
+    state = state.copyWith(isSaving: false);
+    showCustomToast(message: Strings.saved, isSuccess: true);
+    return true;
+  },
+).catchError((e) {
+  state = state.copyWith(isSaving: false);
+  showCustomErrorToast(message: Strings.somethingWentWrong);
+  return false;
+});
+```
+
+| Concern | Approach |
+|---------|----------|
+| Inline field validation | Dedicated `fieldNameError` per validated input in Freezed state |
+| API errors / success | Toast only — never `errorMessage` in state |
+| Screen loading | `LoaderState` via `handleResponseError` |
+| Button / inline actions | `bool isSaving` — reset in `.fold()` / `.catchError()`, not `try-finally` unless justified |
+
+---
+
 ## REPOSITORIES — EITHER PATTERN
 
 ALL repository methods MUST return `Either<ResponseError, T>`. NEVER throw errors to the UI.

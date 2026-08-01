@@ -15,6 +15,9 @@ class ProductCatalogArgs {
   final int? categoryId;
   final int? offerId;
 
+  /// Default args when opening search from the home search bar or `/search` route.
+  static const searchEntry = ProductCatalogArgs(title: Strings.search);
+
   /// Accepts [ProductCatalogArgs] or a legacy [String] query.
   static ProductCatalogArgs from(Object? arguments) {
     if (arguments is ProductCatalogArgs) return arguments;

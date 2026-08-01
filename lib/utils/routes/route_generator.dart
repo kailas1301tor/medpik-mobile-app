@@ -26,11 +26,11 @@ import '../../src/prescription/view/prescription_upload_screen.dart';
 import '../../src/product_detail/view/product_detail_screen.dart';
 import 'package:medpik/data/models/product_catalog_args.dart';
 import '../../src/search/view/search_results_screen.dart';
-import '../../src/search/view/search_screen.dart';
 import '../../src/splash/view/splash_screen.dart';
 import '../../src/wishlist/view/wishlist_screen.dart';
 import '../../src/notifications/view/notifications_screen.dart';
 import '../../src/emergency/view/emergency_services_screen.dart';
+import '../../src/profile/view/personal_information_screen.dart';
 import 'route_constants.dart';
 
 /// Route generator for named navigation.
@@ -63,13 +63,10 @@ class RouteGenerator {
         );
 
       case RouteConstants.routeSearchScreen:
-        return MaterialPageRoute(
-          builder: (_) => const SearchScreen(),
-          settings: settings,
-        );
-
       case RouteConstants.routeSearchResultsScreen:
-        final args = ProductCatalogArgs.from(settings.arguments);
+        final args = settings.name == RouteConstants.routeSearchScreen
+            ? ProductCatalogArgs.searchEntry
+            : ProductCatalogArgs.from(settings.arguments);
         return MaterialPageRoute(
           builder: (_) => SearchResultsScreen(args: args),
           settings: settings,
@@ -205,6 +202,12 @@ class RouteGenerator {
       case RouteConstants.routeEmergencyServicesScreen:
         return MaterialPageRoute(
           builder: (_) => const EmergencyServicesScreen(),
+          settings: settings,
+        );
+
+      case RouteConstants.routePersonalInformationScreen:
+        return MaterialPageRoute(
+          builder: (_) => const PersonalInformationScreen(),
           settings: settings,
         );
 

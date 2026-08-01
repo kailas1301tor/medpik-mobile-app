@@ -113,18 +113,33 @@ class _CommonWishlistButtonState extends State<CommonWishlistButton>
     );
   }
 
+  Color _resolveInactiveColor(BuildContext context, AppColors colors) {
+    if (widget.inactiveColor != null) return widget.inactiveColor!;
+
+    if (widget.overlayStyle) {
+      return CommonFloatingCircleButton.foregroundColor(
+        context,
+        overlayStyle: true,
+      );
+    }
+
+    // Default circle fill is white on product heroes — keep icon dark in dark mode.
+    final circleFill = widget.backgroundColor ?? ColorPalette.white;
+    final isLightCircle =
+        ThemeData.estimateBrightnessForColor(circleFill) == Brightness.light;
+    if (isLightCircle) {
+      return ColorPalette.f191B1E.withValues(alpha: 0.55);
+    }
+
+    return colors.primaryText.withValues(alpha: 0.55);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final size = widget.size ?? (widget.overlayStyle ? 44.r : 30.r);
     final iconSize = widget.iconSize ?? (widget.overlayStyle ? 20.r : 16.r);
-    final inactiveColor = widget.inactiveColor ??
-        (widget.overlayStyle
-            ? CommonFloatingCircleButton.foregroundColor(
-                context,
-                overlayStyle: true,
-              )
-            : colors.primaryText.withValues(alpha: 0.55));
+    final inactiveColor = _resolveInactiveColor(context, colors);
 
     final heart = _buildHeartIcon(
       iconSize: iconSize,

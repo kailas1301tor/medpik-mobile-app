@@ -16,8 +16,6 @@ abstract class SearchRepo {
     int pageSize = 10,
   });
 
-  Future<Either<ResponseError, List<String>>> getRecentSearches();
-
   Future<Either<ResponseError, bool>> saveRecentSearch(String query);
 }
 
@@ -61,21 +59,6 @@ class SearchRepoImpl implements SearchRepo {
         .mapRight(
           (right) => SearchCatalogResponse.fromJson(convertToMap(right)),
         );
-  }
-
-  @override
-  Future<Either<ResponseError, List<String>>> getRecentSearches() async {
-    try {
-      final recent = await recent_helper.getRecentSearches();
-      return Right(recent);
-    } catch (error) {
-      return Left(
-        ResponseError(
-          key: ApiErrorTypes.oops,
-          message: error.toString(),
-        ),
-      );
-    }
   }
 
   @override
