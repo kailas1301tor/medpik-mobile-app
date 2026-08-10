@@ -20,6 +20,7 @@ mixin _$ProductDetailState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   ProductDetailModel? get detail => throw _privateConstructorUsedError;
   int get quantity => throw _privateConstructorUsedError;
+  bool get isFromUploadPrescription => throw _privateConstructorUsedError;
   bool get isWishlisted => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
@@ -41,6 +42,7 @@ abstract class $ProductDetailStateCopyWith<$Res> {
     LoaderState loaderState,
     ProductDetailModel? detail,
     int quantity,
+    bool isFromUploadPrescription,
     bool isWishlisted,
     String? errorMessage,
   });
@@ -64,6 +66,7 @@ class _$ProductDetailStateCopyWithImpl<$Res, $Val extends ProductDetailState>
     Object? loaderState = null,
     Object? detail = freezed,
     Object? quantity = null,
+    Object? isFromUploadPrescription = null,
     Object? isWishlisted = null,
     Object? errorMessage = freezed,
   }) {
@@ -81,6 +84,10 @@ class _$ProductDetailStateCopyWithImpl<$Res, $Val extends ProductDetailState>
                 ? _value.quantity
                 : quantity // ignore: cast_nullable_to_non_nullable
                       as int,
+            isFromUploadPrescription: null == isFromUploadPrescription
+                ? _value.isFromUploadPrescription
+                : isFromUploadPrescription // ignore: cast_nullable_to_non_nullable
+                      as bool,
             isWishlisted: null == isWishlisted
                 ? _value.isWishlisted
                 : isWishlisted // ignore: cast_nullable_to_non_nullable
@@ -108,6 +115,7 @@ abstract class _$$ProductDetailStateImplCopyWith<$Res>
     LoaderState loaderState,
     ProductDetailModel? detail,
     int quantity,
+    bool isFromUploadPrescription,
     bool isWishlisted,
     String? errorMessage,
   });
@@ -130,6 +138,7 @@ class __$$ProductDetailStateImplCopyWithImpl<$Res>
     Object? loaderState = null,
     Object? detail = freezed,
     Object? quantity = null,
+    Object? isFromUploadPrescription = null,
     Object? isWishlisted = null,
     Object? errorMessage = freezed,
   }) {
@@ -147,6 +156,10 @@ class __$$ProductDetailStateImplCopyWithImpl<$Res>
             ? _value.quantity
             : quantity // ignore: cast_nullable_to_non_nullable
                   as int,
+        isFromUploadPrescription: null == isFromUploadPrescription
+            ? _value.isFromUploadPrescription
+            : isFromUploadPrescription // ignore: cast_nullable_to_non_nullable
+                  as bool,
         isWishlisted: null == isWishlisted
             ? _value.isWishlisted
             : isWishlisted // ignore: cast_nullable_to_non_nullable
@@ -167,6 +180,7 @@ class _$ProductDetailStateImpl implements _ProductDetailState {
     this.loaderState = LoaderState.loaded,
     this.detail,
     this.quantity = 1,
+    this.isFromUploadPrescription = false,
     this.isWishlisted = false,
     this.errorMessage,
   });
@@ -181,13 +195,16 @@ class _$ProductDetailStateImpl implements _ProductDetailState {
   final int quantity;
   @override
   @JsonKey()
+  final bool isFromUploadPrescription;
+  @override
+  @JsonKey()
   final bool isWishlisted;
   @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'ProductDetailState(loaderState: $loaderState, detail: $detail, quantity: $quantity, isWishlisted: $isWishlisted, errorMessage: $errorMessage)';
+    return 'ProductDetailState(loaderState: $loaderState, detail: $detail, quantity: $quantity, isFromUploadPrescription: $isFromUploadPrescription, isWishlisted: $isWishlisted, errorMessage: $errorMessage)';
   }
 
   @override
@@ -200,6 +217,11 @@ class _$ProductDetailStateImpl implements _ProductDetailState {
             (identical(other.detail, detail) || other.detail == detail) &&
             (identical(other.quantity, quantity) ||
                 other.quantity == quantity) &&
+            (identical(
+                  other.isFromUploadPrescription,
+                  isFromUploadPrescription,
+                ) ||
+                other.isFromUploadPrescription == isFromUploadPrescription) &&
             (identical(other.isWishlisted, isWishlisted) ||
                 other.isWishlisted == isWishlisted) &&
             (identical(other.errorMessage, errorMessage) ||
@@ -212,6 +234,7 @@ class _$ProductDetailStateImpl implements _ProductDetailState {
     loaderState,
     detail,
     quantity,
+    isFromUploadPrescription,
     isWishlisted,
     errorMessage,
   );
@@ -233,6 +256,7 @@ abstract class _ProductDetailState implements ProductDetailState {
     final LoaderState loaderState,
     final ProductDetailModel? detail,
     final int quantity,
+    final bool isFromUploadPrescription,
     final bool isWishlisted,
     final String? errorMessage,
   }) = _$ProductDetailStateImpl;
@@ -243,6 +267,8 @@ abstract class _ProductDetailState implements ProductDetailState {
   ProductDetailModel? get detail;
   @override
   int get quantity;
+  @override
+  bool get isFromUploadPrescription;
   @override
   bool get isWishlisted;
   @override

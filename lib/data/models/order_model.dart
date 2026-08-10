@@ -1,6 +1,7 @@
 // lib/data/models/order_model.dart
 import 'package:intl/intl.dart';
 import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/data/models/applied_offer_model.dart';
 import 'package:medpik/data/models/product_model.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/utils/helpers/order_bill_pdf_loader.dart';
@@ -12,6 +13,11 @@ class OrderBillBreakdown {
     required this.deliveryCharges,
     this.packagingCharges = 0,
     this.tax = 0,
+    this.sgst = 0,
+    this.cgst = 0,
+    this.discountAmount = 0,
+    this.appliedOfferId,
+    this.appliedOfferDetail,
     this.isSentToCustomer = false,
     this.totalOverride,
     this.billPdfUrl,
@@ -21,13 +27,18 @@ class OrderBillBreakdown {
   final double deliveryCharges;
   final double packagingCharges;
   final double tax;
+  final double sgst;
+  final double cgst;
+  final double discountAmount;
+  final int? appliedOfferId;
+  final AppliedOfferModel? appliedOfferDetail;
   final bool isSentToCustomer;
   final double? totalOverride;
   final String? billPdfUrl;
 
   double get grandTotal =>
       totalOverride ??
-      (itemTotal + deliveryCharges + packagingCharges + tax);
+      (itemTotal + deliveryCharges + packagingCharges + tax - discountAmount);
 
   factory OrderBillBreakdown.fromJson(Map<String, dynamic> json) =>
       OrderBillBreakdown(
@@ -40,10 +51,28 @@ class OrderBillBreakdown {
     final total = convertToDouble(json['total']);
     final billPdfRaw = convertToString(json['bill_pdf']).trim();
     final resolvedPdfUrl = resolveBillPdfUrl(billPdfRaw);
+    final sgst = convertToDouble(json['sgst']);
+    final cgst = convertToDouble(json['cgst']);
+    final taxField = convertToDouble(json['tax']);
+    final resolvedTax = taxField > 0 ? taxField : sgst + cgst;
+    final appliedOfferRaw = json['applied_offer'];
+    final appliedOfferId = appliedOfferRaw == null
+        ? null
+        : convertToInt(appliedOfferRaw);
+
     return OrderBillBreakdown(
       itemTotal: convertToDouble(json['subtotal']),
       deliveryCharges: convertToDouble(json['delivery_fee']),
-      tax: convertToDouble(json['tax']),
+      tax: resolvedTax,
+      sgst: sgst,
+      cgst: cgst,
+      discountAmount: convertToDouble(json['discount_amount']),
+      appliedOfferId: appliedOfferId == 0 ? null : appliedOfferId,
+      appliedOfferDetail: json['applied_offer_detail'] == null
+          ? null
+          : AppliedOfferModel.fromJson(
+              convertToMap(json['applied_offer_detail']),
+            ),
       isSentToCustomer: convertToBool(json['is_sent_to_customer']),
       totalOverride: total > 0 ? total : null,
       billPdfUrl: resolvedPdfUrl.isEmpty ? null : resolvedPdfUrl,
@@ -61,6 +90,10 @@ class OrderItemModel {
     this.expiryDate = '',
     this.sgst = 0,
     this.cgst = 0,
+    this.discountAmount = 0,
+    this.appliedCouponCode = '',
+    this.appliedOfferId,
+    this.appliedOfferDetail,
   });
 
   final ProductModel product;
@@ -71,9 +104,25 @@ class OrderItemModel {
   final String expiryDate;
   final double sgst;
   final double cgst;
+  final double discountAmount;
+  final String appliedCouponCode;
+  final int? appliedOfferId;
+  final AppliedOfferModel? appliedOfferDetail;
 
   double get lineTotal =>
       totalPrice > 0 ? totalPrice : unitPrice * quantity;
+
+  double get grossLineTotal => unitPrice * quantity;
+
+  bool get hasItemDiscount => discountAmount > 0;
+
+  String get offerChipLabel {
+    final coupon = appliedCouponCode.trim();
+    if (coupon.isNotEmpty) return coupon;
+    return appliedOfferDetail?.displayLabel ?? '';
+  }
+
+  bool get hasOfferChip => offerChipLabel.isNotEmpty;
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
     final productJson = json['product_detail'] ?? json['product'];
@@ -83,6 +132,10 @@ class OrderItemModel {
         ? convertToDouble(json['price'])
         : product.price;
     final totalPrice = convertToDouble(json['total_price']);
+    final appliedOfferRaw = json['applied_offer'];
+    final appliedOfferId = appliedOfferRaw == null
+        ? null
+        : convertToInt(appliedOfferRaw);
 
     return OrderItemModel(
       product: product,
@@ -93,6 +146,14 @@ class OrderItemModel {
       expiryDate: convertToString(json['expiry_date']),
       sgst: convertToDouble(json['sgst']),
       cgst: convertToDouble(json['cgst']),
+      discountAmount: convertToDouble(json['discount_amount']),
+      appliedCouponCode: convertToString(json['applied_coupon_code']),
+      appliedOfferId: appliedOfferId == 0 ? null : appliedOfferId,
+      appliedOfferDetail: json['applied_offer_detail'] == null
+          ? null
+          : AppliedOfferModel.fromJson(
+              convertToMap(json['applied_offer_detail']),
+            ),
     );
   }
 }

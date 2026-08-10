@@ -90,6 +90,25 @@ class _ProductDetailStickyFooterState extends ConsumerState<ProductDetailStickyF
 
   @override
   Widget build(BuildContext context) {
+    final isFromUploadPrescription = ref.watch(
+      productDetailNotifierProvider.select((s) => s.isFromUploadPrescription),
+    );
+    if (isFromUploadPrescription) {
+      final notifier = ref.read(productDetailNotifierProvider.notifier);
+      return CommonStickyBottomBar(
+        child: PrimaryButton(
+          text: Strings.add,
+          height: 48,
+          onPressed: () async {
+            final ok = await notifier.addToPrescription();
+            if (ok && context.mounted) {
+              Navigator.of(context).pop();
+            }
+          },
+        ),
+      );
+    }
+
     final detailData = ref.watch(
       productDetailNotifierProvider.select(
         (s) => Tuple3(

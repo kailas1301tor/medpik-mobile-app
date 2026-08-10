@@ -14,25 +14,19 @@ class LoginScreen extends StatelessWidget {
     final colors = context.appColors;
     return CommonScaffold(
       backgroundColor: colors.background,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  100.verticalSpace,
-                  const LoginHeaderWidget(),
-                  30.verticalSpace,
-                  const LoginFormWidget(),
-                ],
-              ),
-            ),
-          );
-        },
+      body: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            100.verticalSpace,
+            const LoginHeaderWidget(),
+            30.verticalSpace,
+            const LoginFormWidget(),
+          ],
+        ),
       ),
     );
   }

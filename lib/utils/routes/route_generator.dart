@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/data/models/product_detail_args.dart';
 import 'package:medpik/res/enums/enums.dart';
 
 import 'package:medpik/data/models/address_book_args.dart';
+import 'package:medpik/data/models/legal_document_args.dart';
+import 'package:medpik/data/models/personal_information_args.dart';
 import '../../src/address/model/location_picker_args.dart';
 import '../../src/address/model/picked_location_model.dart';
 import '../../src/address/view/address_book_screen.dart';
@@ -30,6 +33,7 @@ import '../../src/splash/view/splash_screen.dart';
 import '../../src/wishlist/view/wishlist_screen.dart';
 import '../../src/notifications/view/notifications_screen.dart';
 import '../../src/emergency/view/emergency_services_screen.dart';
+import '../../src/profile/view/legal_document_screen.dart';
 import '../../src/profile/view/personal_information_screen.dart';
 import 'route_constants.dart';
 
@@ -73,9 +77,12 @@ class RouteGenerator {
         );
 
       case RouteConstants.routeProductDetailScreen:
-        final productId = settings.arguments as int? ?? 0;
+        final args = ProductDetailArgs.from(settings.arguments);
         return MaterialPageRoute(
-          builder: (_) => ProductDetailScreen(productId: productId),
+          builder: (_) => ProductDetailScreen(
+            productId: args.productId,
+            isFromUploadPrescription: args.isFromUploadPrescription,
+          ),
           settings: settings,
         );
 
@@ -206,8 +213,23 @@ class RouteGenerator {
         );
 
       case RouteConstants.routePersonalInformationScreen:
+        final personalInfoArgs = PersonalInformationArgs.from(
+          settings.arguments,
+        );
         return MaterialPageRoute(
-          builder: (_) => const PersonalInformationScreen(),
+          builder: (_) => PersonalInformationScreen(
+            isOnboarding: personalInfoArgs.isOnboarding,
+          ),
+          settings: settings,
+        );
+
+      case RouteConstants.routeLegalDocumentScreen:
+        final legalDocumentArgs = LegalDocumentArgs.from(settings.arguments);
+        return MaterialPageRoute(
+          builder: (_) => LegalDocumentScreen(
+            title: legalDocumentArgs.title,
+            url: legalDocumentArgs.url,
+          ),
           settings: settings,
         );
 

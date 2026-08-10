@@ -24,9 +24,12 @@ NetworkServices networkServices(Ref<NetworkServices> ref) {
 class NetworkServices extends NetWorkBaseServices {
   static const kConnectTimeOut = Duration(milliseconds: 60000);
   static const kReceiveTimeOut = Duration(milliseconds: 60000);
+  static const _sessionEndedMessage = 'Session ended';
 
   late final Dio _dio;
   final Ref _ref;
+  CancelToken _sessionCancelToken = CancelToken();
+  bool _forceLogoutInProgress = false;
 
   NetworkServices(this._ref) {
     _dio = Dio(
@@ -44,8 +47,18 @@ class NetworkServices extends NetWorkBaseServices {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final isFromAuth = options.extra['isFromAuth'] ?? false;
-          final token = AppConstants.accessToken;
 
+          if (!isFromAuth && !AppConstants.hasSession) {
+            return handler.reject(
+              DioException(
+                requestOptions: options,
+                type: DioExceptionType.cancel,
+                message: _sessionEndedMessage,
+              ),
+            );
+          }
+
+          final token = AppConstants.accessToken;
           if (!isFromAuth && token != null && token.isNotEmpty) {
             options.headers["Authorization"] = "Bearer $token";
           }
@@ -110,6 +123,19 @@ class NetworkServices extends NetWorkBaseServices {
 
   // ── Helpers ─────────────────────────────────────────────────────────────
 
+  /// Cancels all in-flight session requests and resets the shared cancel token.
+  /// Call before clearing session tokens on logout / unauthorized handling.
+  Future<void> cancelPendingRequests({String reason = _sessionEndedMessage}) async {
+    if (!_sessionCancelToken.isCancelled) {
+      _sessionCancelToken.cancel(reason);
+    }
+    _sessionCancelToken = CancelToken();
+    debugPrint('🟡 NETWORK: cancelled pending requests — $reason');
+  }
+
+  CancelToken _resolveCancelToken(CancelToken? override) =>
+      override ?? _sessionCancelToken;
+
   /// Calculates request duration from the timestamp stored in extras.
   int _requestDuration(RequestOptions options) {
     final start = options.extra['_requestStartTime'] as int?;
@@ -139,6 +165,13 @@ class NetworkServices extends NetWorkBaseServices {
     Map<String, dynamic>? queryParameters,
     bool isFromAuth = false,
   }) async {
+    if (!isFromAuth && !AppConstants.hasSession) {
+      throw ApiExceptions(
+        message: _sessionEndedMessage,
+        errorType: ApiErrorTypes.cancel,
+      );
+    }
+
     await _assertInternetAvailable();
 
     try {
@@ -146,6 +179,7 @@ class NetworkServices extends NetWorkBaseServices {
         endPoint,
         data: parameters,
         queryParameters: queryParameters,
+        cancelToken: _sessionCancelToken,
         options: Options(method: method, extra: {'isFromAuth': isFromAuth}),
       );
       return BaseResponse(statusCode: response.statusCode, data: response.data);
@@ -260,7 +294,7 @@ class NetworkServices extends NetWorkBaseServices {
         endPoint,
         data: formFields,
         onSendProgress: onSendProgress,
-        cancelToken: cancelToken,
+        cancelToken: _resolveCancelToken(cancelToken),
       );
       return BaseResponse(statusCode: response.statusCode, data: response.data);
     } on DioException catch (error) {
@@ -295,6 +329,7 @@ class NetworkServices extends NetWorkBaseServices {
           }
           onSendProgress?.call(sent, total);
         },
+        cancelToken: _sessionCancelToken,
         options: Options(extra: {'isFromAuth': isFromAuth}),
       );
       return BaseResponse(statusCode: response.statusCode, data: response.data);
@@ -317,6 +352,7 @@ class NetworkServices extends NetWorkBaseServices {
       // Use the shared Dio so interceptors (logging, etc.) still fire.
       final Response response = await _dio.get(
         url,
+        cancelToken: _sessionCancelToken,
         options: Options(extra: {'isFromAuth': true}),
       );
       return BaseResponse(statusCode: response.statusCode, data: response.data);
@@ -337,6 +373,7 @@ class NetworkServices extends NetWorkBaseServices {
     try {
       final response = await _dio.get<List<int>>(
         url,
+        cancelToken: _sessionCancelToken,
         options: Options(responseType: ResponseType.bytes),
       );
       final bytes = response.data;
@@ -367,6 +404,7 @@ class NetworkServices extends NetWorkBaseServices {
         endPoint,
         savePath,
         queryParameters: queryParameters,
+        cancelToken: _sessionCancelToken,
         options: Options(extra: {'isFromAuth': isFromAuth}),
       );
       return BaseResponse(statusCode: response.statusCode, data: response.data);
@@ -494,25 +532,47 @@ class NetworkServices extends NetWorkBaseServices {
   // ── Auth Helpers ───────────────────────────────────────────────────────
 
   Future<void> _forceLogout() async {
-    debugPrint('🔴 401 UNAUTHORIZED — clearing session and forcing logout');
-    await _ref.read(authNotifierProvider.notifier).clearSessionOnUnauthorized();
+    if (_forceLogoutInProgress) {
+      debugPrint('🟡 401 UNAUTHORIZED — logout already in progress');
+      return;
+    }
 
-    final navKey = _ref.read(navigatorKeyProvider);
-    if (navKey.currentState != null) {
+    if (!AppConstants.hasSession) {
+      debugPrint('🟡 401 UNAUTHORIZED — session already cleared, skipping');
+      return;
+    }
+
+    _forceLogoutInProgress = true;
+    try {
+      debugPrint('🔴 401 UNAUTHORIZED — clearing session and forcing logout');
+      await cancelPendingRequests(reason: 'Unauthorized');
+      await _ref.read(authNotifierProvider.notifier).clearSessionOnUnauthorized();
+
+      final navKey = _ref.read(navigatorKeyProvider);
+      final navigator = navKey.currentState;
+      if (navigator == null) return;
+
       executeAfterFrame(() {
-        Navigator.pushNamedAndRemoveUntil(
-          navKey.currentState!.context,
+        final context = navigator.context;
+        final currentRoute = ModalRoute.of(context)?.settings.name;
+        if (currentRoute == RouteConstants.routeLoginScreen) return;
+
+        navigator.pushNamedAndRemoveUntil(
           RouteConstants.routeLoginScreen,
           (_) => false,
         );
       });
+    } finally {
+      _forceLogoutInProgress = false;
     }
   }
 
   @override
   Future<bool> getAccessTokenWithRefreshToken() async {
     // No refresh endpoint — always force re-login on expiry.
-    debugPrint('🟡 Token refresh not supported; session must be re-authenticated');
+    debugPrint(
+      '🟡 Token refresh not supported; session must be re-authenticated',
+    );
     return false;
   }
 }

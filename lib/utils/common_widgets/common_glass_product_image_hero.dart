@@ -25,6 +25,7 @@ class CommonGlassProductImageHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final imageSize = contained ? height * 0.72 : null;
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -44,7 +45,7 @@ class CommonGlassProductImageHero extends StatelessWidget {
       child: Container(
         height: height,
         width: double.infinity,
-        color: ColorPalette.productImageBg,
+        color: colors.inputBackground,
         alignment: Alignment.center,
         child: CommonCachedNetworkImage(
           imageUrl: product.imageUrl,

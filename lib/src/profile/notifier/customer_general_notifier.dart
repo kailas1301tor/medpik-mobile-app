@@ -1,25 +1,15 @@
-// lib/providers/customer_general_notifier.dart
+// lib/src/profile/notifier/customer_general_notifier.dart
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/data/models/category_model.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/services/repo_di.dart';
-import 'package:medpik/src/home/model/customer_general_data_model.dart';
 import 'package:medpik/src/home/repo/home_repository.dart';
+import 'package:medpik/src/profile/state/customer_general_state.dart';
 import 'package:medpik/utils/helpers/api_error_handler.dart';
 
-part 'customer_general_notifier.freezed.dart';
 part 'customer_general_notifier.g.dart';
-
-@freezed
-sealed class CustomerGeneralState with _$CustomerGeneralState {
-  const factory CustomerGeneralState({
-    @Default(LoaderState.loaded) LoaderState loaderState,
-    CustomerGeneralDataModel? data,
-  }) = _CustomerGeneralState;
-}
 
 @Riverpod(keepAlive: true)
 class CustomerGeneralNotifier extends _$CustomerGeneralNotifier {

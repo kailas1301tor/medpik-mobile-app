@@ -9,6 +9,7 @@
 // ? Loading:
 // ? - isSearching → LocationSearchBar trailing spinner
 // ? - isReverseLoading → LocationConfirmCard shimmer
+// ? - isInitialCameraReady → defer GoogleMap mount until GPS/route coords resolved
 //
 // ? Validation:
 // ? - isServiceable — within delivery area (LocationConfig)
@@ -33,6 +34,7 @@ sealed class LocationPickerState with _$LocationPickerState {
     ReverseGeocodeResult? reverseResult,
     @Default(false) bool isSearching,
     @Default(false) bool isReverseLoading,
+    @Default(false) bool isInitialCameraReady,
     @Default(false) bool isServiceable,
     String? errorMessage,
     String? searchErrorMessage,

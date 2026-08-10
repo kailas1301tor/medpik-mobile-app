@@ -19,9 +19,7 @@ class CartSubmitFooter extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final footerData = ref.watch(
-      cartNotifierProvider.select(
-        (s) => Tuple2(s.loaderState, s.items.length),
-      ),
+      cartNotifierProvider.select((s) => Tuple2(s.loaderState, s.items.length)),
     );
     final loaderState = footerData.item1;
     final itemCount = footerData.item2;

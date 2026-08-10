@@ -1,7 +1,6 @@
 // lib/src/splash/view/splash_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/src/splash/view/widget/splash_animated_logo.dart';
@@ -32,8 +31,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
-
     ref.listen(splashNotifierProvider.select((s) => s.loaderState), (
       previous,
       next,
@@ -49,13 +46,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     });
 
     return CommonScaffold(
-      backgroundColor: colors.background,
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 32.w),
-        child: Align(
-          alignment: const Alignment(0, -0.28),
-          child: const SplashAnimatedLogo(),
-        ),
+      backgroundColor: ColorPalette.white,
+      body: const Center(
+        child: SplashAnimatedLogo(),
       ),
     );
   }

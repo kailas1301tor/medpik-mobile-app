@@ -207,7 +207,7 @@ class _LoadingSlot extends StatelessWidget {
     if (showShimmer) return placeholder;
 
     return ColoredBox(
-      color: ColorPalette.productImageBg,
+      color: context.appColors.inputBackground,
       child: SizedBox(width: width, height: height),
     );
   }

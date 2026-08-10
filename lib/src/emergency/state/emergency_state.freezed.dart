@@ -18,6 +18,8 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$EmergencyState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
+  bool get isAmbulancesEmpty => throw _privateConstructorUsedError;
+  bool get isDoctorsEmpty => throw _privateConstructorUsedError;
   List<EmergencyAmbulanceModel> get ambulances =>
       throw _privateConstructorUsedError;
   List<EmergencyDoctorModel> get doctors => throw _privateConstructorUsedError;
@@ -38,6 +40,8 @@ abstract class $EmergencyStateCopyWith<$Res> {
   @useResult
   $Res call({
     LoaderState loaderState,
+    bool isAmbulancesEmpty,
+    bool isDoctorsEmpty,
     List<EmergencyAmbulanceModel> ambulances,
     List<EmergencyDoctorModel> doctors,
   });
@@ -59,6 +63,8 @@ class _$EmergencyStateCopyWithImpl<$Res, $Val extends EmergencyState>
   @override
   $Res call({
     Object? loaderState = null,
+    Object? isAmbulancesEmpty = null,
+    Object? isDoctorsEmpty = null,
     Object? ambulances = null,
     Object? doctors = null,
   }) {
@@ -68,6 +74,14 @@ class _$EmergencyStateCopyWithImpl<$Res, $Val extends EmergencyState>
                 ? _value.loaderState
                 : loaderState // ignore: cast_nullable_to_non_nullable
                       as LoaderState,
+            isAmbulancesEmpty: null == isAmbulancesEmpty
+                ? _value.isAmbulancesEmpty
+                : isAmbulancesEmpty // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isDoctorsEmpty: null == isDoctorsEmpty
+                ? _value.isDoctorsEmpty
+                : isDoctorsEmpty // ignore: cast_nullable_to_non_nullable
+                      as bool,
             ambulances: null == ambulances
                 ? _value.ambulances
                 : ambulances // ignore: cast_nullable_to_non_nullable
@@ -93,6 +107,8 @@ abstract class _$$EmergencyStateImplCopyWith<$Res>
   @useResult
   $Res call({
     LoaderState loaderState,
+    bool isAmbulancesEmpty,
+    bool isDoctorsEmpty,
     List<EmergencyAmbulanceModel> ambulances,
     List<EmergencyDoctorModel> doctors,
   });
@@ -113,6 +129,8 @@ class __$$EmergencyStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? loaderState = null,
+    Object? isAmbulancesEmpty = null,
+    Object? isDoctorsEmpty = null,
     Object? ambulances = null,
     Object? doctors = null,
   }) {
@@ -122,6 +140,14 @@ class __$$EmergencyStateImplCopyWithImpl<$Res>
             ? _value.loaderState
             : loaderState // ignore: cast_nullable_to_non_nullable
                   as LoaderState,
+        isAmbulancesEmpty: null == isAmbulancesEmpty
+            ? _value.isAmbulancesEmpty
+            : isAmbulancesEmpty // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isDoctorsEmpty: null == isDoctorsEmpty
+            ? _value.isDoctorsEmpty
+            : isDoctorsEmpty // ignore: cast_nullable_to_non_nullable
+                  as bool,
         ambulances: null == ambulances
             ? _value._ambulances
             : ambulances // ignore: cast_nullable_to_non_nullable
@@ -140,6 +166,8 @@ class __$$EmergencyStateImplCopyWithImpl<$Res>
 class _$EmergencyStateImpl implements _EmergencyState {
   const _$EmergencyStateImpl({
     this.loaderState = LoaderState.loading,
+    this.isAmbulancesEmpty = false,
+    this.isDoctorsEmpty = false,
     final List<EmergencyAmbulanceModel> ambulances = const [],
     final List<EmergencyDoctorModel> doctors = const [],
   }) : _ambulances = ambulances,
@@ -148,6 +176,12 @@ class _$EmergencyStateImpl implements _EmergencyState {
   @override
   @JsonKey()
   final LoaderState loaderState;
+  @override
+  @JsonKey()
+  final bool isAmbulancesEmpty;
+  @override
+  @JsonKey()
+  final bool isDoctorsEmpty;
   final List<EmergencyAmbulanceModel> _ambulances;
   @override
   @JsonKey()
@@ -168,7 +202,7 @@ class _$EmergencyStateImpl implements _EmergencyState {
 
   @override
   String toString() {
-    return 'EmergencyState(loaderState: $loaderState, ambulances: $ambulances, doctors: $doctors)';
+    return 'EmergencyState(loaderState: $loaderState, isAmbulancesEmpty: $isAmbulancesEmpty, isDoctorsEmpty: $isDoctorsEmpty, ambulances: $ambulances, doctors: $doctors)';
   }
 
   @override
@@ -178,6 +212,10 @@ class _$EmergencyStateImpl implements _EmergencyState {
             other is _$EmergencyStateImpl &&
             (identical(other.loaderState, loaderState) ||
                 other.loaderState == loaderState) &&
+            (identical(other.isAmbulancesEmpty, isAmbulancesEmpty) ||
+                other.isAmbulancesEmpty == isAmbulancesEmpty) &&
+            (identical(other.isDoctorsEmpty, isDoctorsEmpty) ||
+                other.isDoctorsEmpty == isDoctorsEmpty) &&
             const DeepCollectionEquality().equals(
               other._ambulances,
               _ambulances,
@@ -189,6 +227,8 @@ class _$EmergencyStateImpl implements _EmergencyState {
   int get hashCode => Object.hash(
     runtimeType,
     loaderState,
+    isAmbulancesEmpty,
+    isDoctorsEmpty,
     const DeepCollectionEquality().hash(_ambulances),
     const DeepCollectionEquality().hash(_doctors),
   );
@@ -208,12 +248,18 @@ class _$EmergencyStateImpl implements _EmergencyState {
 abstract class _EmergencyState implements EmergencyState {
   const factory _EmergencyState({
     final LoaderState loaderState,
+    final bool isAmbulancesEmpty,
+    final bool isDoctorsEmpty,
     final List<EmergencyAmbulanceModel> ambulances,
     final List<EmergencyDoctorModel> doctors,
   }) = _$EmergencyStateImpl;
 
   @override
   LoaderState get loaderState;
+  @override
+  bool get isAmbulancesEmpty;
+  @override
+  bool get isDoctorsEmpty;
   @override
   List<EmergencyAmbulanceModel> get ambulances;
   @override

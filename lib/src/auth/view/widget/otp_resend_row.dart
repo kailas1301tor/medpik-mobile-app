@@ -16,11 +16,17 @@ class OtpResendRow extends ConsumerWidget {
     final colors = context.appColors;
     final actionState = ref.watch(
       authNotifierProvider.select(
-        (s) => Tuple2(s.resendCountdown, s.isRequestingOtp),
+        (s) => Tuple2(s.resendCountdown, s.isResendingOtp),
       ),
     );
     final countdown = actionState.item1;
-    final isRequestingOtp = actionState.item2;
+    final isResendingOtp = actionState.item2;
+
+    final label = isResendingOtp
+        ? Strings.resendingCode
+        : countdown == 0
+            ? Strings.resendCode
+            : '${Strings.resendIn} ${countdown}s';
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -30,15 +36,15 @@ class OtpResendRow extends ConsumerWidget {
           style: FontPalette.base400(14, color: colors.secondaryText),
         ),
         CommonTextButton(
-          label: countdown == 0
-              ? Strings.resendCode
-              : '${Strings.resendIn} ${countdown}s',
-          onPressed: countdown == 0 && !isRequestingOtp
+          label: label,
+          onPressed: countdown == 0 && !isResendingOtp
               ? () => ref.read(authNotifierProvider.notifier).resendOtp()
               : null,
           style: FontPalette.base600(
             14,
-            color: countdown == 0 ? colors.primary : colors.secondaryText,
+            color: countdown == 0 && !isResendingOtp
+                ? colors.primary
+                : colors.secondaryText,
           ),
         ),
       ],

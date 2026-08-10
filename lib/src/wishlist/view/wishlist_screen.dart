@@ -9,6 +9,7 @@ import 'package:medpik/src/wishlist/notifier/wishlist_notifier.dart';
 import 'package:medpik/src/wishlist/view/widget/wishlist_content_widget.dart';
 import 'package:medpik/src/wishlist/view/widget/wishlist_screen_header.dart';
 import 'package:medpik/src/wishlist/view/widget/wishlist_shimmer_widget.dart';
+import 'package:medpik/utils/common_widgets/common_loader.dart';
 import 'package:medpik/utils/common_widgets/common_refresh_indicator.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/common_switch_state.dart';
@@ -23,6 +24,9 @@ class WishlistScreen extends ConsumerWidget {
     final colors = context.appColors;
     final loaderState = ref.watch(
       wishlistNotifierProvider.select((s) => s.loaderState),
+    );
+    final isTogglePending = ref.watch(
+      wishlistNotifierProvider.select((s) => s.pendingToggleIds.isNotEmpty),
     );
     final notifier = ref.read(wishlistNotifierProvider.notifier);
 
@@ -42,19 +46,30 @@ class WishlistScreen extends ConsumerWidget {
           children: [
             const WishlistScreenHeader(),
             Expanded(
-              child: CommonSwitchState(
-                loaderState: loaderState,
-                reload: () {
-                  final itemsEmpty =
-                      ref.read(wishlistNotifierProvider).items.isEmpty;
-                  refreshWishlist(showLoader: itemsEmpty);
-                },
-                loader: const WishlistShimmerWidget(),
-                buttonText: Strings.refresh,
-                emptyScreenTitle: Strings.noFavoriteProducts,
-                emptyScreenDescription: Strings.noFavoriteProductsDesc,
-                emptyScreenImage: Assets.lottieEmptyHeart,
-                child: const WishlistContentWidget(),
+              child: Stack(
+                children: [
+                  CommonSwitchState(
+                    loaderState: loaderState,
+                    reload: () {
+                      final itemsEmpty =
+                          ref.read(wishlistNotifierProvider).items.isEmpty;
+                      refreshWishlist(showLoader: itemsEmpty);
+                    },
+                    loader: const WishlistShimmerWidget(),
+                    buttonText: Strings.refresh,
+                    emptyScreenTitle: Strings.noFavoriteProducts,
+                    emptyScreenDescription: Strings.noFavoriteProductsDesc,
+                    emptyScreenImage: Assets.lottieEmptyHeart,
+                    child: const WishlistContentWidget(),
+                  ),
+                  if (isTogglePending)
+                    Positioned.fill(
+                      child: ColoredBox(
+                        color: colors.background.withValues(alpha: 0.55),
+                        child: const Center(child: CommonLoader()),
+                      ),
+                    ),
+                ],
               ),
             ),
           ],

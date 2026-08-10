@@ -18,7 +18,6 @@ part 'wishlist_notifier.g.dart';
 @Riverpod(keepAlive: true)
 class WishlistNotifier extends _$WishlistNotifier {
   late WishlistRepo _wishlistRepo;
-  final Set<int> _pendingProductIds = <int>{};
 
   @override
   WishlistState build() {
@@ -116,15 +115,14 @@ class WishlistNotifier extends _$WishlistNotifier {
       return false;
     }
 
-    if (_pendingProductIds.contains(product.id)) {
+    if (state.pendingToggleIds.contains(product.id)) {
       debugPrint('🟡 WISHLIST: toggle ignored — in flight id=${product.id}');
       return true;
     }
 
-    _pendingProductIds.add(product.id);
-    final previousItems = List<ProductModel>.from(state.items);
-    final wasWishlisted = isWishlisted(product.id);
-    _applyOptimisticToggle(product, wasWishlisted: wasWishlisted);
+    state = state.copyWith(
+      pendingToggleIds: {...state.pendingToggleIds, product.id},
+    );
 
     try {
       await _wishlistRepo
@@ -132,12 +130,6 @@ class WishlistNotifier extends _$WishlistNotifier {
           .fold(
             (left) {
               debugPrint('🔴 WISHLIST TOGGLE ERROR: ${left.message}');
-              state = state.copyWith(
-                items: previousItems,
-                loaderState: previousItems.isEmpty
-                    ? LoaderState.noData
-                    : LoaderState.loaded,
-              );
               showCustomToast(
                 message: (left.message == null || left.message!.trim().isEmpty)
                     ? Strings.wishlistUpdateFailed
@@ -155,19 +147,14 @@ class WishlistNotifier extends _$WishlistNotifier {
           )
           .catchError((e) {
             debugPrint('🔴 UNEXPECTED WISHLIST TOGGLE ERROR: $e');
-            state = state.copyWith(
-              items: previousItems,
-              loaderState: previousItems.isEmpty
-                  ? LoaderState.noData
-                  : LoaderState.loaded,
-            );
             showCustomToast(
               message: Strings.wishlistUpdateFailed,
               isSuccess: false,
             );
           });
     } finally {
-      _pendingProductIds.remove(product.id);
+      final pending = {...state.pendingToggleIds}..remove(product.id);
+      state = state.copyWith(pendingToggleIds: pending);
     }
 
     return true;
@@ -183,27 +170,8 @@ class WishlistNotifier extends _$WishlistNotifier {
   }
 
   void clear() {
-    _pendingProductIds.clear();
     debugPrint('🟡 WISHLIST: cleared');
     state = const WishlistState(loaderState: LoaderState.noData);
-  }
-
-  void _applyOptimisticToggle(
-    ProductModel product, {
-    required bool wasWishlisted,
-  }) {
-    final items = [...state.items];
-    if (wasWishlisted) {
-      items.removeWhere((item) => item.id == product.id);
-      debugPrint('🟡 WISHLIST: optimistic remove ${product.name}');
-    } else {
-      items.add(product.copyWith(isWishlisted: true));
-      debugPrint('🟢 WISHLIST: optimistic add ${product.name}');
-    }
-    state = state.copyWith(
-      items: items,
-      loaderState: items.isEmpty ? LoaderState.noData : LoaderState.loaded,
-    );
   }
 }
 
@@ -223,6 +191,15 @@ bool isProductWishlisted(Ref ref, int productId) {
   return ref.watch(
     wishlistNotifierProvider.select(
       (s) => s.items.any((item) => item.id == productId),
+    ),
+  );
+}
+
+@Riverpod(keepAlive: false)
+bool isWishlistTogglePending(Ref ref, int productId) {
+  return ref.watch(
+    wishlistNotifierProvider.select(
+      (s) => s.pendingToggleIds.contains(productId),
     ),
   );
 }

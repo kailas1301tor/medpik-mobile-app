@@ -37,7 +37,7 @@ class ProductDetailHeroCard extends StatelessWidget {
                     width: imageSize,
                     height: imageSize,
                     decoration: BoxDecoration(
-                      color: ColorPalette.productImageBg,
+                      color: colors.inputBackground,
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     alignment: Alignment.center,

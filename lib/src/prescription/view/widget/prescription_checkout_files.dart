@@ -60,7 +60,7 @@ class _PrescriptionCheckoutThumb extends StatelessWidget {
     final size = 80.r;
 
     return Material(
-      color: ColorPalette.prescriptionFileTileBg,
+      color: colors.inputBackground,
       borderRadius: BorderRadius.circular(14.r),
       child: InkWell(
         onTap: () => PrescriptionFullPreview.show(context, filePath),
@@ -86,8 +86,8 @@ class _PrescriptionCheckoutThumb extends StatelessWidget {
                           MedpikSvgAssets.folder,
                           width: 24.r,
                           height: 24.r,
-                          colorFilter: const ColorFilter.mode(
-                            ColorPalette.prescriptionIconTeal,
+                          colorFilter: ColorFilter.mode(
+                            colors.primary,
                             BlendMode.srcIn,
                           ),
                         ),

@@ -50,21 +50,20 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     return CommonScaffold(
       appBar: const CommonAppBar(title: Strings.verification),
       backgroundColor: colors.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const OtpPhoneHeader(),
-              30.verticalSpace,
-              const OtpInputSection(),
-              32.verticalSpace,
-              const OtpVerifyButton(),
-              40.verticalSpace,
-              const OtpResendRow(),
-            ],
-          ),
+      body: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const OtpPhoneHeader(),
+            30.verticalSpace,
+            const OtpInputSection(),
+            32.verticalSpace,
+            const OtpVerifyButton(),
+            40.verticalSpace,
+            const OtpResendRow(),
+          ],
         ),
       ),
     );

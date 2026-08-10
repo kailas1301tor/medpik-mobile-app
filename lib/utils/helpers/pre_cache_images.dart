@@ -14,6 +14,7 @@ class PreCacheImages {
   static late Image categoryPlaceholder;
   static late Image appLogoVertical;
   static late Image appLogoHorizontal;
+  static late Image splashLogo;
   static late Image appCrest;
 
   static void initializeAllImages() {
@@ -45,6 +46,11 @@ class PreCacheImages {
       fit: BoxFit.contain,
       gaplessPlayback: true,
     );
+    splashLogo = Image.asset(
+      MedpikImageAssets.splashLogo,
+      fit: BoxFit.contain,
+      gaplessPlayback: true,
+    );
     appCrest = Image.asset(
       MedpikImageAssets.appCrest,
       fit: BoxFit.contain,
@@ -65,6 +71,7 @@ class PreCacheImages {
       precacheImage(categoryPlaceholder.image, context),
       precacheImage(appLogoVertical.image, context),
       precacheImage(appLogoHorizontal.image, context),
+      precacheImage(splashLogo.image, context),
       precacheImage(appCrest.image, context),
     ]);
   }
@@ -78,6 +85,7 @@ class PreCacheImages {
       MedpikImageAssets.categoryPlaceholder => categoryPlaceholder.image,
       MedpikImageAssets.appLogo => appLogoVertical.image,
       MedpikImageAssets.appLogoHorizontal => appLogoHorizontal.image,
+      MedpikImageAssets.splashLogo => splashLogo.image,
       MedpikImageAssets.appCrest => appCrest.image,
       _ => null,
     };

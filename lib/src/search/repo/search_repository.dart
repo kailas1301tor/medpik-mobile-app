@@ -30,7 +30,7 @@ class SearchRepoImpl implements SearchRepo {
     int? categoryId,
     int? offerId,
     required int page,
-    int pageSize = 10,
+    int pageSize = 9,
   }) async {
     final queryParameters = <String, dynamic>{
       'page': page,

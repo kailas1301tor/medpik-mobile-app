@@ -14,12 +14,14 @@ class CommonGlassProductCard extends StatelessWidget {
     required this.product,
     this.onTap,
     this.isWishlisted = false,
+    this.isWishlistLoading = false,
     this.onWishlistTap,
   });
 
   final ProductModel product;
   final VoidCallback? onTap;
   final bool isWishlisted;
+  final bool isWishlistLoading;
   final VoidCallback? onWishlistTap;
 
   @override
@@ -54,6 +56,7 @@ class CommonGlassProductCard extends StatelessWidget {
                     right: 8.w,
                     child: CommonWishlistButton(
                       isWishlisted: isWishlisted,
+                      isLoading: isWishlistLoading,
                       onTap: onWishlistTap!,
                       size: 30.r,
                       iconSize: 16.r,

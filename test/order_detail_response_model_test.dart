@@ -373,5 +373,108 @@ void main() {
         contains('medpik-backend.onrender.com/media/products'),
       );
     });
+
+    test('parses bill and item applied offer fields', () {
+      final response = OrderDetailResponse.fromJson({
+        'message': 'Success',
+        'results': {
+          'data': {
+            'id': 9,
+            'order_id': 'MPK260716000009',
+            'status': 'Accepted',
+            'total_amount': '991.99',
+            'created_at': '16 Jul 2026, 04:19 PM',
+            'address_detail': {
+              'id': 1,
+              'full_name': 'John Doe',
+              'address_line_1': '123 Main St',
+              'city': 'Mumbai',
+              'state': 'Maharashtra',
+              'postal_code': '400001',
+            },
+            'items': [
+              {
+                'id': 11,
+                'quantity': 3,
+                'price': '12.00',
+                'total_price': '35.64',
+                'discount_amount': '3.60',
+                'applied_offer': 3,
+                'applied_coupon_code': 'BEST10',
+                'applied_offer_detail': {
+                  'id': 3,
+                  'coupon_code': 'BEST10',
+                  'title': '10% Off',
+                  'offer_label': 'BEST VALUE',
+                  'discount_value': '10.00',
+                  'discount_type': 'PERCENTAGE',
+                  'offer_type': 'COUPON',
+                },
+                'product_detail': {
+                  'id': 1,
+                  'name': 'AQUAVIM',
+                  'pack_size': '10 S',
+                },
+              },
+              {
+                'id': 15,
+                'quantity': 12,
+                'price': '34.00',
+                'total_price': '448.80',
+                'discount_amount': '0.00',
+                'product_detail': {
+                  'id': 6492,
+                  'name': 'PREGNACARE TAB',
+                },
+              },
+            ],
+            'bill': {
+              'subtotal': '939.00',
+              'delivery_fee': '10.00',
+              'discount_amount': '50.55',
+              'sgst': '46.77',
+              'cgst': '46.77',
+              'total': '991.99',
+              'is_sent_to_customer': false,
+              'applied_offer': 5,
+              'applied_offer_detail': {
+                'id': 5,
+                'title': 'Test',
+                'description': 'Test Offer Description',
+                'offer_label': 'Test Offer',
+                'discount_value': '5.00',
+                'discount_type': 'PERCENTAGE',
+                'offer_type': 'PERCENTAGE',
+              },
+            },
+          },
+        },
+      });
+
+      final order = response.order;
+      expect(order, isNotNull);
+
+      final bill = order!.billBreakdown!;
+      expect(bill.discountAmount, 50.55);
+      expect(bill.sgst, 46.77);
+      expect(bill.cgst, 46.77);
+      expect(bill.tax, 93.54);
+      expect(bill.appliedOfferId, 5);
+      expect(bill.appliedOfferDetail?.title, 'Test');
+      expect(bill.grandTotal, 991.99);
+
+      final discountedItem = order.items.first;
+      expect(discountedItem.appliedCouponCode, 'BEST10');
+      expect(discountedItem.discountAmount, 3.60);
+      expect(discountedItem.lineTotal, 35.64);
+      expect(discountedItem.grossLineTotal, 36);
+      expect(discountedItem.hasItemDiscount, isTrue);
+      expect(discountedItem.offerChipLabel, 'BEST10');
+
+      final regularItem = order.items[1];
+      expect(regularItem.discountAmount, 0);
+      expect(regularItem.hasItemDiscount, isFalse);
+      expect(regularItem.hasOfferChip, isFalse);
+    });
   });
 }

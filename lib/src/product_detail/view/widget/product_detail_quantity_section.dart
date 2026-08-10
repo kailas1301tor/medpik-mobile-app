@@ -12,8 +12,8 @@ import 'package:medpik/src/product_detail/view/widget/product_detail_qty_stepper
 
 /// Always-visible quantity controls under product info.
 ///
-/// Before the item is in cart, steppers update local preview qty.
-/// After add, steppers drive cart quantity.
+/// Prescription mode: steppers adjust local preview qty; Add commits to list.
+/// Cart mode: before cart, local preview; after add, cart quantity.
 class ProductDetailQuantitySection extends ConsumerWidget {
   const ProductDetailQuantitySection({super.key, required this.productId});
 
@@ -22,17 +22,26 @@ class ProductDetailQuantitySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
-    final cartQuantity = ref.watch(
-      cartNotifierProvider.select(
-        (s) => cartQuantityForProduct(s.items, productId),
-      ),
+    final isFromUploadPrescription = ref.watch(
+      productDetailNotifierProvider.select((s) => s.isFromUploadPrescription),
     );
     final localQuantity = ref.watch(
       productDetailNotifierProvider.select((s) => s.quantity),
     );
-    final isInCart = cartQuantity > 0;
-    final quantity = isInCart ? cartQuantity : localQuantity;
     final notifier = ref.read(productDetailNotifierProvider.notifier);
+
+    final cartQuantity = isFromUploadPrescription
+        ? 0
+        : ref.watch(
+            cartNotifierProvider.select(
+              (s) => cartQuantityForProduct(s.items, productId),
+            ),
+          );
+
+    final isInCart = !isFromUploadPrescription && cartQuantity > 0;
+    final quantity = isFromUploadPrescription
+        ? localQuantity
+        : (isInCart ? cartQuantity : localQuantity);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

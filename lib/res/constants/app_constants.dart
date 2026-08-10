@@ -1,6 +1,10 @@
 // lib/res/constants/app_constants.dart
+import 'package:flutter/foundation.dart';
+import 'package:medpik/res/enums/app_environment.dart';
+
 class AppConstants {
-  static const String baseURL = 'https://medpik-backend.onrender.com';
+  static String baseURL = AppEnvironment.stage.baseUrl;
+  static AppEnvironment environment = AppEnvironment.stage;
   static const int otpResendDuration = 60;
   static const int otpLength = 6;
 
@@ -76,6 +80,14 @@ class AppConstants {
   // Emergency endpoints
   static String emergencyServices = '$api/emergency/services';
 
+  /// Privacy policy on the public Medpik website (environment-aware).
+  static String get privacyPolicyUrl =>
+      '${environment.webBaseUrl}/legal/privacy-policy';
+
+  /// Terms & conditions on the public Medpik website (environment-aware).
+  static String get termsAndConditionsUrl =>
+      '${environment.webBaseUrl}/legal/terms-and-conditions';
+
   /// Backend-accepted platform values for device registration.
   static const String devicePlatformAndroid = 'android';
   static const String devicePlatformIos = 'ios';
@@ -99,5 +111,15 @@ class AppConstants {
   static void clearSessionTokens() {
     accessToken = null;
     refreshToken = null;
+  }
+
+  static void configureEnvironment(AppEnvironment env) {
+    environment = env;
+    baseURL = env.baseUrl;
+    debugPrint('🟢 API ENV: ${env.name} → $baseURL');
+    debugPrint('🟢 WEB ENV: ${env.name} → ${env.webBaseUrl}');
+    if (baseURL.isEmpty) {
+      debugPrint('🔴 API ENV WARNING: baseURL is empty for ${env.name}');
+    }
   }
 }

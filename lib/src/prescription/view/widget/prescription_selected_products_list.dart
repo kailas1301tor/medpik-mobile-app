@@ -66,7 +66,7 @@ class _SelectedProductCard extends StatelessWidget {
     final imageSize = 44.r;
 
     return Material(
-      color: ColorPalette.productCardBg,
+      color: colors.cardBackground,
       borderRadius: BorderRadius.circular(14.r),
       child: InkWell(
         onTap: onTap,
@@ -121,7 +121,7 @@ class _SelectedProductCard extends StatelessWidget {
                     '×${item.quantity}',
                     style: FontPalette.base700(
                       14,
-                      color: ColorPalette.productAccentTeal,
+                      color: colors.primary,
                     ),
                   ),
                   8.verticalSpace,

@@ -16,6 +16,7 @@ class PrescriptionAddMoreTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return DashedBorderContainer(
       width: 96.w,
@@ -24,6 +25,10 @@ class PrescriptionAddMoreTile extends StatelessWidget {
       dashWidth: 5,
       dashGap: 5,
       strokeWidth: 2,
+      borderColor: isDarkMode
+          ? colors.inputBorder
+          : ColorPalette.prescriptionUploadDashedBorder,
+      backgroundColor: colors.inputBackground,
       onTap: onTap,
       padding: EdgeInsets.all(8.r),
       child: Center(

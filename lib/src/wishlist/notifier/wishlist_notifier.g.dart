@@ -164,7 +164,132 @@ class _IsProductWishlistedProviderElement
   int get productId => (origin as IsProductWishlistedProvider).productId;
 }
 
-String _$wishlistNotifierHash() => r'e394f20ef605924a16013c3efa6fdd84633ecda2';
+String _$isWishlistTogglePendingHash() =>
+    r'afac91f3c3acf314a9e11dfc2a6a9dcf12102f14';
+
+/// See also [isWishlistTogglePending].
+@ProviderFor(isWishlistTogglePending)
+const isWishlistTogglePendingProvider = IsWishlistTogglePendingFamily();
+
+/// See also [isWishlistTogglePending].
+class IsWishlistTogglePendingFamily extends Family<bool> {
+  /// See also [isWishlistTogglePending].
+  const IsWishlistTogglePendingFamily();
+
+  /// See also [isWishlistTogglePending].
+  IsWishlistTogglePendingProvider call(int productId) {
+    return IsWishlistTogglePendingProvider(productId);
+  }
+
+  @override
+  IsWishlistTogglePendingProvider getProviderOverride(
+    covariant IsWishlistTogglePendingProvider provider,
+  ) {
+    return call(provider.productId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'isWishlistTogglePendingProvider';
+}
+
+/// See also [isWishlistTogglePending].
+class IsWishlistTogglePendingProvider extends AutoDisposeProvider<bool> {
+  /// See also [isWishlistTogglePending].
+  IsWishlistTogglePendingProvider(int productId)
+    : this._internal(
+        (ref) => isWishlistTogglePending(
+          ref as IsWishlistTogglePendingRef,
+          productId,
+        ),
+        from: isWishlistTogglePendingProvider,
+        name: r'isWishlistTogglePendingProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$isWishlistTogglePendingHash,
+        dependencies: IsWishlistTogglePendingFamily._dependencies,
+        allTransitiveDependencies:
+            IsWishlistTogglePendingFamily._allTransitiveDependencies,
+        productId: productId,
+      );
+
+  IsWishlistTogglePendingProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.productId,
+  }) : super.internal();
+
+  final int productId;
+
+  @override
+  Override overrideWith(
+    bool Function(IsWishlistTogglePendingRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: IsWishlistTogglePendingProvider._internal(
+        (ref) => create(ref as IsWishlistTogglePendingRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        productId: productId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeProviderElement<bool> createElement() {
+    return _IsWishlistTogglePendingProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is IsWishlistTogglePendingProvider &&
+        other.productId == productId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, productId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin IsWishlistTogglePendingRef on AutoDisposeProviderRef<bool> {
+  /// The parameter `productId` of this provider.
+  int get productId;
+}
+
+class _IsWishlistTogglePendingProviderElement
+    extends AutoDisposeProviderElement<bool>
+    with IsWishlistTogglePendingRef {
+  _IsWishlistTogglePendingProviderElement(super.provider);
+
+  @override
+  int get productId => (origin as IsWishlistTogglePendingProvider).productId;
+}
+
+String _$wishlistNotifierHash() => r'8ecc667bda4f39684df755f2f89c79fa999aa18c';
 
 /// See also [WishlistNotifier].
 @ProviderFor(WishlistNotifier)

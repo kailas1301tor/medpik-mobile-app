@@ -71,6 +71,7 @@ dependencies:
   figma_squircle: ^0.6.3
   shimmer: ^3.0.0
   cached_network_image: ^3.4.1
+  flutter_cache_manager: ^3.4.1
   intl: ^0.20.2
   flutter_localizations:
     sdk: flutter
@@ -85,6 +86,8 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^28.2.12
   razorpay_flutter: ^1.4.0
   url_launcher: ^6.3.1
+  flutter_html: ^3.0.0
+  webview_flutter: ^4.14.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -153,26 +156,26 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/png/Medpik Crest #01.png"
-  adaptive_icon_background: "#000000"
-  adaptive_icon_foreground: "assets/images/png/Medpik Crest #01.png"
-  adaptive_icon_foreground_inset: 18
+  image_path: "assets/images/png/medpik_app_icon.png"
+  adaptive_icon_background: "#3D9B4A"
+  adaptive_icon_foreground: "assets/images/png/medpik_app_icon.png"
+  adaptive_icon_foreground_inset: 0
   remove_alpha_ios: true
 
 flutter_native_splash:
   color: "#FFFFFF"
-  color_dark: "#0F1419"
-  image: "assets/images/png/Medpik Logo #02.png"
-  image_dark: "assets/images/png/Medpik Logo #02.png"
+  color_dark: "#FFFFFF"
+  image: "assets/images/png/medpik_splash_logo.png"
+  image_dark: "assets/images/png/medpik_splash_logo.png"
   ios_content_mode: scaleAspectFit
   android_gravity: center
   android_12:
     color: "#FFFFFF"
-    color_dark: "#0F1419"
-    image: "assets/images/png/Medpik Crest #01.png"
-    image_dark: "assets/images/png/Medpik Crest #01.png"
-    icon_background_color: "#000000"
-    icon_background_color_dark: "#000000"
+    color_dark: "#FFFFFF"
+    image: "assets/images/png/medpik_splash_logo.png"
+    image_dark: "assets/images/png/medpik_splash_logo.png"
+    icon_background_color: "#FFFFFF"
+    icon_background_color_dark: "#FFFFFF"
   android: true
   ios: true
   web: false

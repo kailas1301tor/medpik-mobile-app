@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/providers/wishlist_providers.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/src/product_detail/notifier/product_detail_notifier.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_content_widget.dart';
@@ -20,9 +21,14 @@ import 'package:medpik/utils/routes/route_constants.dart';
 import 'package:tuple/tuple.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
-  const ProductDetailScreen({super.key, required this.productId});
+  const ProductDetailScreen({
+    super.key,
+    required this.productId,
+    this.isFromUploadPrescription = false,
+  });
 
   final int productId;
+  final bool isFromUploadPrescription;
 
   @override
   ConsumerState<ProductDetailScreen> createState() =>
@@ -34,9 +40,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   void initState() {
     super.initState();
     Future.microtask(
-      () => ref
-          .read(productDetailNotifierProvider.notifier)
-          .loadProduct(widget.productId),
+      () => ref.read(productDetailNotifierProvider.notifier).loadProduct(
+            widget.productId,
+            isFromUploadPrescription: widget.isFromUploadPrescription,
+          ),
     );
   }
 
@@ -133,12 +140,19 @@ class _ProductDetailWishlistButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final productId = ref.watch(
+      productDetailNotifierProvider.select((s) => s.detail?.product.id),
+    );
+    if (productId == null) return const SizedBox.shrink();
+
     final isWishlisted = ref.watch(
       productDetailNotifierProvider.select((s) => s.isWishlisted),
     );
+    final isLoading = ref.watch(isWishlistTogglePendingProvider(productId));
 
     return CommonWishlistButton(
       isWishlisted: isWishlisted,
+      isLoading: isLoading,
       onTap: () {
         if (!AppConstants.hasSession) {
           Navigator.pushNamed(context, RouteConstants.routeLoginScreen);

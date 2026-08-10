@@ -177,6 +177,32 @@ class ColorPalette {
     ),
   ];
 
+  static List<BoxShadow> get orderTileShadow => [
+    BoxShadow(
+      color: ColorPalette.black.withValues(alpha: 0.05),
+      blurRadius: 24,
+      offset: const Offset(0, 10),
+    ),
+    BoxShadow(
+      color: ColorPalette.primaryColor.withValues(alpha: 0.04),
+      blurRadius: 16,
+      offset: const Offset(0, 4),
+    ),
+  ];
+
+  static List<BoxShadow> orderTileInsetShadow({bool isDark = false}) => [
+    BoxShadow(
+      color: ColorPalette.black.withValues(alpha: isDark ? 0.18 : 0.06),
+      offset: const Offset(2, 2),
+      blurRadius: 4,
+    ),
+    BoxShadow(
+      color: ColorPalette.white.withValues(alpha: isDark ? 0.04 : 0.85),
+      offset: const Offset(-2, -2),
+      blurRadius: 4,
+    ),
+  ];
+
   static List<BoxShadow> productGlassCardShadow({double depth = 1.0}) => [
     BoxShadow(
       color: ColorPalette.black.withValues(alpha: 0.05 * depth),

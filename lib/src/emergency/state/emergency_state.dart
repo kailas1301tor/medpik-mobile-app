@@ -9,6 +9,8 @@ part 'emergency_state.freezed.dart';
 sealed class EmergencyState with _$EmergencyState {
   const factory EmergencyState({
     @Default(LoaderState.loading) LoaderState loaderState,
+    @Default(false) bool isAmbulancesEmpty,
+    @Default(false) bool isDoctorsEmpty,
     @Default([]) List<EmergencyAmbulanceModel> ambulances,
     @Default([]) List<EmergencyDoctorModel> doctors,
   }) = _EmergencyState;

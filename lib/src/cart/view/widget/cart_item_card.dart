@@ -53,10 +53,7 @@ class CartItemCard extends StatelessWidget {
                   children: [
                     Text(
                       product.name,
-                      style: FontPalette.base600(
-                        13,
-                        color: colors.primaryText,
-                      ),
+                      style: FontPalette.base600(13, color: colors.primaryText),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -101,11 +98,7 @@ class CartItemCard extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          Divider(
-            height: 1.h,
-            thickness: 1,
-            color: colors.divider,
-          ),
+          Divider(height: 1.h, thickness: 1, color: colors.divider),
       ],
     );
   }

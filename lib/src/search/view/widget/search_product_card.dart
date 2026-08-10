@@ -26,10 +26,14 @@ class _SearchProductCardWishlistScope extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isWishlisted = ref.watch(isProductWishlistedProvider(product.id));
+    final isWishlistLoading = ref.watch(
+      isWishlistTogglePendingProvider(product.id),
+    );
 
     return CommonGlassProductCard(
       product: product,
       isWishlisted: isWishlisted,
+      isWishlistLoading: isWishlistLoading,
       onTap: () {
         Navigator.pushNamed(
           context,

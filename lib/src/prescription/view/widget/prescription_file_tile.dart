@@ -36,7 +36,7 @@ class PrescriptionFileTile extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Material(
-            color: ColorPalette.prescriptionFileTileBg,
+            color: colors.inputBackground,
             borderRadius: BorderRadius.circular(14.r),
             child: InkWell(
               onTap: () => PrescriptionFullPreview.show(context, filePath),
@@ -60,7 +60,7 @@ class PrescriptionFileTile extends StatelessWidget {
                               width: 28.r,
                               height: 28.r,
                               colorFilter: ColorFilter.mode(
-                                ColorPalette.prescriptionIconTeal,
+                                colors.primary,
                                 BlendMode.srcIn,
                               ),
                             ),
@@ -87,7 +87,7 @@ class PrescriptionFileTile extends StatelessWidget {
             child: Semantics(
               label: Strings.removeFile,
               child: Material(
-                color: ColorPalette.white,
+                color: colors.surface,
                 shape: const CircleBorder(),
                 elevation: 2,
                 child: InkWell(

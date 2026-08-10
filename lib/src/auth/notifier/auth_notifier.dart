@@ -5,6 +5,8 @@ import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/data/local/sembast_services.dart';
+import 'package:medpik/data/models/personal_information_args.dart';
+import 'package:medpik/data/remote/network_services.dart';
 import 'package:medpik/providers/cart_providers.dart';
 import 'package:medpik/providers/wishlist_providers.dart';
 import 'package:medpik/res/constants/app_constants.dart';
@@ -15,6 +17,7 @@ import 'package:medpik/services/repo_di.dart';
 import 'package:medpik/src/auth/model/auth_model.dart';
 import 'package:medpik/src/auth/state/auth_state.dart';
 import 'package:medpik/utils/helpers/api_error_handler.dart';
+import 'package:medpik/utils/helpers/otp_resend_guard.dart';
 import 'package:medpik/utils/helpers/safe_converters.dart';
 import 'package:medpik/utils/helpers/toast_helper.dart';
 import 'package:medpik/utils/helpers/validators.dart';
@@ -63,7 +66,9 @@ class AuthNotifier extends _$AuthNotifier {
   }
 
   void onOtpCompleted(BuildContext context) {
-    if (state.isVerifyingOtp) return;
+    if (state.isVerifyingOtp || state.isResendingOtp || state.isRequestingOtp) {
+      return;
+    }
     if (otpController.text.trim().length != AppConstants.otpLength) return;
     verifyOtp(context);
   }
@@ -99,16 +104,18 @@ class AuthNotifier extends _$AuthNotifier {
             );
           },
           (right) async {
-            Navigator.pushNamed(context, RouteConstants.routeOtpScreen);
             debugPrint('🟢 API SUCCESS: ${right.message}');
             otpController.clear();
-            _toastSuccess(right.message, fallback: Strings.otpSentSuccess);
-            await startResendTimer();
             state = state.copyWith(
               otpPhone: phone,
               otpErrorMessage: null,
-              isRequestingOtp: false,
+              isOtpValid: false,
             );
+            await startResendTimer();
+            state = state.copyWith(isRequestingOtp: false);
+            if (!context.mounted) return;
+            Navigator.pushNamed(context, RouteConstants.routeOtpScreen);
+            _toastSuccess(right.message, fallback: Strings.otpSentSuccess);
           },
         )
         .catchError((error) {
@@ -120,9 +127,17 @@ class AuthNotifier extends _$AuthNotifier {
 
   Future<void> resendOtp() async {
     final phone = state.otpPhone?.trim() ?? '';
-    if (phone.isEmpty) return;
+    if (!canResendOtp(
+      phone: phone,
+      isResendingOtp: state.isResendingOtp,
+      isRequestingOtp: state.isRequestingOtp,
+      isVerifyingOtp: state.isVerifyingOtp,
+      resendCountdown: state.resendCountdown,
+    )) {
+      return;
+    }
 
-    state = state.copyWith(isRequestingOtp: true);
+    state = state.copyWith(isResendingOtp: true);
 
     await ref
         .read(authRepositoryProvider)
@@ -137,10 +152,15 @@ class AuthNotifier extends _$AuthNotifier {
               ),
             );
           },
-          (right) {
+          (right) async {
             debugPrint('🟢 API SUCCESS: ${right.message}');
+            otpController.clear();
+            await startResendTimer();
+            state = state.copyWith(
+              otpErrorMessage: null,
+              isOtpValid: false,
+            );
             _toastSuccess(right.message, fallback: Strings.otpSentSuccess);
-            startResendTimer();
           },
         )
         .catchError((error) {
@@ -148,7 +168,7 @@ class AuthNotifier extends _$AuthNotifier {
           _toastError(Strings.somethingWentWrong);
         });
 
-    state = state.copyWith(isRequestingOtp: false);
+    state = state.copyWith(isResendingOtp: false);
   }
 
   Future<void> verifyOtp(BuildContext context) async {
@@ -156,6 +176,8 @@ class AuthNotifier extends _$AuthNotifier {
     final otp = otpController.text.trim();
     if (phone.isEmpty ||
         state.isVerifyingOtp ||
+        state.isResendingOtp ||
+        state.isRequestingOtp ||
         otp.length != AppConstants.otpLength) {
       return;
     }
@@ -195,7 +217,9 @@ class AuthNotifier extends _$AuthNotifier {
             }
 
             final authModel = right.authModel!;
-            debugPrint('🟢 API SUCCESS: ${right.resolvedMessage}');
+            debugPrint(
+              '🟢 VERIFY OTP: isNewUser=${right.isNewUser} verified=${right.verified}',
+            );
             final saved = await _saveSession(
               authModel: authModel,
               isNewUser: right.isNewUser,
@@ -203,10 +227,17 @@ class AuthNotifier extends _$AuthNotifier {
 
             await _syncAfterLogin();
             if (context.mounted) {
+              final destination = right.isNewUser
+                  ? RouteConstants.routePersonalInformationScreen
+                  : RouteConstants.mainScreen;
+
               Navigator.pushNamedAndRemoveUntil(
                 context,
-                RouteConstants.mainScreen,
+                destination,
                 (_) => false,
+                arguments: right.isNewUser
+                    ? const PersonalInformationArgs(isOnboarding: true)
+                    : null,
               );
             }
             _toastSuccess(
@@ -251,6 +282,21 @@ class AuthNotifier extends _$AuthNotifier {
     final isNewUser = await ref.read(sembastServicesProvider).isNewUser();
     final saved = await _saveSession(authModel: updated, isNewUser: isNewUser);
     state = state.copyWith(authModel: saved);
+  }
+
+  Future<void> markProfileCompleted() async {
+    if (!await ref.read(sembastServicesProvider).isNewUser()) return;
+
+    final session = await ref.read(sembastServicesProvider).getUserData();
+    if (session == null) return;
+
+    final current =
+        state.authModel ?? AuthModel.fromSessionMap(session);
+
+    await ref.read(sembastServicesProvider).saveUser(isNewUser: false);
+    final saved = await _saveSession(authModel: current, isNewUser: false);
+    state = state.copyWith(authModel: saved);
+    debugPrint('🟢 PROFILE ONBOARDING: isNewUser cleared after profile save');
   }
 
   Future<void> signOut() async {
@@ -345,6 +391,7 @@ class AuthNotifier extends _$AuthNotifier {
   }
 
   Future<void> _clearSession() async {
+    await ref.read(networkServicesProvider).cancelPendingRequests();
     await ref.read(sembastServicesProvider).clearLocalDb();
     AppConstants.clearSessionTokens();
   }

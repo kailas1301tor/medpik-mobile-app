@@ -46,6 +46,12 @@ class LocationConfig {
   /// Cooldown between GPS "use current location" taps.
   static const int useCurrentLocationCooldownMs = 2000;
 
+  /// Initial map open — prefer last-known; shorter fresh-GPS wait.
+  static const int gpsInitialTimeLimitSeconds = 8;
+
+  /// "Use current location" tap — allow longer high-accuracy fix.
+  static const int gpsRefreshTimeLimitSeconds = 12;
+
   /// Default map zoom for location picker initial camera.
   static const double mapDefaultZoom = 15;
 

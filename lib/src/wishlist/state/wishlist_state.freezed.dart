@@ -19,6 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$WishlistState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   List<ProductModel> get items => throw _privateConstructorUsedError;
+  Set<int> get pendingToggleIds => throw _privateConstructorUsedError;
 
   /// Create a copy of WishlistState
   /// with the given fields replaced by the non-null parameter values.
@@ -34,7 +35,11 @@ abstract class $WishlistStateCopyWith<$Res> {
     $Res Function(WishlistState) then,
   ) = _$WishlistStateCopyWithImpl<$Res, WishlistState>;
   @useResult
-  $Res call({LoaderState loaderState, List<ProductModel> items});
+  $Res call({
+    LoaderState loaderState,
+    List<ProductModel> items,
+    Set<int> pendingToggleIds,
+  });
 }
 
 /// @nodoc
@@ -51,7 +56,11 @@ class _$WishlistStateCopyWithImpl<$Res, $Val extends WishlistState>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? loaderState = null, Object? items = null}) {
+  $Res call({
+    Object? loaderState = null,
+    Object? items = null,
+    Object? pendingToggleIds = null,
+  }) {
     return _then(
       _value.copyWith(
             loaderState: null == loaderState
@@ -62,6 +71,10 @@ class _$WishlistStateCopyWithImpl<$Res, $Val extends WishlistState>
                 ? _value.items
                 : items // ignore: cast_nullable_to_non_nullable
                       as List<ProductModel>,
+            pendingToggleIds: null == pendingToggleIds
+                ? _value.pendingToggleIds
+                : pendingToggleIds // ignore: cast_nullable_to_non_nullable
+                      as Set<int>,
           )
           as $Val,
     );
@@ -77,7 +90,11 @@ abstract class _$$WishlistStateImplCopyWith<$Res>
   ) = __$$WishlistStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({LoaderState loaderState, List<ProductModel> items});
+  $Res call({
+    LoaderState loaderState,
+    List<ProductModel> items,
+    Set<int> pendingToggleIds,
+  });
 }
 
 /// @nodoc
@@ -93,7 +110,11 @@ class __$$WishlistStateImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? loaderState = null, Object? items = null}) {
+  $Res call({
+    Object? loaderState = null,
+    Object? items = null,
+    Object? pendingToggleIds = null,
+  }) {
     return _then(
       _$WishlistStateImpl(
         loaderState: null == loaderState
@@ -104,6 +125,10 @@ class __$$WishlistStateImplCopyWithImpl<$Res>
             ? _value._items
             : items // ignore: cast_nullable_to_non_nullable
                   as List<ProductModel>,
+        pendingToggleIds: null == pendingToggleIds
+            ? _value._pendingToggleIds
+            : pendingToggleIds // ignore: cast_nullable_to_non_nullable
+                  as Set<int>,
       ),
     );
   }
@@ -115,7 +140,9 @@ class _$WishlistStateImpl implements _WishlistState {
   const _$WishlistStateImpl({
     this.loaderState = LoaderState.noData,
     final List<ProductModel> items = const [],
-  }) : _items = items;
+    final Set<int> pendingToggleIds = const <int>{},
+  }) : _items = items,
+       _pendingToggleIds = pendingToggleIds;
 
   @override
   @JsonKey()
@@ -129,9 +156,18 @@ class _$WishlistStateImpl implements _WishlistState {
     return EqualUnmodifiableListView(_items);
   }
 
+  final Set<int> _pendingToggleIds;
+  @override
+  @JsonKey()
+  Set<int> get pendingToggleIds {
+    if (_pendingToggleIds is EqualUnmodifiableSetView) return _pendingToggleIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableSetView(_pendingToggleIds);
+  }
+
   @override
   String toString() {
-    return 'WishlistState(loaderState: $loaderState, items: $items)';
+    return 'WishlistState(loaderState: $loaderState, items: $items, pendingToggleIds: $pendingToggleIds)';
   }
 
   @override
@@ -141,7 +177,11 @@ class _$WishlistStateImpl implements _WishlistState {
             other is _$WishlistStateImpl &&
             (identical(other.loaderState, loaderState) ||
                 other.loaderState == loaderState) &&
-            const DeepCollectionEquality().equals(other._items, _items));
+            const DeepCollectionEquality().equals(other._items, _items) &&
+            const DeepCollectionEquality().equals(
+              other._pendingToggleIds,
+              _pendingToggleIds,
+            ));
   }
 
   @override
@@ -149,6 +189,7 @@ class _$WishlistStateImpl implements _WishlistState {
     runtimeType,
     loaderState,
     const DeepCollectionEquality().hash(_items),
+    const DeepCollectionEquality().hash(_pendingToggleIds),
   );
 
   /// Create a copy of WishlistState
@@ -164,12 +205,15 @@ abstract class _WishlistState implements WishlistState {
   const factory _WishlistState({
     final LoaderState loaderState,
     final List<ProductModel> items,
+    final Set<int> pendingToggleIds,
   }) = _$WishlistStateImpl;
 
   @override
   LoaderState get loaderState;
   @override
   List<ProductModel> get items;
+  @override
+  Set<int> get pendingToggleIds;
 
   /// Create a copy of WishlistState
   /// with the given fields replaced by the non-null parameter values.

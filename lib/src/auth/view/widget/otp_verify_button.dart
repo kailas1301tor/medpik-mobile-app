@@ -14,16 +14,23 @@ class OtpVerifyButton extends ConsumerWidget {
     final notifier = ref.read(authNotifierProvider.notifier);
     final formState = ref.watch(
       authNotifierProvider.select(
-        (s) => Tuple2(s.isVerifyingOtp, s.isOtpValid),
+        (s) => Tuple4(
+          s.isVerifyingOtp,
+          s.isOtpValid,
+          s.isResendingOtp,
+          s.isRequestingOtp,
+        ),
       ),
     );
     final isVerifying = formState.item1;
     final isOtpValid = formState.item2;
+    final isResendingOtp = formState.item3;
+    final isRequestingOtp = formState.item4;
 
     return PrimaryButton(
       text: Strings.verifyOtp,
       isLoading: isVerifying,
-      onPressed: isVerifying || !isOtpValid
+      onPressed: isVerifying || isResendingOtp || isRequestingOtp || !isOtpValid
           ? null
           : () => notifier.verifyOtp(context),
     );

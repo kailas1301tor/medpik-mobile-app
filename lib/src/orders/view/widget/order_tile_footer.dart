@@ -5,7 +5,6 @@ import 'package:medpik/data/models/order_model.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
-import 'package:medpik/utils/common_widgets/common_container.dart';
 import 'package:medpik/utils/extensions/num_extensions.dart';
 import 'package:medpik/utils/helpers/order_status_helper.dart';
 
@@ -17,54 +16,80 @@ class OrderTileFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final showTotal = orderStatusShowsTotal(order.status) &&
+    final showTotal =
+        orderStatusShowsTotal(order.status) &&
         order.hasKnownAmount &&
         order.amount > 0;
 
     return Row(
       children: [
-        Text(
-          orderCardCountLabel(order),
-          style: FontPalette.base400(12, color: colors.secondaryText),
+        _FooterPill(
+          label: orderCardCountLabel(order),
+          background: colors.background.withValues(alpha: 0.7),
+          textColor: colors.primaryText,
         ),
         if (order.hasPrescription) ...[
-          8.horizontalSpace,
-          CommonContainer(
-            padding: EdgeInsets.symmetric(
-              horizontal: 8.w,
-              vertical: 4.h,
-            ),
-            borderRadius: 8.r,
-            color: colors.primary.withValues(alpha: 0.12),
-            child: Text(
-              Strings.prescriptionOrder,
-              style: FontPalette.base600(11, color: colors.primary),
-            ),
+          6.horizontalSpace,
+          _FooterPill(
+            label: Strings.prescriptionOrder,
+            background: colors.primary.withValues(alpha: 0.1),
+            textColor: colors.primary,
           ),
         ],
         const Spacer(),
         if (showTotal)
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 Strings.totalLabel,
-                style: FontPalette.base400(
-                  11,
-                  color: colors.secondaryText,
-                ),
+                style: FontPalette.base400(10, color: colors.secondaryText),
               ),
-              2.verticalSpace,
               Text(
                 order.amount.toCurrency(decimalDigits: 0),
-                style: FontPalette.base700(
-                  15,
-                  color: colors.primaryText,
-                ),
+                style: FontPalette.base700(13, color: colors.primaryText),
               ),
             ],
           ),
       ],
+    );
+  }
+}
+
+class _FooterPill extends StatelessWidget {
+  const _FooterPill({
+    required this.label,
+    required this.background,
+    required this.textColor,
+  });
+
+  final String label;
+  final Color background;
+  final Color textColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(999.r),
+        border: Border.all(
+          color: colors.cardBorder.withValues(alpha: 0.35),
+          width: 1.w,
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+        child: Text(
+          label,
+          style: FontPalette.base600(11, color: textColor),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
     );
   }
 }

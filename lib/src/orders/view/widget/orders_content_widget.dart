@@ -7,10 +7,7 @@ import 'package:medpik/utils/helpers/shell_insets_helper.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
 
 class OrdersContentWidget extends StatelessWidget {
-  const OrdersContentWidget({
-    super.key,
-    required this.orders,
-  });
+  const OrdersContentWidget({super.key, required this.orders});
 
   final List<OrderModel> orders;
 
@@ -26,12 +23,15 @@ class OrdersContentWidget extends StatelessWidget {
       itemCount: orders.length,
       itemBuilder: (context, index) {
         final order = orders[index];
-        return OrderTile(
+        return Padding(
+          padding: EdgeInsets.only(bottom: 14.h),
+          child: OrderTile(
           order: order,
           onTap: () => Navigator.pushNamed(
             context,
             RouteConstants.routeOrderDetailScreen,
             arguments: order.id,
+          ),
           ),
         );
       },

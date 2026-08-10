@@ -95,11 +95,7 @@ class _CartItemRowShimmer extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          Divider(
-            height: 1.h,
-            thickness: 1,
-            color: colors.divider,
-          ),
+          Divider(height: 1.h, thickness: 1, color: colors.divider),
       ],
     );
   }

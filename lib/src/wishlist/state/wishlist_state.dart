@@ -10,5 +10,6 @@ sealed class WishlistState with _$WishlistState {
   const factory WishlistState({
     @Default(LoaderState.noData) LoaderState loaderState,
     @Default([]) List<ProductModel> items,
+    @Default(<int>{}) Set<int> pendingToggleIds,
   }) = _WishlistState;
 }

@@ -4,7 +4,7 @@
 //
 // ? List screen:
 // ? - loaderState / addresses → AddressBookScreen (CommonSwitchState)
-// ? - deletingAddressId → per-tile delete spinner (AddressBookTile)
+// ? - isDeletingAddress → delete confirmation dialog button loader
 //
 // ? Form sheet:
 // ? - isSaving → disables form + PrimaryButton loader
@@ -23,7 +23,7 @@ sealed class AddressState with _$AddressState {
     @Default([]) List<AddressModel> addresses,
     @Default(false) bool isSaving,
     @Default(false) bool isDefaultSelected,
-    int? deletingAddressId,
+    @Default(false) bool isDeletingAddress,
     String? errorMessage,
     @Default('') String pickedLocationSummary,
   }) = _AddressState;

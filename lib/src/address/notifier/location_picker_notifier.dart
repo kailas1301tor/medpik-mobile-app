@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
@@ -43,7 +44,7 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
   double? _lastReverseLng;
   bool _programmaticMove = false;
   bool _suppressNextCameraIdle = false;
-  bool _initialApplied = false;
+  bool _initialScheduled = false;
   bool _disposed = false;
   bool _mapReady = false;
   int _reverseGeneration = 0;
@@ -56,7 +57,7 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
   LocationPickerState build() {
     searchController = TextEditingController();
     _geocode = ref.read(geocodeClientProvider);
-    _permission = const LocationPermissionService();
+    _permission = ref.read(locationPermissionServiceProvider);
     _disposed = false;
     _cameraLat = LocationConfig.defaultLat;
     _cameraLng = LocationConfig.defaultLng;
@@ -76,28 +77,97 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
       );
     }
 
-    return const LocationPickerState(loaderState: LoaderState.loading);
+    return const LocationPickerState(
+      loaderState: LoaderState.loading,
+      isInitialCameraReady: false,
+    );
   }
 
-  // ? Seeds camera from route args, or falls back to GPS (once per screen open).
-  void applyInitialCoordinates({
+  // ? One-shot entry from LocationPickerScreen — deferred past build (Riverpod rule).
+  void scheduleInitialCoordinates({
     double? latitude,
     double? longitude,
   }) {
-    if (_initialApplied) return;
-    _initialApplied = true;
+    if (_initialScheduled) return;
+    _initialScheduled = true;
+    Future.microtask(
+      () => applyInitialCoordinates(latitude: latitude, longitude: longitude),
+    );
+  }
+
+  // ? Resolves initial camera before GoogleMap mounts (GPS or route args).
+  Future<void> applyInitialCoordinates({
+    double? latitude,
+    double? longitude,
+  }) async {
+    state = state.copyWith(
+      loaderState: LoaderState.loading,
+      isReverseLoading: true,
+      errorMessage: null,
+    );
 
     if (latitude != null && longitude != null) {
       _cameraLat = latitude;
       _cameraLng = longitude;
-      Future.microtask(() async {
-        await _moveCamera(latitude, longitude);
-        await reverseAt(latitude, longitude, force: true);
-      });
+      state = state.copyWith(latitude: latitude, longitude: longitude);
+      await reverseAt(latitude, longitude, force: true);
+      if (_disposed) return;
+      state = state.copyWith(
+        loaderState: LoaderState.loaded,
+        isInitialCameraReady: true,
+      );
       return;
     }
 
-    Future.microtask(useCurrentLocation);
+    final position = await _permission.getCurrentPosition(
+      accuracy: LocationAccuracy.medium,
+      timeLimit: const Duration(
+        seconds: LocationConfig.gpsInitialTimeLimitSeconds,
+      ),
+    );
+    if (_disposed) return;
+
+    if (position == null) {
+      final fallbackMessage = await _gpsFallbackErrorMessage();
+      if (_disposed) return;
+      _cameraLat = LocationConfig.defaultLat;
+      _cameraLng = LocationConfig.defaultLng;
+      state = state.copyWith(
+        latitude: LocationConfig.defaultLat,
+        longitude: LocationConfig.defaultLng,
+        loaderState: LoaderState.loaded,
+        isReverseLoading: false,
+        reverseResult: null,
+        isServiceable: isLocationServiceable(
+          latitude: LocationConfig.defaultLat,
+          longitude: LocationConfig.defaultLng,
+          state: LocationConfig.deliveryState,
+        ),
+        errorMessage: fallbackMessage,
+      );
+      await reverseAt(
+        LocationConfig.defaultLat,
+        LocationConfig.defaultLng,
+        force: true,
+        preserveErrorMessage: fallbackMessage,
+      );
+      if (_disposed) return;
+      state = state.copyWith(isInitialCameraReady: true);
+      return;
+    }
+
+    _lastGpsAt = DateTime.now();
+    final lat = position.latitude;
+    final lng = position.longitude;
+    _cameraLat = lat;
+    _cameraLng = lng;
+    state = state.copyWith(latitude: lat, longitude: lng);
+    await reverseAt(lat, lng, force: true);
+    if (_disposed) return;
+    state = state.copyWith(
+      loaderState: LoaderState.loaded,
+      isInitialCameraReady: true,
+    );
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -153,10 +223,12 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
     }
 
     state = state.copyWith(isReverseLoading: true, errorMessage: null);
-    final position = await _permission.getCurrentPosition();
+    final position = await _permission.getCurrentPosition(preferFresh: true);
     if (_disposed) return;
 
     if (position == null) {
+      final fallbackMessage = await _gpsFallbackErrorMessage();
+      if (_disposed) return;
       state = state.copyWith(
         loaderState: LoaderState.loaded,
         isReverseLoading: false,
@@ -166,14 +238,14 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
           longitude: LocationConfig.defaultLng,
           state: LocationConfig.deliveryState,
         ),
-        errorMessage: Strings.locationPermissionDenied,
+        errorMessage: fallbackMessage,
       );
       await _moveCamera(LocationConfig.defaultLat, LocationConfig.defaultLng);
       await reverseAt(
         LocationConfig.defaultLat,
         LocationConfig.defaultLng,
         force: true,
-        preserveErrorMessage: Strings.locationPermissionDenied,
+        preserveErrorMessage: fallbackMessage,
       );
       return;
     }
@@ -361,6 +433,11 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
     );
     state = state.copyWith(confirmedPick: pick);
     return pick;
+  }
+
+  Future<String> _gpsFallbackErrorMessage() async {
+    final allowed = await _permission.ensurePermission();
+    return allowed ? Strings.locationGpsUnavailable : Strings.locationPermissionDenied;
   }
 
   Future<void> _moveCamera(double lat, double lng) async {

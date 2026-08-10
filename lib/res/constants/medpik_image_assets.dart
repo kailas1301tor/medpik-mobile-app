@@ -4,7 +4,10 @@ class MedpikImageAssets {
 
   static const String _base = 'assets/images/png';
 
-  /// Vertical lockup — splash and centered branding.
+  /// Horizontal wordmark — native and in-app splash.
+  static const String splashLogo = '$_base/medpik_splash_logo.png';
+
+  /// Vertical lockup — centered branding.
   static const String appLogo = '$_base/Medpik Logo #02.png';
 
   /// Horizontal lockup — wide headers (login, etc.).

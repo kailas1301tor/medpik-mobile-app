@@ -20,6 +20,7 @@ import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/data/models/address_model.dart';
+import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/services/repo_di.dart';
@@ -34,15 +35,16 @@ part 'address_notifier.g.dart';
 @Riverpod(keepAlive: true)
 class AddressNotifier extends _$AddressNotifier {
   // ? Form controllers — owned here per project convention; disposed in build.
-  late final TextEditingController labelController;
-  late final TextEditingController phoneController;
-  late final TextEditingController line1Controller;
-  late final TextEditingController line2Controller;
-  late final TextEditingController cityController;
-  late final TextEditingController stateController;
-  late final TextEditingController pincodeController;
+  late TextEditingController labelController;
+  late TextEditingController phoneController;
+  late TextEditingController line1Controller;
+  late TextEditingController line2Controller;
+  late TextEditingController cityController;
+  late TextEditingController stateController;
+  late TextEditingController pincodeController;
 
   late AddressRepo addressRepo;
+  bool _lifecycleInitialized = false;
 
   // ? Non-null when editing; null when adding a new address.
   int? _editingId;
@@ -55,6 +57,10 @@ class AddressNotifier extends _$AddressNotifier {
 
   @override
   AddressState build() {
+    if (_lifecycleInitialized) {
+      return state;
+    }
+
     labelController = TextEditingController();
     phoneController = TextEditingController();
     line1Controller = TextEditingController();
@@ -63,6 +69,7 @@ class AddressNotifier extends _$AddressNotifier {
     stateController = TextEditingController();
     pincodeController = TextEditingController();
     addressRepo = ref.read(addressRepositoryProvider);
+    _lifecycleInitialized = true;
 
     ref.onDispose(() {
       labelController.dispose();
@@ -72,14 +79,23 @@ class AddressNotifier extends _$AddressNotifier {
       cityController.dispose();
       stateController.dispose();
       pincodeController.dispose();
+      _lifecycleInitialized = false;
     });
 
-    Future.microtask(fetchAddresses);
+    Future.microtask(() {
+      if (AppConstants.hasSession) {
+        fetchAddresses();
+      }
+    });
     return const AddressState(loaderState: LoaderState.loading);
   }
 
   // ? GET /api/addresses — drives AddressBookScreen loader / empty / error states.
   Future<void> fetchAddresses() async {
+    if (!AppConstants.hasSession) {
+      state = state.copyWith(loaderState: LoaderState.noData);
+      return;
+    }
     state = state.copyWith(loaderState: LoaderState.loading);
     return await addressRepo
         .getAddresses()
@@ -345,31 +361,35 @@ class AddressNotifier extends _$AddressNotifier {
     return addAddress();
   }
 
-  // ? DELETE /api/addresses — deletingAddressId drives per-tile loader in AddressBookTile.
-  Future<void> deleteAddress(int id) async {
-    if (state.deletingAddressId != null) return;
+  // ? DELETE /api/addresses — isDeletingAddress drives dialog confirm-button loader.
+  Future<bool> deleteAddress(int id) async {
+    if (state.isDeletingAddress) return false;
 
-    state = state.copyWith(deletingAddressId: id);
-    await addressRepo
-        .deleteAddress(id)
-        .fold(
-          (error) {
-            debugPrint("🔴 ADDRESS DELETE ERROR: ${error.message}");
-            state = state.copyWith(deletingAddressId: null);
-            showCustomErrorToast(
-              message: error.message ?? Strings.somethingWentWrong,
-            );
-          },
-          (_) async {
-            showCustomToast(message: Strings.addressDeleted, isSuccess: true);
-            await fetchAddresses();
-            state = state.copyWith(deletingAddressId: null);
-          },
-        )
-        .catchError((error) {
-          debugPrint("🔴 UNEXPECTED ADDRESS DELETE ERROR: $error");
-          state = state.copyWith(deletingAddressId: null);
-          showCustomErrorToast(message: Strings.somethingWentWrong);
-        });
+    state = state.copyWith(isDeletingAddress: true);
+    try {
+      return await addressRepo
+          .deleteAddress(id)
+          .fold(
+            (error) {
+              debugPrint("🔴 ADDRESS DELETE ERROR: ${error.message}");
+              showCustomErrorToast(
+                message: error.message ?? Strings.somethingWentWrong,
+              );
+              return false;
+            },
+            (_) async {
+              showCustomToast(message: Strings.addressDeleted, isSuccess: true);
+              await fetchAddresses();
+              return true;
+            },
+          )
+          .catchError((error) {
+            debugPrint("🔴 UNEXPECTED ADDRESS DELETE ERROR: $error");
+            showCustomErrorToast(message: Strings.somethingWentWrong);
+            return false;
+          });
+    } finally {
+      state = state.copyWith(isDeletingAddress: false);
+    }
   }
 }

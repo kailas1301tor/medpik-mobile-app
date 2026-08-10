@@ -12,6 +12,8 @@ import 'package:medpik/utils/common_widgets/common_refresh_indicator.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/common_switch_state.dart';
 
+import '../../../res/enums/enums.dart';
+
 class EmergencyServicesScreen extends ConsumerWidget {
   const EmergencyServicesScreen({super.key});
 
@@ -46,20 +48,7 @@ class EmergencyServicesScreen extends ConsumerWidget {
         ),
         body: CommonRefreshIndicator(
           onRefresh: notifier.fetchEmergencyServices,
-          child: CommonSwitchState(
-            loaderState: loaderState,
-            reload: notifier.fetchEmergencyServices,
-            loader: const EmergencyServicesShimmerWidget(),
-            buttonText: Strings.refresh,
-            emptyScreenTitle: Strings.noEmergencyServices,
-            emptyScreenDescription: Strings.noEmergencyServicesDesc,
-            child: const TabBarView(
-              children: [
-                _AmbulancesTab(),
-                _DoctorsTab(),
-              ],
-            ),
-          ),
+          child: const TabBarView(children: [_AmbulancesTab(), _DoctorsTab()]),
         ),
       ),
     );
@@ -74,8 +63,22 @@ class _AmbulancesTab extends ConsumerWidget {
     final ambulances = ref.watch(
       emergencyNotifierProvider.select((s) => s.ambulances),
     );
-
-    return EmergencyAmbulancesTabList(ambulances: ambulances);
+    final isAmbulancesEmpty = ref.watch(
+      emergencyNotifierProvider.select((s) => s.isAmbulancesEmpty),
+    );
+    final loaderState = ref.watch(
+      emergencyNotifierProvider.select((s) => s.loaderState),
+    );
+    final notifier = ref.read(emergencyNotifierProvider.notifier);
+    return CommonSwitchState(
+      loaderState: isAmbulancesEmpty ? LoaderState.noData : loaderState,
+      reload: notifier.fetchEmergencyServices,
+      loader: const EmergencyServicesShimmerWidget(),
+      buttonText: Strings.refresh,
+      emptyScreenTitle: Strings.noEmergencyServices,
+      emptyScreenDescription: Strings.noEmergencyServicesDesc,
+      child: EmergencyAmbulancesTabList(ambulances: ambulances),
+    );
   }
 }
 
@@ -84,10 +87,24 @@ class _DoctorsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loaderState = ref.watch(
+      emergencyNotifierProvider.select((s) => s.loaderState),
+    );
+    final notifier = ref.read(emergencyNotifierProvider.notifier);
     final doctors = ref.watch(
       emergencyNotifierProvider.select((s) => s.doctors),
     );
-
-    return EmergencyDoctorsTabList(doctors: doctors);
+    final isDoctorsEmpty = ref.watch(
+      emergencyNotifierProvider.select((s) => s.isDoctorsEmpty),
+    );
+    return CommonSwitchState(
+      loaderState: isDoctorsEmpty ? LoaderState.noData : loaderState,
+      reload: notifier.fetchEmergencyServices,
+      loader: const EmergencyServicesShimmerWidget(),
+      buttonText: Strings.refresh,
+      emptyScreenTitle: Strings.noEmergencyServices,
+      emptyScreenDescription: Strings.noEmergencyServicesDesc,
+      child: EmergencyDoctorsTabList(doctors: doctors),
+    );
   }
 }

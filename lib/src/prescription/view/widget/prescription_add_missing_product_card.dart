@@ -20,6 +20,7 @@ class PrescriptionAddMissingProductCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final productsNotifier =
         ref.read(prescriptionProductsNotifierProvider.notifier);
 
@@ -27,10 +28,12 @@ class PrescriptionAddMissingProductCard extends ConsumerWidget {
       width: double.infinity,
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: ColorPalette.prescriptionUploadAreaBg,
+        color: colors.inputBackground,
         borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
-          color: ColorPalette.prescriptionUploadDashedBorder,
+          color: isDarkMode
+              ? colors.inputBorder
+              : ColorPalette.prescriptionUploadDashedBorder,
           width: 1.w,
         ),
       ),
@@ -43,7 +46,7 @@ class PrescriptionAddMissingProductCard extends ConsumerWidget {
               Icon(
                 Icons.info_outline_rounded,
                 size: 18.r,
-                color: ColorPalette.prescriptionIconTeal,
+                color: colors.primary,
               ),
               8.horizontalSpace,
               Expanded(

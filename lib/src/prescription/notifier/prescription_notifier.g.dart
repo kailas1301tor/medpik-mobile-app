@@ -7,7 +7,7 @@ part of 'prescription_notifier.dart';
 // **************************************************************************
 
 String _$prescriptionNotifierHash() =>
-    r'795d1b67497eda0ba22f830ac26c664d3ac9de19';
+    r'a3e40f61db0ff7ae71e7912d320e70774f56e8a4';
 
 /// See also [PrescriptionNotifier].
 @ProviderFor(PrescriptionNotifier)

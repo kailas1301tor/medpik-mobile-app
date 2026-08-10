@@ -14,7 +14,6 @@ import 'package:medpik/src/prescription/view/widget/prescription_source_sheet.da
 import 'package:medpik/src/prescription/view/widget/prescription_upload_area.dart';
 import 'package:medpik/utils/common_widgets/common_app_bar.dart';
 import 'package:medpik/utils/common_widgets/common_loader.dart';
-import 'package:medpik/utils/common_widgets/common_nav_bar_button.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/common_text_form_field.dart';
 import 'package:medpik/utils/common_widgets/primary_button.dart';
@@ -30,11 +29,7 @@ class PrescriptionUploadScreen extends ConsumerWidget {
     final notifier = ref.read(prescriptionNotifierProvider.notifier);
     final uploadData = ref.watch(
       prescriptionNotifierProvider.select(
-        (s) => Tuple3(
-          s.pickedPaths,
-          s.isSubmitting,
-          s.isPickingFiles,
-        ),
+        (s) => Tuple3(s.pickedPaths, s.isSubmitting, s.isPickingFiles),
       ),
     );
     final pickedPaths = uploadData.item1;
@@ -47,13 +42,13 @@ class PrescriptionUploadScreen extends ConsumerWidget {
       appBar: CommonAppBar(
         title: Strings.prescriptionUploadTitle,
         actions: [
-          CommonNavBarButton(
+          IconButton(
+            onPressed: () => PrescriptionGuidelinesSheet.show(context),
             icon: Icon(
               Icons.info_outline_rounded,
               size: 22.r,
               color: colors.primaryText,
             ),
-            onTap: () => PrescriptionGuidelinesSheet.show(context),
           ),
         ],
       ),

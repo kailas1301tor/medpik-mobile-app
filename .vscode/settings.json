@@ -1,4 +1,13 @@
 {
   "dart.runPubGetOnPubspecChanges": true,
-  "dart.promptToGetPackages": false
+  "dart.promptToGetPackages": false,
+  "dart.flutterSdkPath": "/Users/kailasaanil/flutter-sdk/flutter 3.35.7",
+  "dart.env": {
+    "PATH": "/Users/kailasaanil/flutter-sdk/flutter 3.35.7/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:${env:PATH}",
+    "SHELL": "/bin/zsh"
+  },
+  "terminal.integrated.env.osx": {
+    "PATH": "/Users/kailasaanil/flutter-sdk/flutter 3.35.7/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:${env:PATH}",
+    "SHELL": "/bin/zsh"
+  }
 }

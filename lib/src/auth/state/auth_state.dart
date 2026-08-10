@@ -14,6 +14,7 @@ sealed class AuthState with _$AuthState {
     @Default(false) bool isPhoneValid,
     @Default(false) bool isOtpValid,
     @Default(false) bool isRequestingOtp,
+    @Default(false) bool isResendingOtp,
     @Default(false) bool isVerifyingOtp,
     @Default(false) bool isSigningOut,
     @Default(0) int resendCountdown,

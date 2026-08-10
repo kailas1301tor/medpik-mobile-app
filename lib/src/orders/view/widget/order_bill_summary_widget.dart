@@ -46,6 +46,14 @@ class OrderBillSummaryWidget extends StatelessWidget {
           label: Strings.deliveryCharges,
           value: breakdown.deliveryCharges.toCurrency(decimalDigits: 0),
         ),
+        if (breakdown.discountAmount > 0) ...[
+          8.verticalSpace,
+          _SummaryRow(
+            label: _discountLabel(breakdown),
+            value: '−${breakdown.discountAmount.toCurrency(decimalDigits: 0)}',
+            valueColor: ColorPalette.successColor,
+          ),
+        ],
         if (breakdown.tax > 0) ...[
           8.verticalSpace,
           _SummaryRow(
@@ -88,13 +96,24 @@ class OrderBillSummaryWidget extends StatelessWidget {
       child: content,
     );
   }
+
+  String _discountLabel(OrderBillBreakdown breakdown) {
+    final coupon = breakdown.appliedOfferDetail?.couponCode.trim() ?? '';
+    if (coupon.isNotEmpty) return Strings.couponSavings(coupon);
+    return Strings.discount;
+  }
 }
 
 class _SummaryRow extends StatelessWidget {
-  const _SummaryRow({required this.label, required this.value});
+  const _SummaryRow({
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
 
   final String label;
   final String value;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +128,10 @@ class _SummaryRow extends StatelessWidget {
         ),
         Text(
           value,
-          style: FontPalette.base500(14, color: colors.primaryText),
+          style: FontPalette.base500(
+            14,
+            color: valueColor ?? colors.primaryText,
+          ),
         ),
       ],
     );

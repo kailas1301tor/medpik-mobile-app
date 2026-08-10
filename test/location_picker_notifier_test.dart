@@ -1,8 +1,11 @@
 // test/location_picker_notifier_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/services/location/geocode_client.dart';
+import 'package:medpik/services/location/location_config.dart';
+import 'package:medpik/services/location/location_permission_service.dart';
 import 'package:medpik/src/address/notifier/location_picker_notifier.dart';
 
 void main() {
@@ -11,12 +14,15 @@ void main() {
   group('LocationPickerNotifier', () {
     late ProviderContainer container;
     late FakeGeocodeClient fakeGeocode;
+    late FakeLocationPermissionService fakePermission;
 
     setUp(() {
       fakeGeocode = FakeGeocodeClient();
+      fakePermission = FakeLocationPermissionService();
       container = ProviderContainer(
         overrides: [
           geocodeClientProvider.overrideWithValue(fakeGeocode),
+          locationPermissionServiceProvider.overrideWithValue(fakePermission),
         ],
       );
     });
@@ -25,6 +31,23 @@ void main() {
 
     LocationPickerNotifier readNotifier() =>
         container.read(locationPickerNotifierProvider.notifier);
+
+    Position testPosition({
+      double latitude = 9.9312,
+      double longitude = 76.2673,
+    }) =>
+        Position(
+          latitude: latitude,
+          longitude: longitude,
+          timestamp: DateTime(2026),
+          accuracy: 1,
+          altitude: 0,
+          altitudeAccuracy: 0,
+          heading: 0,
+          headingAccuracy: 0,
+          speed: 0,
+          speedAccuracy: 0,
+        );
 
     test('submitAddressSearch sets searchErrorMessage on failure', () async {
       fakeGeocode.nextForward = null;
@@ -104,6 +127,136 @@ void main() {
         isNull,
       );
     });
+
+    test('applyInitialCoordinates uses GPS before map mount', () async {
+      const gpsLat = 9.9312;
+      const gpsLng = 76.2673;
+      fakePermission.nextPosition = testPosition(
+        latitude: gpsLat,
+        longitude: gpsLng,
+      );
+      fakeGeocode.nextReverse = const ReverseGeocodeResult(
+        latitude: gpsLat,
+        longitude: gpsLng,
+        formattedAddress: 'Kochi, Kerala',
+        state: 'Kerala',
+      );
+
+      final notifier = readNotifier();
+      await notifier.applyInitialCoordinates();
+
+      final state = container.read(locationPickerNotifierProvider);
+      expect(state.isInitialCameraReady, isTrue);
+      expect(state.latitude, gpsLat);
+      expect(state.longitude, gpsLng);
+      expect(state.latitude, isNot(LocationConfig.defaultLat));
+      expect(fakePermission.getCurrentPositionCallCount, 1);
+    });
+
+    test('applyInitialCoordinates uses route args without GPS', () async {
+      const routeLat = 11.25;
+      const routeLng = 75.78;
+      fakeGeocode.nextReverse = const ReverseGeocodeResult(
+        latitude: routeLat,
+        longitude: routeLng,
+        formattedAddress: 'Kozhikode, Kerala',
+        state: 'Kerala',
+      );
+
+      final notifier = readNotifier();
+      await notifier.applyInitialCoordinates(
+        latitude: routeLat,
+        longitude: routeLng,
+      );
+
+      final state = container.read(locationPickerNotifierProvider);
+      expect(state.isInitialCameraReady, isTrue);
+      expect(state.latitude, routeLat);
+      expect(state.longitude, routeLng);
+      expect(fakePermission.getCurrentPositionCallCount, 0);
+    });
+
+    test('applyInitialCoordinates falls back to Thrissur when permission denied',
+        () async {
+      fakePermission.permissionGranted = false;
+      fakePermission.nextPosition = null;
+      fakeGeocode.nextReverse = const ReverseGeocodeResult(
+        latitude: LocationConfig.defaultLat,
+        longitude: LocationConfig.defaultLng,
+        formattedAddress: 'Thrissur, Kerala',
+        state: 'Kerala',
+      );
+
+      final notifier = readNotifier();
+      await notifier.applyInitialCoordinates();
+
+      final state = container.read(locationPickerNotifierProvider);
+      expect(state.isInitialCameraReady, isTrue);
+      expect(state.latitude, LocationConfig.defaultLat);
+      expect(state.longitude, LocationConfig.defaultLng);
+      expect(state.errorMessage, Strings.locationPermissionDenied);
+    });
+
+    test('applyInitialCoordinates falls back when GPS unavailable', () async {
+      fakePermission.permissionGranted = true;
+      fakePermission.nextPosition = null;
+      fakePermission.nextLastKnown = null;
+      fakeGeocode.nextReverse = const ReverseGeocodeResult(
+        latitude: LocationConfig.defaultLat,
+        longitude: LocationConfig.defaultLng,
+        formattedAddress: 'Thrissur, Kerala',
+        state: 'Kerala',
+      );
+
+      final notifier = readNotifier();
+      await notifier.applyInitialCoordinates();
+
+      final state = container.read(locationPickerNotifierProvider);
+      expect(state.isInitialCameraReady, isTrue);
+      expect(state.errorMessage, Strings.locationGpsUnavailable);
+    });
+
+    test('applyInitialCoordinates uses last known position when available', () async {
+      const lastLat = 9.95;
+      const lastLng = 76.28;
+      fakePermission.nextLastKnown = testPosition(
+        latitude: lastLat,
+        longitude: lastLng,
+      );
+      fakePermission.nextPosition = null;
+      fakeGeocode.nextReverse = const ReverseGeocodeResult(
+        latitude: lastLat,
+        longitude: lastLng,
+        formattedAddress: 'Kochi, Kerala',
+        state: 'Kerala',
+      );
+
+      final notifier = readNotifier();
+      await notifier.applyInitialCoordinates();
+
+      final state = container.read(locationPickerNotifierProvider);
+      expect(state.isInitialCameraReady, isTrue);
+      expect(state.latitude, lastLat);
+      expect(state.longitude, lastLng);
+      expect(fakePermission.getCurrentPositionCallCount, 1);
+    });
+
+    test('scheduleInitialCoordinates runs only once', () async {
+      fakePermission.nextPosition = testPosition();
+      fakeGeocode.nextReverse = const ReverseGeocodeResult(
+        latitude: 9.9312,
+        longitude: 76.2673,
+        formattedAddress: 'Kochi, Kerala',
+        state: 'Kerala',
+      );
+
+      final notifier = readNotifier();
+      notifier.scheduleInitialCoordinates();
+      notifier.scheduleInitialCoordinates();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      expect(fakePermission.getCurrentPositionCallCount, 1);
+    });
   });
 }
 
@@ -123,4 +276,26 @@ class FakeGeocodeClient extends GeocodeClient {
     required String address,
   }) async =>
       nextForward;
+}
+
+class FakeLocationPermissionService extends LocationPermissionService {
+  Position? nextPosition;
+  Position? nextLastKnown;
+  bool permissionGranted = true;
+  int getCurrentPositionCallCount = 0;
+
+  @override
+  Future<bool> ensurePermission() async => permissionGranted;
+
+  @override
+  Future<Position?> getCurrentPosition({
+    bool preferFresh = false,
+    LocationAccuracy accuracy = LocationAccuracy.high,
+    Duration timeLimit = const Duration(seconds: 12),
+  }) async {
+    getCurrentPositionCallCount++;
+    if (!permissionGranted) return null;
+    if (!preferFresh && nextLastKnown != null) return nextLastKnown;
+    return nextPosition;
+  }
 }

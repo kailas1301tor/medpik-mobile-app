@@ -20,6 +20,7 @@ mixin _$ProfileState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   ProfileModel? get profile => throw _privateConstructorUsedError;
   bool get isSaving => throw _privateConstructorUsedError;
+  bool get isProfileFormValid => throw _privateConstructorUsedError;
   String? get firstNameError => throw _privateConstructorUsedError;
   String? get lastNameError => throw _privateConstructorUsedError;
 
@@ -41,6 +42,7 @@ abstract class $ProfileStateCopyWith<$Res> {
     LoaderState loaderState,
     ProfileModel? profile,
     bool isSaving,
+    bool isProfileFormValid,
     String? firstNameError,
     String? lastNameError,
   });
@@ -64,6 +66,7 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
     Object? loaderState = null,
     Object? profile = freezed,
     Object? isSaving = null,
+    Object? isProfileFormValid = null,
     Object? firstNameError = freezed,
     Object? lastNameError = freezed,
   }) {
@@ -80,6 +83,10 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
             isSaving: null == isSaving
                 ? _value.isSaving
                 : isSaving // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isProfileFormValid: null == isProfileFormValid
+                ? _value.isProfileFormValid
+                : isProfileFormValid // ignore: cast_nullable_to_non_nullable
                       as bool,
             firstNameError: freezed == firstNameError
                 ? _value.firstNameError
@@ -108,6 +115,7 @@ abstract class _$$ProfileStateImplCopyWith<$Res>
     LoaderState loaderState,
     ProfileModel? profile,
     bool isSaving,
+    bool isProfileFormValid,
     String? firstNameError,
     String? lastNameError,
   });
@@ -130,6 +138,7 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
     Object? loaderState = null,
     Object? profile = freezed,
     Object? isSaving = null,
+    Object? isProfileFormValid = null,
     Object? firstNameError = freezed,
     Object? lastNameError = freezed,
   }) {
@@ -146,6 +155,10 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
         isSaving: null == isSaving
             ? _value.isSaving
             : isSaving // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isProfileFormValid: null == isProfileFormValid
+            ? _value.isProfileFormValid
+            : isProfileFormValid // ignore: cast_nullable_to_non_nullable
                   as bool,
         firstNameError: freezed == firstNameError
             ? _value.firstNameError
@@ -167,6 +180,7 @@ class _$ProfileStateImpl implements _ProfileState {
     this.loaderState = LoaderState.loaded,
     this.profile,
     this.isSaving = false,
+    this.isProfileFormValid = false,
     this.firstNameError,
     this.lastNameError,
   });
@@ -180,13 +194,16 @@ class _$ProfileStateImpl implements _ProfileState {
   @JsonKey()
   final bool isSaving;
   @override
+  @JsonKey()
+  final bool isProfileFormValid;
+  @override
   final String? firstNameError;
   @override
   final String? lastNameError;
 
   @override
   String toString() {
-    return 'ProfileState(loaderState: $loaderState, profile: $profile, isSaving: $isSaving, firstNameError: $firstNameError, lastNameError: $lastNameError)';
+    return 'ProfileState(loaderState: $loaderState, profile: $profile, isSaving: $isSaving, isProfileFormValid: $isProfileFormValid, firstNameError: $firstNameError, lastNameError: $lastNameError)';
   }
 
   @override
@@ -199,6 +216,8 @@ class _$ProfileStateImpl implements _ProfileState {
             (identical(other.profile, profile) || other.profile == profile) &&
             (identical(other.isSaving, isSaving) ||
                 other.isSaving == isSaving) &&
+            (identical(other.isProfileFormValid, isProfileFormValid) ||
+                other.isProfileFormValid == isProfileFormValid) &&
             (identical(other.firstNameError, firstNameError) ||
                 other.firstNameError == firstNameError) &&
             (identical(other.lastNameError, lastNameError) ||
@@ -211,6 +230,7 @@ class _$ProfileStateImpl implements _ProfileState {
     loaderState,
     profile,
     isSaving,
+    isProfileFormValid,
     firstNameError,
     lastNameError,
   );
@@ -229,6 +249,7 @@ abstract class _ProfileState implements ProfileState {
     final LoaderState loaderState,
     final ProfileModel? profile,
     final bool isSaving,
+    final bool isProfileFormValid,
     final String? firstNameError,
     final String? lastNameError,
   }) = _$ProfileStateImpl;
@@ -239,6 +260,8 @@ abstract class _ProfileState implements ProfileState {
   ProfileModel? get profile;
   @override
   bool get isSaving;
+  @override
+  bool get isProfileFormValid;
   @override
   String? get firstNameError;
   @override

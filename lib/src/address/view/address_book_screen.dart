@@ -117,15 +117,26 @@ class AddressBookScreen extends ConsumerWidget {
     WidgetRef ref,
     AddressModel address,
   ) async {
-    await CommonDialogBox.show(
+    await showDialog<void>(
       context: context,
-      title: Strings.deleteAddressTitle,
-      message: Strings.deleteAddressMessage,
-      primaryLabel: Strings.confirm,
-      onPrimary: () {
-        ref.read(addressNotifierProvider.notifier).deleteAddress(address.id);
-      },
-      secondaryLabel: Strings.cancel,
+      builder: (dialogContext) => Consumer(
+        builder: (context, ref, _) {
+          final isDeleting = ref.watch(
+            addressNotifierProvider.select((s) => s.isDeletingAddress),
+          );
+
+          return CommonDialogBox(
+            title: Strings.deleteAddressTitle,
+            message: Strings.deleteAddressMessage,
+            primaryLabel: Strings.confirm,
+            isLoading: isDeleting,
+            onPrimaryAsync: () => ref
+                .read(addressNotifierProvider.notifier)
+                .deleteAddress(address.id),
+            secondaryLabel: Strings.cancel,
+          );
+        },
+      ),
     );
   }
 }

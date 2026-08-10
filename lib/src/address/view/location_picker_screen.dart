@@ -22,6 +22,7 @@ import 'package:medpik/utils/helpers/location_picker_confirm_helper.dart';
 import 'package:medpik/src/address/model/picked_location_model.dart';
 import 'package:medpik/src/address/notifier/location_picker_notifier.dart';
 import 'package:medpik/src/address/view/widget/location_confirm_card.dart';
+import 'package:medpik/src/address/view/widget/location_picker_map_shimmer.dart';
 import 'package:medpik/src/address/view/widget/location_search_bar.dart';
 import 'package:medpik/utils/common_widgets/common_back_button.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
@@ -42,6 +43,11 @@ class LocationPickerScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final notifier = ref.read(locationPickerNotifierProvider.notifier);
+
+    notifier.scheduleInitialCoordinates(
+      latitude: initialLatitude,
+      longitude: initialLongitude,
+    );
 
     final searchErrorMessage = ref.watch(
       locationPickerNotifierProvider.select((s) => s.searchErrorMessage),
@@ -73,8 +79,6 @@ class LocationPickerScreen extends ConsumerWidget {
     );
 
     final padding = MediaQuery.paddingOf(context);
-    final initialLat = initialLatitude ?? LocationConfig.defaultLat;
-    final initialLng = initialLongitude ?? LocationConfig.defaultLng;
 
     return CommonScaffold(
       backgroundColor: colors.background,
@@ -82,14 +86,7 @@ class LocationPickerScreen extends ConsumerWidget {
       safeAreaBottom: false,
       body: Stack(
         children: [
-          Positioned.fill(
-            child: _LocationPickerMap(
-              initialLat: initialLat,
-              initialLng: initialLng,
-              routeLat: initialLatitude,
-              routeLng: initialLongitude,
-            ),
-          ),
+          const Positioned.fill(child: _LocationPickerMap()),
           // Fixed pin — map moves underneath; coordinates come from camera center.
           Center(
             child: IgnorePointer(
@@ -107,19 +104,22 @@ class LocationPickerScreen extends ConsumerWidget {
             top: padding.top + 8.h,
             left: 16.w,
             right: 16.w,
-            child: Column(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: const CommonBackButton(margin: EdgeInsets.zero),
+                const CommonBackButton(
+                  margin: EdgeInsets.zero,
+                  overlayStyle: true,
                 ),
-                10.verticalSpace,
-                LocationSearchBar(
-                  controller: notifier.searchController,
-                  isSearching: isSearching,
-                  searchErrorMessage: searchErrorMessage,
-                  onSubmit: notifier.submitAddressSearch,
-                  onClear: notifier.clearSearch,
+                10.horizontalSpace,
+                Expanded(
+                  child: LocationSearchBar(
+                    controller: notifier.searchController,
+                    isSearching: isSearching,
+                    searchErrorMessage: searchErrorMessage,
+                    onSubmit: notifier.submitAddressSearch,
+                    onClear: notifier.clearSearch,
+                  ),
                 ),
               ],
             ),
@@ -151,27 +151,33 @@ class LocationPickerScreen extends ConsumerWidget {
 
 // ! Isolated map widget — prevents parent rebuilds from resetting [GoogleMap].
 class _LocationPickerMap extends ConsumerWidget {
-  const _LocationPickerMap({
-    required this.initialLat,
-    required this.initialLng,
-    required this.routeLat,
-    required this.routeLng,
-  });
-
-  final double initialLat;
-  final double initialLng;
-  final double? routeLat;
-  final double? routeLng;
+  const _LocationPickerMap();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final mapState = ref.watch(
+      locationPickerNotifierProvider.select(
+        (s) => Tuple3(
+          s.isInitialCameraReady,
+          s.latitude,
+          s.longitude,
+        ),
+      ),
+    );
+    final isReady = mapState.item1;
+    final lat = mapState.item2;
+    final lng = mapState.item3;
     final notifier = ref.read(locationPickerNotifierProvider.notifier);
+
+    if (!isReady) {
+      return const LocationPickerMapShimmer();
+    }
 
     return RepaintBoundary(
       child: GoogleMap(
         key: const ValueKey('location_picker_map'),
         initialCameraPosition: CameraPosition(
-          target: LatLng(initialLat, initialLng),
+          target: LatLng(lat, lng),
           zoom: LocationConfig.mapDefaultZoom,
         ),
         myLocationEnabled: true,
@@ -184,13 +190,7 @@ class _LocationPickerMap extends ConsumerWidget {
         compassEnabled: false,
         rotateGesturesEnabled: false,
         tiltGesturesEnabled: false,
-        onMapCreated: (controller) {
-          notifier.onMapCreated(controller);
-          notifier.applyInitialCoordinates(
-            latitude: routeLat,
-            longitude: routeLng,
-          );
-        },
+        onMapCreated: notifier.onMapCreated,
         onCameraMove: notifier.onCameraMove,
         onCameraIdle: notifier.onCameraIdle,
       ),

@@ -27,9 +27,7 @@ class PrescriptionUploadArea extends StatelessWidget {
       borderColor: isDarkMode
           ? colors.inputBorder
           : ColorPalette.prescriptionUploadDashedBorder,
-      backgroundColor: isDarkMode
-          ? colors.inputBackground
-          : ColorPalette.prescriptionUploadAreaBg,
+      backgroundColor: colors.inputBackground,
       onTap: onTap,
       child: Center(
         child: Column(

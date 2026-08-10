@@ -1,6 +1,6 @@
 // lib/services/invalidate_di.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:medpik/providers/customer_general_notifier.dart';
+import 'package:medpik/src/profile/notifier/customer_general_notifier.dart';
 import 'package:medpik/providers/order_status_options_provider.dart';
 import 'package:medpik/services/location/geocode_client.dart';
 import 'package:medpik/services/onesignal_service.dart';

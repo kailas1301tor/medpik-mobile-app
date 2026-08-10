@@ -35,8 +35,7 @@ OrderStatusTone orderStatusTone(OrderStatus status) {
   return switch (status) {
     OrderStatus.billGenerated ||
     OrderStatus.awaitingBillApproval ||
-    OrderStatus.paymentPending =>
-      OrderStatusTone.warning,
+    OrderStatus.paymentPending => OrderStatusTone.warning,
     OrderStatus.prescriptionUploaded ||
     OrderStatus.underReview ||
     OrderStatus.prescriptionAccepted ||
@@ -44,16 +43,13 @@ OrderStatusTone orderStatusTone(OrderStatus status) {
     OrderStatus.preparingOrder ||
     OrderStatus.packed ||
     OrderStatus.deliveryPartnerAssigned ||
-    OrderStatus.outForDelivery =>
-      OrderStatusTone.info,
+    OrderStatus.outForDelivery => OrderStatusTone.info,
     OrderStatus.billAccepted ||
     OrderStatus.paymentCompleted ||
-    OrderStatus.delivered =>
-      OrderStatusTone.success,
+    OrderStatus.delivered => OrderStatusTone.success,
     OrderStatus.prescriptionRejected ||
     OrderStatus.billRejected ||
-    OrderStatus.cancelled =>
-      OrderStatusTone.error,
+    OrderStatus.cancelled => OrderStatusTone.error,
     OrderStatus.cashOnDelivery => OrderStatusTone.neutral,
   };
 }
@@ -64,25 +60,19 @@ OrderStatusTone orderStatusTone(OrderStatus status) {
 ) {
   return switch (orderStatusTone(status)) {
     OrderStatusTone.warning => (
-        colors.statusWarningBg,
-        colors.statusWarningText,
-      ),
-    OrderStatusTone.info => (
-        colors.statusInfoBg,
-        colors.statusInfoText,
-      ),
+      colors.statusWarningBg,
+      colors.statusWarningText,
+    ),
+    OrderStatusTone.info => (colors.statusInfoBg, colors.statusInfoText),
     OrderStatusTone.success => (
-        colors.statusSuccessBg,
-        colors.statusSuccessText,
-      ),
-    OrderStatusTone.error => (
-        colors.statusErrorBg,
-        colors.statusErrorText,
-      ),
+      colors.statusSuccessBg,
+      colors.statusSuccessText,
+    ),
+    OrderStatusTone.error => (colors.statusErrorBg, colors.statusErrorText),
     OrderStatusTone.neutral => (
-        colors.statusNeutralBg,
-        colors.statusNeutralText,
-      ),
+      colors.statusNeutralBg,
+      colors.statusNeutralText,
+    ),
   };
 }
 
@@ -92,8 +82,7 @@ bool orderStatusShowsTotal(OrderStatus status) {
     OrderStatus.underReview ||
     OrderStatus.prescriptionAccepted ||
     OrderStatus.prescriptionRejected ||
-    OrderStatus.cancelled =>
-      false,
+    OrderStatus.cancelled => false,
     _ => true,
   };
 }
@@ -102,11 +91,18 @@ String formatOrderDateTime(DateTime dateTime) {
   return DateFormat('dd MMM yyyy • h:mm a').format(dateTime);
 }
 
+String formatOrderDate(DateTime dateTime) {
+  return DateFormat('dd MMM yyyy').format(dateTime);
+}
+
+String formatOrderTime(DateTime dateTime) {
+  return DateFormat('h:mm a').format(dateTime);
+}
+
 String orderDetailStatusLabel(OrderStatus status) {
   return switch (status) {
     OrderStatus.billGenerated ||
-    OrderStatus.awaitingBillApproval =>
-      Strings.orderStatusBillReceived,
+    OrderStatus.awaitingBillApproval => Strings.orderStatusBillReceived,
     OrderStatus.prescriptionRejected => Strings.orderStatusRejectedByAdmin,
     _ => orderStatusLabel(status),
   };
@@ -155,7 +151,8 @@ List<OrderHorizontalStep> orderDetailHorizontalSteps(OrderStatus status) {
     ];
   }
 
-  final isDeliveryPhase = status == OrderStatus.packed ||
+  final isDeliveryPhase =
+      status == OrderStatus.packed ||
       status == OrderStatus.deliveryPartnerAssigned ||
       status == OrderStatus.outForDelivery ||
       status == OrderStatus.delivered;
@@ -263,28 +260,27 @@ OrderStatusBannerData? orderDetailStatusBanner(
 ) {
   return switch (status) {
     OrderStatus.outForDelivery => OrderStatusBannerData(
-        type: OrderStatusBannerType.delivery,
-        title: Strings.deliveryBannerTitle,
-        subtitle: order.etaText,
-        icon: Icons.check_circle_rounded,
-      ),
+      type: OrderStatusBannerType.delivery,
+      title: Strings.deliveryBannerTitle,
+      subtitle: order.etaText,
+      icon: Icons.check_circle_rounded,
+    ),
     OrderStatus.prescriptionRejected => OrderStatusBannerData(
-        type: OrderStatusBannerType.rejection,
-        title: Strings.prescriptionRejectedBannerTitle,
-        subtitle: order.rejectionReason == null ||
-                order.rejectionReason!.isEmpty
-            ? null
-            : '${Strings.prescriptionRejectedReasonPrefix} ${order.rejectionReason}',
-        icon: Icons.edit_document,
-      ),
-    OrderStatus.billGenerated || OrderStatus.awaitingBillApproval =>
-      OrderStatusBannerData(
-        type: OrderStatusBannerType.billGenerated,
-        title: Strings.billGeneratedBannerTitle,
-        subtitle: Strings.billGeneratedBannerSubtitle,
-        icon: Icons.account_balance_wallet_outlined,
-        isTappable: true,
-      ),
+      type: OrderStatusBannerType.rejection,
+      title: Strings.prescriptionRejectedBannerTitle,
+      subtitle: order.rejectionReason == null || order.rejectionReason!.isEmpty
+          ? null
+          : '${Strings.prescriptionRejectedReasonPrefix} ${order.rejectionReason}',
+      icon: Icons.edit_document,
+    ),
+    OrderStatus.billGenerated ||
+    OrderStatus.awaitingBillApproval => OrderStatusBannerData(
+      type: OrderStatusBannerType.billGenerated,
+      title: Strings.billGeneratedBannerTitle,
+      subtitle: Strings.billGeneratedBannerSubtitle,
+      icon: Icons.account_balance_wallet_outlined,
+      isTappable: true,
+    ),
     _ => null,
   };
 }
@@ -319,33 +315,32 @@ class OrderDetailCta {
 
 OrderDetailCta? orderDetailPrimaryCta(OrderStatus status) {
   return switch (status) {
-    OrderStatus.billGenerated || OrderStatus.awaitingBillApproval =>
-      const OrderDetailCta(
-        label: Strings.reviewAndPayCta,
-        icon: Icons.receipt_long_outlined,
-        action: OrderDetailCtaAction.reviewBill,
-      ),
-    OrderStatus.billAccepted || OrderStatus.paymentPending =>
-      const OrderDetailCta(
-        label: Strings.reviewAndPayCta,
-        icon: Icons.payments_outlined,
-        action: OrderDetailCtaAction.reviewPay,
-      ),
+    OrderStatus.billGenerated ||
+    OrderStatus.awaitingBillApproval => const OrderDetailCta(
+      label: Strings.reviewAndPayCta,
+      icon: Icons.receipt_long_outlined,
+      action: OrderDetailCtaAction.reviewBill,
+    ),
+    OrderStatus.billAccepted ||
+    OrderStatus.paymentPending => const OrderDetailCta(
+      label: Strings.reviewAndPayCta,
+      icon: Icons.payments_outlined,
+      action: OrderDetailCtaAction.reviewPay,
+    ),
     OrderStatus.outForDelivery ||
     OrderStatus.deliveryPartnerAssigned ||
-    OrderStatus.packed =>
-      const OrderDetailCta(
-        label: Strings.trackOrder,
-        icon: Icons.location_on_outlined,
-        action: OrderDetailCtaAction.trackOrder,
-        isOutlined: true,
-      ),
+    OrderStatus.packed => const OrderDetailCta(
+      label: Strings.trackOrder,
+      icon: Icons.location_on_outlined,
+      action: OrderDetailCtaAction.trackOrder,
+      isOutlined: true,
+    ),
     OrderStatus.prescriptionRejected => const OrderDetailCta(
-        label: Strings.uploadNewPrescription,
-        icon: Icons.upload_rounded,
-        action: OrderDetailCtaAction.uploadPrescription,
-        isOutlined: true,
-      ),
+      label: Strings.uploadNewPrescription,
+      icon: Icons.upload_rounded,
+      action: OrderDetailCtaAction.uploadPrescription,
+      isOutlined: true,
+    ),
     _ => null,
   };
 }
@@ -403,21 +398,21 @@ int orderLifecycleIndex(OrderStatus status) {
 }
 
 List<OrderStatus> orderTimelineStatuses() => const [
-      OrderStatus.prescriptionUploaded,
-      OrderStatus.underReview,
-      OrderStatus.prescriptionAccepted,
-      OrderStatus.billGenerated,
-      OrderStatus.awaitingBillApproval,
-      OrderStatus.billAccepted,
-      OrderStatus.paymentPending,
-      OrderStatus.paymentCompleted,
-      OrderStatus.orderConfirmed,
-      OrderStatus.preparingOrder,
-      OrderStatus.packed,
-      OrderStatus.deliveryPartnerAssigned,
-      OrderStatus.outForDelivery,
-      OrderStatus.delivered,
-    ];
+  OrderStatus.prescriptionUploaded,
+  OrderStatus.underReview,
+  OrderStatus.prescriptionAccepted,
+  OrderStatus.billGenerated,
+  OrderStatus.awaitingBillApproval,
+  OrderStatus.billAccepted,
+  OrderStatus.paymentPending,
+  OrderStatus.paymentCompleted,
+  OrderStatus.orderConfirmed,
+  OrderStatus.preparingOrder,
+  OrderStatus.packed,
+  OrderStatus.deliveryPartnerAssigned,
+  OrderStatus.outForDelivery,
+  OrderStatus.delivered,
+];
 
 class OrderTrackingStep {
   const OrderTrackingStep({
@@ -434,7 +429,8 @@ class OrderTrackingStep {
 List<OrderTrackingStep> orderTrackingSteps(OrderStatus currentStatus) {
   final timeline = orderTimelineStatuses();
   final currentIndex = orderLifecycleIndex(currentStatus);
-  final isFailed = currentStatus == OrderStatus.prescriptionRejected ||
+  final isFailed =
+      currentStatus == OrderStatus.prescriptionRejected ||
       currentStatus == OrderStatus.billRejected ||
       currentStatus == OrderStatus.cancelled;
 
@@ -448,16 +444,14 @@ List<OrderTrackingStep> orderTrackingSteps(OrderStatus currentStatus) {
     ];
   }
 
-  return timeline
-      .map((status) {
-        final index = orderLifecycleIndex(status);
-        return OrderTrackingStep(
-          label: orderStatusLabel(status),
-          isCompleted: index <= currentIndex,
-          isFailed: false,
-        );
-      })
-      .toList();
+  return timeline.map((status) {
+    final index = orderLifecycleIndex(status);
+    return OrderTrackingStep(
+      label: orderStatusLabel(status),
+      isCompleted: index <= currentIndex,
+      isFailed: false,
+    );
+  }).toList();
 }
 
 const _terminalFailureStatusIds = {
@@ -492,10 +486,8 @@ List<OrderTrackingStep> orderTrackingStepsFromApi({
   if (isTerminalFailureOrderStatus(currentStatusId)) {
     final failedStatus = statuses.firstWhere(
       (status) => normalizeOrderStatusId(status.id) == normalizedCurrent,
-      orElse: () => OrderStatusOptionModel(
-        id: currentStatusId,
-        name: currentStatusId,
-      ),
+      orElse: () =>
+          OrderStatusOptionModel(id: currentStatusId, name: currentStatusId),
     );
     return [
       OrderTrackingStep(

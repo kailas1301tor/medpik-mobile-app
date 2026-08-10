@@ -11,6 +11,7 @@ sealed class ProfileState with _$ProfileState {
     @Default(LoaderState.loaded) LoaderState loaderState,
     ProfileModel? profile,
     @Default(false) bool isSaving,
+    @Default(false) bool isProfileFormValid,
     String? firstNameError,
     String? lastNameError,
   }) = _ProfileState;

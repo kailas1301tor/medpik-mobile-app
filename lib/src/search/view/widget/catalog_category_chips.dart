@@ -6,7 +6,7 @@ import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
-import 'package:medpik/providers/customer_general_providers.dart';
+import 'package:medpik/src/profile/customer_general_providers.dart';
 import 'package:medpik/data/models/category_model.dart';
 import 'package:medpik/utils/common_widgets/common_container.dart';
 import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';

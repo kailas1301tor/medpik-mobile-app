@@ -32,4 +32,5 @@ class RouteConstants {
   static const String routeWishlistScreen = '/wishlist';
   static const String routeNotificationsScreen = '/notifications';
   static const String routeEmergencyServicesScreen = '/emergency-services';
+  static const String routeLegalDocumentScreen = '/legal-document';
 }

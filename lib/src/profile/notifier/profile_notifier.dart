@@ -2,6 +2,7 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:medpik/data/local/sembast_services.dart';
 import 'package:medpik/providers/auth_providers.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
@@ -42,13 +43,24 @@ class ProfileNotifier extends _$ProfileNotifier {
   }
 
   void _onFirstNameChanged() {
-    if (state.firstNameError == null) return;
-    state = state.copyWith(firstNameError: null);
+    if (state.firstNameError != null) {
+      state = state.copyWith(firstNameError: null);
+    }
+    _syncFormValidity();
   }
 
   void _onLastNameChanged() {
-    if (state.lastNameError == null) return;
-    state = state.copyWith(lastNameError: null);
+    if (state.lastNameError != null) {
+      state = state.copyWith(lastNameError: null);
+    }
+    _syncFormValidity();
+  }
+
+  void _syncFormValidity() {
+    final isValid = firstNameController.text.trim().isNotEmpty &&
+        lastNameController.text.trim().isNotEmpty;
+    if (state.isProfileFormValid == isValid) return;
+    state = state.copyWith(isProfileFormValid: isValid);
   }
 
   Future<void> fetchProfile() async {
@@ -89,6 +101,7 @@ class ProfileNotifier extends _$ProfileNotifier {
     firstNameController.text = profile?.firstName ?? '';
     lastNameController.text = profile?.lastName ?? '';
     state = state.copyWith(firstNameError: null, lastNameError: null);
+    _syncFormValidity();
   }
 
   Future<bool> updateProfile() async {
@@ -99,6 +112,11 @@ class ProfileNotifier extends _$ProfileNotifier {
 
     if (firstName.isEmpty) {
       state = state.copyWith(firstNameError: Strings.firstNameRequired);
+      return false;
+    }
+
+    if (lastName.isEmpty) {
+      state = state.copyWith(lastNameError: Strings.lastNameRequired);
       return false;
     }
 
@@ -135,6 +153,9 @@ class ProfileNotifier extends _$ProfileNotifier {
         debugPrint("🟢 PROFILE UPDATE SUCCESS: $profile");
         state = state.copyWith(profile: profile, isSaving: false);
         await _syncAuthSession(profile);
+        if (await ref.read(sembastServicesProvider).isNewUser()) {
+          await ref.read(authNotifierProvider.notifier).markProfileCompleted();
+        }
         showCustomToast(
           message: response.message.isNotEmpty
               ? response.message

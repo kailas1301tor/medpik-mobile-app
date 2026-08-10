@@ -24,6 +24,7 @@ mixin _$AuthState {
   bool get isPhoneValid => throw _privateConstructorUsedError;
   bool get isOtpValid => throw _privateConstructorUsedError;
   bool get isRequestingOtp => throw _privateConstructorUsedError;
+  bool get isResendingOtp => throw _privateConstructorUsedError;
   bool get isVerifyingOtp => throw _privateConstructorUsedError;
   bool get isSigningOut => throw _privateConstructorUsedError;
   int get resendCountdown => throw _privateConstructorUsedError;
@@ -48,6 +49,7 @@ abstract class $AuthStateCopyWith<$Res> {
     bool isPhoneValid,
     bool isOtpValid,
     bool isRequestingOtp,
+    bool isResendingOtp,
     bool isVerifyingOtp,
     bool isSigningOut,
     int resendCountdown,
@@ -76,6 +78,7 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
     Object? isPhoneValid = null,
     Object? isOtpValid = null,
     Object? isRequestingOtp = null,
+    Object? isResendingOtp = null,
     Object? isVerifyingOtp = null,
     Object? isSigningOut = null,
     Object? resendCountdown = null,
@@ -109,6 +112,10 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
             isRequestingOtp: null == isRequestingOtp
                 ? _value.isRequestingOtp
                 : isRequestingOtp // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isResendingOtp: null == isResendingOtp
+                ? _value.isResendingOtp
+                : isResendingOtp // ignore: cast_nullable_to_non_nullable
                       as bool,
             isVerifyingOtp: null == isVerifyingOtp
                 ? _value.isVerifyingOtp
@@ -145,6 +152,7 @@ abstract class _$$AuthStateImplCopyWith<$Res>
     bool isPhoneValid,
     bool isOtpValid,
     bool isRequestingOtp,
+    bool isResendingOtp,
     bool isVerifyingOtp,
     bool isSigningOut,
     int resendCountdown,
@@ -172,6 +180,7 @@ class __$$AuthStateImplCopyWithImpl<$Res>
     Object? isPhoneValid = null,
     Object? isOtpValid = null,
     Object? isRequestingOtp = null,
+    Object? isResendingOtp = null,
     Object? isVerifyingOtp = null,
     Object? isSigningOut = null,
     Object? resendCountdown = null,
@@ -206,6 +215,10 @@ class __$$AuthStateImplCopyWithImpl<$Res>
             ? _value.isRequestingOtp
             : isRequestingOtp // ignore: cast_nullable_to_non_nullable
                   as bool,
+        isResendingOtp: null == isResendingOtp
+            ? _value.isResendingOtp
+            : isResendingOtp // ignore: cast_nullable_to_non_nullable
+                  as bool,
         isVerifyingOtp: null == isVerifyingOtp
             ? _value.isVerifyingOtp
             : isVerifyingOtp // ignore: cast_nullable_to_non_nullable
@@ -234,6 +247,7 @@ class _$AuthStateImpl implements _AuthState {
     this.isPhoneValid = false,
     this.isOtpValid = false,
     this.isRequestingOtp = false,
+    this.isResendingOtp = false,
     this.isVerifyingOtp = false,
     this.isSigningOut = false,
     this.resendCountdown = 0,
@@ -258,6 +272,9 @@ class _$AuthStateImpl implements _AuthState {
   final bool isRequestingOtp;
   @override
   @JsonKey()
+  final bool isResendingOtp;
+  @override
+  @JsonKey()
   final bool isVerifyingOtp;
   @override
   @JsonKey()
@@ -268,7 +285,7 @@ class _$AuthStateImpl implements _AuthState {
 
   @override
   String toString() {
-    return 'AuthState(authModel: $authModel, otpPhone: $otpPhone, phoneErrorText: $phoneErrorText, otpErrorMessage: $otpErrorMessage, isPhoneValid: $isPhoneValid, isOtpValid: $isOtpValid, isRequestingOtp: $isRequestingOtp, isVerifyingOtp: $isVerifyingOtp, isSigningOut: $isSigningOut, resendCountdown: $resendCountdown)';
+    return 'AuthState(authModel: $authModel, otpPhone: $otpPhone, phoneErrorText: $phoneErrorText, otpErrorMessage: $otpErrorMessage, isPhoneValid: $isPhoneValid, isOtpValid: $isOtpValid, isRequestingOtp: $isRequestingOtp, isResendingOtp: $isResendingOtp, isVerifyingOtp: $isVerifyingOtp, isSigningOut: $isSigningOut, resendCountdown: $resendCountdown)';
   }
 
   @override
@@ -290,6 +307,8 @@ class _$AuthStateImpl implements _AuthState {
                 other.isOtpValid == isOtpValid) &&
             (identical(other.isRequestingOtp, isRequestingOtp) ||
                 other.isRequestingOtp == isRequestingOtp) &&
+            (identical(other.isResendingOtp, isResendingOtp) ||
+                other.isResendingOtp == isResendingOtp) &&
             (identical(other.isVerifyingOtp, isVerifyingOtp) ||
                 other.isVerifyingOtp == isVerifyingOtp) &&
             (identical(other.isSigningOut, isSigningOut) ||
@@ -308,6 +327,7 @@ class _$AuthStateImpl implements _AuthState {
     isPhoneValid,
     isOtpValid,
     isRequestingOtp,
+    isResendingOtp,
     isVerifyingOtp,
     isSigningOut,
     resendCountdown,
@@ -331,6 +351,7 @@ abstract class _AuthState implements AuthState {
     final bool isPhoneValid,
     final bool isOtpValid,
     final bool isRequestingOtp,
+    final bool isResendingOtp,
     final bool isVerifyingOtp,
     final bool isSigningOut,
     final int resendCountdown,
@@ -350,6 +371,8 @@ abstract class _AuthState implements AuthState {
   bool get isOtpValid;
   @override
   bool get isRequestingOtp;
+  @override
+  bool get isResendingOtp;
   @override
   bool get isVerifyingOtp;
   @override

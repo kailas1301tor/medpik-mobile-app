@@ -35,6 +35,7 @@ class MedpikLogo extends StatelessWidget {
   final double? width;
   final BoxFit fit;
   final MedpikLogoPlateStyle plateStyle;
+
   /// When true, treats the parent surface as dark/primary (skips plate in auto mode).
   final bool surfaceIsDark;
 
@@ -56,8 +57,9 @@ class MedpikLogo extends StatelessWidget {
         if (surfaceIsDark) return false;
         final brightness = Theme.of(context).brightness;
         final colors = context.appColors;
-        final surfaceBrightness =
-            ThemeData.estimateBrightnessForColor(colors.background);
+        final surfaceBrightness = ThemeData.estimateBrightnessForColor(
+          colors.background,
+        );
         return brightness == Brightness.light &&
             surfaceBrightness == Brightness.light;
     }
@@ -81,13 +83,13 @@ class MedpikLogo extends StatelessWidget {
     final padding = switch (variant) {
       MedpikLogoVariant.crest => EdgeInsets.all(8.r),
       MedpikLogoVariant.horizontal => EdgeInsets.symmetric(
-          horizontal: 12.w,
-          vertical: 8.h,
-        ),
+        horizontal: 12.w,
+        vertical: 8.h,
+      ),
       MedpikLogoVariant.vertical => EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: 12.h,
-        ),
+        horizontal: 16.w,
+        vertical: 12.h,
+      ),
     };
 
     return DecoratedBox(

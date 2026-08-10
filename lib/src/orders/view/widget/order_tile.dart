@@ -2,15 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:smooth_corner/smooth_corner.dart';
 import 'package:medpik/data/models/order_model.dart';
 import 'package:medpik/res/constants/medpik_svg_assets.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
-import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/src/orders/view/widget/order_product_preview_row.dart';
-import 'package:medpik/src/orders/view/widget/order_status_badge.dart';
 import 'package:medpik/src/orders/view/widget/order_tile_footer.dart';
+import 'package:medpik/src/orders/view/widget/order_tile_glass_card.dart';
+import 'package:medpik/src/orders/view/widget/order_tile_header.dart';
+import 'package:medpik/src/orders/view/widget/order_tile_meta_row.dart';
 import 'package:medpik/utils/helpers/order_status_helper.dart';
 
 class OrderTile extends StatelessWidget {
@@ -21,83 +21,61 @@ class OrderTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final displayId = order.displayOrderId.isNotEmpty
-        ? order.displayOrderId
-        : Strings.emDash;
     final city = order.address.city.trim();
+    final locationLabel = city.isNotEmpty ? city : Strings.unavailableValue;
     final previewUrls = order.previewImageUrls;
 
-    return GestureDetector(
+    return OrderTileGlassCard(
       onTap: onTap,
-      child: SmoothContainer(
-        smoothness: 2,
-        side: BorderSide(color: colors.cardBorder, width: 1.w),
-        margin: EdgeInsets.only(bottom: 12.h),
-        padding: EdgeInsets.all(16.r),
-        borderRadius: BorderRadius.circular(16.r),
-        color: colors.surface,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    '${Strings.orderIdLabel}: $displayId',
-                    style: FontPalette.base700(15, color: colors.primaryText),
-                  ),
-                ),
-                OrderStatusBadge(
-                  status: order.status,
-                  label: order.displayStatus.isNotEmpty
-                      ? order.displayStatus
-                      : null,
-                ),
-                4.horizontalSpace,
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 20.r,
-                  color: colors.secondaryText,
-                ),
-              ],
-            ),
-            6.verticalSpace,
-            Row(
-              children: [
-                SvgPicture.asset(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          OrderTileHeader(order: order),
+          8.verticalSpace,
+          OrderTileMetaRow(
+            items: [
+              OrderTileMetaItem(
+                icon: SvgPicture.asset(
                   MedpikSvgAssets.calendar,
                   width: 14.r,
                   height: 14.r,
-                  fit: BoxFit.contain,
-                ),
-                6.horizontalSpace,
-                Expanded(
-                  child: Text(
-                    formatOrderDateTime(order.createdAt),
-                    style: FontPalette.base400(12, color: colors.secondaryText),
+                  colorFilter: ColorFilter.mode(
+                    ColorPalette.f13AC00,
+                    BlendMode.srcIn,
                   ),
                 ),
-              ],
-            ),
-            if (city.isNotEmpty) ...[
-              4.verticalSpace,
-              Text(
-                city,
-                style: FontPalette.base400(12, color: colors.secondaryText),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                value: formatOrderDate(order.createdAt),
+              ),
+              OrderTileMetaItem(
+                icon: Icon(
+                  Icons.access_time_rounded,
+                  size: 14.r,
+                  color: ColorPalette.fCA8E00,
+                ),
+                value: formatOrderTime(order.createdAt),
+              ),
+              OrderTileMetaItem(
+                icon: SvgPicture.asset(
+                  MedpikSvgAssets.location,
+                  width: 14.r,
+                  height: 14.r,
+                  colorFilter: ColorFilter.mode(
+                    ColorPalette.red,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                value: locationLabel,
               ),
             ],
-            if (previewUrls.isNotEmpty) ...[
-              12.verticalSpace,
-              OrderProductPreviewRow(imageUrls: previewUrls),
-            ],
-            12.verticalSpace,
-            OrderTileFooter(order: order),
+          ),
+          if (previewUrls.isNotEmpty) ...[
+            10.verticalSpace,
+            OrderProductPreviewRow(imageUrls: previewUrls),
           ],
-        ),
+          10.verticalSpace,
+          OrderTileFooter(order: order),
+        ],
       ),
     );
   }

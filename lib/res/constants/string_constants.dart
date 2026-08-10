@@ -136,6 +136,7 @@ class Strings {
   static const String otpSentPrefix = "We sent a 6-digit code to ";
   static const String didntReceiveCode = "Didn't receive code? ";
   static const String resendCode = "Resend Code";
+  static const String resendingCode = "Resending...";
   static const String resendIn = "Resend in";
   static const String otpVerificationFailed = "OTP verification failed";
   static const String otpVerifiedSuccess = "OTP verified successfully";
@@ -189,6 +190,7 @@ class Strings {
   static const String searchResults = "Search Results";
   static const String resultsFor = "Results for";
   static const String addToCart = "Add to Cart";
+  static const String add = "Add";
   static const String goToCart = "Go to Cart";
   static const String addedToCart = "Added to cart";
   static const String loginToAddToCart = "Please login to add items to cart";
@@ -329,14 +331,18 @@ class Strings {
       "Unable to open the phone dialer. Please try again.";
   static const String supportSection = "Support";
   static const String legalSection = "Legal";
+  static const String legalDocumentEmpty = "No content available right now.";
   static const String personalInformation = "Personal Information";
   static const String personalInformationSubtitle =
       "Manage your personal details";
+  static const String completeYourProfile =
+      "Add your name to continue using medpik.";
   static const String firstName = "First Name";
   static const String lastName = "Last Name";
   static const String firstNameHint = "Enter your first name";
   static const String lastNameHint = "Enter your last name";
   static const String firstNameRequired = "First name is required";
+  static const String lastNameRequired = "Last name is required";
   static const String profileUpdatedSuccess = "Profile updated successfully";
   static const String profilePhoneReadOnlyHint =
       "Phone number cannot be changed here";
@@ -421,6 +427,8 @@ class Strings {
   static const String searchProductsHint = "Search products to add";
   static const String loadMore = "Load more";
   static const String addToPrescriptionRequest = "Add to prescription request";
+  static const String productAlreadyAddedToPrescription =
+      "This product is already added to your prescription request.";
   static const String selectQuantity = "Select quantity";
   static const String addToOrder = "Add to order";
   static const String requestedProductName = "Product name";
@@ -464,6 +472,11 @@ class Strings {
   static String quantityTimes(int quantity) => 'x$quantity';
   static const String orderPlacedSuccess = "Order placed successfully!";
   static const String orderIdLabel = "Order ID";
+  static const String orderDateLabel = "Order Date";
+  static const String orderTimeLabel = "Order Time";
+  static const String orderLocationLabel = "Location";
+  static const String orderIdCopied = "Order ID copied";
+  static String moreItemsCount(int count) => '+$count more';
   static const String emDash = "—";
   static const String unavailableValue = "-----";
   static const String trackOrder = "Track Order";
@@ -515,6 +528,10 @@ class Strings {
   static const String itemTotal = "Item Total";
   static const String deliveryCharges = "Delivery Charges";
   static const String packagingCharges = "Packaging Charges";
+  static const String discount = "Discount";
+  static const String couponApplied = "Coupon applied";
+  static const String youSaved = "You saved";
+  static String couponSavings(String code) => 'Coupon savings ($code)';
   static const String tax = "Tax";
   static const String viewBillPdf = "View Bill PDF";
   static const String billPdfTitle = "Bill PDF";
@@ -630,6 +647,8 @@ class Strings {
       "Sorry, we don't deliver to this location yet.";
   static const String locationPermissionDenied =
       "Location permission denied. Showing a default area — move the pin or search.";
+  static const String locationGpsUnavailable =
+      "Couldn't get your location. Showing a default area — move the pin or search.";
   static const String locationLookupFailed =
       "Couldn't fetch this address. Try moving the pin or searching again.";
   static const String locationMapsKeyMissing =

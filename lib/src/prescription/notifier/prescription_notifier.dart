@@ -12,20 +12,27 @@ part 'prescription_notifier.g.dart';
 
 @Riverpod(keepAlive: true)
 class PrescriptionNotifier extends _$PrescriptionNotifier {
-  late final TextEditingController notesController;
-  late final TextEditingController productQuantityController;
+  late TextEditingController notesController;
+  late TextEditingController productQuantityController;
   final _fileService = FileSelectionService.instance;
+  bool _lifecycleInitialized = false;
 
   @override
   PrescriptionState build() {
+    if (_lifecycleInitialized) {
+      return state;
+    }
+
     notesController = TextEditingController();
     productQuantityController = TextEditingController(
       text: Strings.defaultQuantityHint,
     );
+    _lifecycleInitialized = true;
 
     ref.onDispose(() {
       notesController.dispose();
       productQuantityController.dispose();
+      _lifecycleInitialized = false;
     });
 
     return const PrescriptionState();

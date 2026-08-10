@@ -19,22 +19,29 @@ part 'home_notifier.g.dart';
 
 @Riverpod(keepAlive: true)
 class HomeNotifier extends _$HomeNotifier {
-  late final TextEditingController searchController;
-  late final ScrollController scrollController;
+  late TextEditingController searchController;
+  late ScrollController scrollController;
   late HomeRepo homeRepo;
+  bool _lifecycleInitialized = false;
 
   static const double _compactThreshold = 72;
   static const double _compactFadeDistance = 56;
 
   @override
   HomeState build() {
+    if (_lifecycleInitialized) {
+      return state;
+    }
+
     searchController = TextEditingController();
     scrollController = ScrollController()..addListener(_onScroll);
+    _lifecycleInitialized = true;
 
     ref.onDispose(() {
       scrollController.removeListener(_onScroll);
       searchController.dispose();
       scrollController.dispose();
+      _lifecycleInitialized = false;
     });
 
     ref.listen(addressNotifierProvider.select((s) => s.addresses), (
@@ -49,16 +56,22 @@ class HomeNotifier extends _$HomeNotifier {
     });
 
     homeRepo = ref.read(homeRepositoryProvider);
-    Future.microtask(_loadHomeData);
+    Future.microtask(() {
+      if (AppConstants.hasSession) {
+        _loadHomeData();
+      }
+    });
     return const HomeState(loaderState: LoaderState.loading);
   }
 
   Future<void> _loadHomeData() async {
+    if (!AppConstants.hasSession) return;
     fetchCustomerGeneralData();
     fetchHomeFeed();
   }
 
   Future<void> fetchCustomerGeneralData() async {
+    if (!AppConstants.hasSession) return;
     state = state.copyWith(generalDataLoaderState: LoaderState.loading);
 
     return await homeRepo
@@ -107,6 +120,7 @@ class HomeNotifier extends _$HomeNotifier {
   }
 
   Future<void> fetchHomeFeed() async {
+    if (!AppConstants.hasSession) return;
     if (state.generalData == null &&
         state.generalDataLoaderState != LoaderState.loading) {
       await fetchCustomerGeneralData();

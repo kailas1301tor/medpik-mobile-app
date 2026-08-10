@@ -1,6 +1,7 @@
 // lib/src/prescription/view/widget/prescription_product_grid_tile.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medpik/data/models/product_detail_args.dart';
 import 'package:medpik/data/models/product_model.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
@@ -24,7 +25,10 @@ class PrescriptionProductGridTile extends StatelessWidget {
         Navigator.pushNamed(
           context,
           RouteConstants.routeProductDetailScreen,
-          arguments: product.id,
+          arguments: ProductDetailArgs(
+            productId: product.id,
+            isFromUploadPrescription: true,
+          ),
         );
       },
       child: DecoratedBox(

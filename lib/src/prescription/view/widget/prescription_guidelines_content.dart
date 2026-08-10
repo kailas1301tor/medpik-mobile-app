@@ -141,11 +141,11 @@ class _GuidelineRuleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final iconBg = isPositive
-        ? ColorPalette.prescriptionDoIconBg
-        : ColorPalette.prescriptionDontIconBg;
+        ? colors.statusSuccessBg
+        : colors.statusErrorBg;
     final iconColor = isPositive
-        ? ColorPalette.successColor
-        : ColorPalette.formValidationErrorColor;
+        ? colors.statusSuccessText
+        : colors.statusErrorText;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

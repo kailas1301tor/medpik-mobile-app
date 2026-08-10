@@ -66,80 +66,121 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
     final hasNetwork = _hasNetwork();
     _scheduleAutoReload(hasNetwork);
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 250),
-      child: !_hasNetwork()
-          ? _buildErrorState(
-              key: const ValueKey('network_state'),
-              title: Strings.connectionErrorTitle,
-              message: Strings.connectionErrorDesc,
-              imageAsset: Assets.lottieNoInternet,
-            )
-          : switch (widget.loaderState) {
-              LoaderState.loaded => KeyedSubtree(
-                key: const ValueKey('loaded_state'),
-                child: widget.child,
-              ),
-              LoaderState.loading => KeyedSubtree(
-                key: const ValueKey('loading_state'),
-                child: widget.loader ?? const CommonLoader(),
-              ),
-              LoaderState.noData => KeyedSubtree(
-                key: const ValueKey('no_data_state'),
-                child:
-                    widget.noData ??
-                    _buildEmptyState(
-                      title: widget.emptyScreenTitle ?? Strings.noDataTitle,
-                      message:
-                          widget.emptyScreenDescription ??
-                          Strings.noDataMessage,
-                      imageAsset:
-                          widget.emptyScreenImage ?? Assets.lottieNoData,
-                      onPressed: widget.customButtonFunction ?? widget.reload,
-                      buttonText: _resolvedButtonText(),
-                    ),
-              ),
-              LoaderState.noSearchData => KeyedSubtree(
-                key: const ValueKey('no_search_state'),
-                child:
-                    widget.noSearchData ??
-                    _buildEmptyState(
-                      title: widget.emptyScreenTitle ?? Strings.noResultsFound,
-                      message:
-                          widget.emptyScreenDescription ??
-                          Strings.noResultsDesc,
-                      imageAsset:
-                          widget.emptyScreenImage ?? Assets.lottieSearching,
-                    ),
-              ),
-              LoaderState.error => KeyedSubtree(
-                key: const ValueKey('error_state'),
-                child:
-                    widget.errorWidget ??
-                    _buildErrorState(
-                      title: widget.errorTitle ?? Strings.errorTitle,
-                      message: widget.errorMessage ?? Strings.errorDescription,
-                      imageAsset: Assets.lottieError,
-                    ),
-              ),
-              LoaderState.serverError => KeyedSubtree(
-                key: const ValueKey('server_state'),
-                child: _buildErrorState(
-                  title: Strings.error500Title,
-                  message: Strings.error500Message,
-                  imageAsset: Assets.lottieError,
-                ),
-              ),
-              LoaderState.networkError => KeyedSubtree(
-                key: const ValueKey('network_loader_state'),
-                child: _buildErrorState(
-                  title: Strings.connectionErrorTitle,
-                  message: Strings.connectionErrorDesc,
-                  imageAsset: Assets.lottieNoInternet,
-                ),
-              ),
-            },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final hasBoundedHeight = constraints.hasBoundedHeight;
+        final content = _buildContent(
+          hasNetwork: hasNetwork,
+          fillAvailableSpace: hasBoundedHeight,
+        );
+
+        if (!hasBoundedHeight) {
+          return content;
+        }
+
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          layoutBuilder: (currentChild, previousChildren) {
+            return Stack(
+              alignment: Alignment.topCenter,
+              fit: StackFit.expand,
+              children: [
+                ...previousChildren,
+                if (currentChild != null) currentChild,
+              ],
+            );
+          },
+          child: content,
+        );
+      },
     );
+  }
+
+  Widget _buildContent({
+    required bool hasNetwork,
+    required bool fillAvailableSpace,
+  }) {
+    if (!hasNetwork) {
+      return _buildErrorState(
+        key: const ValueKey('network_state'),
+        title: Strings.connectionErrorTitle,
+        message: Strings.connectionErrorDesc,
+        imageAsset: Assets.lottieNoInternet,
+        fillAvailableSpace: fillAvailableSpace,
+      );
+    }
+
+    return switch (widget.loaderState) {
+      LoaderState.loaded => KeyedSubtree(
+        key: const ValueKey('loaded_state'),
+        child: widget.child,
+      ),
+      LoaderState.loading => KeyedSubtree(
+        key: const ValueKey('loading_state'),
+        child: widget.loader ??
+            (fillAvailableSpace
+                ? const CommonLoader()
+                : const Align(
+                    alignment: Alignment.topCenter,
+                    child: CommonLoader(),
+                  )),
+      ),
+      LoaderState.noData => KeyedSubtree(
+        key: const ValueKey('no_data_state'),
+        child:
+            widget.noData ??
+            _buildEmptyState(
+              title: widget.emptyScreenTitle ?? Strings.noDataTitle,
+              message:
+                  widget.emptyScreenDescription ?? Strings.noDataMessage,
+              imageAsset: widget.emptyScreenImage ?? Assets.lottieNoData,
+              onPressed: widget.customButtonFunction ?? widget.reload,
+              buttonText: _resolvedButtonText(),
+              fillAvailableSpace: fillAvailableSpace,
+            ),
+      ),
+      LoaderState.noSearchData => KeyedSubtree(
+        key: const ValueKey('no_search_state'),
+        child:
+            widget.noSearchData ??
+            _buildEmptyState(
+              title: widget.emptyScreenTitle ?? Strings.noResultsFound,
+              message:
+                  widget.emptyScreenDescription ?? Strings.noResultsDesc,
+              imageAsset: widget.emptyScreenImage ?? Assets.lottieSearching,
+              fillAvailableSpace: fillAvailableSpace,
+            ),
+      ),
+      LoaderState.error => KeyedSubtree(
+        key: const ValueKey('error_state'),
+        child:
+            widget.errorWidget ??
+            _buildErrorState(
+              title: widget.errorTitle ?? Strings.errorTitle,
+              message: widget.errorMessage ?? Strings.errorDescription,
+              imageAsset: Assets.lottieError,
+              fillAvailableSpace: fillAvailableSpace,
+            ),
+      ),
+      LoaderState.serverError => KeyedSubtree(
+        key: const ValueKey('server_state'),
+        child: _buildErrorState(
+          title: Strings.error500Title,
+          message: Strings.error500Message,
+          imageAsset: Assets.lottieError,
+          fillAvailableSpace: fillAvailableSpace,
+        ),
+      ),
+      LoaderState.networkError => KeyedSubtree(
+        key: const ValueKey('network_loader_state'),
+        child: _buildErrorState(
+          title: Strings.connectionErrorTitle,
+          message: Strings.connectionErrorDesc,
+          imageAsset: Assets.lottieNoInternet,
+          fillAvailableSpace: fillAvailableSpace,
+        ),
+      ),
+    };
   }
 
   bool _hasNetwork() {
@@ -168,6 +209,7 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
     String? imageAsset,
     String? buttonText,
     VoidCallback? onPressed,
+    bool fillAvailableSpace = true,
   }) {
     return CommonEmptyState(
       title: title,
@@ -181,6 +223,7 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
       mainAxisAlignment:
           widget.emptyMainAxisAlignment ?? MainAxisAlignment.center,
       backgroundColor: widget.backgroundColor,
+      fillAvailableSpace: fillAvailableSpace,
     );
   }
 
@@ -189,6 +232,7 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
     required String title,
     required String message,
     String? imageAsset,
+    bool fillAvailableSpace = true,
   }) {
     return KeyedSubtree(
       key: key,
@@ -204,6 +248,7 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
         mainAxisAlignment:
             widget.emptyMainAxisAlignment ?? MainAxisAlignment.center,
         backgroundColor: widget.backgroundColor,
+        fillAvailableSpace: fillAvailableSpace,
       ),
     );
   }

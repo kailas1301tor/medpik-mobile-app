@@ -11,6 +11,7 @@ sealed class ProductDetailState with _$ProductDetailState {
     @Default(LoaderState.loaded) LoaderState loaderState,
     ProductDetailModel? detail,
     @Default(1) int quantity,
+    @Default(false) bool isFromUploadPrescription,
     @Default(false) bool isWishlisted,
     String? errorMessage,
   }) = _ProductDetailState;

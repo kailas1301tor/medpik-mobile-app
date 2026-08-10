@@ -25,6 +25,8 @@ class OrderOrderedItemRow extends StatelessWidget {
     final colors = context.appColors;
     final imageSize = 56.r;
     final product = item.product;
+    final showStrikethrough =
+        item.hasItemDiscount && item.grossLineTotal > item.lineTotal;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -76,14 +78,19 @@ class OrderOrderedItemRow extends StatelessWidget {
                         color: colors.secondaryText,
                       ),
                     ),
+                    if (item.hasOfferChip) ...[
+                      6.verticalSpace,
+                      _OrderItemOfferChip(label: item.offerChipLabel),
+                    ],
                   ],
                 ),
               ),
               if (showPrice) ...[
                 8.horizontalSpace,
-                Text(
-                  item.lineTotal.toCurrency(decimalDigits: 0),
-                  style: FontPalette.base600(14, color: colors.primaryText),
+                _OrderItemPriceColumn(
+                  lineTotal: item.lineTotal,
+                  grossLineTotal: item.grossLineTotal,
+                  showStrikethrough: showStrikethrough,
                 ),
               ],
             ],
@@ -95,6 +102,65 @@ class OrderOrderedItemRow extends StatelessWidget {
             thickness: 1,
             color: ColorPalette.orderBillDivider,
           ),
+      ],
+    );
+  }
+}
+
+class _OrderItemOfferChip extends StatelessWidget {
+  const _OrderItemOfferChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+      decoration: BoxDecoration(
+        color: ColorPalette.successColor.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6.r),
+      ),
+      child: Text(
+        label,
+        style: FontPalette.base600(10, color: ColorPalette.successColor),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+}
+
+class _OrderItemPriceColumn extends StatelessWidget {
+  const _OrderItemPriceColumn({
+    required this.lineTotal,
+    required this.grossLineTotal,
+    required this.showStrikethrough,
+  });
+
+  final double lineTotal;
+  final double grossLineTotal;
+  final bool showStrikethrough;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (showStrikethrough)
+          Text(
+            grossLineTotal.toCurrency(decimalDigits: 0),
+            style: FontPalette.base400(12, color: colors.secondaryText).copyWith(
+              decoration: TextDecoration.lineThrough,
+              decorationColor: colors.secondaryText,
+            ),
+          ),
+        Text(
+          lineTotal.toCurrency(decimalDigits: 0),
+          style: FontPalette.base600(14, color: colors.primaryText),
+        ),
       ],
     );
   }

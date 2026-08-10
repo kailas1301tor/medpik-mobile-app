@@ -18,6 +18,7 @@ import 'package:medpik/utils/common_widgets/common_loader.dart';
 import 'package:medpik/utils/common_widgets/common_refresh_indicator.dart';
 import 'package:medpik/utils/common_widgets/common_switch_state.dart';
 import 'package:medpik/utils/common_widgets/shell_tab_header.dart';
+import 'package:medpik/utils/helpers/legal_url_helper.dart';
 import 'package:medpik/utils/helpers/shell_insets_helper.dart';
 import 'package:medpik/utils/helpers/toast_helper.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
@@ -36,9 +37,7 @@ class ProfileScreen extends ConsumerWidget {
       authNotifierProvider.select((s) => s.isSigningOut),
     );
     final profileData = ref.watch(
-      profileNotifierProvider.select(
-        (s) => Tuple2(s.loaderState, s.profile),
-      ),
+      profileNotifierProvider.select((s) => Tuple2(s.loaderState, s.profile)),
     );
     final loaderState = profileData.item1;
     final profile = profileData.item2;
@@ -91,13 +90,6 @@ class ProfileScreen extends ConsumerWidget {
                             );
                           },
                         ),
-                        ProfileMenuTile(
-                          icon: Icons.shield_outlined,
-                          title: Strings.privacyAndSecurity,
-                          subtitle: Strings.privacyAndSecuritySubtitle,
-                          onTap: () =>
-                              showCustomToast(message: Strings.supportComingSoon),
-                        ),
                         const ProfileDarkModeTile(),
                       ],
                     ),
@@ -126,23 +118,29 @@ class ProfileScreen extends ConsumerWidget {
                           icon: Icons.help_outline_rounded,
                           title: Strings.helpAndSupport,
                           subtitle: Strings.helpAndSupportSubtitle,
-                          onTap: () =>
-                              showCustomToast(message: Strings.supportComingSoon),
-                        ),
-                        ProfileMenuTile(
-                          icon: Icons.phone_outlined,
-                          title: Strings.contactSupport,
-                          subtitle: Strings.contactSupportSubtitle,
-                          onTap: () =>
-                              showCustomToast(message: Strings.supportComingSoon),
-                        ),
-                        ProfileMenuTile(
-                          icon: Icons.info_outline_rounded,
-                          title: Strings.aboutUs,
-                          subtitle: Strings.aboutUsSubtitle,
                           showDivider: false,
-                          onTap: () =>
-                              showCustomToast(message: Strings.supportComingSoon),
+                          onTap: () => showCustomToast(
+                            message: Strings.supportComingSoon,
+                          ),
+                        ),
+                      ],
+                    ),
+                    20.verticalSpace,
+                    ProfileMenuSection(
+                      title: Strings.legalSection,
+                      children: [
+                        ProfileMenuTile(
+                          icon: Icons.privacy_tip_outlined,
+                          title: Strings.privacyPolicy,
+                          subtitle: Strings.privacyPolicySubtitle,
+                          onTap: () => openPrivacyPolicy(context),
+                        ),
+                        ProfileMenuTile(
+                          icon: Icons.description_outlined,
+                          title: Strings.termsAndConditions,
+                          subtitle: Strings.termsSubtitle,
+                          showDivider: false,
+                          onTap: () => openTermsAndConditions(context),
                         ),
                       ],
                     ),
@@ -173,6 +171,7 @@ class ProfileScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
+                    100.verticalSpace,
                   ],
                 ),
               ),

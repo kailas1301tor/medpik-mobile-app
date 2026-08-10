@@ -2,7 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/data/models/order_status_option_model.dart';
-import 'package:medpik/providers/customer_general_providers.dart';
+import 'package:medpik/src/profile/customer_general_providers.dart';
 
 part 'order_status_options_provider.g.dart';
 

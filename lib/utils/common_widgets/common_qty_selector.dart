@@ -54,7 +54,10 @@ class CommonQtySelector extends StatelessWidget {
               child: Center(
                 child: Text(
                   '$quantity',
-                  style: FontPalette.base700(fontSize, color: colors.primaryText),
+                  style: FontPalette.base700(
+                    fontSize,
+                    color: colors.primaryText,
+                  ),
                 ),
               ),
             ),

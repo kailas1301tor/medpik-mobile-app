@@ -43,7 +43,8 @@ class EmergencyNotifier extends _$EmergencyNotifier {
             final ambulances = response.ambulances;
             final doctors = response.doctors;
             final isEmpty = ambulances.isEmpty && doctors.isEmpty;
-
+            final isAmbulancesEmpty = ambulances.isEmpty;
+            final isDoctorsEmpty = doctors.isEmpty;
             debugPrint(
               "🟢 EMERGENCY SERVICES SUCCESS: "
               "${ambulances.length} ambulances, ${doctors.length} doctors",
@@ -51,6 +52,8 @@ class EmergencyNotifier extends _$EmergencyNotifier {
 
             state = state.copyWith(
               loaderState: isEmpty ? LoaderState.noData : LoaderState.loaded,
+              isAmbulancesEmpty: isAmbulancesEmpty,
+              isDoctorsEmpty: isDoctorsEmpty,
               ambulances: ambulances,
               doctors: doctors,
             );

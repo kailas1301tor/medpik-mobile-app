@@ -23,6 +23,7 @@ mixin _$LocationPickerState {
   ReverseGeocodeResult? get reverseResult => throw _privateConstructorUsedError;
   bool get isSearching => throw _privateConstructorUsedError;
   bool get isReverseLoading => throw _privateConstructorUsedError;
+  bool get isInitialCameraReady => throw _privateConstructorUsedError;
   bool get isServiceable => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
   String? get searchErrorMessage => throw _privateConstructorUsedError;
@@ -49,6 +50,7 @@ abstract class $LocationPickerStateCopyWith<$Res> {
     ReverseGeocodeResult? reverseResult,
     bool isSearching,
     bool isReverseLoading,
+    bool isInitialCameraReady,
     bool isServiceable,
     String? errorMessage,
     String? searchErrorMessage,
@@ -77,6 +79,7 @@ class _$LocationPickerStateCopyWithImpl<$Res, $Val extends LocationPickerState>
     Object? reverseResult = freezed,
     Object? isSearching = null,
     Object? isReverseLoading = null,
+    Object? isInitialCameraReady = null,
     Object? isServiceable = null,
     Object? errorMessage = freezed,
     Object? searchErrorMessage = freezed,
@@ -107,6 +110,10 @@ class _$LocationPickerStateCopyWithImpl<$Res, $Val extends LocationPickerState>
             isReverseLoading: null == isReverseLoading
                 ? _value.isReverseLoading
                 : isReverseLoading // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isInitialCameraReady: null == isInitialCameraReady
+                ? _value.isInitialCameraReady
+                : isInitialCameraReady // ignore: cast_nullable_to_non_nullable
                       as bool,
             isServiceable: null == isServiceable
                 ? _value.isServiceable
@@ -146,6 +153,7 @@ abstract class _$$LocationPickerStateImplCopyWith<$Res>
     ReverseGeocodeResult? reverseResult,
     bool isSearching,
     bool isReverseLoading,
+    bool isInitialCameraReady,
     bool isServiceable,
     String? errorMessage,
     String? searchErrorMessage,
@@ -173,6 +181,7 @@ class __$$LocationPickerStateImplCopyWithImpl<$Res>
     Object? reverseResult = freezed,
     Object? isSearching = null,
     Object? isReverseLoading = null,
+    Object? isInitialCameraReady = null,
     Object? isServiceable = null,
     Object? errorMessage = freezed,
     Object? searchErrorMessage = freezed,
@@ -203,6 +212,10 @@ class __$$LocationPickerStateImplCopyWithImpl<$Res>
         isReverseLoading: null == isReverseLoading
             ? _value.isReverseLoading
             : isReverseLoading // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isInitialCameraReady: null == isInitialCameraReady
+            ? _value.isInitialCameraReady
+            : isInitialCameraReady // ignore: cast_nullable_to_non_nullable
                   as bool,
         isServiceable: null == isServiceable
             ? _value.isServiceable
@@ -235,6 +248,7 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
     this.reverseResult,
     this.isSearching = false,
     this.isReverseLoading = false,
+    this.isInitialCameraReady = false,
     this.isServiceable = false,
     this.errorMessage,
     this.searchErrorMessage,
@@ -260,6 +274,9 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
   final bool isReverseLoading;
   @override
   @JsonKey()
+  final bool isInitialCameraReady;
+  @override
+  @JsonKey()
   final bool isServiceable;
   @override
   final String? errorMessage;
@@ -270,7 +287,7 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
 
   @override
   String toString() {
-    return 'LocationPickerState(loaderState: $loaderState, latitude: $latitude, longitude: $longitude, reverseResult: $reverseResult, isSearching: $isSearching, isReverseLoading: $isReverseLoading, isServiceable: $isServiceable, errorMessage: $errorMessage, searchErrorMessage: $searchErrorMessage, confirmedPick: $confirmedPick)';
+    return 'LocationPickerState(loaderState: $loaderState, latitude: $latitude, longitude: $longitude, reverseResult: $reverseResult, isSearching: $isSearching, isReverseLoading: $isReverseLoading, isInitialCameraReady: $isInitialCameraReady, isServiceable: $isServiceable, errorMessage: $errorMessage, searchErrorMessage: $searchErrorMessage, confirmedPick: $confirmedPick)';
   }
 
   @override
@@ -290,6 +307,8 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
                 other.isSearching == isSearching) &&
             (identical(other.isReverseLoading, isReverseLoading) ||
                 other.isReverseLoading == isReverseLoading) &&
+            (identical(other.isInitialCameraReady, isInitialCameraReady) ||
+                other.isInitialCameraReady == isInitialCameraReady) &&
             (identical(other.isServiceable, isServiceable) ||
                 other.isServiceable == isServiceable) &&
             (identical(other.errorMessage, errorMessage) ||
@@ -309,6 +328,7 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
     reverseResult,
     isSearching,
     isReverseLoading,
+    isInitialCameraReady,
     isServiceable,
     errorMessage,
     searchErrorMessage,
@@ -335,6 +355,7 @@ abstract class _LocationPickerState implements LocationPickerState {
     final ReverseGeocodeResult? reverseResult,
     final bool isSearching,
     final bool isReverseLoading,
+    final bool isInitialCameraReady,
     final bool isServiceable,
     final String? errorMessage,
     final String? searchErrorMessage,
@@ -353,6 +374,8 @@ abstract class _LocationPickerState implements LocationPickerState {
   bool get isSearching;
   @override
   bool get isReverseLoading;
+  @override
+  bool get isInitialCameraReady;
   @override
   bool get isServiceable;
   @override
