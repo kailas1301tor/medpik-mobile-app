@@ -1,21 +1,4 @@
-// lib/src/address/notifier/address_notifier.dart
-//
-// * Address feature — CRUD + add/edit form business logic.
-//
-// ? Module role: owns address book list and bottom-sheet form state.
-// ? Map picking is handled by LocationPickerNotifier; this notifier receives
-// ? PickedLocationModel and merges it into the form.
-//
-// ? User flows:
-// ? 1. List / manage — fetchAddresses on startup; delete via deleteAddress.
-// ? 2. Add — startAdd after map picker → form → addAddress.
-// ? 3. Edit — startEdit loads row → updateAddress on save.
-//
-// ! keepAlive: true — TextEditingControllers and picked coordinates MUST survive
-// ! AddressBook → LocationPicker → AddressFormSheet navigation.
-//
-// * Entry points: AddressBookScreen, checkout/prescription (select mode), home header.
-// ? Shared domain model: data/models/address_model.dart
+
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

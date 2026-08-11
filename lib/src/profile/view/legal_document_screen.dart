@@ -1,4 +1,5 @@
 // lib/src/profile/view/legal_document_screen.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/constants/string_constants.dart';
@@ -9,6 +10,7 @@ import 'package:medpik/utils/common_widgets/common_loader.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/primary_button.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 class LegalDocumentScreen extends StatefulWidget {
   const LegalDocumentScreen({
@@ -25,24 +27,56 @@ class LegalDocumentScreen extends StatefulWidget {
 }
 
 class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
-  late final WebViewController _controller;
+  WebViewController? _controller;
   var _isLoading = true;
   var _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(ColorPalette.transparent)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageStarted: (_) => _setPageState(loading: true, hasError: false),
-          onPageFinished: (_) => _setPageState(loading: false),
-          onWebResourceError: (_) => _setPageState(loading: false, hasError: true),
-        ),
+    _initWebView();
+  }
+
+  Future<void> _initWebView() async {
+    final uri = Uri.tryParse(widget.url);
+    if (uri == null || !uri.hasScheme) {
+      _setPageState(loading: false, hasError: true);
+      return;
+    }
+
+    try {
+      final params = _createPlatformParams();
+      final controller = WebViewController.fromPlatformCreationParams(params)
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setBackgroundColor(ColorPalette.transparent)
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onPageStarted: (_) => _setPageState(loading: true, hasError: false),
+            onPageFinished: (_) => _setPageState(loading: false),
+            onWebResourceError: (_) =>
+                _setPageState(loading: false, hasError: true),
+          ),
+        );
+
+      if (!mounted) return;
+      setState(() => _controller = controller);
+      await controller.loadRequest(uri);
+    } catch (error, stackTrace) {
+      debugPrint('🔴 LEGAL WEBVIEW ERROR: $error');
+      debugPrint('$stackTrace');
+      _setPageState(loading: false, hasError: true);
+    }
+  }
+
+  PlatformWebViewControllerCreationParams _createPlatformParams() {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+      return WebKitWebViewControllerCreationParams(
+        allowsInlineMediaPlayback: true,
+        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
       );
-    _loadPage();
+    }
+
+    return const PlatformWebViewControllerCreationParams();
   }
 
   void _setPageState({required bool loading, bool hasError = false}) {
@@ -53,36 +87,44 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
     });
   }
 
-  Future<void> _loadPage() async {
+  Future<void> _retry() async {
+    _setPageState(loading: true, hasError: false);
+    final controller = _controller;
+    if (controller == null) {
+      await _initWebView();
+      return;
+    }
+
     final uri = Uri.tryParse(widget.url);
     if (uri == null || !uri.hasScheme) {
       _setPageState(loading: false, hasError: true);
       return;
     }
 
-    await _controller.loadRequest(uri);
+    try {
+      await controller.loadRequest(uri);
+    } catch (error) {
+      debugPrint('🔴 LEGAL WEBVIEW RETRY ERROR: $error');
+      _setPageState(loading: false, hasError: true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final controller = _controller;
 
     return CommonScaffold(
       backgroundColor: colors.background,
       appBar: CommonAppBar(title: widget.title),
       body: Stack(
         children: [
-          if (!_hasError)
-            WebViewWidget(controller: _controller),
+          if (!_hasError && controller != null)
+            WebViewWidget(controller: controller),
           if (_isLoading && !_hasError)
             const Center(child: CommonLoader()),
           if (_hasError)
-            _LegalWebViewErrorView(
-              onRetry: () {
-                _setPageState(loading: true, hasError: false);
-                _loadPage();
-              },
-            ),
+            _LegalWebViewErrorView(onRetry: _retry),
         ],
       ),
     );

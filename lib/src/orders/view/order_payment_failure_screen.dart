@@ -1,7 +1,7 @@
 // lib/src/orders/view/order_payment_failure_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:medpik/generated/assets.dart';
+import 'package:medpik/res/constants/assets.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/src/orders/model/order_payment_result_args.dart';
