@@ -53,6 +53,7 @@ class AppConstants {
   static String homeFeed = '$api/customer-home';
   static String customerGeneralData = '$api/customer-general-data';
   static String customerProducts = '$api/customer-products';
+  static String customerProductsSearch = '$api/customer-products/search';
   static String customerProductDetail = '$api/customer-products/detail';
 
   /// GET wishlist list / POST toggle (`product_id`).

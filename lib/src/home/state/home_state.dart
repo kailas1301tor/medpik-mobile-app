@@ -9,7 +9,7 @@ part 'home_state.freezed.dart';
 @freezed
 sealed class HomeState with _$HomeState {
   const factory HomeState({
-    @Default(LoaderState.loaded) LoaderState loaderState,
+    @Default(LoaderState.loading) LoaderState loaderState,
     HomeFeedModel? data,
     CustomerGeneralDataModel? generalData,
     @Default(LoaderState.loading) LoaderState generalDataLoaderState,

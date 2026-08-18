@@ -6,7 +6,7 @@ part of 'emergency_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$emergencyNotifierHash() => r'c01b1d24a8f391c23ec5f3305c905d3ef6777143';
+String _$emergencyNotifierHash() => r'25745099262741cc2fda0cd796c7dd8210cb7d80';
 
 /// See also [EmergencyNotifier].
 @ProviderFor(EmergencyNotifier)

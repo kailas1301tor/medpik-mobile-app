@@ -1,9 +1,7 @@
-
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/data/models/address_model.dart';
-import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/services/repo_di.dart';
@@ -65,40 +63,33 @@ class AddressNotifier extends _$AddressNotifier {
       _lifecycleInitialized = false;
     });
 
-    Future.microtask(() {
-      if (AppConstants.hasSession) {
-        fetchAddresses();
-      }
-    });
+    Future.microtask(fetchAddresses);
     return const AddressState(loaderState: LoaderState.loading);
   }
 
   // ? GET /api/addresses — drives AddressBookScreen loader / empty / error states.
   Future<void> fetchAddresses() async {
-    if (!AppConstants.hasSession) {
-      state = state.copyWith(loaderState: LoaderState.noData);
-      return;
-    }
     state = state.copyWith(loaderState: LoaderState.loading);
     return await addressRepo
         .getAddresses()
         .fold(
           (error) {
-            final loaderState = handleResponseError(error.key);
-            debugPrint("🔴 ADDRESS ERROR: ${error.message}");
-            state = state.copyWith(loaderState: loaderState);
+            state = state.copyWith(
+              loaderState: loaderStateForSessionAwareError(error.key),
+            );
+            if (!shouldReportFetchError(error)) return;
           },
           (response) {
             final addresses = response.addresses;
             state = state.copyWith(
-              loaderState:
-                  addresses.isEmpty ? LoaderState.noData : LoaderState.loaded,
+              loaderState: addresses.isEmpty
+                  ? LoaderState.noData
+                  : LoaderState.loaded,
               addresses: addresses,
             );
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED ADDRESS ERROR: $error");
           state = state.copyWith(loaderState: LoaderState.error);
         });
   }

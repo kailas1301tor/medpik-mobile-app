@@ -95,3 +95,51 @@ Geocoding and **Maps SDK** use different keys. If the address card updates but t
    ```
 
 **Quick test:** Temporarily set the Android key to unrestricted. If tiles load, fix package name + SHA-1 restrictions and re-apply.
+
+## Map works, address lookup fails (release)
+
+Opposite of blank tiles: the map paints, but search / pin reverse-geocode shows *"Couldn't fetch this address"*.
+
+**Cause:** Maps SDK uses the native Android/iOS key. Geocoding uses `GOOGLE_MAPS_API_KEY` from `config/dart_defines.json`. If a release build does not pass that key into Flutter, the Dart key is empty in release.
+
+**Fix:** Run bootstrap before release builds. Android Gradle and the iOS Runner target automatically pass `config/dart_defines.json` into Flutter for normal release builds:
+
+```bash
+./tool/bootstrap_secrets.sh
+flutter build apk --release
+flutter build appbundle --release
+```
+
+Convenience scripts are still available:
+
+```bash
+./tool/build_release_apk.sh           # APK
+./tool/build_release_apk.sh appbundle # AAB
+./tool/build_release_ipa.sh           # iOS IPA / TestFlight
+```
+
+If the build includes dart-defines and lookup still fails, check Cloud Console: Geocoding API enabled, billing on, and `GOOGLE_GEOCODING_KEY` allowed for Geocoding (not Android/iOS-app-restricted only).
+
+## iOS / TestFlight blank map
+
+If the location picker works in Debug but not in TestFlight:
+
+1. Run `./tool/bootstrap_secrets.sh` before archiving.
+2. Build with `./tool/build_release_ipa.sh` or `flutter build ipa --release --dart-define-from-file=config/dart_defines.json`.
+3. In Google Cloud Console, restrict the iOS key to the Release bundle id `com.mednations.medpik`.
+4. Enable Maps SDK for iOS on the project that owns `GOOGLE_MAPS_IOS_KEY`.
+5. Keep billing enabled.
+
+The Runner Xcode target has a Release/Profile build phase named **Check iOS Release Config**. It fails the archive if `ios/Flutter/Secrets.xcconfig` or `config/dart_defines.json` is missing. Release/Profile builds also inject `config/dart_defines.json` into Flutter automatically, so the normal Xcode **Product → Build → Archive** flow works after `./tool/bootstrap_secrets.sh` has generated the local secret files.
+
+## Android release build
+
+Normal Android release commands work after bootstrap:
+
+```bash
+./tool/bootstrap_secrets.sh
+flutter build apk --release
+flutter build appbundle --release
+```
+
+The Android Gradle build fails early if `android/local.properties` does not contain the native Maps SDK key or if `config/dart_defines.json` is missing.

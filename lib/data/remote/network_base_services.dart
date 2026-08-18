@@ -93,6 +93,7 @@ enum ApiErrorTypes {
   badCertificate,
   badResponse,
   cancel,
+  sessionRequired,
   connectionError,
   unknown,
   unAuthorized,

@@ -176,7 +176,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
 
 class _$HomeStateImpl implements _HomeState {
   const _$HomeStateImpl({
-    this.loaderState = LoaderState.loaded,
+    this.loaderState = LoaderState.loading,
     this.data,
     this.generalData,
     this.generalDataLoaderState = LoaderState.loading,

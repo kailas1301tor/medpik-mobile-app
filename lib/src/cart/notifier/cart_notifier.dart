@@ -9,11 +9,9 @@
 //
 // * Entry points: CartScreen, ProductDetail, Checkout, bottom nav badge, AuthNotifier sync.
 import 'package:either_dart/either.dart';
-import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/data/models/cart_item_model.dart';
 import 'package:medpik/data/models/product_model.dart';
-import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/services/repo_di.dart';
@@ -32,17 +30,9 @@ class CartNotifier extends _$CartNotifier {
   CartState build() {
     cartRepo = ref.read(cartRepositoryProvider);
 
-    Future.microtask(() {
-      if (AppConstants.hasSession) {
-        fetchCart(showLoader: false);
-      }
-    });
+    Future.microtask(() => fetchCart(showLoader: false));
 
-    return CartState(
-      loaderState: AppConstants.hasSession
-          ? LoaderState.loading
-          : LoaderState.noData,
-    );
+    return const CartState(loaderState: LoaderState.loading);
   }
 
   // ? GET /api/cart — drives CartScreen loader / empty / error states.
@@ -54,10 +44,12 @@ class CartNotifier extends _$CartNotifier {
         .getCart()
         .fold(
           (left) {
-            final loaderState = handleResponseError(left.key);
-            debugPrint("🔴 CART FETCH ERROR: ${left.message}");
-            if (showLoader) {
+            final loaderState = loaderStateForSessionAwareError(left.key);
+            if (showLoader || !shouldReportFetchError(left)) {
               state = state.copyWith(loaderState: loaderState);
+            }
+            if (!shouldReportFetchError(left)) return;
+            if (showLoader) {
               showCustomErrorToast(
                 message: left.message ?? Strings.somethingWentWrong,
               );
@@ -65,7 +57,6 @@ class CartNotifier extends _$CartNotifier {
           },
           (right) {
             final items = right.items;
-            debugPrint("🟢 CART FETCH: ${items.length} item(s)");
             state = state.copyWith(
               items: items,
               loaderState: items.isEmpty
@@ -75,7 +66,6 @@ class CartNotifier extends _$CartNotifier {
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED CART FETCH ERROR: $error");
           if (showLoader) {
             state = state.copyWith(loaderState: LoaderState.error);
           }
@@ -88,10 +78,6 @@ class CartNotifier extends _$CartNotifier {
     required int quantity,
   }) async {
     if (quantity <= 0) return false;
-    if (!AppConstants.hasSession) {
-      showCustomErrorToast(message: Strings.loginToAddToCart);
-      return false;
-    }
     if (state.isMutating) return false;
 
     state = state.copyWith(isMutating: true);
@@ -100,19 +86,17 @@ class CartNotifier extends _$CartNotifier {
         .addToCart(productId: product.id, quantity: quantity)
         .fold(
           (left) {
-            debugPrint("🔴 CART ADD ERROR: ${left.message}");
+            if (!shouldReportFetchError(left)) return;
             showCustomErrorToast(
               message: left.message ?? Strings.somethingWentWrong,
             );
           },
           (right) async {
-            debugPrint("🟢 CART ADD SUCCESS: ${product.name} x$quantity");
             await fetchCart(showLoader: false);
             succeeded = true;
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED CART ADD ERROR: $error");
           showCustomErrorToast(message: Strings.somethingWentWrong);
         });
     state = state.copyWith(isMutating: false);
@@ -121,25 +105,23 @@ class CartNotifier extends _$CartNotifier {
 
   // ? POST /api/cart quantity=+1.
   Future<void> incrementItem(int productId) async {
-    if (!AppConstants.hasSession || state.isMutating) return;
+    if (state.isMutating) return;
 
     state = state.copyWith(isMutating: true);
     await cartRepo
         .addToCart(productId: productId, quantity: 1)
         .fold(
           (left) {
-            debugPrint("🔴 CART INCREMENT ERROR: ${left.message}");
+            if (!shouldReportFetchError(left)) return;
             showCustomErrorToast(
               message: left.message ?? Strings.somethingWentWrong,
             );
           },
           (right) async {
-            debugPrint("🟢 CART INCREMENT SUCCESS: product_id=$productId");
             await fetchCart(showLoader: false);
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED CART INCREMENT ERROR: $error");
           showCustomErrorToast(message: Strings.somethingWentWrong);
         });
     state = state.copyWith(isMutating: false);
@@ -166,18 +148,16 @@ class CartNotifier extends _$CartNotifier {
         )
         .fold(
           (left) {
-            debugPrint("🔴 CART DECREMENT ERROR: ${left.message}");
+            if (!shouldReportFetchError(left)) return;
             showCustomErrorToast(
               message: left.message ?? Strings.somethingWentWrong,
             );
           },
           (right) async {
-            debugPrint("🟢 CART DECREMENT SUCCESS: product_id=$productId");
             await fetchCart(showLoader: false);
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED CART DECREMENT ERROR: $error");
           showCustomErrorToast(message: Strings.somethingWentWrong);
         });
     state = state.copyWith(isMutating: false);
@@ -192,18 +172,16 @@ class CartNotifier extends _$CartNotifier {
         .removeCartItems(itemIds: [lineId])
         .fold(
           (left) {
-            debugPrint("🔴 CART REMOVE ERROR: ${left.message}");
+            if (!shouldReportFetchError(left)) return;
             showCustomErrorToast(
               message: left.message ?? Strings.somethingWentWrong,
             );
           },
           (right) async {
-            debugPrint("🟢 CART REMOVE SUCCESS: line_id=$lineId");
             await fetchCart(showLoader: false);
           },
         )
         .catchError((error) {
-          debugPrint("🔴 UNEXPECTED CART REMOVE ERROR: $error");
           showCustomErrorToast(message: Strings.somethingWentWrong);
         });
     state = state.copyWith(isMutating: false);
@@ -220,19 +198,16 @@ class CartNotifier extends _$CartNotifier {
           .removeCartItems(itemIds: lineIds)
           .fold(
             (left) {
-              debugPrint("🔴 CART CLEAR ERROR: ${left.message}");
+              if (!shouldReportFetchError(left)) return;
               if (showErrors) {
                 showCustomErrorToast(
                   message: left.message ?? Strings.somethingWentWrong,
                 );
               }
             },
-            (right) async {
-              debugPrint("🟢 CART CLEAR SUCCESS");
-            },
+            (right) async {},
           )
           .catchError((error) {
-            debugPrint("🔴 UNEXPECTED CART CLEAR ERROR: $error");
             if (showErrors) {
               showCustomErrorToast(message: Strings.somethingWentWrong);
             }

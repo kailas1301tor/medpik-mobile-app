@@ -645,6 +645,15 @@ class Strings {
   static const String changeLocationOnMap = "Change on map";
   static const String locationNotServiceable =
       "Sorry, we don't deliver to this location yet.";
+  static const String locationServicesDisabled =
+      'Location services are turned off. Enable them to use your current location.';
+  static const String locationPermissionRationale =
+      'Allow Medpik to access your location so we can set your delivery address accurately.';
+  static const String locationPermissionBlocked =
+      'Location access is blocked. Open settings to allow Medpik to use your location.';
+  static const String locationEnableServices = 'Enable location';
+  static const String locationAllowAccess = 'Allow location';
+  static const String locationOpenSettings = 'Open settings';
   static const String locationPermissionDenied =
       "Location permission denied. Showing a default area — move the pin or search.";
   static const String locationGpsUnavailable =

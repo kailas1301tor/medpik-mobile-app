@@ -29,11 +29,11 @@ class CustomerProductsRepoImpl implements CustomerProductsRepo {
     required int page,
     int pageSize = 10,
   }) async {
+    final trimmedSearch = search.trim();
     final queryParameters = <String, dynamic>{
       'page': page,
       'page_size': pageSize,
     };
-    final trimmedSearch = search.trim();
     if (trimmedSearch.isNotEmpty) {
       queryParameters['search'] = trimmedSearch;
     }
@@ -44,10 +44,14 @@ class CustomerProductsRepoImpl implements CustomerProductsRepo {
       queryParameters['offer_id'] = offerId;
     }
 
+    final endPoint = trimmedSearch.isNotEmpty
+        ? AppConstants.customerProductsSearch
+        : AppConstants.customerProducts;
+
     return await _networkServices
         .safe(
           _networkServices.getRequest(
-            endPoint: AppConstants.customerProducts,
+            endPoint: endPoint,
             queryParameters: queryParameters,
           ),
         )

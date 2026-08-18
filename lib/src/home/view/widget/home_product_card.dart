@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medpik/data/models/product_model.dart';
-import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/providers/wishlist_providers.dart';
 import 'package:medpik/utils/common_widgets/common_glass_product_card.dart';
+import 'package:medpik/utils/helpers/session_auth_helper.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
 
 class HomeProductCard extends StatelessWidget {
@@ -42,10 +42,7 @@ class _HomeProductCardWishlistScope extends ConsumerWidget {
         );
       },
       onWishlistTap: () {
-        if (!AppConstants.hasSession) {
-          Navigator.pushNamed(context, RouteConstants.routeLoginScreen);
-          return;
-        }
+        if (!requireLogin(context)) return;
         ref.read(wishlistNotifierProvider.notifier).toggle(product);
       },
     );

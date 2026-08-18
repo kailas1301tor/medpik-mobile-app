@@ -2,27 +2,28 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/utils/helpers/order_bill_pdf_loader.dart';
 
 void main() {
   group('resolveBillPdfUrl', () {
     test('returns absolute https url unchanged', () {
       const url =
-          'https://medpik-backend.onrender.com/media/order_bills/Invoice.pdf';
+          'https://stage-backend.medpik.in/media/order_bills/Invoice.pdf';
       expect(resolveBillPdfUrl(url), url);
     });
 
     test('resolves root-relative media path', () {
       expect(
         resolveBillPdfUrl('/media/order_bills/Invoice.pdf'),
-        'https://medpik-backend.onrender.com/media/order_bills/Invoice.pdf',
+        '${AppConstants.baseURL}/media/order_bills/Invoice.pdf',
       );
     });
 
     test('resolves relative media path without leading slash', () {
       expect(
         resolveBillPdfUrl('media/order_bills/Invoice.pdf'),
-        'https://medpik-backend.onrender.com/media/order_bills/Invoice.pdf',
+        '${AppConstants.baseURL}/media/order_bills/Invoice.pdf',
       );
     });
 

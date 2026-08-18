@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/providers/wishlist_providers.dart';
 import 'package:medpik/res/styles/color_palette.dart';
@@ -17,7 +16,7 @@ import 'package:medpik/utils/common_widgets/common_empty_state.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/common_switch_state.dart';
 import 'package:medpik/utils/common_widgets/common_wishlist_button.dart';
-import 'package:medpik/utils/routes/route_constants.dart';
+import 'package:medpik/utils/helpers/session_auth_helper.dart';
 import 'package:tuple/tuple.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
@@ -154,10 +153,7 @@ class _ProductDetailWishlistButton extends ConsumerWidget {
       isWishlisted: isWishlisted,
       isLoading: isLoading,
       onTap: () {
-        if (!AppConstants.hasSession) {
-          Navigator.pushNamed(context, RouteConstants.routeLoginScreen);
-          return;
-        }
+        if (!requireLogin(context)) return;
         onToggle();
       },
       overlayStyle: true,

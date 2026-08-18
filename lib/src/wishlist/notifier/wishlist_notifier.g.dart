@@ -7,7 +7,7 @@ part of 'wishlist_notifier.dart';
 // **************************************************************************
 
 String _$wishlistScreenOpenedHash() =>
-    r'ff9a84edd9c60b888a6bd59fdb2938cde74c9802';
+    r'67cacb769d4553b632c0f0639f2bdaf8eb5e02f2';
 
 /// See also [wishlistScreenOpened].
 @ProviderFor(wishlistScreenOpened)
@@ -289,7 +289,7 @@ class _IsWishlistTogglePendingProviderElement
   int get productId => (origin as IsWishlistTogglePendingProvider).productId;
 }
 
-String _$wishlistNotifierHash() => r'8ecc667bda4f39684df755f2f89c79fa999aa18c';
+String _$wishlistNotifierHash() => r'f9926872019a675f8339d2d71fc8e3e7f817f04a';
 
 /// See also [WishlistNotifier].
 @ProviderFor(WishlistNotifier)

@@ -24,6 +24,7 @@ import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/services/location/geocode_client.dart';
 import 'package:medpik/services/location/haversine.dart';
+import 'package:medpik/services/location/location_access_status.dart';
 import 'package:medpik/services/location/location_config.dart';
 import 'package:medpik/services/location/location_permission_service.dart';
 import 'package:medpik/src/address/model/picked_location_model.dart';
@@ -109,7 +110,11 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
     if (latitude != null && longitude != null) {
       _cameraLat = latitude;
       _cameraLng = longitude;
-      state = state.copyWith(latitude: latitude, longitude: longitude);
+      state = state.copyWith(
+        latitude: latitude,
+        longitude: longitude,
+        locationAccessIssue: null,
+      );
       await reverseAt(latitude, longitude, force: true);
       if (_disposed) return;
       state = state.copyWith(
@@ -119,40 +124,32 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
       return;
     }
 
+    final access = await _permission.checkAccess();
+    if (_disposed) return;
+
+    if (access != LocationAccessStatus.granted) {
+      await _showDefaultAreaWithAccessIssue(access);
+      if (_disposed) return;
+      state = state.copyWith(isInitialCameraReady: true);
+      return;
+    }
+
     final position = await _permission.getCurrentPosition(
       accuracy: LocationAccuracy.medium,
       timeLimit: const Duration(
         seconds: LocationConfig.gpsInitialTimeLimitSeconds,
       ),
+      requestPermissionIfDenied: false,
     );
     if (_disposed) return;
 
     if (position == null) {
-      final fallbackMessage = await _gpsFallbackErrorMessage();
+      await _showDefaultAreaWithGpsUnavailable();
       if (_disposed) return;
-      _cameraLat = LocationConfig.defaultLat;
-      _cameraLng = LocationConfig.defaultLng;
       state = state.copyWith(
-        latitude: LocationConfig.defaultLat,
-        longitude: LocationConfig.defaultLng,
-        loaderState: LoaderState.loaded,
-        isReverseLoading: false,
-        reverseResult: null,
-        isServiceable: isLocationServiceable(
-          latitude: LocationConfig.defaultLat,
-          longitude: LocationConfig.defaultLng,
-          state: LocationConfig.deliveryState,
-        ),
-        errorMessage: fallbackMessage,
+        isInitialCameraReady: true,
+        locationAccessIssue: null,
       );
-      await reverseAt(
-        LocationConfig.defaultLat,
-        LocationConfig.defaultLng,
-        force: true,
-        preserveErrorMessage: fallbackMessage,
-      );
-      if (_disposed) return;
-      state = state.copyWith(isInitialCameraReady: true);
       return;
     }
 
@@ -161,13 +158,78 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
     final lng = position.longitude;
     _cameraLat = lat;
     _cameraLng = lng;
-    state = state.copyWith(latitude: lat, longitude: lng);
+    state = state.copyWith(
+      latitude: lat,
+      longitude: lng,
+      locationAccessIssue: null,
+      errorMessage: null,
+    );
     await reverseAt(lat, lng, force: true);
     if (_disposed) return;
     state = state.copyWith(
       loaderState: LoaderState.loaded,
       isInitialCameraReady: true,
     );
+  }
+
+  Future<void> refreshLocationAccess() async {
+    if (_disposed) return;
+
+    final access = await _permission.checkAccess();
+    if (_disposed) return;
+
+    if (access != LocationAccessStatus.granted) {
+      state = state.copyWith(
+        locationAccessIssue: access,
+        errorMessage: _messageForAccessStatus(access),
+      );
+      return;
+    }
+
+    state = state.copyWith(
+      locationAccessIssue: null,
+      errorMessage: null,
+      isReverseLoading: true,
+    );
+
+    final position = await _permission.getCurrentPosition(
+      preferFresh: true,
+      requestPermissionIfDenied: false,
+    );
+    if (_disposed) return;
+
+    if (position == null) {
+      state = state.copyWith(
+        isReverseLoading: false,
+        errorMessage: Strings.locationGpsUnavailable,
+      );
+      return;
+    }
+
+    _lastGpsAt = DateTime.now();
+    final lat = position.latitude;
+    final lng = position.longitude;
+    await _moveCamera(lat, lng);
+    await reverseAt(lat, lng, force: true);
+  }
+
+  Future<void> onLocationAccessAction() async {
+    final issue = state.locationAccessIssue;
+    if (issue == null) {
+      await useCurrentLocation();
+      return;
+    }
+
+    switch (issue) {
+      case LocationAccessStatus.servicesDisabled:
+        await _permission.openLocationSettings();
+      case LocationAccessStatus.permissionDeniedForever:
+        await _permission.openAppSettings();
+      case LocationAccessStatus.permissionDenied:
+        await useCurrentLocation();
+      case LocationAccessStatus.granted:
+        await useCurrentLocation();
+    }
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -222,30 +284,36 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
       return;
     }
 
-    state = state.copyWith(isReverseLoading: true, errorMessage: null);
-    final position = await _permission.getCurrentPosition(preferFresh: true);
+    state = state.copyWith(
+      isReverseLoading: true,
+      errorMessage: null,
+    );
+
+    final access = await _permission.resolveAccess(requestIfDenied: true);
     if (_disposed) return;
 
-    if (position == null) {
-      final fallbackMessage = await _gpsFallbackErrorMessage();
-      if (_disposed) return;
+    if (access != LocationAccessStatus.granted) {
       state = state.copyWith(
         loaderState: LoaderState.loaded,
         isReverseLoading: false,
-        reverseResult: null,
-        isServiceable: isLocationServiceable(
-          latitude: LocationConfig.defaultLat,
-          longitude: LocationConfig.defaultLng,
-          state: LocationConfig.deliveryState,
-        ),
-        errorMessage: fallbackMessage,
+        locationAccessIssue: access,
+        errorMessage: _messageForAccessStatus(access),
       );
-      await _moveCamera(LocationConfig.defaultLat, LocationConfig.defaultLng);
-      await reverseAt(
-        LocationConfig.defaultLat,
-        LocationConfig.defaultLng,
-        force: true,
-        preserveErrorMessage: fallbackMessage,
+      return;
+    }
+
+    final position = await _permission.getCurrentPosition(
+      preferFresh: true,
+      requestPermissionIfDenied: false,
+    );
+    if (_disposed) return;
+
+    if (position == null) {
+      state = state.copyWith(
+        loaderState: LoaderState.loaded,
+        isReverseLoading: false,
+        locationAccessIssue: null,
+        errorMessage: Strings.locationGpsUnavailable,
       );
       return;
     }
@@ -255,6 +323,10 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
     final lat = position.latitude;
     final lng = position.longitude;
 
+    state = state.copyWith(
+      locationAccessIssue: null,
+      errorMessage: null,
+    );
     await _moveCamera(lat, lng);
     await reverseAt(lat, lng, force: true);
   }
@@ -435,9 +507,68 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
     return pick;
   }
 
-  Future<String> _gpsFallbackErrorMessage() async {
-    final allowed = await _permission.ensurePermission();
-    return allowed ? Strings.locationGpsUnavailable : Strings.locationPermissionDenied;
+  Future<void> _showDefaultAreaWithAccessIssue(
+    LocationAccessStatus access,
+  ) async {
+    final message = _messageForAccessStatus(access);
+    _cameraLat = LocationConfig.defaultLat;
+    _cameraLng = LocationConfig.defaultLng;
+    state = state.copyWith(
+      latitude: LocationConfig.defaultLat,
+      longitude: LocationConfig.defaultLng,
+      loaderState: LoaderState.loaded,
+      isReverseLoading: false,
+      reverseResult: null,
+      locationAccessIssue: access,
+      isServiceable: isLocationServiceable(
+        latitude: LocationConfig.defaultLat,
+        longitude: LocationConfig.defaultLng,
+        state: LocationConfig.deliveryState,
+      ),
+      errorMessage: message,
+    );
+    await reverseAt(
+      LocationConfig.defaultLat,
+      LocationConfig.defaultLng,
+      force: true,
+      preserveErrorMessage: message,
+    );
+  }
+
+  Future<void> _showDefaultAreaWithGpsUnavailable() async {
+    _cameraLat = LocationConfig.defaultLat;
+    _cameraLng = LocationConfig.defaultLng;
+    state = state.copyWith(
+      latitude: LocationConfig.defaultLat,
+      longitude: LocationConfig.defaultLng,
+      loaderState: LoaderState.loaded,
+      isReverseLoading: false,
+      reverseResult: null,
+      locationAccessIssue: null,
+      isServiceable: isLocationServiceable(
+        latitude: LocationConfig.defaultLat,
+        longitude: LocationConfig.defaultLng,
+        state: LocationConfig.deliveryState,
+      ),
+      errorMessage: Strings.locationGpsUnavailable,
+    );
+    await reverseAt(
+      LocationConfig.defaultLat,
+      LocationConfig.defaultLng,
+      force: true,
+      preserveErrorMessage: Strings.locationGpsUnavailable,
+    );
+  }
+
+  String _messageForAccessStatus(LocationAccessStatus status) {
+    return switch (status) {
+      LocationAccessStatus.servicesDisabled => Strings.locationServicesDisabled,
+      LocationAccessStatus.permissionDenied =>
+        Strings.locationPermissionRationale,
+      LocationAccessStatus.permissionDeniedForever =>
+        Strings.locationPermissionBlocked,
+      LocationAccessStatus.granted => '',
+    };
   }
 
   Future<void> _moveCamera(double lat, double lng) async {

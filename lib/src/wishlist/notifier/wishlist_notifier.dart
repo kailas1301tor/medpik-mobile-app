@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/data/models/product_model.dart';
-import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/services/repo_di.dart';
@@ -30,16 +29,6 @@ class WishlistNotifier extends _$WishlistNotifier {
   }
 
   Future<void> fetchWishlist({bool showLoader = true}) async {
-    if (!AppConstants.hasSession) {
-      debugPrint('🟡 WISHLIST: skip fetch — no session');
-      state = state.copyWith(
-        loaderState: state.items.isEmpty
-            ? LoaderState.noData
-            : LoaderState.loaded,
-      );
-      return;
-    }
-
     if (showLoader) {
       state = state.copyWith(loaderState: LoaderState.loading);
     }
@@ -48,11 +37,14 @@ class WishlistNotifier extends _$WishlistNotifier {
         .getWishlist()
         .fold(
           (left) {
-            final loaderState = handleResponseError(left.key);
-            debugPrint('🔴 WISHLIST ERROR: ${left.message}');
-            if (showLoader || state.items.isEmpty) {
+            final loaderState = loaderStateForSessionAwareError(left.key);
+            if (showLoader ||
+                state.items.isEmpty ||
+                !shouldReportFetchError(left)) {
               state = state.copyWith(loaderState: loaderState);
-            } else {
+            }
+            if (!shouldReportFetchError(left)) return;
+            if (!showLoader && state.items.isNotEmpty) {
               showCustomToast(
                 message: (left.message == null || left.message!.trim().isEmpty)
                     ? Strings.somethingWentWrong
@@ -63,7 +55,6 @@ class WishlistNotifier extends _$WishlistNotifier {
           },
           (right) {
             final products = right.productsDetail;
-            debugPrint('🟢 WISHLIST SUCCESS: ${products.length} items');
             state = state.copyWith(
               loaderState: products.isEmpty
                   ? LoaderState.noData
@@ -73,7 +64,6 @@ class WishlistNotifier extends _$WishlistNotifier {
           },
         )
         .catchError((e) {
-          debugPrint('🔴 UNEXPECTED WISHLIST ERROR: $e');
           if (showLoader || state.items.isEmpty) {
             state = state.copyWith(loaderState: LoaderState.error);
           } else {
@@ -110,11 +100,6 @@ class WishlistNotifier extends _$WishlistNotifier {
 
   /// Returns `false` when the user has no session (caller should navigate to login).
   Future<bool> toggle(ProductModel product) async {
-    if (!AppConstants.hasSession) {
-      debugPrint('🟡 WISHLIST: toggle blocked — no session');
-      return false;
-    }
-
     if (state.pendingToggleIds.contains(product.id)) {
       debugPrint('🟡 WISHLIST: toggle ignored — in flight id=${product.id}');
       return true;
@@ -124,12 +109,17 @@ class WishlistNotifier extends _$WishlistNotifier {
       pendingToggleIds: {...state.pendingToggleIds, product.id},
     );
 
+    var sessionMissing = false;
+
     try {
       await _wishlistRepo
           .toggleWishlist(productId: product.id)
           .fold(
             (left) {
-              debugPrint('🔴 WISHLIST TOGGLE ERROR: ${left.message}');
+              if (!shouldReportFetchError(left)) {
+                sessionMissing = true;
+                return;
+              }
               showCustomToast(
                 message: (left.message == null || left.message!.trim().isEmpty)
                     ? Strings.wishlistUpdateFailed
@@ -138,15 +128,10 @@ class WishlistNotifier extends _$WishlistNotifier {
               );
             },
             (right) async {
-              debugPrint(
-                '🟢 WISHLIST TOGGLE SUCCESS: ${right.message} '
-                'productId=${product.id}',
-              );
               await fetchWishlist(showLoader: false);
             },
           )
           .catchError((e) {
-            debugPrint('🔴 UNEXPECTED WISHLIST TOGGLE ERROR: $e');
             showCustomToast(
               message: Strings.wishlistUpdateFailed,
               isSuccess: false,
@@ -157,7 +142,7 @@ class WishlistNotifier extends _$WishlistNotifier {
       state = state.copyWith(pendingToggleIds: pending);
     }
 
-    return true;
+    return !sessionMissing;
   }
 
   void remove(int productId) {
@@ -178,7 +163,6 @@ class WishlistNotifier extends _$WishlistNotifier {
 @Riverpod(keepAlive: false)
 void wishlistScreenOpened(Ref ref) {
   Future.microtask(() {
-    if (!AppConstants.hasSession) return;
     final state = ref.read(wishlistNotifierProvider);
     ref
         .read(wishlistNotifierProvider.notifier)

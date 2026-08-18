@@ -150,21 +150,20 @@ flutter_launcher_icons:
   image_path: "assets/images/png/medpik_app_icon.png"
   adaptive_icon_background: "#3D9B4A"
   adaptive_icon_foreground: "assets/images/png/medpik_app_icon.png"
-  adaptive_icon_foreground_inset: 0
+  # Keep logo inside Android adaptive-icon safe zone (outer ~18% is masked).
+  adaptive_icon_foreground_inset: 18
   remove_alpha_ios: true
 
 flutter_native_splash:
+  # Solid white only — Flutter SplashScreen owns the logo animation.
+  # Android 12+ requires an icon; use transparent so the launcher icon is not shown.
   color: "#FFFFFF"
   color_dark: "#FFFFFF"
-  image: "assets/images/png/medpik_splash_logo.png"
-  image_dark: "assets/images/png/medpik_splash_logo.png"
-  ios_content_mode: scaleAspectFit
-  android_gravity: center
   android_12:
     color: "#FFFFFF"
     color_dark: "#FFFFFF"
-    image: "assets/images/png/medpik_splash_logo.png"
-    image_dark: "assets/images/png/medpik_splash_logo.png"
+    image: "assets/images/png/transparent_splash.png"
+    image_dark: "assets/images/png/transparent_splash.png"
     icon_background_color: "#FFFFFF"
     icon_background_color_dark: "#FFFFFF"
   android: true

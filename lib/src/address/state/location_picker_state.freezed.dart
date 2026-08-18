@@ -25,6 +25,8 @@ mixin _$LocationPickerState {
   bool get isReverseLoading => throw _privateConstructorUsedError;
   bool get isInitialCameraReady => throw _privateConstructorUsedError;
   bool get isServiceable => throw _privateConstructorUsedError;
+  LocationAccessStatus? get locationAccessIssue =>
+      throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
   String? get searchErrorMessage => throw _privateConstructorUsedError;
   PickedLocationModel? get confirmedPick => throw _privateConstructorUsedError;
@@ -52,6 +54,7 @@ abstract class $LocationPickerStateCopyWith<$Res> {
     bool isReverseLoading,
     bool isInitialCameraReady,
     bool isServiceable,
+    LocationAccessStatus? locationAccessIssue,
     String? errorMessage,
     String? searchErrorMessage,
     PickedLocationModel? confirmedPick,
@@ -81,6 +84,7 @@ class _$LocationPickerStateCopyWithImpl<$Res, $Val extends LocationPickerState>
     Object? isReverseLoading = null,
     Object? isInitialCameraReady = null,
     Object? isServiceable = null,
+    Object? locationAccessIssue = freezed,
     Object? errorMessage = freezed,
     Object? searchErrorMessage = freezed,
     Object? confirmedPick = freezed,
@@ -119,6 +123,10 @@ class _$LocationPickerStateCopyWithImpl<$Res, $Val extends LocationPickerState>
                 ? _value.isServiceable
                 : isServiceable // ignore: cast_nullable_to_non_nullable
                       as bool,
+            locationAccessIssue: freezed == locationAccessIssue
+                ? _value.locationAccessIssue
+                : locationAccessIssue // ignore: cast_nullable_to_non_nullable
+                      as LocationAccessStatus?,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -155,6 +163,7 @@ abstract class _$$LocationPickerStateImplCopyWith<$Res>
     bool isReverseLoading,
     bool isInitialCameraReady,
     bool isServiceable,
+    LocationAccessStatus? locationAccessIssue,
     String? errorMessage,
     String? searchErrorMessage,
     PickedLocationModel? confirmedPick,
@@ -183,6 +192,7 @@ class __$$LocationPickerStateImplCopyWithImpl<$Res>
     Object? isReverseLoading = null,
     Object? isInitialCameraReady = null,
     Object? isServiceable = null,
+    Object? locationAccessIssue = freezed,
     Object? errorMessage = freezed,
     Object? searchErrorMessage = freezed,
     Object? confirmedPick = freezed,
@@ -221,6 +231,10 @@ class __$$LocationPickerStateImplCopyWithImpl<$Res>
             ? _value.isServiceable
             : isServiceable // ignore: cast_nullable_to_non_nullable
                   as bool,
+        locationAccessIssue: freezed == locationAccessIssue
+            ? _value.locationAccessIssue
+            : locationAccessIssue // ignore: cast_nullable_to_non_nullable
+                  as LocationAccessStatus?,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -250,6 +264,7 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
     this.isReverseLoading = false,
     this.isInitialCameraReady = false,
     this.isServiceable = false,
+    this.locationAccessIssue,
     this.errorMessage,
     this.searchErrorMessage,
     this.confirmedPick,
@@ -279,6 +294,8 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
   @JsonKey()
   final bool isServiceable;
   @override
+  final LocationAccessStatus? locationAccessIssue;
+  @override
   final String? errorMessage;
   @override
   final String? searchErrorMessage;
@@ -287,7 +304,7 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
 
   @override
   String toString() {
-    return 'LocationPickerState(loaderState: $loaderState, latitude: $latitude, longitude: $longitude, reverseResult: $reverseResult, isSearching: $isSearching, isReverseLoading: $isReverseLoading, isInitialCameraReady: $isInitialCameraReady, isServiceable: $isServiceable, errorMessage: $errorMessage, searchErrorMessage: $searchErrorMessage, confirmedPick: $confirmedPick)';
+    return 'LocationPickerState(loaderState: $loaderState, latitude: $latitude, longitude: $longitude, reverseResult: $reverseResult, isSearching: $isSearching, isReverseLoading: $isReverseLoading, isInitialCameraReady: $isInitialCameraReady, isServiceable: $isServiceable, locationAccessIssue: $locationAccessIssue, errorMessage: $errorMessage, searchErrorMessage: $searchErrorMessage, confirmedPick: $confirmedPick)';
   }
 
   @override
@@ -311,6 +328,8 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
                 other.isInitialCameraReady == isInitialCameraReady) &&
             (identical(other.isServiceable, isServiceable) ||
                 other.isServiceable == isServiceable) &&
+            (identical(other.locationAccessIssue, locationAccessIssue) ||
+                other.locationAccessIssue == locationAccessIssue) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage) &&
             (identical(other.searchErrorMessage, searchErrorMessage) ||
@@ -330,6 +349,7 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
     isReverseLoading,
     isInitialCameraReady,
     isServiceable,
+    locationAccessIssue,
     errorMessage,
     searchErrorMessage,
     confirmedPick,
@@ -357,6 +377,7 @@ abstract class _LocationPickerState implements LocationPickerState {
     final bool isReverseLoading,
     final bool isInitialCameraReady,
     final bool isServiceable,
+    final LocationAccessStatus? locationAccessIssue,
     final String? errorMessage,
     final String? searchErrorMessage,
     final PickedLocationModel? confirmedPick,
@@ -378,6 +399,8 @@ abstract class _LocationPickerState implements LocationPickerState {
   bool get isInitialCameraReady;
   @override
   bool get isServiceable;
+  @override
+  LocationAccessStatus? get locationAccessIssue;
   @override
   String? get errorMessage;
   @override

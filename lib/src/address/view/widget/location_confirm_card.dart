@@ -13,6 +13,7 @@ import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/services/location/geocode_client.dart';
+import 'package:medpik/services/location/location_access_status.dart';
 import 'package:medpik/src/address/view/widget/location_confirm_address_shimmer.dart';
 import 'package:medpik/utils/common_widgets/common_container.dart';
 import 'package:medpik/utils/common_widgets/primary_button.dart';
@@ -24,8 +25,10 @@ class LocationConfirmCard extends StatelessWidget {
     required this.isLoading,
     required this.isServiceable,
     required this.errorMessage,
+    required this.locationAccessIssue,
     required this.canConfirm,
     required this.onUseCurrentLocation,
+    required this.onLocationAccessAction,
     required this.onConfirm,
   });
 
@@ -33,8 +36,10 @@ class LocationConfirmCard extends StatelessWidget {
   final bool isLoading;
   final bool isServiceable;
   final String? errorMessage;
+  final LocationAccessStatus? locationAccessIssue;
   final bool canConfirm;
   final VoidCallback onUseCurrentLocation;
+  final VoidCallback onLocationAccessAction;
   final VoidCallback onConfirm;
 
   @override
@@ -44,7 +49,10 @@ class LocationConfirmCard extends StatelessWidget {
     final title = formattedAddress.isNotEmpty
         ? formattedAddress
         : Strings.selectLocationOnMap;
-    final errorText = errorMessage;
+    final accessIssue = locationAccessIssue;
+    final showAccessBanner = accessIssue != null &&
+        accessIssue != LocationAccessStatus.granted;
+    final errorText = showAccessBanner ? null : errorMessage;
 
     return CommonContainer(
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
@@ -54,20 +62,26 @@ class LocationConfirmCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            onTap: onUseCurrentLocation,
-            behavior: HitTestBehavior.opaque,
-            child: Row(
-              children: [
-                Icon(Icons.my_location, size: 18.r, color: colors.primary),
-                8.horizontalSpace,
-                Text(
-                  Strings.useCurrentLocation,
-                  style: FontPalette.base600(13, color: colors.primary),
-                ),
-              ],
+          if (showAccessBanner)
+            _LocationAccessBanner(
+              status: accessIssue,
+              onAction: onLocationAccessAction,
+            )
+          else
+            GestureDetector(
+              onTap: onUseCurrentLocation,
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                children: [
+                  Icon(Icons.my_location, size: 18.r, color: colors.primary),
+                  8.horizontalSpace,
+                  Text(
+                    Strings.useCurrentLocation,
+                    style: FontPalette.base600(13, color: colors.primary),
+                  ),
+                ],
+              ),
             ),
-          ),
           12.verticalSpace,
           if (isLoading)
             const LocationConfirmAddressShimmer()
@@ -95,6 +109,61 @@ class LocationConfirmCard extends StatelessWidget {
           PrimaryButton(
             text: Strings.confirmLocation,
             onPressed: canConfirm ? onConfirm : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LocationAccessBanner extends StatelessWidget {
+  const _LocationAccessBanner({
+    required this.status,
+    required this.onAction,
+  });
+
+  final LocationAccessStatus status;
+  final VoidCallback onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final message = switch (status) {
+      LocationAccessStatus.servicesDisabled =>
+        Strings.locationServicesDisabled,
+      LocationAccessStatus.permissionDenied =>
+        Strings.locationPermissionRationale,
+      LocationAccessStatus.permissionDeniedForever =>
+        Strings.locationPermissionBlocked,
+      LocationAccessStatus.granted => '',
+    };
+    final actionLabel = switch (status) {
+      LocationAccessStatus.servicesDisabled => Strings.locationEnableServices,
+      LocationAccessStatus.permissionDenied => Strings.locationAllowAccess,
+      LocationAccessStatus.permissionDeniedForever =>
+        Strings.locationOpenSettings,
+      LocationAccessStatus.granted => Strings.useCurrentLocation,
+    };
+
+    return CommonContainer(
+      padding: EdgeInsets.all(12.r),
+      borderRadius: 12.r,
+      color: colors.inputBackground,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            message,
+            style: FontPalette.base400(12, color: colors.secondaryText),
+          ),
+          8.verticalSpace,
+          GestureDetector(
+            onTap: onAction,
+            behavior: HitTestBehavior.opaque,
+            child: Text(
+              actionLabel,
+              style: FontPalette.base600(13, color: colors.primary),
+            ),
           ),
         ],
       ),

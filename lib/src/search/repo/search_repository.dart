@@ -4,7 +4,8 @@ import 'package:medpik/data/remote/network_base_services.dart';
 import 'package:medpik/data/remote/network_services.dart';
 import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/src/search/model/search_catalog_model.dart';
-import 'package:medpik/utils/helpers/recent_search_helper.dart' as recent_helper;
+import 'package:medpik/utils/helpers/recent_search_helper.dart'
+    as recent_helper;
 import 'package:medpik/utils/helpers/safe_converters.dart';
 
 abstract class SearchRepo {
@@ -32,11 +33,11 @@ class SearchRepoImpl implements SearchRepo {
     required int page,
     int pageSize = 9,
   }) async {
+    final trimmedSearch = search.trim();
     final queryParameters = <String, dynamic>{
       'page': page,
       'page_size': pageSize,
     };
-    final trimmedSearch = search.trim();
     if (trimmedSearch.isNotEmpty) {
       queryParameters['search'] = trimmedSearch;
     }
@@ -47,10 +48,14 @@ class SearchRepoImpl implements SearchRepo {
       queryParameters['offer_id'] = offerId;
     }
 
+    final endPoint = trimmedSearch.isNotEmpty
+        ? AppConstants.customerProductsSearch
+        : AppConstants.customerProducts;
+
     return await _networkServices
         .safe(
           _networkServices.getRequest(
-            endPoint: AppConstants.customerProducts,
+            endPoint: endPoint,
             queryParameters: queryParameters,
           ),
         )
@@ -68,10 +73,7 @@ class SearchRepoImpl implements SearchRepo {
       return const Right(true);
     } catch (error) {
       return Left(
-        ResponseError(
-          key: ApiErrorTypes.oops,
-          message: error.toString(),
-        ),
+        ResponseError(key: ApiErrorTypes.oops, message: error.toString()),
       );
     }
   }

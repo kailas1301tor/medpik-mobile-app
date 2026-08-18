@@ -39,15 +39,19 @@ migrate_working_dir/
 /android/app/build/
 /ios/build/
 
-# Local secrets — never commit API keys
+# Local secrets — never commit API keys or signing keystores
 **/Secrets.xcconfig
 config/secrets.local.json
 config/dart_defines.json
+**/key.properties
+*.jks
+*.keystore
 **/.env
 **/.env.*
 !**/.env.example
 !**/Secrets.xcconfig.example
 !config/secrets.example.json
+!**/key.properties.example
 
 # Symbolication related
 app.*.symbols

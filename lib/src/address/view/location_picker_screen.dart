@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/services/location/location_access_status.dart';
 import 'package:medpik/services/location/location_config.dart';
 import 'package:medpik/utils/helpers/location_picker_confirm_helper.dart';
 import 'package:medpik/src/address/model/picked_location_model.dart';
@@ -28,7 +29,7 @@ import 'package:medpik/utils/common_widgets/common_back_button.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:tuple/tuple.dart';
 
-class LocationPickerScreen extends ConsumerWidget {
+class LocationPickerScreen extends ConsumerStatefulWidget {
   const LocationPickerScreen({
     super.key,
     this.initialLatitude,
@@ -40,13 +41,39 @@ class LocationPickerScreen extends ConsumerWidget {
   final double? initialLongitude;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LocationPickerScreen> createState() =>
+      _LocationPickerScreenState();
+}
+
+class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(locationPickerNotifierProvider.notifier).refreshLocationAccess();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.appColors;
     final notifier = ref.read(locationPickerNotifierProvider.notifier);
 
     notifier.scheduleInitialCoordinates(
-      latitude: initialLatitude,
-      longitude: initialLongitude,
+      latitude: widget.initialLatitude,
+      longitude: widget.initialLongitude,
     );
 
     final searchErrorMessage = ref.watch(
@@ -69,11 +96,12 @@ class LocationPickerScreen extends ConsumerWidget {
     );
     final confirmData = ref.watch(
       locationPickerNotifierProvider.select(
-        (s) => Tuple4(
+        (s) => Tuple5(
           s.isReverseLoading,
           s.isServiceable,
           s.errorMessage,
           s.reverseResult,
+          s.locationAccessIssue,
         ),
       ),
     );
@@ -133,8 +161,10 @@ class LocationPickerScreen extends ConsumerWidget {
               isLoading: confirmData.item1,
               isServiceable: confirmData.item2,
               errorMessage: confirmData.item3,
+              locationAccessIssue: confirmData.item5,
               canConfirm: canConfirm,
               onUseCurrentLocation: notifier.useCurrentLocation,
+              onLocationAccessAction: notifier.onLocationAccessAction,
               onConfirm: () {
                 final pick = notifier.confirmSelection();
                 if (pick != null && context.mounted) {
@@ -157,16 +187,20 @@ class _LocationPickerMap extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final mapState = ref.watch(
       locationPickerNotifierProvider.select(
-        (s) => Tuple3(
+        (s) => Tuple4(
           s.isInitialCameraReady,
           s.latitude,
           s.longitude,
+          s.locationAccessIssue,
         ),
       ),
     );
     final isReady = mapState.item1;
     final lat = mapState.item2;
     final lng = mapState.item3;
+    final myLocationEnabled =
+        mapState.item4 == null ||
+        mapState.item4 == LocationAccessStatus.granted;
     final notifier = ref.read(locationPickerNotifierProvider.notifier);
 
     if (!isReady) {
@@ -180,7 +214,7 @@ class _LocationPickerMap extends ConsumerWidget {
           target: LatLng(lat, lng),
           zoom: LocationConfig.mapDefaultZoom,
         ),
-        myLocationEnabled: true,
+        myLocationEnabled: myLocationEnabled,
         myLocationButtonEnabled: false,
         zoomControlsEnabled: false,
         mapToolbarEnabled: false,

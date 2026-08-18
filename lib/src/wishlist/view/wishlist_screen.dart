@@ -1,7 +1,6 @@
 // lib/src/wishlist/view/wishlist_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/assets.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
@@ -31,7 +30,6 @@ class WishlistScreen extends ConsumerWidget {
     final notifier = ref.read(wishlistNotifierProvider.notifier);
 
     Future<void> refreshWishlist({required bool showLoader}) async {
-      if (!AppConstants.hasSession) return;
       await notifier.fetchWishlist(showLoader: showLoader);
     }
 

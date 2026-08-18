@@ -11,7 +11,6 @@ class EmergencyAmbulancesTabList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return ListView.builder(
       padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
       itemCount: ambulances.length,

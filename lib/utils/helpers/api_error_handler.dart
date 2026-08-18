@@ -2,11 +2,27 @@ import 'package:medpik/data/remote/network_base_services.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/utils/helpers/safe_converters.dart';
 
+bool isSessionRequiredError(ApiErrorTypes errorType) =>
+    errorType == ApiErrorTypes.sessionRequired;
+
+bool isSessionRequired(ResponseError error) =>
+    isSessionRequiredError(error.key);
+
+LoaderState loaderStateForSessionAwareError(ApiErrorTypes errorType) {
+  if (isSessionRequiredError(errorType)) return LoaderState.noData;
+  return handleResponseError(errorType);
+}
+
+/// True for real API failures; false when [NetworkServices] handles missing
+/// session globally (clear + redirect to login).
+bool shouldReportFetchError(ResponseError error) => !isSessionRequired(error);
+
 LoaderState handleResponseError(ApiErrorTypes errorType) {
   return switch (errorType) {
     ApiErrorTypes.noInternet => LoaderState.networkError,
     ApiErrorTypes.internalServerError => LoaderState.serverError,
     ApiErrorTypes.serviceUnavailable => LoaderState.serverError,
+    ApiErrorTypes.sessionRequired => LoaderState.noData,
     ApiErrorTypes.cancel => LoaderState.error,
     ApiErrorTypes.badCertificate => LoaderState.error,
     ApiErrorTypes.badResponse => LoaderState.error,

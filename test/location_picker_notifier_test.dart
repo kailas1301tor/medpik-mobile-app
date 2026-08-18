@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/services/location/geocode_client.dart';
+import 'package:medpik/services/location/location_access_status.dart';
 import 'package:medpik/services/location/location_config.dart';
 import 'package:medpik/services/location/location_permission_service.dart';
 import 'package:medpik/src/address/notifier/location_picker_notifier.dart';
@@ -131,6 +132,7 @@ void main() {
     test('applyInitialCoordinates uses GPS before map mount', () async {
       const gpsLat = 9.9312;
       const gpsLng = 76.2673;
+      fakePermission.checkAccessStatus = LocationAccessStatus.granted;
       fakePermission.nextPosition = testPosition(
         latitude: gpsLat,
         longitude: gpsLng,
@@ -150,6 +152,7 @@ void main() {
       expect(state.latitude, gpsLat);
       expect(state.longitude, gpsLng);
       expect(state.latitude, isNot(LocationConfig.defaultLat));
+      expect(state.locationAccessIssue, isNull);
       expect(fakePermission.getCurrentPositionCallCount, 1);
     });
 
@@ -173,32 +176,69 @@ void main() {
       expect(state.isInitialCameraReady, isTrue);
       expect(state.latitude, routeLat);
       expect(state.longitude, routeLng);
+      expect(fakePermission.checkAccessCallCount, 0);
       expect(fakePermission.getCurrentPositionCallCount, 0);
     });
 
-    test('applyInitialCoordinates falls back to Thrissur when permission denied',
-        () async {
-      fakePermission.permissionGranted = false;
-      fakePermission.nextPosition = null;
-      fakeGeocode.nextReverse = const ReverseGeocodeResult(
-        latitude: LocationConfig.defaultLat,
-        longitude: LocationConfig.defaultLng,
-        formattedAddress: 'Thrissur, Kerala',
-        state: 'Kerala',
-      );
+    test(
+      'applyInitialCoordinates shows access issue when services disabled',
+      () async {
+        fakePermission.checkAccessStatus =
+            LocationAccessStatus.servicesDisabled;
+        fakeGeocode.nextReverse = const ReverseGeocodeResult(
+          latitude: LocationConfig.defaultLat,
+          longitude: LocationConfig.defaultLng,
+          formattedAddress: 'Thrissur, Kerala',
+          state: 'Kerala',
+        );
 
-      final notifier = readNotifier();
-      await notifier.applyInitialCoordinates();
+        final notifier = readNotifier();
+        await notifier.applyInitialCoordinates();
 
-      final state = container.read(locationPickerNotifierProvider);
-      expect(state.isInitialCameraReady, isTrue);
-      expect(state.latitude, LocationConfig.defaultLat);
-      expect(state.longitude, LocationConfig.defaultLng);
-      expect(state.errorMessage, Strings.locationPermissionDenied);
-    });
+        final state = container.read(locationPickerNotifierProvider);
+        expect(state.isInitialCameraReady, isTrue);
+        expect(state.latitude, LocationConfig.defaultLat);
+        expect(state.longitude, LocationConfig.defaultLng);
+        expect(
+          state.locationAccessIssue,
+          LocationAccessStatus.servicesDisabled,
+        );
+        expect(state.errorMessage, Strings.locationServicesDisabled);
+        expect(fakePermission.getCurrentPositionCallCount, 0);
+        expect(fakePermission.resolveAccessCallCount, 0);
+      },
+    );
+
+    test(
+      'applyInitialCoordinates shows access issue when permission denied',
+      () async {
+        fakePermission.checkAccessStatus =
+            LocationAccessStatus.permissionDenied;
+        fakeGeocode.nextReverse = const ReverseGeocodeResult(
+          latitude: LocationConfig.defaultLat,
+          longitude: LocationConfig.defaultLng,
+          formattedAddress: 'Thrissur, Kerala',
+          state: 'Kerala',
+        );
+
+        final notifier = readNotifier();
+        await notifier.applyInitialCoordinates();
+
+        final state = container.read(locationPickerNotifierProvider);
+        expect(state.isInitialCameraReady, isTrue);
+        expect(state.latitude, LocationConfig.defaultLat);
+        expect(state.longitude, LocationConfig.defaultLng);
+        expect(
+          state.locationAccessIssue,
+          LocationAccessStatus.permissionDenied,
+        );
+        expect(state.errorMessage, Strings.locationPermissionRationale);
+        expect(fakePermission.getCurrentPositionCallCount, 0);
+      },
+    );
 
     test('applyInitialCoordinates falls back when GPS unavailable', () async {
-      fakePermission.permissionGranted = true;
+      fakePermission.checkAccessStatus = LocationAccessStatus.granted;
       fakePermission.nextPosition = null;
       fakePermission.nextLastKnown = null;
       fakeGeocode.nextReverse = const ReverseGeocodeResult(
@@ -214,11 +254,14 @@ void main() {
       final state = container.read(locationPickerNotifierProvider);
       expect(state.isInitialCameraReady, isTrue);
       expect(state.errorMessage, Strings.locationGpsUnavailable);
+      expect(state.locationAccessIssue, isNull);
     });
 
-    test('applyInitialCoordinates uses last known position when available', () async {
+    test('applyInitialCoordinates uses last known position when available',
+        () async {
       const lastLat = 9.95;
       const lastLng = 76.28;
+      fakePermission.checkAccessStatus = LocationAccessStatus.granted;
       fakePermission.nextLastKnown = testPosition(
         latitude: lastLat,
         longitude: lastLng,
@@ -241,7 +284,48 @@ void main() {
       expect(fakePermission.getCurrentPositionCallCount, 1);
     });
 
+    test('useCurrentLocation sets blocked issue when denied forever', () async {
+      fakePermission.resolveAccessStatus =
+          LocationAccessStatus.permissionDeniedForever;
+
+      final notifier = readNotifier();
+      await notifier.useCurrentLocation();
+
+      final state = container.read(locationPickerNotifierProvider);
+      expect(
+        state.locationAccessIssue,
+        LocationAccessStatus.permissionDeniedForever,
+      );
+      expect(state.errorMessage, Strings.locationPermissionBlocked);
+      expect(fakePermission.resolveAccessCallCount, 1);
+    });
+
+    test('refreshLocationAccess centers map after permission granted', () async {
+      const gpsLat = 9.9312;
+      const gpsLng = 76.2673;
+      fakePermission.checkAccessStatus = LocationAccessStatus.granted;
+      fakePermission.nextPosition = testPosition(
+        latitude: gpsLat,
+        longitude: gpsLng,
+      );
+      fakeGeocode.nextReverse = const ReverseGeocodeResult(
+        latitude: gpsLat,
+        longitude: gpsLng,
+        formattedAddress: 'Kochi, Kerala',
+        state: 'Kerala',
+      );
+
+      final notifier = readNotifier();
+      await notifier.refreshLocationAccess();
+
+      final state = container.read(locationPickerNotifierProvider);
+      expect(state.locationAccessIssue, isNull);
+      expect(state.latitude, gpsLat);
+      expect(state.longitude, gpsLng);
+    });
+
     test('scheduleInitialCoordinates runs only once', () async {
+      fakePermission.checkAccessStatus = LocationAccessStatus.granted;
       fakePermission.nextPosition = testPosition();
       fakeGeocode.nextReverse = const ReverseGeocodeResult(
         latitude: 9.9312,
@@ -279,22 +363,44 @@ class FakeGeocodeClient extends GeocodeClient {
 }
 
 class FakeLocationPermissionService extends LocationPermissionService {
+  LocationAccessStatus checkAccessStatus = LocationAccessStatus.granted;
+  LocationAccessStatus resolveAccessStatus = LocationAccessStatus.granted;
   Position? nextPosition;
   Position? nextLastKnown;
-  bool permissionGranted = true;
   int getCurrentPositionCallCount = 0;
+  int checkAccessCallCount = 0;
+  int resolveAccessCallCount = 0;
 
   @override
-  Future<bool> ensurePermission() async => permissionGranted;
+  Future<LocationAccessStatus> checkAccess() async {
+    checkAccessCallCount++;
+    return checkAccessStatus;
+  }
+
+  @override
+  Future<LocationAccessStatus> resolveAccess({
+    bool requestIfDenied = false,
+  }) async {
+    resolveAccessCallCount++;
+    return resolveAccessStatus;
+  }
+
+  @override
+  Future<bool> ensurePermission() async =>
+      resolveAccessStatus == LocationAccessStatus.granted;
 
   @override
   Future<Position?> getCurrentPosition({
     bool preferFresh = false,
     LocationAccuracy accuracy = LocationAccuracy.high,
     Duration timeLimit = const Duration(seconds: 12),
+    bool requestPermissionIfDenied = true,
   }) async {
     getCurrentPositionCallCount++;
-    if (!permissionGranted) return null;
+    if (checkAccessStatus != LocationAccessStatus.granted &&
+        resolveAccessStatus != LocationAccessStatus.granted) {
+      return null;
+    }
     if (!preferFresh && nextLastKnown != null) return nextLastKnown;
     return nextPosition;
   }

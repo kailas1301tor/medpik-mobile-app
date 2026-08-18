@@ -7,6 +7,10 @@ plugins {
 }
 
 import java.util.Properties
+import java.util.Base64
+import groovy.json.JsonSlurper
+import com.flutter.gradle.tasks.FlutterTask
+import kotlin.text.Charsets
 import org.gradle.api.GradleException
 
 val localProperties = Properties()
@@ -36,6 +40,83 @@ if (googleMapsApiKey.isEmpty()) {
     )
 }
 
+fun decodeDartDefines(encodedDefines: String): List<Pair<String, String>> {
+    if (encodedDefines.isBlank()) return emptyList()
+
+    return encodedDefines
+        .split(",")
+        .mapNotNull { encodedValue ->
+            runCatching {
+                val decoded = String(Base64.getDecoder().decode(encodedValue.trim()), Charsets.UTF_8)
+                val separatorIndex = decoded.indexOf("=")
+                if (separatorIndex <= 0) {
+                    null
+                } else {
+                    decoded.substring(0, separatorIndex).trim() to
+                        decoded.substring(separatorIndex + 1).trim()
+                }
+            }.getOrNull()
+        }
+}
+
+fun encodeDartDefine(key: String, value: String): String =
+    Base64.getEncoder().encodeToString("$key=$value".toByteArray(Charsets.UTF_8))
+
+val dartDefinesFile = rootProject.file("../config/dart_defines.json")
+if (!dartDefinesFile.exists()) {
+    throw GradleException(
+        """
+        config/dart_defines.json is missing. The Android build cannot inject
+        the Dart Geocoding key, so address lookup would fail in release.
+
+        Run ./tool/bootstrap_secrets.sh before building.
+        """.trimIndent(),
+    )
+}
+
+@Suppress("UNCHECKED_CAST")
+val fileDartDefines = JsonSlurper().parse(dartDefinesFile) as Map<String, Any?>
+val googleGeocodingKey = fileDartDefines["GOOGLE_MAPS_API_KEY"]?.toString()?.trim().orEmpty()
+if (googleGeocodingKey.isEmpty()) {
+    throw GradleException(
+        """
+        GOOGLE_MAPS_API_KEY is missing in config/dart_defines.json.
+        Set GOOGLE_GEOCODING_KEY in config/secrets.local.json, then run
+        ./tool/bootstrap_secrets.sh before building.
+        """.trimIndent(),
+    )
+}
+
+val mergedDartDefines = linkedMapOf<String, String>()
+fileDartDefines.forEach { (key, value) ->
+    val defineKey = key.trim()
+    val defineValue = value?.toString()?.trim().orEmpty()
+    if (defineKey.isNotEmpty() && defineValue.isNotEmpty()) {
+        mergedDartDefines[defineKey] = defineValue
+    }
+}
+decodeDartDefines(project.findProperty("dart-defines")?.toString().orEmpty())
+    .forEach { (key, value) ->
+        if (key.isNotEmpty() && value.isNotEmpty()) {
+            mergedDartDefines[key] = value
+        }
+    }
+
+val encodedDartDefines = mergedDartDefines
+    .map { (key, value) -> encodeDartDefine(key, value) }
+    .joinToString(",")
+
+extra["dart-defines"] = encodedDartDefines
+tasks.withType<FlutterTask>().configureEach {
+    dartDefines = encodedDartDefines
+}
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+}
+
 android {
     namespace = "com.medpik"
     compileSdk = flutter.compileSdkVersion
@@ -51,10 +132,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.medpik"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -62,11 +140,34 @@ android {
         manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey
     }
 
+    signingConfigs {
+        create("release") {
+            val keyAliasVal = keystoreProperties.getProperty("keyAlias")
+            val keyPasswordVal = keystoreProperties.getProperty("keyPassword")
+            val storeFileVal = keystoreProperties.getProperty("storeFile")
+            val storePasswordVal = keystoreProperties.getProperty("storePassword")
+
+            if (keyAliasVal != null && keyPasswordVal != null && storeFileVal != null && storePasswordVal != null) {
+                keyAlias = keyAliasVal
+                keyPassword = keyPasswordVal
+                storeFile = file(storeFileVal)
+                storePassword = storePasswordVal
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            val releaseSigning = signingConfigs.getByName("release")
+            signingConfig = if (releaseSigning.storeFile?.exists() == true) {
+                releaseSigning
+            } else {
+                signingConfigs.getByName("debug")
+            }
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

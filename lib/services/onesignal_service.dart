@@ -25,8 +25,8 @@ final class OneSignalService {
   OneSignalService(this._ref);
 
   final Ref _ref;
-  bool _isInitialized = false;
   bool _isSdkInitialized = false;
+  bool _initInProgress = false;
   String? _lastLinkedUserId;
   String? _lastBackendRegistrationKey;
   String? _restoredUserId;
@@ -35,22 +35,26 @@ final class OneSignalService {
       !kIsWeb && (Platform.isIOS || Platform.isAndroid);
 
   Future<void> initialize({String? restoredUserId}) async {
-    if (_isInitialized) return;
-    _isInitialized = true;
-    _restoredUserId = restoredUserId?.trim();
-
-    if (!_isSupportedPlatform) {
-      debugPrint('🟨 ONESIGNAL SKIPPED: unsupported platform.');
-      return;
+    final trimmedRestoredId = restoredUserId?.trim();
+    if (trimmedRestoredId != null && trimmedRestoredId.isNotEmpty) {
+      _restoredUserId = trimmedRestoredId;
     }
 
-    final String appId = AppConstants.oneSignalAppId.trim();
-    if (appId.isEmpty) {
-      debugPrint('🟨 ONESIGNAL NOT CONFIGURED: ONESIGNAL_APP_ID is empty.');
-      return;
-    }
+    if (_isSdkInitialized || _initInProgress) return;
+    _initInProgress = true;
 
     try {
+      if (!_isSupportedPlatform) {
+        debugPrint('🟨 ONESIGNAL SKIPPED: unsupported platform.');
+        return;
+      }
+
+      final String appId = AppConstants.oneSignalAppId.trim();
+      if (appId.isEmpty) {
+        debugPrint('🟨 ONESIGNAL NOT CONFIGURED: ONESIGNAL_APP_ID is empty.');
+        return;
+      }
+
       debugPrint('🟦 ONESIGNAL INIT: appId=$appId');
 
       if (kDebugMode) {
@@ -77,7 +81,7 @@ final class OneSignalService {
         },
       );
 
-      await _requestPermission();
+      // Permission is requested after splash (MainShell bootstrap), not here.
       await refreshDeviceRegistration();
       debugPrint('🟢 ONESIGNAL INITIALIZED');
     } on MissingPluginException catch (e) {
@@ -90,6 +94,8 @@ final class OneSignalService {
     } catch (e) {
       _isSdkInitialized = false;
       debugPrint('🔴 ONESIGNAL INIT ERROR: $e');
+    } finally {
+      _initInProgress = false;
     }
   }
 
@@ -144,7 +150,8 @@ final class OneSignalService {
     }
   }
 
-  Future<void> _requestPermission() async {
+  /// Ask for push permission after splash / when Main is visible.
+  Future<void> requestNotificationPermission() async {
     if (!_isSdkInitialized) return;
 
     try {

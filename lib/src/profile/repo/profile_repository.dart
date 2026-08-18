@@ -27,9 +27,7 @@ class ProfileRepoImpl implements ProfileRepo {
         )
         .thenRight(_networkServices.checkHttpStatus)
         .thenRight(_networkServices.parseJson)
-        .mapRight(
-          (right) => ProfileResponse.fromJson(convertToMap(right)),
-        );
+        .mapRight((right) => ProfileResponse.fromJson(convertToMap(right)));
   }
 
   @override
@@ -45,8 +43,6 @@ class ProfileRepoImpl implements ProfileRepo {
         )
         .thenRight(_networkServices.checkHttpStatus)
         .thenRight(_networkServices.parseJson)
-        .mapRight(
-          (right) => ProfileResponse.fromJson(convertToMap(right)),
-        );
+        .mapRight((right) => ProfileResponse.fromJson(convertToMap(right)));
   }
 }

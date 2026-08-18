@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/src/emergency/notifier/emergency_notifier.dart';
@@ -11,8 +12,7 @@ import 'package:medpik/utils/common_widgets/common_app_bar.dart';
 import 'package:medpik/utils/common_widgets/common_refresh_indicator.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/common_switch_state.dart';
-
-import '../../../res/enums/enums.dart';
+import 'package:tuple/tuple.dart';
 
 class EmergencyServicesScreen extends ConsumerWidget {
   const EmergencyServicesScreen({super.key});
@@ -20,9 +20,6 @@ class EmergencyServicesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
-    final loaderState = ref.watch(
-      emergencyNotifierProvider.select((s) => s.loaderState),
-    );
     final notifier = ref.read(emergencyNotifierProvider.notifier);
 
     return DefaultTabController(
@@ -60,16 +57,16 @@ class _AmbulancesTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ambulances = ref.watch(
-      emergencyNotifierProvider.select((s) => s.ambulances),
+    final data = ref.watch(
+      emergencyNotifierProvider.select(
+        (s) => Tuple3(s.loaderState, s.isAmbulancesEmpty, s.ambulances),
+      ),
     );
-    final isAmbulancesEmpty = ref.watch(
-      emergencyNotifierProvider.select((s) => s.isAmbulancesEmpty),
-    );
-    final loaderState = ref.watch(
-      emergencyNotifierProvider.select((s) => s.loaderState),
-    );
+    final loaderState = data.item1;
+    final isAmbulancesEmpty = data.item2;
+    final ambulances = data.item3;
     final notifier = ref.read(emergencyNotifierProvider.notifier);
+
     return CommonSwitchState(
       loaderState: isAmbulancesEmpty ? LoaderState.noData : loaderState,
       reload: notifier.fetchEmergencyServices,
@@ -87,16 +84,16 @@ class _DoctorsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loaderState = ref.watch(
-      emergencyNotifierProvider.select((s) => s.loaderState),
+    final data = ref.watch(
+      emergencyNotifierProvider.select(
+        (s) => Tuple3(s.loaderState, s.isDoctorsEmpty, s.doctors),
+      ),
     );
+    final loaderState = data.item1;
+    final isDoctorsEmpty = data.item2;
+    final doctors = data.item3;
     final notifier = ref.read(emergencyNotifierProvider.notifier);
-    final doctors = ref.watch(
-      emergencyNotifierProvider.select((s) => s.doctors),
-    );
-    final isDoctorsEmpty = ref.watch(
-      emergencyNotifierProvider.select((s) => s.isDoctorsEmpty),
-    );
+
     return CommonSwitchState(
       loaderState: isDoctorsEmpty ? LoaderState.noData : loaderState,
       reload: notifier.fetchEmergencyServices,

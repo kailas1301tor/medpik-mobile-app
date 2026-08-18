@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:either_dart/either.dart';
 import 'package:flutter/foundation.dart';
@@ -29,7 +31,10 @@ class NetworkServices extends NetWorkBaseServices {
   late final Dio _dio;
   final Ref _ref;
   CancelToken _sessionCancelToken = CancelToken();
-  bool _forceLogoutInProgress = false;
+  bool _sessionGuardInProgress = false;
+  /// Sticky until a valid session is observed again — prevents
+  /// invalidate → keepAlive rebuild → fetch → sessionRequired loops.
+  bool _sessionRequiredHandled = false;
 
   NetworkServices(this._ref) {
     _dio = Dio(
@@ -125,7 +130,9 @@ class NetworkServices extends NetWorkBaseServices {
 
   /// Cancels all in-flight session requests and resets the shared cancel token.
   /// Call before clearing session tokens on logout / unauthorized handling.
-  Future<void> cancelPendingRequests({String reason = _sessionEndedMessage}) async {
+  Future<void> cancelPendingRequests({
+    String reason = _sessionEndedMessage,
+  }) async {
     if (!_sessionCancelToken.isCancelled) {
       _sessionCancelToken.cancel(reason);
     }
@@ -141,6 +148,28 @@ class NetworkServices extends NetWorkBaseServices {
     final start = options.extra['_requestStartTime'] as int?;
     if (start == null) return -1;
     return DateTime.now().millisecondsSinceEpoch - start;
+  }
+
+  void _assertSession({bool isFromAuth = false}) {
+    if (AppConstants.hasSession) {
+      _sessionRequiredHandled = false;
+    }
+    if (!isFromAuth && !AppConstants.hasSession) {
+      throw ApiExceptions(
+        message: _sessionEndedMessage,
+        errorType: ApiErrorTypes.sessionRequired,
+      );
+    }
+  }
+
+  void _rethrowSessionDioException(DioException error) {
+    if (error.type == DioExceptionType.cancel &&
+        error.message == _sessionEndedMessage) {
+      throw ApiExceptions(
+        message: _sessionEndedMessage,
+        errorType: ApiErrorTypes.sessionRequired,
+      );
+    }
   }
 
   // ── Internet Check (singleton Connectivity) ────────────────────────────
@@ -165,12 +194,7 @@ class NetworkServices extends NetWorkBaseServices {
     Map<String, dynamic>? queryParameters,
     bool isFromAuth = false,
   }) async {
-    if (!isFromAuth && !AppConstants.hasSession) {
-      throw ApiExceptions(
-        message: _sessionEndedMessage,
-        errorType: ApiErrorTypes.cancel,
-      );
-    }
+    _assertSession(isFromAuth: isFromAuth);
 
     await _assertInternetAvailable();
 
@@ -184,6 +208,7 @@ class NetworkServices extends NetWorkBaseServices {
       );
       return BaseResponse(statusCode: response.statusCode, data: response.data);
     } on DioException catch (error) {
+      _rethrowSessionDioException(error);
       return BaseResponse(
         statusCode: error.response?.statusCode,
         data: error.response?.data,
@@ -287,6 +312,7 @@ class NetworkServices extends NetWorkBaseServices {
     Function(int, int)? onSendProgress,
     CancelToken? cancelToken,
   }) async {
+    _assertSession();
     await _assertInternetAvailable();
 
     try {
@@ -315,6 +341,7 @@ class NetworkServices extends NetWorkBaseServices {
     required void Function(int, int)? onSendProgress,
     bool isFromAuth = false,
   }) async {
+    _assertSession(isFromAuth: isFromAuth);
     await _assertInternetAvailable();
 
     try {
@@ -428,6 +455,17 @@ class NetworkServices extends NetWorkBaseServices {
 
   @override
   Either<ResponseError, BaseResponse> getStatus(BaseResponse response) {
+    final result = _resolveHttpStatus(response);
+    result.fold(
+      (error) => _logResponseError(error, statusCode: response.statusCode),
+      (_) {},
+    );
+    return result;
+  }
+
+  Either<ResponseError, BaseResponse> _resolveHttpStatus(
+    BaseResponse response,
+  ) {
     return switch (response.statusCode) {
       200 || 201 || 204 => Right(response),
       401 || 403 => Left(
@@ -496,13 +534,23 @@ class NetworkServices extends NetWorkBaseServices {
     try {
       return Right(response.data);
     } catch (e) {
-      return const Left(
-        ResponseError(
-          key: ApiErrorTypes.jsonParsing,
-          message: "Failed on json Parsing",
-        ),
+      const error = ResponseError(
+        key: ApiErrorTypes.jsonParsing,
+        message: "Failed on json Parsing",
       );
+      _logResponseError(error);
+      return const Left(error);
     }
+  }
+
+  void _logResponseError(ResponseError error, {int? statusCode}) {
+    if (isSessionRequired(error)) return;
+    final statusSuffix = statusCode != null ? ' ($statusCode)' : '';
+    debugPrint('🔴 API ERROR$statusSuffix: [${error.key}] ${error.message}');
+  }
+
+  void _logUnexpectedApiError(Object error) {
+    debugPrint('🔴 API UNEXPECTED ERROR: $error');
   }
 
   @override
@@ -512,6 +560,17 @@ class NetworkServices extends NetWorkBaseServices {
     try {
       return Right(await request);
     } on ApiExceptions catch (error) {
+      if (error.errorType == ApiErrorTypes.sessionRequired) {
+        unawaited(_handleSessionRequired());
+      } else {
+        _logResponseError(
+          ResponseError(
+            key: error.errorType,
+            message: error.message,
+            response: error.response,
+          ),
+        );
+      }
       return Left(
         ResponseError(
           key: error.errorType,
@@ -520,6 +579,7 @@ class NetworkServices extends NetWorkBaseServices {
         ),
       );
     } catch (e) {
+      _logUnexpectedApiError(e);
       return Left(
         ResponseError(
           key: ApiErrorTypes.unknown,
@@ -531,39 +591,76 @@ class NetworkServices extends NetWorkBaseServices {
 
   // ── Auth Helpers ───────────────────────────────────────────────────────
 
+  Future<void> _handleSessionRequired() async {
+    if (_sessionGuardInProgress || _sessionRequiredHandled) {
+      debugPrint('🟡 SESSION REQUIRED — already handled, skipping');
+      return;
+    }
+
+    _sessionGuardInProgress = true;
+    _sessionRequiredHandled = true;
+    try {
+      // Session is already missing for this error. Clearing + InvalidateDI
+      // would rebuild keepAlive notifiers and re-fire fetches → infinite loop.
+      // Only run full logout cleanup if tokens somehow still exist.
+      if (AppConstants.hasSession) {
+        debugPrint(
+          '🟡 SESSION REQUIRED — clearing session and redirecting to login',
+        );
+        await cancelPendingRequests(reason: _sessionEndedMessage);
+        await _ref
+            .read(authNotifierProvider.notifier)
+            .clearSessionOnUnauthorized();
+      } else {
+        debugPrint('🟡 SESSION REQUIRED — redirecting to login');
+      }
+      _navigateToLogin();
+    } finally {
+      _sessionGuardInProgress = false;
+    }
+  }
+
+  void _navigateToLogin() {
+    final navKey = _ref.read(navigatorKeyProvider);
+    final navigator = navKey.currentState;
+    if (navigator == null) return;
+
+    executeAfterFrame(() {
+      final context = navigator.context;
+      final currentRoute = ModalRoute.of(context)?.settings.name;
+      if (currentRoute == RouteConstants.routeLoginScreen) return;
+
+      navigator.pushNamedAndRemoveUntil(
+        RouteConstants.routeLoginScreen,
+        (_) => false,
+      );
+    });
+  }
+
   Future<void> _forceLogout() async {
-    if (_forceLogoutInProgress) {
-      debugPrint('🟡 401 UNAUTHORIZED — logout already in progress');
+    if (_sessionGuardInProgress || _sessionRequiredHandled) {
+      debugPrint('🟡 401 UNAUTHORIZED — session guard already handled');
       return;
     }
 
     if (!AppConstants.hasSession) {
       debugPrint('🟡 401 UNAUTHORIZED — session already cleared, skipping');
+      _sessionRequiredHandled = true;
+      _navigateToLogin();
       return;
     }
 
-    _forceLogoutInProgress = true;
+    _sessionGuardInProgress = true;
+    _sessionRequiredHandled = true;
     try {
       debugPrint('🔴 401 UNAUTHORIZED — clearing session and forcing logout');
       await cancelPendingRequests(reason: 'Unauthorized');
-      await _ref.read(authNotifierProvider.notifier).clearSessionOnUnauthorized();
-
-      final navKey = _ref.read(navigatorKeyProvider);
-      final navigator = navKey.currentState;
-      if (navigator == null) return;
-
-      executeAfterFrame(() {
-        final context = navigator.context;
-        final currentRoute = ModalRoute.of(context)?.settings.name;
-        if (currentRoute == RouteConstants.routeLoginScreen) return;
-
-        navigator.pushNamedAndRemoveUntil(
-          RouteConstants.routeLoginScreen,
-          (_) => false,
-        );
-      });
+      await _ref
+          .read(authNotifierProvider.notifier)
+          .clearSessionOnUnauthorized();
+      _navigateToLogin();
     } finally {
-      _forceLogoutInProgress = false;
+      _sessionGuardInProgress = false;
     }
   }
 

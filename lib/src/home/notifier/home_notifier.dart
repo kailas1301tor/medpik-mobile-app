@@ -2,7 +2,6 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/providers/address_providers.dart';
@@ -23,6 +22,7 @@ class HomeNotifier extends _$HomeNotifier {
   late ScrollController scrollController;
   late HomeRepo homeRepo;
   bool _lifecycleInitialized = false;
+  int _feedRequestId = 0;
 
   static const double _compactThreshold = 72;
   static const double _compactFadeDistance = 56;
@@ -42,6 +42,7 @@ class HomeNotifier extends _$HomeNotifier {
       searchController.dispose();
       scrollController.dispose();
       _lifecycleInitialized = false;
+      _feedRequestId = 0;
     });
 
     ref.listen(addressNotifierProvider.select((s) => s.addresses), (
@@ -56,46 +57,33 @@ class HomeNotifier extends _$HomeNotifier {
     });
 
     homeRepo = ref.read(homeRepositoryProvider);
-    Future.microtask(() {
-      if (AppConstants.hasSession) {
-        _loadHomeData();
-      }
-    });
+    // Initial load is owned by MainShellNotifier.bootstrapSessionData so
+    // home does not race a second fetch and flash LoaderState.noData.
     return const HomeState(loaderState: LoaderState.loading);
   }
 
-  Future<void> _loadHomeData() async {
-    if (!AppConstants.hasSession) return;
-    fetchCustomerGeneralData();
-    fetchHomeFeed();
-  }
-
   Future<void> fetchCustomerGeneralData() async {
-    if (!AppConstants.hasSession) return;
     state = state.copyWith(generalDataLoaderState: LoaderState.loading);
 
     return await homeRepo
         .getCustomerGeneralData()
         .fold(
           (error) {
-            final loaderState = handleResponseError(error.key);
-            debugPrint('🔴 GENERAL DATA ERROR: ${error.message}');
-            state = state.copyWith(generalDataLoaderState: loaderState);
+            state = state.copyWith(
+              generalDataLoaderState: loaderStateForSessionAwareError(
+                error.key,
+              ),
+            );
+            if (!shouldReportFetchError(error)) return;
           },
           (right) {
             final generalData = right.data;
             if (generalData == null) {
-              debugPrint('🔴 GENERAL DATA: no data in response');
               state = state.copyWith(
                 generalDataLoaderState: LoaderState.noData,
               );
               return;
             }
-            debugPrint(
-              '🟢 GENERAL DATA SUCCESS: '
-              'categories=${generalData.categories.length} '
-              'orderStatuses=${generalData.orderStatuses.length}',
-            );
             state = state.copyWith(
               generalDataLoaderState: LoaderState.loaded,
               generalData: generalData,
@@ -103,7 +91,6 @@ class HomeNotifier extends _$HomeNotifier {
           },
         )
         .catchError((error) {
-          debugPrint('🔴 UNEXPECTED GENERAL DATA ERROR: $error');
           state = state.copyWith(generalDataLoaderState: LoaderState.error);
         });
   }
@@ -120,10 +107,12 @@ class HomeNotifier extends _$HomeNotifier {
   }
 
   Future<void> fetchHomeFeed() async {
-    if (!AppConstants.hasSession) return;
+    final requestId = ++_feedRequestId;
+
     if (state.generalData == null &&
         state.generalDataLoaderState != LoaderState.loading) {
       await fetchCustomerGeneralData();
+      if (requestId != _feedRequestId) return;
     }
 
     state = state.copyWith(loaderState: LoaderState.loading);
@@ -132,29 +121,29 @@ class HomeNotifier extends _$HomeNotifier {
         .getHomeFeed()
         .fold(
           (error) {
-            final loaderState = handleResponseError(error.key);
-            debugPrint('🔴 HOME ERROR: ${error.message}');
+            if (requestId != _feedRequestId) return;
+            state = state.copyWith(
+              loaderState: loaderStateForSessionAwareError(error.key),
+            );
+            if (!shouldReportFetchError(error)) return;
             showCustomErrorToast(
               message: error.message ?? Strings.somethingWentWrong,
             );
-            state = state.copyWith(loaderState: loaderState);
           },
           (right) {
+            if (requestId != _feedRequestId) return;
             final feed = right.copyWith(
               greeting: timeOfDayGreeting(),
               deliveryHint: _resolveDeliveryHint(),
             );
-            debugPrint('🟢 HOME SUCCESS: categories=${feed.categories.length}');
             state = state.copyWith(loaderState: LoaderState.loaded, data: feed);
-            if (AppConstants.hasSession) {
-              ref
-                  .read(wishlistNotifierProvider.notifier)
-                  .syncFromProducts(feed.featuredProducts);
-            }
+            ref
+                .read(wishlistNotifierProvider.notifier)
+                .syncFromProducts(feed.featuredProducts);
           },
         )
         .catchError((error) {
-          debugPrint('🔴 UNEXPECTED HOME ERROR: $error');
+          if (requestId != _feedRequestId) return;
           state = state.copyWith(loaderState: LoaderState.error);
         });
   }

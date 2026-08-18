@@ -112,7 +112,7 @@ PODS:
     - Flutter
     - FlutterMacOS
   - razorpay-core-pod (1.0.7)
-  - razorpay-pod (1.5.6):
+  - razorpay-pod (1.5.7):
     - razorpay-core-pod (= 1.0.7)
   - razorpay_flutter (1.1.10):
     - Flutter
@@ -216,7 +216,7 @@ SPEC CHECKSUMS:
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   razorpay-core-pod: c7f3ac3d214c1a7fac4e9a59c1de7eac02130573
-  razorpay-pod: e939db88bc67c33a84bcc419505b8546b1081023
+  razorpay-pod: 3c91ef4895d389968a5c56a6f1e9943e44b50fa0
   razorpay_flutter: 0e98e4fcaae27ad50e011d85f66d85e0a008754a
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
