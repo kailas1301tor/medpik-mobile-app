@@ -51,12 +51,10 @@ class NotificationsScreen extends ConsumerWidget {
                 buttonText: Strings.refresh,
                 emptyScreenTitle: Strings.noNotifications,
                 emptyScreenDescription: Strings.noNotificationsDesc,
-                emptyScreenImage: Assets.iconsNoNotification,
+                emptyScreenImage: Assets.pngNoNotification,
                 child: _NotificationsContentScope(
-                  onNotificationTap: (notification) => _onNotificationTap(
-                    context,
-                    notification,
-                  ),
+                  onNotificationTap: (notification) =>
+                      _onNotificationTap(context, notification),
                 ),
               ),
             ),
@@ -84,8 +82,9 @@ class _NotificationsHeaderScope extends ConsumerWidget {
     return NotificationsScreenHeader(
       showMarkAllRead: headerData.item1,
       isMarkAllReadLoading: headerData.item2,
-      onMarkAllRead:
-          ref.read(notificationsNotifierProvider.notifier).markAllAsRead,
+      onMarkAllRead: ref
+          .read(notificationsNotifierProvider.notifier)
+          .markAllAsRead,
     );
   }
 }
@@ -99,11 +98,7 @@ class _NotificationsContentScope extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final contentData = ref.watch(
       notificationsNotifierProvider.select(
-        (s) => Tuple3(
-          s.notifications,
-          s.hasMore,
-          s.isLoadingMore,
-        ),
+        (s) => Tuple3(s.notifications, s.hasMore, s.isLoadingMore),
       ),
     );
 

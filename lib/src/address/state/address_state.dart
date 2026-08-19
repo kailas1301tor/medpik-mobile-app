@@ -1,15 +1,4 @@
-// lib/src/address/state/address_state.dart
-//
-// ? Immutable UI state for AddressNotifier.
-//
-// ? List screen:
-// ? - loaderState / addresses → AddressBookScreen (CommonSwitchState)
-// ? - isDeletingAddress → delete confirmation dialog button loader
-//
-// ? Form sheet:
-// ? - isSaving → disables form + PrimaryButton loader
-// ? - isDefaultSelected → default toggle (AddressFormFields)
-// ? - pickedLocationSummary → map pick preview (AddressFormMapPickRow)
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:medpik/data/models/address_model.dart';
 import 'package:medpik/res/enums/enums.dart';

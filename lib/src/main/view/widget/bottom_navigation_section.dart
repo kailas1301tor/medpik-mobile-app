@@ -139,8 +139,8 @@ class BottomNavTile extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: 32.r,
-              height: 32.r,
+              width: 36.r,
+              height: 36.r,
               child: Stack(
                 clipBehavior: Clip.none,
                 alignment: Alignment.center,
@@ -151,11 +151,12 @@ class BottomNavTile extends StatelessWidget {
                     curve: Curves.easeOut,
                     child: SvgPicture.asset(
                       icon,
-                      width: 32.r,
-                      height: 32.r,
-                      colorFilter: isSelected
-                          ? ColorFilter.mode(colors.primary, BlendMode.srcIn)
-                          : null,
+                      width: 36.r,
+                      height: 36.r,
+                      colorFilter: ColorFilter.mode(
+                        isSelected ? colors.primary : colors.secondaryText,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
                   if (badgeCount > 0)
@@ -193,11 +194,7 @@ class BottomNavTile extends StatelessWidget {
                 10,
                 color: isSelected ? colors.primary : colors.secondaryText,
               ),
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
           ],
         ),

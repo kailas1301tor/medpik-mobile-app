@@ -57,12 +57,11 @@ class CartContentWidget extends ConsumerWidget {
       title: Strings.clearCartTitle,
       message: Strings.clearCartMessage,
       primaryLabel: Strings.clearAll,
-      onPrimary: () {
-        Navigator.pop(context);
-        notifier.clearCart();
+      onPrimaryAsync: () async {
+        await notifier.clearCart();
+        return true;
       },
       secondaryLabel: Strings.cancel,
-      onSecondary: () => Navigator.pop(context),
     );
   }
 }

@@ -21,7 +21,12 @@ void showCustomToast({
         message: message,
         isSuccess: isSuccess,
         link: link,
-        onLinkTap: onTap,
+        onLinkTap: onTap == null
+            ? null
+            : () {
+                toastification.dismissAll();
+                onTap();
+              },
         increaseBottomPadding: increaseBottomPadding,
       );
     },

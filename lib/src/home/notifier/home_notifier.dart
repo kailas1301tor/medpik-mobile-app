@@ -2,7 +2,6 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/providers/address_providers.dart';
 import 'package:medpik/providers/wishlist_providers.dart';
@@ -12,17 +11,14 @@ import 'package:medpik/src/home/state/home_state.dart';
 import 'package:medpik/utils/helpers/address_resolution_helper.dart';
 import 'package:medpik/utils/helpers/api_error_handler.dart';
 import 'package:medpik/utils/helpers/time_of_day_greeting_helper.dart';
-import 'package:medpik/utils/helpers/toast_helper.dart';
 
 part 'home_notifier.g.dart';
 
 @Riverpod(keepAlive: true)
 class HomeNotifier extends _$HomeNotifier {
-  late TextEditingController searchController;
   late ScrollController scrollController;
   late HomeRepo homeRepo;
   bool _lifecycleInitialized = false;
-  int _feedRequestId = 0;
 
   static const double _compactThreshold = 72;
   static const double _compactFadeDistance = 56;
@@ -33,16 +29,13 @@ class HomeNotifier extends _$HomeNotifier {
       return state;
     }
 
-    searchController = TextEditingController();
     scrollController = ScrollController()..addListener(_onScroll);
     _lifecycleInitialized = true;
 
     ref.onDispose(() {
       scrollController.removeListener(_onScroll);
-      searchController.dispose();
       scrollController.dispose();
       _lifecycleInitialized = false;
-      _feedRequestId = 0;
     });
 
     ref.listen(addressNotifierProvider.select((s) => s.addresses), (
@@ -57,8 +50,6 @@ class HomeNotifier extends _$HomeNotifier {
     });
 
     homeRepo = ref.read(homeRepositoryProvider);
-    // Initial load is owned by MainShellNotifier.bootstrapSessionData so
-    // home does not race a second fetch and flash LoaderState.noData.
     return const HomeState(loaderState: LoaderState.loading);
   }
 
@@ -69,12 +60,7 @@ class HomeNotifier extends _$HomeNotifier {
         .getCustomerGeneralData()
         .fold(
           (error) {
-            state = state.copyWith(
-              generalDataLoaderState: loaderStateForSessionAwareError(
-                error.key,
-              ),
-            );
-            if (!shouldReportFetchError(error)) return;
+            state = state.copyWith(generalDataLoaderState: LoaderState.error);
           },
           (right) {
             final generalData = right.data;
@@ -107,31 +93,17 @@ class HomeNotifier extends _$HomeNotifier {
   }
 
   Future<void> fetchHomeFeed() async {
-    final requestId = ++_feedRequestId;
-
-    if (state.generalData == null &&
-        state.generalDataLoaderState != LoaderState.loading) {
-      await fetchCustomerGeneralData();
-      if (requestId != _feedRequestId) return;
-    }
-
     state = state.copyWith(loaderState: LoaderState.loading);
 
     return await homeRepo
         .getHomeFeed()
         .fold(
           (error) {
-            if (requestId != _feedRequestId) return;
             state = state.copyWith(
               loaderState: loaderStateForSessionAwareError(error.key),
             );
-            if (!shouldReportFetchError(error)) return;
-            showCustomErrorToast(
-              message: error.message ?? Strings.somethingWentWrong,
-            );
           },
           (right) {
-            if (requestId != _feedRequestId) return;
             final feed = right.copyWith(
               greeting: timeOfDayGreeting(),
               deliveryHint: _resolveDeliveryHint(),
@@ -143,7 +115,6 @@ class HomeNotifier extends _$HomeNotifier {
           },
         )
         .catchError((error) {
-          if (requestId != _feedRequestId) return;
           state = state.copyWith(loaderState: LoaderState.error);
         });
   }

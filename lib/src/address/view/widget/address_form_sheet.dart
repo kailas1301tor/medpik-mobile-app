@@ -22,10 +22,7 @@ import 'package:tuple/tuple.dart';
 class AddressFormSheet extends ConsumerWidget {
   const AddressFormSheet({super.key});
 
-  static Future<void> show({
-    required BuildContext context,
-    String? title,
-  }) {
+  static Future<void> show({required BuildContext context, String? title}) {
     return CommonBottomSheet.show(
       context: context,
       title: title ?? Strings.completeAddressDetails,
@@ -39,11 +36,7 @@ class AddressFormSheet extends ConsumerWidget {
     final notifier = ref.read(addressNotifierProvider.notifier);
     final formData = ref.watch(
       addressNotifierProvider.select(
-        (s) => Tuple3(
-          s.isSaving,
-          s.isDefaultSelected,
-          s.addresses.isEmpty,
-        ),
+        (s) => Tuple3(s.isSaving, s.isDefaultSelected, s.addresses.isEmpty),
       ),
     );
     final isSaving = formData.item1;
@@ -69,8 +62,11 @@ class AddressFormSheet extends ConsumerWidget {
             isLoading: isSaving,
             onPressed: () async {
               final saved = await notifier.saveCurrent();
-              if (saved && context.mounted) {
-                Navigator.pop(context);
+              if (saved) {
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+                notifier.resetSaving();
               }
             },
           ),

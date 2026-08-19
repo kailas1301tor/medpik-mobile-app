@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:medpik/data/models/address_model.dart';
 import 'package:medpik/data/models/product_detail_args.dart';
@@ -43,42 +44,30 @@ class RouteGenerator {
     switch (settings.name) {
       case RouteConstants.routeInitial:
       case RouteConstants.routeSplash:
-        return MaterialPageRoute(
-          builder: (_) => const SplashScreen(),
-          settings: settings,
-        );
+        return _route(builder: (_) => const SplashScreen(), settings: settings);
 
       case RouteConstants.routeLoginScreen:
-        return MaterialPageRoute(
-          builder: (_) => const LoginScreen(),
-          settings: settings,
-        );
+        return _route(builder: (_) => const LoginScreen(), settings: settings);
 
       case RouteConstants.routeOtpScreen:
-        return MaterialPageRoute(
-          builder: (_) => const OtpScreen(),
-          settings: settings,
-        );
+        return _route(builder: (_) => const OtpScreen(), settings: settings);
 
       case RouteConstants.mainScreen:
-        return MaterialPageRoute(
-          builder: (_) => const MainScreen(),
-          settings: settings,
-        );
+        return _route(builder: (_) => const MainScreen(), settings: settings);
 
       case RouteConstants.routeSearchScreen:
       case RouteConstants.routeSearchResultsScreen:
         final args = settings.name == RouteConstants.routeSearchScreen
             ? ProductCatalogArgs.searchEntry
             : ProductCatalogArgs.from(settings.arguments);
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => SearchResultsScreen(args: args),
           settings: settings,
         );
 
       case RouteConstants.routeProductDetailScreen:
         final args = ProductDetailArgs.from(settings.arguments);
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => ProductDetailScreen(
             productId: args.productId,
             isFromUploadPrescription: args.isFromUploadPrescription,
@@ -87,19 +76,19 @@ class RouteGenerator {
         );
 
       case RouteConstants.routePrescriptionUploadScreen:
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => const PrescriptionUploadScreen(),
           settings: settings,
         );
 
       case RouteConstants.routePrescriptionCheckoutScreen:
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => const PrescriptionCheckoutScreen(),
           settings: settings,
         );
 
       case RouteConstants.routeCheckoutScreen:
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => const CheckoutScreen(),
           settings: settings,
         );
@@ -111,28 +100,28 @@ class RouteGenerator {
                 orderId: settings.arguments as String? ?? '',
                 source: OrderSubmissionSource.medicineCart,
               );
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => OrderConfirmationScreen(args: args),
           settings: settings,
         );
 
       case RouteConstants.routeOrderDetailScreen:
         final orderId = settings.arguments as String? ?? '';
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => OrderDetailScreen(orderId: orderId),
           settings: settings,
         );
 
       case RouteConstants.routeOrderReviewBillScreen:
         final reviewBillOrderId = settings.arguments as String? ?? '';
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => OrderReviewBillScreen(orderId: reviewBillOrderId),
           settings: settings,
         );
 
       case RouteConstants.routeOrderReviewPayScreen:
         final reviewPayOrderId = settings.arguments as String? ?? '';
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => OrderReviewPayScreen(orderId: reviewPayOrderId),
           settings: settings,
         );
@@ -143,7 +132,7 @@ class RouteGenerator {
             : OrderPaymentResultArgs(
                 orderId: settings.arguments as String? ?? '',
               );
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => OrderPaymentSuccessScreen(args: successArgs),
           settings: settings,
         );
@@ -154,21 +143,21 @@ class RouteGenerator {
             : OrderPaymentResultArgs(
                 orderId: settings.arguments as String? ?? '',
               );
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => OrderPaymentFailureScreen(args: failureArgs),
           settings: settings,
         );
 
       case RouteConstants.routeOrderBillPdfScreen:
         final pdfUrl = settings.arguments as String? ?? '';
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => OrderBillPdfScreen(pdfUrl: pdfUrl),
           settings: settings,
         );
 
       case RouteConstants.routeTrackingScreen:
         final orderId = settings.arguments as String? ?? '';
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => OrderTrackingScreen(orderId: orderId),
           settings: settings,
         );
@@ -177,7 +166,7 @@ class RouteGenerator {
         final args = settings.arguments is AddressBookArgs
             ? settings.arguments as AddressBookArgs
             : const AddressBookArgs();
-        return MaterialPageRoute<AddressModel>(
+        return _route<AddressModel>(
           builder: (_) => AddressBookScreen(args: args),
           settings: settings,
         );
@@ -186,7 +175,7 @@ class RouteGenerator {
         final args = settings.arguments is LocationPickerArgs
             ? settings.arguments as LocationPickerArgs
             : null;
-        return MaterialPageRoute<PickedLocationModel>(
+        return _route<PickedLocationModel>(
           builder: (_) => LocationPickerScreen(
             initialLatitude: args?.initialLatitude,
             initialLongitude: args?.initialLongitude,
@@ -195,19 +184,19 @@ class RouteGenerator {
         );
 
       case RouteConstants.routeWishlistScreen:
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => const WishlistScreen(),
           settings: settings,
         );
 
       case RouteConstants.routeNotificationsScreen:
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => const NotificationsScreen(),
           settings: settings,
         );
 
       case RouteConstants.routeEmergencyServicesScreen:
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => const EmergencyServicesScreen(),
           settings: settings,
         );
@@ -216,7 +205,7 @@ class RouteGenerator {
         final personalInfoArgs = PersonalInformationArgs.from(
           settings.arguments,
         );
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => PersonalInformationScreen(
             isOnboarding: personalInfoArgs.isOnboarding,
           ),
@@ -225,7 +214,7 @@ class RouteGenerator {
 
       case RouteConstants.routeLegalDocumentScreen:
         final legalDocumentArgs = LegalDocumentArgs.from(settings.arguments);
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => LegalDocumentScreen(
             title: legalDocumentArgs.title,
             url: legalDocumentArgs.url,
@@ -234,11 +223,19 @@ class RouteGenerator {
         );
 
       default:
-        return MaterialPageRoute(
+        return _route(
           builder: (_) => Scaffold(
             body: Center(child: Text('No route defined for ${settings.name}')),
           ),
+          settings: settings,
         );
     }
+  }
+
+  static Route<T> _route<T>({
+    required WidgetBuilder builder,
+    required RouteSettings settings,
+  }) {
+    return CupertinoPageRoute<T>(builder: builder, settings: settings);
   }
 }

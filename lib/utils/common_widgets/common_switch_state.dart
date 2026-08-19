@@ -85,8 +85,16 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
               alignment: Alignment.topCenter,
               fit: StackFit.expand,
               children: [
-                ...previousChildren,
-                if (currentChild != null) currentChild,
+                for (var index = 0; index < previousChildren.length; index++)
+                  KeyedSubtree(
+                    key: ValueKey('previous_state_$index'),
+                    child: previousChildren[index],
+                  ),
+                if (currentChild != null)
+                  KeyedSubtree(
+                    key: const ValueKey('current_state'),
+                    child: currentChild,
+                  ),
               ],
             );
           },
@@ -105,7 +113,7 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
         key: const ValueKey('network_state'),
         title: Strings.connectionErrorTitle,
         message: Strings.connectionErrorDesc,
-        imageAsset: Assets.lottieNoInternet,
+        imageAsset: Assets.pngNoNetwork,
         fillAvailableSpace: fillAvailableSpace,
       );
     }
@@ -117,7 +125,8 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
       ),
       LoaderState.loading => KeyedSubtree(
         key: const ValueKey('loading_state'),
-        child: widget.loader ??
+        child:
+            widget.loader ??
             (fillAvailableSpace
                 ? const CommonLoader()
                 : const Align(
@@ -131,9 +140,8 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
             widget.noData ??
             _buildEmptyState(
               title: widget.emptyScreenTitle ?? Strings.noDataTitle,
-              message:
-                  widget.emptyScreenDescription ?? Strings.noDataMessage,
-              imageAsset: widget.emptyScreenImage ?? Assets.lottieNoData,
+              message: widget.emptyScreenDescription ?? Strings.noDataMessage,
+              imageAsset: widget.emptyScreenImage ?? Assets.pngNoData,
               onPressed: widget.customButtonFunction ?? widget.reload,
               buttonText: _resolvedButtonText(),
               fillAvailableSpace: fillAvailableSpace,
@@ -145,9 +153,8 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
             widget.noSearchData ??
             _buildEmptyState(
               title: widget.emptyScreenTitle ?? Strings.noResultsFound,
-              message:
-                  widget.emptyScreenDescription ?? Strings.noResultsDesc,
-              imageAsset: widget.emptyScreenImage ?? Assets.lottieSearching,
+              message: widget.emptyScreenDescription ?? Strings.noResultsDesc,
+              imageAsset: widget.emptyScreenImage ?? Assets.pngNoSearch,
               fillAvailableSpace: fillAvailableSpace,
             ),
       ),
@@ -158,7 +165,7 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
             _buildErrorState(
               title: widget.errorTitle ?? Strings.errorTitle,
               message: widget.errorMessage ?? Strings.errorDescription,
-              imageAsset: Assets.lottieError,
+              imageAsset: Assets.pngError,
               fillAvailableSpace: fillAvailableSpace,
             ),
       ),
@@ -167,7 +174,7 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
         child: _buildErrorState(
           title: Strings.error500Title,
           message: Strings.error500Message,
-          imageAsset: Assets.lottieError,
+          imageAsset: Assets.pngError,
           fillAvailableSpace: fillAvailableSpace,
         ),
       ),
@@ -176,7 +183,7 @@ class _CommonSwitchStateState extends ConsumerState<CommonSwitchState> {
         child: _buildErrorState(
           title: Strings.connectionErrorTitle,
           message: Strings.connectionErrorDesc,
-          imageAsset: Assets.lottieNoInternet,
+          imageAsset: Assets.pngNoNetwork,
           fillAvailableSpace: fillAvailableSpace,
         ),
       ),
@@ -341,7 +348,7 @@ class _CommonSwitchStateSliverState
         CommonErrorState(
           title: Strings.connectionErrorTitle,
           message: Strings.connectionErrorDesc,
-          imageAsset: Assets.lottieNoInternet,
+          imageAsset: Assets.pngNoNetwork,
           buttonText: _resolvedButtonText(),
           onRetry: widget.customButtonFunction ?? widget.reload,
           titleStyle: widget.titleTextStyle,
@@ -374,7 +381,7 @@ class _CommonSwitchStateSliverState
                   title: widget.emptyScreenTitle ?? Strings.noDataTitle,
                   message:
                       widget.emptyScreenDescription ?? Strings.noDataMessage,
-                  imageAsset: widget.emptyScreenImage ?? Assets.lottieNoData,
+                  imageAsset: widget.emptyScreenImage ?? Assets.pngNoData,
                   buttonText: _resolvedButtonText(),
                   onPressed: widget.customButtonFunction ?? widget.reload,
                   titleStyle: widget.titleTextStyle,
@@ -394,7 +401,7 @@ class _CommonSwitchStateSliverState
                   title: widget.emptyScreenTitle ?? Strings.noResultsFound,
                   message:
                       widget.emptyScreenDescription ?? Strings.noResultsDesc,
-                  imageAsset: widget.emptyScreenImage ?? Assets.lottieSearching,
+                  imageAsset: widget.emptyScreenImage ?? Assets.pngNoSearch,
                   titleStyle: widget.titleTextStyle,
                   messageStyle: widget.errorMessageTextStyle,
                   topSpacing: widget.topMargin,
@@ -411,7 +418,7 @@ class _CommonSwitchStateSliverState
                 CommonErrorState(
                   title: widget.errorTitle ?? Strings.errorTitle,
                   message: widget.errorMessage ?? Strings.errorDescription,
-                  imageAsset: Assets.lottieError,
+                  imageAsset: Assets.pngError,
                   buttonText: _resolvedButtonText(),
                   onRetry: widget.customButtonFunction ?? widget.reload,
                   titleStyle: widget.titleTextStyle,
@@ -427,7 +434,7 @@ class _CommonSwitchStateSliverState
         CommonErrorState(
           title: Strings.error500Title,
           message: Strings.error500Message,
-          imageAsset: Assets.lottieError,
+          imageAsset: Assets.pngError,
           buttonText: _resolvedButtonText(),
           onRetry: widget.customButtonFunction ?? widget.reload,
           titleStyle: widget.titleTextStyle,
@@ -443,7 +450,7 @@ class _CommonSwitchStateSliverState
         CommonErrorState(
           title: Strings.connectionErrorTitle,
           message: Strings.connectionErrorDesc,
-          imageAsset: Assets.lottieNoInternet,
+          imageAsset: Assets.pngNoNetwork,
           buttonText: _resolvedButtonText(),
           onRetry: widget.customButtonFunction ?? widget.reload,
           titleStyle: widget.titleTextStyle,

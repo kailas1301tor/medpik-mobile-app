@@ -1,13 +1,11 @@
 // /Users/wac/Documents/tortilon/medpik/lib/utils/common_widgets/common_empty_state.dart
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:lottie/lottie.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/utils/common_widgets/primary_button.dart';
+import 'package:medpik/utils/common_widgets/common_state_illustration.dart';
 
 class CommonEmptyState extends StatelessWidget {
   const CommonEmptyState({
@@ -45,7 +43,10 @@ class CommonEmptyState extends StatelessWidget {
       mainAxisAlignment: mainAxisAlignment,
       children: [
         if (topSpacing != null) SizedBox(height: topSpacing),
-        _StateIllustration(assetPath: imageAsset),
+        CommonStateIllustration(
+          assetPath: imageAsset,
+          fallbackIcon: Icons.inbox_outlined,
+        ),
         20.verticalSpace,
         Text(
           title,
@@ -89,46 +90,6 @@ class CommonEmptyState extends StatelessWidget {
       child: ColoredBox(
         color: backgroundColor ?? Colors.transparent,
         child: Center(child: content),
-      ),
-    );
-  }
-}
-
-class _StateIllustration extends StatelessWidget {
-  const _StateIllustration({required this.assetPath});
-
-  final String? assetPath;
-
-  @override
-  Widget build(BuildContext context) {
-    if (assetPath == null || assetPath!.isEmpty) {
-      return Icon(
-        Icons.inbox_outlined,
-        size: 82.r,
-        color: context.appColors.secondaryText,
-      );
-    }
-
-    if (assetPath!.endsWith('.json')) {
-      return SizedBox.square(
-        dimension: 190.r,
-        child: Lottie.asset(
-          assetPath!,
-          repeat: true,
-          errorBuilder: (_, __, ___) => Icon(
-            Icons.inbox_outlined,
-            size: 82.r,
-            color: context.appColors.secondaryText,
-          ),
-        ),
-      );
-    }
-
-    return SizedBox.square(
-      dimension: 120.r,
-      child: SvgPicture.asset(
-        assetPath!,
-        placeholderBuilder: (_) => const CupertinoActivityIndicator(),
       ),
     );
   }

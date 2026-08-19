@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_floating_action.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_footer_shimmer.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_hero_image.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_shimmer_sections.dart';
 import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';

@@ -6,18 +6,17 @@ import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 
 class ProductDetailSheetBodyShimmer extends StatelessWidget {
   const ProductDetailSheetBodyShimmer({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CommonShimmerBox(height: 24.h, width: 240.w, borderRadius: 8.r),
-        10.verticalSpace,
+        8.verticalSpace,
         CommonShimmerBox(height: 14.h, width: 120.w, borderRadius: 6.r),
+        8.verticalSpace,
+        CommonShimmerBox(height: 13.h, width: 210.w, borderRadius: 6.r),
         10.verticalSpace,
-        CommonShimmerBox(height: 13.h, width: 180.w, borderRadius: 6.r),
-        12.verticalSpace,
         Row(
           children: [
             CommonShimmerBox(height: 28.h, width: 72.w, borderRadius: 999.r),
@@ -27,84 +26,125 @@ class ProductDetailSheetBodyShimmer extends StatelessWidget {
             CommonShimmerBox(height: 28.h, width: 96.w, borderRadius: 999.r),
           ],
         ),
-        24.verticalSpace,
-        CommonShimmerBox(height: 18.h, width: 120.w, borderRadius: 8.r),
         10.verticalSpace,
-        CommonShimmerBox(
-          height: 72.h,
-          width: double.infinity,
-          borderRadius: 12.r,
-        ),
-        24.verticalSpace,
-        CommonShimmerBox(height: 18.h, width: 160.w, borderRadius: 8.r),
+        CommonShimmerBox(height: 12.h, width: 74.w, borderRadius: 6.r),
         10.verticalSpace,
-        CommonShimmerBox(
-          height: 96.h,
-          width: double.infinity,
-          borderRadius: 12.r,
-        ),
+        CommonShimmerBox(height: 40.h, width: 132.w, borderRadius: 999.r),
         24.verticalSpace,
-        CommonShimmerBox(height: 18.h, width: 180.w, borderRadius: 8.r),
+        const _SectionTitleShimmer(width: 138),
         10.verticalSpace,
-        CommonShimmerBox(
-          height: 72.h,
-          width: double.infinity,
-          borderRadius: 12.r,
-        ),
+        CommonShimmerBox(height: 52.h, width: double.infinity),
+        24.verticalSpace,
+        const _SectionTitleShimmer(width: 112),
+        12.verticalSpace,
+        const _BenefitsRowShimmer(),
+        24.verticalSpace,
+        const _SectionTitleShimmer(width: 86),
+        10.verticalSpace,
+        const _InfoPanelShimmer(),
+        24.verticalSpace,
+        const _SectionTitleShimmer(width: 150),
+        10.verticalSpace,
+        const _InfoPanelShimmer(),
       ],
     );
   }
 }
 
-class ProductDetailFooterShimmer extends StatelessWidget {
-  const ProductDetailFooterShimmer({super.key, required this.bottomInset});
+class _SectionTitleShimmer extends StatelessWidget {
+  const _SectionTitleShimmer({required this.width});
 
-  final double bottomInset;
+  final double width;
+  @override
+  Widget build(BuildContext context) {
+    return CommonShimmerBox(height: 18.h, width: width.w, borderRadius: 8.r);
+  }
+}
+
+class _BenefitsRowShimmer extends StatelessWidget {
+  const _BenefitsRowShimmer();
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 140.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 3,
+        separatorBuilder: (_, __) => 10.horizontalSpace,
+        itemBuilder: (_, __) => const _BenefitCardShimmer(),
+      ),
+    );
+  }
+}
+
+class _BenefitCardShimmer extends StatelessWidget {
+  const _BenefitCardShimmer();
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Container(
+      width: 120.w,
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: colors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CommonShimmerBox(height: 32.r, width: 32.r, borderRadius: 999.r),
+          10.verticalSpace,
+          CommonShimmerBox(height: 13.h, width: 74.w),
+          8.verticalSpace,
+          CommonShimmerBox(height: 11.h, width: double.infinity),
+          6.verticalSpace,
+          CommonShimmerBox(height: 11.h, width: 72.w),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoPanelShimmer extends StatelessWidget {
+  const _InfoPanelShimmer();
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
-    return DecoratedBox(
+    return Container(
+      padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: colors.surface,
-        boxShadow: [
-          BoxShadow(
-            color: ColorPalette.black.withValues(alpha: 0.08),
-            blurRadius: 16,
-            offset: Offset(0, -4.h),
-          ),
+        color: colors.bannerInfoBg,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: colors.bannerInfoBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CommonShimmerBox(height: 20.r, width: 20.r, borderRadius: 6.r),
+          10.horizontalSpace,
+          const Expanded(child: _InfoTextLinesShimmer()),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h + bottomInset),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CommonShimmerBox(height: 12.h, width: 56.w, borderRadius: 6.r),
-                6.verticalSpace,
-                CommonShimmerBox(
-                  height: 48.h,
-                  width: 110.w,
-                  borderRadius: 14.r,
-                ),
-              ],
-            ),
-            16.horizontalSpace,
-            Expanded(
-              child: CommonShimmerBox(
-                height: 48.h,
-                width: double.infinity,
-                borderRadius: 14.r,
-              ),
-            ),
-          ],
-        ),
-      ),
+    );
+  }
+}
+
+class _InfoTextLinesShimmer extends StatelessWidget {
+  const _InfoTextLinesShimmer();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CommonShimmerBox(height: 12.h, width: double.infinity),
+        7.verticalSpace,
+        CommonShimmerBox(height: 12.h, width: 180.w),
+      ],
     );
   }
 }

@@ -20,7 +20,7 @@ class ProfileNotifier extends _$ProfileNotifier {
   late final TextEditingController firstNameController;
   late final TextEditingController lastNameController;
 
-  late ProfileRepo profileRepo;
+  late final ProfileRepo profileRepo;
 
   @override
   ProfileState build() {
@@ -57,7 +57,8 @@ class ProfileNotifier extends _$ProfileNotifier {
   }
 
   void _syncFormValidity() {
-    final isValid = firstNameController.text.trim().isNotEmpty &&
+    final isValid =
+        firstNameController.text.trim().isNotEmpty &&
         lastNameController.text.trim().isNotEmpty;
     if (state.isProfileFormValid == isValid) return;
     state = state.copyWith(isProfileFormValid: isValid);
@@ -66,34 +67,37 @@ class ProfileNotifier extends _$ProfileNotifier {
   Future<void> fetchProfile() async {
     state = state.copyWith(loaderState: LoaderState.loading);
 
-    return await profileRepo.getProfile().fold(
-      (error) {
-        final loaderState = handleResponseError(error.key);
-        debugPrint("🔴 PROFILE ERROR: ${error.message}");
-        showCustomErrorToast(
-          message: error.message ?? Strings.somethingWentWrong,
-        );
-        state = state.copyWith(loaderState: loaderState);
-      },
-      (response) async {
-        final profile = response.profile;
-        if (profile == null) {
-          state = state.copyWith(loaderState: LoaderState.noData);
-          return;
-        }
+    return await profileRepo
+        .getProfile()
+        .fold(
+          (error) {
+            final loaderState = handleResponseError(error.key);
+            debugPrint("🔴 PROFILE ERROR: ${error.message}");
+            showCustomErrorToast(
+              message: error.message ?? Strings.somethingWentWrong,
+            );
+            state = state.copyWith(loaderState: loaderState);
+          },
+          (response) async {
+            final profile = response.profile;
+            if (profile == null) {
+              state = state.copyWith(loaderState: LoaderState.noData);
+              return;
+            }
 
-        debugPrint("🟢 PROFILE SUCCESS: $profile");
-        state = state.copyWith(
-          loaderState: LoaderState.loaded,
-          profile: profile,
-        );
-        await _syncAuthSession(profile);
-      },
-    ).catchError((error) {
-      debugPrint("🔴 UNEXPECTED PROFILE ERROR: $error");
-      showCustomErrorToast(message: Strings.somethingWentWrong);
-      state = state.copyWith(loaderState: LoaderState.error);
-    });
+            debugPrint("🟢 PROFILE SUCCESS: $profile");
+            state = state.copyWith(
+              loaderState: LoaderState.loaded,
+              profile: profile,
+            );
+            await _syncAuthSession(profile);
+          },
+        )
+        .catchError((error) {
+          debugPrint("🔴 UNEXPECTED PROFILE ERROR: $error");
+          showCustomErrorToast(message: Strings.somethingWentWrong);
+          state = state.copyWith(loaderState: LoaderState.error);
+        });
   }
 
   void initEditForm() {
@@ -132,48 +136,56 @@ class ProfileNotifier extends _$ProfileNotifier {
       phoneNumber: state.profile?.phoneNumber ?? '',
     );
 
-    return await profileRepo.updateProfile(payload).fold(
-      (error) {
-        debugPrint("🔴 PROFILE UPDATE ERROR: ${error.message}");
-        state = state.copyWith(isSaving: false);
-        showCustomErrorToast(
-          message: error.message ?? Strings.somethingWentWrong,
-        );
-        return false;
-      },
-      (response) async {
-        final profile = response.profile;
-        if (profile == null) {
-          debugPrint("🔴 PROFILE UPDATE ERROR: missing profile data");
+    return await profileRepo
+        .updateProfile(payload)
+        .fold(
+          (error) {
+            debugPrint("🔴 PROFILE UPDATE ERROR: ${error.message}");
+            state = state.copyWith(isSaving: false);
+            showCustomErrorToast(
+              message: error.message ?? Strings.somethingWentWrong,
+            );
+            return false;
+          },
+          (response) async {
+            final profile = ProfileModel(
+              firstName:
+                  response.profile?.firstName ?? state.profile?.firstName ?? '',
+              lastName:
+                  response.profile?.lastName ?? state.profile?.lastName ?? '',
+              phoneNumber:
+                  response.profile?.phoneNumber ??
+                  state.profile?.phoneNumber ??
+                  '',
+            );
+            state = state.copyWith(profile: profile);
+            await _syncAuthSession(profile);
+            if (await ref.read(sembastServicesProvider).isNewUser()) {
+              await ref
+                  .read(authNotifierProvider.notifier)
+                  .markProfileCompleted();
+            }
+            showCustomToast(
+              message: response.message.isNotEmpty
+                  ? response.message
+                  : Strings.profileUpdatedSuccess,
+              isSuccess: true,
+            );
+            state = state.copyWith(isSaving: false);
+            return true;
+          },
+        )
+        .catchError((error) {
           state = state.copyWith(isSaving: false);
           showCustomErrorToast(message: Strings.somethingWentWrong);
           return false;
-        }
-
-        debugPrint("🟢 PROFILE UPDATE SUCCESS: $profile");
-        state = state.copyWith(profile: profile, isSaving: false);
-        await _syncAuthSession(profile);
-        if (await ref.read(sembastServicesProvider).isNewUser()) {
-          await ref.read(authNotifierProvider.notifier).markProfileCompleted();
-        }
-        showCustomToast(
-          message: response.message.isNotEmpty
-              ? response.message
-              : Strings.profileUpdatedSuccess,
-          isSuccess: true,
-        );
-        return true;
-      },
-    ).catchError((error) {
-      debugPrint("🔴 UNEXPECTED PROFILE UPDATE ERROR: $error");
-      state = state.copyWith(isSaving: false);
-      showCustomErrorToast(message: Strings.somethingWentWrong);
-      return false;
-    });
+        });
   }
 
   Future<void> _syncAuthSession(ProfileModel profile) async {
-    await ref.read(authNotifierProvider.notifier).updateSessionProfile(
+    await ref
+        .read(authNotifierProvider.notifier)
+        .updateSessionProfile(
           name: profile.displayName,
           phone: profile.phoneNumber,
         );

@@ -7,24 +7,45 @@ import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 class CartShimmerWidget extends StatelessWidget {
   const CartShimmerWidget({super.key});
 
-  static const int _itemCount = 2;
+  static const int _itemCount = 6;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
-      children: [
-        Row(
-          children: [
-            CommonShimmerBox(height: 16.h, width: 168.w, borderRadius: 6.r),
-            const Spacer(),
-            CommonShimmerBox(height: 14.h, width: 56.w, borderRadius: 6.r),
-          ],
+    return CustomScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              Row(
+                children: [
+                  CommonShimmerBox(
+                    height: 18.h,
+                    width: 174.w,
+                    borderRadius: 7.r,
+                  ),
+                  const Spacer(),
+                  CommonShimmerBox(
+                    height: 14.h,
+                    width: 62.w,
+                    borderRadius: 999.r,
+                  ),
+                ],
+              ),
+              8.verticalSpace,
+            ]),
+          ),
         ),
-        8.verticalSpace,
-        for (var i = 0; i < _itemCount; i++)
-          _CartItemRowShimmer(showDivider: i < _itemCount - 1),
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 20.h),
+          sliver: SliverList.builder(
+            itemCount: _itemCount,
+            itemBuilder: (context, index) {
+              return _CartItemRowShimmer(showDivider: index < _itemCount - 1);
+            },
+          ),
+        ),
       ],
     );
   }
@@ -79,16 +100,12 @@ class _CartItemRowShimmer extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CommonShimmerBox(
-                    height: 18.r,
-                    width: 18.r,
-                    borderRadius: 9.r,
+                    height: 30.r,
+                    width: 30.r,
+                    borderRadius: 999.r,
                   ),
-                  6.verticalSpace,
-                  CommonShimmerBox(
-                    height: 28.h,
-                    width: 72.w,
-                    borderRadius: 8.r,
-                  ),
+                  8.verticalSpace,
+                  const _QtySelectorShimmer(),
                 ],
               ),
             ],
@@ -98,5 +115,14 @@ class _CartItemRowShimmer extends StatelessWidget {
           Divider(height: 1.h, thickness: 1, color: colors.divider),
       ],
     );
+  }
+}
+
+class _QtySelectorShimmer extends StatelessWidget {
+  const _QtySelectorShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonShimmerBox(height: 30.h, width: 92.w, borderRadius: 999.r);
   }
 }

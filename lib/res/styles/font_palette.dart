@@ -98,7 +98,10 @@ class FontPalette {
     10,
     color: ColorPalette.f10000,
   );
-  static final TextStyle f009E35_10_600 = base600(10, color: Color(0XFF009E35));
+  static final TextStyle f009E35_10_600 = base600(
+    10,
+    color: ColorPalette.primaryColor,
+  );
 
   //*-------11-------------------------------------
   static final TextStyle fBlack_11_700 = base700(11, color: ColorPalette.black);

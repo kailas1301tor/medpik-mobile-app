@@ -1,33 +1,19 @@
 // lib/src/home/view/widget/home_content_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:medpik/res/constants/string_constants.dart';
-import 'package:medpik/res/styles/color_palette.dart';
-import 'package:medpik/src/home/model/home_model.dart';
-import 'package:medpik/src/home/notifier/home_notifier.dart';
-import 'package:medpik/src/home/view/widget/home_category_row.dart';
-import 'package:medpik/src/home/view/widget/home_compact_header.dart';
-import 'package:medpik/src/home/view/widget/home_hero_header.dart';
-import 'package:medpik/src/home/view/widget/home_offer_carousel.dart';
-import 'package:medpik/src/home/view/widget/home_popular_products_grid.dart';
-import 'package:medpik/src/home/view/widget/home_prescription_card.dart';
-import 'package:medpik/src/home/view/widget/home_section_header.dart';
-import 'package:medpik/utils/extensions/context_extensions.dart';
 import 'package:medpik/data/models/product_catalog_args.dart';
+import 'package:medpik/src/home/model/home_model.dart';
+import 'package:medpik/src/home/view/widget/home_compact_header_scope.dart';
+import 'package:medpik/src/home/view/widget/home_feed_slivers.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
 
 class HomeContentWidget extends StatelessWidget {
   const HomeContentWidget({
     super.key,
     this.data,
-    required this.searchController,
     required this.scrollController,
   });
 
   final HomeFeedModel? data;
-  final TextEditingController searchController;
   final ScrollController scrollController;
 
   @override
@@ -46,167 +32,24 @@ class HomeContentWidget extends StatelessWidget {
         CustomScrollView(
           controller: scrollController,
           physics: const ClampingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: HomeHeroHeader(
-                topInset: topInset,
-                greeting: data?.greeting ?? '',
-                deliveryHint: data?.deliveryHint ?? '',
-                searchController: searchController,
-                onSearchTap: onSearchTap,
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(padding: EdgeInsets.only(top: 10.h)),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
-                child: HomePrescriptionCard(
-                  onUploadTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      RouteConstants.routePrescriptionUploadScreen,
-                    );
-                  },
-                ),
-              ),
-            ),
-            if ((data?.offers ?? []).isNotEmpty) ...[
-              SliverToBoxAdapter(
-                child: HomeSectionHeader(title: Strings.offersForYou),
-              ),
-              SliverToBoxAdapter(
-                child: HomeOfferCarousel(
-                  offers: data?.offers ?? [],
-                  onOfferTap: (offer) {
-                    Navigator.pushNamed(
-                      context,
-                      RouteConstants.routeSearchResultsScreen,
-                      arguments: ProductCatalogArgs(
-                        title: offer.title,
-                        offerId: offer.id,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-            SliverToBoxAdapter(
-              child: HomeSectionHeader(
-                title: Strings.shopByCategory,
-                onSeeAll: () {
-                  Navigator.pushNamed(
-                    context,
-                    RouteConstants.routeSearchResultsScreen,
-                    arguments: const ProductCatalogArgs(
-                      title: Strings.popularProducts,
-                    ),
-                  );
-                },
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: HomeCategoryRow(
-                categories: data?.categories ?? [],
-                onCategoryTap: (category) {
-                  Navigator.pushNamed(
-                    context,
-                    RouteConstants.routeSearchResultsScreen,
-                    arguments: ProductCatalogArgs(
-                      title: category.name,
-                      categoryId: category.id,
-                    ),
-                  );
-                },
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: HomeSectionHeader(
-                title: Strings.popularProducts,
-                bottomPadding: 4.h,
-                onSeeAll: () {
-                  Navigator.pushNamed(
-                    context,
-                    RouteConstants.routeSearchResultsScreen,
-                    arguments: const ProductCatalogArgs(
-                      title: Strings.popularProducts,
-                    ),
-                  );
-                },
-              ),
-            ),
-            HomePopularProductsGrid.sliver(
-              products: data?.featuredProducts ?? [],
-            ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 140.h + MediaQuery.viewPaddingOf(context).bottom,
-              ),
-            ),
-          ],
+          slivers: HomeFeedSlivers.build(
+            context: context,
+            topInset: topInset,
+            data: data,
+            onSearchTap: onSearchTap,
+          ),
         ),
         Positioned(
           top: 0,
           left: 0,
           right: 0,
-          child: _HomeCompactHeaderScope(
+          child: HomeCompactHeaderScope(
             topInset: topInset,
             deliveryHint: data?.deliveryHint ?? '',
-            searchController: searchController,
             onSearchTap: onSearchTap,
           ),
         ),
       ],
-    );
-  }
-}
-
-class _HomeCompactHeaderScope extends ConsumerWidget {
-  const _HomeCompactHeaderScope({
-    required this.topInset,
-    required this.deliveryHint,
-    required this.searchController,
-    required this.onSearchTap,
-  });
-
-  final double topInset;
-  final String deliveryHint;
-  final TextEditingController searchController;
-  final VoidCallback onSearchTap;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final compactProgress = ref.watch(
-      homeNotifierProvider.select((s) => s.compactHeaderProgress),
-    );
-    final useDarkStatusIcons =
-        compactProgress > 0.5 && !context.isDarkMode;
-
-    final colors = context.appColors;
-    final navBarIconBrightness =
-        colors.background.computeLuminance() > 0.179
-            ? Brightness.dark
-            : Brightness.light;
-
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: ColorPalette.transparent,
-        statusBarIconBrightness:
-            useDarkStatusIcons ? Brightness.dark : Brightness.light,
-        statusBarBrightness:
-            useDarkStatusIcons ? Brightness.light : Brightness.dark,
-        systemNavigationBarColor: colors.background,
-        systemNavigationBarIconBrightness: navBarIconBrightness,
-        systemNavigationBarContrastEnforced: true,
-      ),
-      child: HomeCompactHeader(
-        progress: compactProgress,
-        topInset: topInset,
-        deliveryHint: deliveryHint,
-        searchController: searchController,
-        onSearchTap: onSearchTap,
-      ),
     );
   }
 }

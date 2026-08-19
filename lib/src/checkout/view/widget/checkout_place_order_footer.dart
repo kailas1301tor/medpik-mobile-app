@@ -22,15 +22,14 @@ class CheckoutPlaceOrderFooter extends StatelessWidget {
     final colors = context.appColors;
 
     return ColoredBox(
-      color: colors.surface,
+      color: colors.surface.withValues(alpha: 0.96),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: colors.divider)),
           boxShadow: [
             BoxShadow(
-              color: ColorPalette.black.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: Offset(0, -4.h),
+              color: ColorPalette.black.withValues(alpha: 0.08),
+              blurRadius: 24.r,
+              offset: Offset(0, -8.h),
             ),
           ],
         ),

@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/data/models/cart_item_model.dart';
 import 'package:medpik/res/constants/string_constants.dart';
-import 'package:medpik/res/styles/color_palette.dart';
-import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/src/checkout/view/widget/checkout_product_tile.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_section_card.dart';
 
 class CheckoutOrderSummary extends StatelessWidget {
   const CheckoutOrderSummary({super.key, required this.cartItems});
@@ -14,29 +13,23 @@ class CheckoutOrderSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
     final totalQty = cartItems.fold<int>(0, (sum, i) => sum + i.quantity);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          Strings.selectedMedicinesWithCount(totalQty),
-          style: FontPalette.base700(16, color: colors.primaryText),
-        ),
-        8.verticalSpace,
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: cartItems.length,
-          itemBuilder: (context, index) {
-            return CheckoutProductTile(
-              item: cartItems[index],
-              showDivider: index < cartItems.length - 1,
-            );
-          },
-        ),
-      ],
+    return CheckoutSectionCard(
+      title: Strings.selectedMedicinesWithCount(totalQty),
+      titleIcon: Icons.medication_liquid_rounded,
+      padding: EdgeInsets.fromLTRB(16.r, 16.r, 16.r, 4.r),
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: cartItems.length,
+        itemBuilder: (context, index) {
+          return CheckoutProductTile(
+            item: cartItems[index],
+            showDivider: index < cartItems.length - 1,
+          );
+        },
+      ),
     );
   }
 }

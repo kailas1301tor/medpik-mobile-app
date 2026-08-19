@@ -17,9 +17,7 @@ class OrdersScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ordersData = ref.watch(
-      ordersNotifierProvider.select(
-        (s) => Tuple2(s.loaderState, s.orders),
-      ),
+      ordersNotifierProvider.select((s) => Tuple2(s.loaderState, s.orders)),
     );
     final loaderState = ordersData.item1;
     final orders = ordersData.item2;
@@ -38,7 +36,7 @@ class OrdersScreen extends ConsumerWidget {
               buttonText: Strings.refresh,
               emptyScreenTitle: Strings.noOrdersYet,
               emptyScreenDescription: Strings.noOrdersMessage,
-              emptyScreenImage: Assets.lottieEmptyOrder,
+              emptyScreenImage: Assets.pngNoData,
               child: OrdersContentWidget(orders: orders),
             ),
           ),

@@ -77,15 +77,8 @@ class CartItemCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  GestureDetector(
-                    onTap: onRemove,
-                    behavior: HitTestBehavior.opaque,
-                    child: Padding(
-                      padding: EdgeInsets.all(2.r),
-                      child: CommonDeleteIcon(size: 18.r),
-                    ),
-                  ),
-                  6.verticalSpace,
+                  _CartDeleteButton(onTap: onRemove),
+                  8.verticalSpace,
                   CommonQtySelector(
                     quantity: item.quantity,
                     onIncrement: onIncrement,
@@ -98,8 +91,42 @@ class CartItemCard extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          Divider(height: 1.h, thickness: 1, color: colors.divider),
+          Divider(
+            height: 1.h,
+            thickness: 1,
+            color: colors.divider.withValues(alpha: 0.7),
+          ),
       ],
+    );
+  }
+}
+
+class _CartDeleteButton extends StatelessWidget {
+  const _CartDeleteButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Material(
+      color: ColorPalette.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999.r),
+        child: Container(
+          width: 30.r,
+          height: 30.r,
+          decoration: BoxDecoration(
+            color: colors.statusErrorBg,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: CommonDeleteIcon(size: 16.r, color: colors.statusErrorText),
+          ),
+        ),
+      ),
     );
   }
 }

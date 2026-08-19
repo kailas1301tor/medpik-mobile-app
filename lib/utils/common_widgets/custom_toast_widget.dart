@@ -35,11 +35,10 @@ class CustomToastWidget extends StatelessWidget {
         color: ColorPalette.black,
         borderRadius: BorderRadius.circular(100.r),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // icon and toast message
-            Flexible(
+            // Main toast section expands
+            Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
                 child: Row(
@@ -67,20 +66,16 @@ class CustomToastWidget extends StatelessWidget {
                 ),
               ),
             ),
-
-            // link section
+            // link section with only needed width
             if (link != null) ...[
-              Container(
-                height: double.infinity,
-                width: 1.w,
-                color: const Color(0xFF4B4B4B),
-              ),
+              Container(height: 24.h, width: 1.w, color: ColorPalette.f4F4F4F),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
                 child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: onLinkTap,
                   child: Text(
-                    "Link",
+                    link ?? '',
                     style: FontPalette.fWhite_14_600.copyWith(
                       decoration: TextDecoration.underline,
                     ),

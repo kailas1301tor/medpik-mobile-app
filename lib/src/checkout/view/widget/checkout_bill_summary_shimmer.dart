@@ -1,7 +1,8 @@
 // lib/src/checkout/view/widget/checkout_bill_summary_shimmer.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_section_card.dart';
 import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 
 class CheckoutBillSummaryShimmer extends StatelessWidget {
@@ -9,14 +10,9 @@ class CheckoutBillSummaryShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return Container(
-      padding: EdgeInsets.all(14.r),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(14.r),
-      ),
+    return CheckoutSectionCard(
+      title: Strings.orderSummary,
+      titleIcon: Icons.receipt_long_rounded,
       child: Column(
         children: [
           const CheckoutBillRowShimmer(),
@@ -31,17 +27,9 @@ class CheckoutBillSummaryShimmer extends StatelessWidget {
           12.verticalSpace,
           Row(
             children: [
-              CommonShimmerBox(
-                height: 15.h,
-                width: 88.w,
-                borderRadius: 6.r,
-              ),
+              CommonShimmerBox(height: 15.h, width: 88.w, borderRadius: 6.r),
               const Spacer(),
-              CommonShimmerBox(
-                height: 15.h,
-                width: 140.w,
-                borderRadius: 6.r,
-              ),
+              CommonShimmerBox(height: 15.h, width: 140.w, borderRadius: 6.r),
             ],
           ),
           8.verticalSpace,
@@ -63,17 +51,9 @@ class CheckoutBillRowShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        CommonShimmerBox(
-          height: 13.h,
-          width: 120.w,
-          borderRadius: 6.r,
-        ),
+        CommonShimmerBox(height: 13.h, width: 120.w, borderRadius: 6.r),
         const Spacer(),
-        CommonShimmerBox(
-          height: 13.h,
-          width: 140.w,
-          borderRadius: 6.r,
-        ),
+        CommonShimmerBox(height: 13.h, width: 140.w, borderRadius: 6.r),
       ],
     );
   }

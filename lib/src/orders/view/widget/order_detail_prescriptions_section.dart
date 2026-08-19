@@ -3,63 +3,53 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
-import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/orders/view/widget/order_detail_section_card.dart';
 import 'package:medpik/utils/common_widgets/common_app_bar.dart';
 import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 
 class OrderDetailPrescriptionsSection extends StatelessWidget {
-  const OrderDetailPrescriptionsSection({
-    super.key,
-    required this.imageUrls,
-  });
+  const OrderDetailPrescriptionsSection({super.key, required this.imageUrls});
 
   final List<String> imageUrls;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
     final urls = imageUrls
         .map((url) => url.trim())
         .where((url) => url.isNotEmpty)
         .toList(growable: false);
     if (urls.isEmpty) return const SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          Strings.attachedPrescriptionsTitle,
-          style: FontPalette.base700(16, color: colors.primaryText),
-        ),
-        10.verticalSpace,
-        SizedBox(
-          height: 88.r,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: urls.length,
-            separatorBuilder: (_, __) => 10.horizontalSpace,
-            itemBuilder: (context, index) {
-              final url = urls[index];
-              return GestureDetector(
-                onTap: () => _OrderPrescriptionPreview.show(context, url),
-                child: CommonCachedNetworkImage(
-                  imageUrl: url,
+    return OrderDetailSectionCard(
+      title: Strings.attachedPrescriptionsTitle,
+      titleIcon: Icons.image_outlined,
+      child: SizedBox(
+        height: 88.r,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: urls.length,
+          separatorBuilder: (_, __) => 10.horizontalSpace,
+          itemBuilder: (context, index) {
+            final url = urls[index];
+            return GestureDetector(
+              onTap: () => _OrderPrescriptionPreview.show(context, url),
+              child: CommonCachedNetworkImage(
+                imageUrl: url,
+                width: 88.r,
+                height: 88.r,
+                borderRadius: 12.r,
+                fit: BoxFit.cover,
+                errorWidget: CommonNetworkImageIconFallback(
                   width: 88.r,
                   height: 88.r,
                   borderRadius: 12.r,
-                  fit: BoxFit.cover,
-                  errorWidget: CommonNetworkImageIconFallback(
-                    width: 88.r,
-                    height: 88.r,
-                    borderRadius: 12.r,
-                  ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
-      ],
+      ),
     );
   }
 }

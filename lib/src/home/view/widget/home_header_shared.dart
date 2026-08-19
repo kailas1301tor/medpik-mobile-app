@@ -14,10 +14,12 @@ class HomeHeaderIconButton extends StatelessWidget {
     super.key,
     required this.iconAsset,
     required this.onTap,
+    required this.iconColor,
   });
 
   final String iconAsset;
   final VoidCallback onTap;
+  final Color iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,7 @@ class HomeHeaderIconButton extends StatelessWidget {
               iconAsset,
               width: 24.w,
               height: 24.w,
+              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
             ),
           ),
         ),
@@ -92,19 +95,13 @@ class HomeHeaderLocationRow extends StatelessWidget {
 }
 
 class HomeHeaderSearchRow extends StatelessWidget {
-  const HomeHeaderSearchRow({
-    super.key,
-    required this.searchController,
-    required this.onSearchTap,
-  });
+  const HomeHeaderSearchRow({super.key, required this.onSearchTap});
 
-  final TextEditingController searchController;
   final VoidCallback onSearchTap;
 
   @override
   Widget build(BuildContext context) {
     return CommonSearchBar(
-      controller: searchController,
       readOnly: true,
       hintText: Strings.searchMedicinesHealthcare,
       onTap: onSearchTap,

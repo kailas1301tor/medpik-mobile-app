@@ -49,15 +49,17 @@ class WishlistScreen extends ConsumerWidget {
                   CommonSwitchState(
                     loaderState: loaderState,
                     reload: () {
-                      final itemsEmpty =
-                          ref.read(wishlistNotifierProvider).items.isEmpty;
+                      final itemsEmpty = ref
+                          .read(wishlistNotifierProvider)
+                          .items
+                          .isEmpty;
                       refreshWishlist(showLoader: itemsEmpty);
                     },
                     loader: const WishlistShimmerWidget(),
                     buttonText: Strings.refresh,
                     emptyScreenTitle: Strings.noFavoriteProducts,
                     emptyScreenDescription: Strings.noFavoriteProductsDesc,
-                    emptyScreenImage: Assets.lottieEmptyHeart,
+                    emptyScreenImage: Assets.pngNoWishlist,
                     child: const WishlistContentWidget(),
                   ),
                   if (isTogglePending)

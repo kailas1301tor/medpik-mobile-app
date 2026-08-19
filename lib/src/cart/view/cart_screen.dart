@@ -28,8 +28,7 @@ class CartScreen extends ConsumerWidget {
     );
     final loaderState = screenData.item1;
     final hasItems = screenData.item2;
-    final showCheckoutFooter =
-        loaderState == LoaderState.loaded && hasItems;
+    final showCheckoutFooter = loaderState == LoaderState.loaded && hasItems;
     final notifier = ref.read(cartNotifierProvider.notifier);
 
     return CartMutationOverlay(
@@ -46,11 +45,11 @@ class CartScreen extends ConsumerWidget {
                 reload: () => notifier.fetchCart(showLoader: true),
                 emptyScreenTitle: Strings.cartTitle,
                 emptyScreenDescription: Strings.cartEmptyMessage,
-                emptyScreenImage: Assets.lottieEmptyCart,
+                emptyScreenImage: Assets.pngNoData,
                 noData: CommonEmptyState(
                   title: Strings.cartTitle,
                   message: Strings.cartEmptyMessage,
-                  imageAsset: Assets.lottieEmptyCart,
+                  imageAsset: Assets.pngNoData,
                   buttonText: Strings.startShopping,
                   onPressed: () =>
                       ref.read(mainShellNotifierProvider.notifier).setTab(0),

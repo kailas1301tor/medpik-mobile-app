@@ -12,9 +12,7 @@ import 'package:medpik/data/models/product_catalog_args.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
 
 class HomeShimmerWidget extends StatelessWidget {
-  const HomeShimmerWidget({super.key, required this.searchController});
-
-  final TextEditingController searchController;
+  const HomeShimmerWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +26,6 @@ class HomeShimmerWidget extends StatelessWidget {
             topInset: topInset,
             greeting: timeOfDayGreeting(),
             deliveryHint: Strings.selectDeliveryAddress,
-            searchController: searchController,
             onSearchTap: () {
               Navigator.pushNamed(
                 context,

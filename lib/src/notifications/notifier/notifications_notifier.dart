@@ -1,6 +1,5 @@
 // lib/src/notifications/notifier/notifications_notifier.dart
 import 'package:either_dart/either.dart';
-import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
@@ -26,6 +25,12 @@ class NotificationsNotifier extends _$NotificationsNotifier {
     return const NotificationsState(loaderState: LoaderState.loading);
   }
 
+
+
+
+// ! ----------------------------- API CALLS -----------------------------
+
+// This function is used to fetch the notifications from the API.
   Future<void> fetchNotifications({
     required int page,
     bool append = false,
@@ -52,7 +57,6 @@ class NotificationsNotifier extends _$NotificationsNotifier {
           (left) {
             if (requestId != _requestId) return;
             final loaderState = handleResponseError(left.key);
-            debugPrint("🔴 NOTIFICATIONS ERROR: ${left.message}");
             state = state.copyWith(
               loaderState: append ? state.loaderState : loaderState,
               isLoadingMore: false,
@@ -67,20 +71,18 @@ class NotificationsNotifier extends _$NotificationsNotifier {
             final merged = append
                 ? [...state.notifications, ...pageNotifications]
                 : pageNotifications;
-            final hasMore = pageNotifications.isEmpty ? false : response.hasMore;
-
-            debugPrint(
-              "🟢 NOTIFICATIONS page=${response.currentPage}: "
-              "${pageNotifications.length} items (total=${merged.length})",
-            );
+            final hasMore = pageNotifications.isEmpty
+                ? false
+                : response.hasMore;
 
             state = state.copyWith(
               loaderState: merged.isEmpty
                   ? LoaderState.noData
                   : LoaderState.loaded,
               notifications: merged,
-              currentPage:
-                  response.currentPage > 0 ? response.currentPage : page,
+              currentPage: response.currentPage > 0
+                  ? response.currentPage
+                  : page,
               hasMore: hasMore,
               isLoadingMore: false,
             );
@@ -88,7 +90,6 @@ class NotificationsNotifier extends _$NotificationsNotifier {
         )
         .catchError((e) {
           if (requestId != _requestId) return;
-          debugPrint("🔴 UNEXPECTED NOTIFICATIONS ERROR: $e");
           state = state.copyWith(
             loaderState: append ? state.loaderState : LoaderState.error,
             isLoadingMore: false,
@@ -97,11 +98,9 @@ class NotificationsNotifier extends _$NotificationsNotifier {
         });
   }
 
-  Future<void> loadMore() async {
-    if (!state.hasMore || state.isLoadingMore) return;
-    await fetchNotifications(page: state.currentPage + 1, append: true);
-  }
 
+
+// to mark all notifications as read
   Future<void> markAllAsRead() async {
     if (state.isMarkAllReadLoading) return;
 
@@ -110,22 +109,38 @@ class NotificationsNotifier extends _$NotificationsNotifier {
         .markAllAsRead()
         .fold(
           (left) {
-            debugPrint("🔴 MARK ALL READ ERROR: ${left.message}");
-            showCustomErrorToast(
+            showCustomToast(
               message: left.message ?? Strings.somethingWentWrong,
+              isSuccess: false,
             );
           },
-          (_) {
+          (right) {
             final updated = state.notifications
                 .map((n) => n.copyWith(isRead: true))
                 .toList();
             state = state.copyWith(notifications: updated);
-            debugPrint("🟢 MARK ALL READ SUCCESS");
+            showCustomToast(
+              message: "All notifications marked as read",
+              isSuccess: true,
+            );
           },
         )
         .catchError((e) {
-          debugPrint("🔴 UNEXPECTED MARK ALL READ ERROR: $e");
+          showCustomToast(
+            message: Strings.somethingWentWrong,
+            isSuccess: false,
+          );
         });
     state = state.copyWith(isMarkAllReadLoading: false);
+  }
+
+
+
+  // ! ----------------------------- HELPER FUNCTIONS -----------------------------
+
+  // to load more notifications
+  Future<void> loadMore() async {
+    if (!state.hasMore || state.isLoadingMore) return;
+    await fetchNotifications(page: state.currentPage + 1, append: true);
   }
 }

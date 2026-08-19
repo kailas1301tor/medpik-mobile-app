@@ -8,11 +8,7 @@ import 'package:medpik/utils/common_widgets/common_container.dart';
 import 'package:medpik/utils/helpers/order_status_helper.dart';
 
 class OrderStatusBanner extends StatelessWidget {
-  const OrderStatusBanner({
-    super.key,
-    required this.data,
-    this.onTap,
-  });
+  const OrderStatusBanner({super.key, required this.data, this.onTap});
 
   final OrderStatusBannerData data;
   final VoidCallback? onTap;
@@ -27,6 +23,7 @@ class OrderStatusBanner extends StatelessWidget {
       borderRadius: 12.r,
       color: bg,
       border: Border.all(color: border),
+      side: BorderSide.none,
       onTap: data.isTappable ? onTap : null,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,43 +61,46 @@ class OrderStatusBanner extends StatelessWidget {
     );
   }
 
-  (Color, Color, Color) _bannerColors(OrderStatusBannerType type, AppColors colors) {
+  (Color, Color, Color) _bannerColors(
+    OrderStatusBannerType type,
+    AppColors colors,
+  ) {
     return switch (type) {
       OrderStatusBannerType.delivery => (
-          colors.bannerSuccessBg,
-          colors.bannerSuccessBorder,
-          colors.statusSuccessText,
-        ),
+        colors.bannerSuccessBg,
+        colors.bannerSuccessBorder,
+        colors.statusSuccessText,
+      ),
       OrderStatusBannerType.rejection => (
-          colors.bannerErrorBg,
-          colors.bannerErrorBorder,
-          colors.statusErrorText,
-        ),
+        colors.bannerErrorBg,
+        colors.bannerErrorBorder,
+        colors.statusErrorText,
+      ),
       OrderStatusBannerType.billGenerated => (
-          colors.bannerInfoBg,
-          colors.bannerInfoBorder,
-          colors.primaryText,
-        ),
+        colors.bannerInfoBg,
+        colors.bannerInfoBorder,
+        colors.primaryText,
+      ),
       OrderStatusBannerType.billReview => (
-          colors.bannerWarningBg,
-          colors.bannerWarningBorder,
-          colors.statusWarningText,
-        ),
+        colors.bannerWarningBg,
+        colors.bannerWarningBorder,
+        colors.statusWarningText,
+      ),
       OrderStatusBannerType.billAccepted => (
-          colors.bannerSuccessBg,
-          colors.bannerSuccessBorder,
-          colors.statusSuccessText,
-        ),
+        colors.bannerSuccessBg,
+        colors.bannerSuccessBorder,
+        colors.statusSuccessText,
+      ),
       OrderStatusBannerType.securePayment => (
-          colors.bannerSecureBg,
-          colors.bannerSecureBorder,
-          colors.statusInfoText,
-        ),
+        colors.bannerSecureBg,
+        colors.bannerSecureBorder,
+        colors.statusInfoText,
+      ),
       OrderStatusBannerType.none => (
-          colors.surface,
-          colors.inputBorder,
-          colors.primaryText,
-        ),
+        colors.surface,
+        colors.inputBorder,
+        colors.primaryText,
+      ),
     };
   }
 }

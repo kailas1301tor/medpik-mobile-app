@@ -13,39 +13,23 @@ import 'widget/otp_phone_header.dart';
 import 'widget/otp_resend_row.dart';
 import 'widget/otp_verify_button.dart';
 
-class OtpScreen extends ConsumerStatefulWidget {
+class OtpScreen extends ConsumerWidget {
   const OtpScreen({super.key});
 
   @override
-  ConsumerState<OtpScreen> createState() => _OtpScreenState();
-}
-
-class _OtpScreenState extends ConsumerState<OtpScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _redirectIfNoSession());
-  }
-
-  void _redirectIfNoSession() {
-    if (!mounted) return;
-    final phone = ref.read(authNotifierProvider).otpPhone;
-    if (phone != null && phone.isNotEmpty) return;
-    Navigator.pushReplacementNamed(context, RouteConstants.routeLoginScreen);
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
+    final otpPhone = ref.watch(authNotifierProvider.select((s) => s.otpPhone));
 
-    ref.listen(authNotifierProvider.select((s) => s.otpPhone), (
-      previous,
-      next,
-    ) {
-      if (next != null && next.isNotEmpty) return;
-      if (!context.mounted) return;
-      Navigator.pushReplacementNamed(context, RouteConstants.routeLoginScreen);
-    });
+    if (otpPhone == null || otpPhone.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        Navigator.pushReplacementNamed(
+          context,
+          RouteConstants.routeLoginScreen,
+        );
+      });
+    }
 
     return CommonScaffold(
       appBar: const CommonAppBar(title: Strings.verification),

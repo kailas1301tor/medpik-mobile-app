@@ -43,12 +43,12 @@ class CheckoutScreen extends ConsumerWidget {
     final errorMessage = checkoutData.item2;
     final address = checkoutData.item3;
     final isPlacingOrder = checkoutData.item4;
-    final cartItems = ref.watch(
-      cartNotifierProvider.select((s) => s.items),
-    );
+    final cartItems = ref.watch(cartNotifierProvider.select((s) => s.items));
     final notifier = ref.read(checkoutNotifierProvider.notifier);
-    final itemCount =
-        cartItems.fold<int>(0, (sum, item) => sum + item.quantity);
+    final itemCount = cartItems.fold<int>(
+      0,
+      (sum, item) => sum + item.quantity,
+    );
 
     return CommonScaffold(
       appBar: const CommonAppBar(title: Strings.medicineCartCheckoutTitle),
@@ -57,7 +57,7 @@ class CheckoutScreen extends ConsumerWidget {
       body: CommonSwitchState(
         loaderState: loaderState,
         reload: notifier.prepareCheckout,
-        loader: const CheckoutShimmerWidget(),
+        loader: CheckoutShimmerWidget(itemCount: itemCount),
         errorMessage: errorMessage,
         buttonText: loaderState == LoaderState.noData
             ? Strings.goBackButton
@@ -75,18 +75,18 @@ class CheckoutScreen extends ConsumerWidget {
                 child: ListView(
                   padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 20.h),
                   children: [
-                    const CartPricingBanner(),
-                    20.verticalSpace,
+                    const CartPricingBanner(showBorder: false),
+                    16.verticalSpace,
                     const CheckoutPharmacistInstructionsCard(),
-                    20.verticalSpace,
+                    16.verticalSpace,
                     CheckoutAddressCard(
                       address: address,
                       onChangeAddress: () =>
                           _changeAddress(context, ref, notifier),
                     ),
-                    20.verticalSpace,
+                    16.verticalSpace,
                     CheckoutOrderSummary(cartItems: cartItems),
-                    20.verticalSpace,
+                    16.verticalSpace,
                     CheckoutBillSummarySection(itemCount: itemCount),
                   ],
                 ),

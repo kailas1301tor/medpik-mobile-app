@@ -1,19 +1,4 @@
-// lib/src/address/notifier/location_picker_notifier.dart
-//
-// * Google Maps location picker — search, GPS, reverse geocode, serviceability.
-//
-// ? UX: fixed center pin (LocationPickerScreen). User pans map; on camera idle we
-// ? debounce and reverse-geocode pin coordinates. Search = forward geocode + animate.
-//
-// ? Lifecycle: autoDispose — scoped to LocationPickerScreen only. Confirmed picks
-// ? return via Navigator.pop(PickedLocationModel) → merged by AddressNotifier.
-//
-// ? Coordination flags:
-// ? - _programmaticMove — skip onCameraMove during programmatic camera animation
-// ? - _suppressNextCameraIdle — skip one idle after _moveCamera (no duplicate reverse)
-// ? - _reverseGeneration — cancel stale reverse-geocode when newer request starts
-//
-// ? Serviceability: location_picker_confirm_helper + LocationConfig
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';

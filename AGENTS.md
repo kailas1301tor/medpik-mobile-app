@@ -84,23 +84,17 @@ class FeatureNotifier extends _$FeatureNotifier {
           (left) {
             // left.key is ApiErrorTypes — always map via handleResponseError
             final loaderState = handleResponseError(left.key);
-            debugPrint("🔴 API ERROR: ${left.message}");
             state = state.copyWith(loaderState: loaderState);
           },
           (right) {
-            if (right.results?.data == null) {
-              state = state.copyWith(loaderState: LoaderState.noData);
-              return;
-            }
-            debugPrint("🟢 API SUCCESS: ${right.results?.data}");
+            
             state = state.copyWith(
-              loaderState: LoaderState.loaded,
+              loaderState: right.data!=null? LoaderState.loaded: LoaderState.noData,,
               data: right.results?.data,
             );
           },
         )
         .catchError((e) {
-          debugPrint("🔴 UNEXPECTED ERROR: $e");
           state = state.copyWith(loaderState: LoaderState.error);
         });
   }
@@ -112,8 +106,7 @@ Rules:
 - Left branch (error): ALWAYS call `handleResponseError(left.key)` to map `ApiErrorTypes` → `LoaderState`. NEVER hardcode `LoaderState.error` directly.
 - Right branch (success): check for null data first — set `LoaderState.noData` if null, otherwise `LoaderState.loaded`.
 - ALWAYS chain `.catchError()` after `.fold()` to guard against unexpected exceptions.
-- Use `debugPrint` with emoji prefix for all log lines — NEVER `print()` or `log()`.
-- If the success branch needs to trigger a subsequent async call (e.g. fetch related data), use `async` on the right lambda and `await` inside it.
+- If the success branch needs to trigger a subsequent async call (e.g. fetch related data),
 - UI reads state via `ref.watch(featureNotifierProvider)`.
 - UI triggers actions via `ref.read(featureNotifierProvider.notifier).fetchData()`.
 - One notifier per feature. Never nest providers unnecessarily.
@@ -135,9 +128,12 @@ part 'feature_state.freezed.dart';
 @freezed
 sealed class FeatureState with _$FeatureState {
   const factory FeatureState({
-    @Default(LoaderState.loaded) LoaderState loaderState,
+    @Default(LoaderState.loaded) LoaderState loaderState, // loaders for screens 
     FeatureData? data,
-    String? errorMessage,
+    String? errorMessage, //use for validation error showing in ui especially for form fields
+    bool ?isloading // use for button loaders
+    int? pageCount
+    bool? isLoadingMore
     // Use bool flags only for button/inline action loaders; use LoaderState for screen content.
   }) = _FeatureState;
 }
@@ -150,7 +146,7 @@ sealed class FeatureState with _$FeatureState {
 
 **Loader type choice:**
 - **Screen / content / list loading** → `LoaderState` (`loaderState`, `detailLoaderState`, etc.) with full switch (`loading`, `error`, `noData`, `networkError`, `serverError`, `loaded`)
-- **Button / inline / small loaders** → `bool isSubmitting` / `isPaymentLoading` / `isBillActionLoading` — `true` only while an action is in-flight; reset to `false` in `finally`; surface errors via toast/dialog, not via the bool
+- **Button / inline / small loaders** → `bool isSubmitting` / `isPaymentLoading` / `isBillActionLoading` — `true` only while an action is in-flight; reset to `false` when needed 
 
 ---
 
@@ -189,36 +185,12 @@ CommonRefreshIndicator(
   ),
 )
 
-// Custom layouts — switch manually:
-switch (state.loaderState) {
-  case LoaderState.loading      => const FeatureShimmerWidget(),
-  case LoaderState.error        => ErrorWidget(message: state.errorMessage ?? ''),
-  case LoaderState.networkError => const NoInternetWidget(),
-  case LoaderState.serverError  => const ServerErrorWidget(),
-  case LoaderState.noData       => const EmptyStateWidget(),
-  case LoaderState.loaded       => FeatureContentWidget(data: state.data),
-}
-```
 
 ### Button and inline loaders (bool)
 
 Use a `bool` for `PrimaryButton.isLoading`, inline spinners, and sheet action buttons.
 Do NOT use `LoaderState` for these — they only need loading vs idle.
 
-```dart
-// state/feature_state.dart
-@Default(false) bool isPaymentLoading,
-
-// notifier/feature_notifier.dart
-state = state.copyWith(isPaymentLoading: true);
-try {
-  await repo.submit(...).fold(
-    (error) { showCustomErrorToast(...); },
-    (right) { ... },
-  );
-} finally {
-  state = state.copyWith(isPaymentLoading: false);
-}
 
 // view — use .select()
 final isLoading = ref.watch(
@@ -230,10 +202,7 @@ PrimaryButton(
 );
 ```
 
-Rules:
-- `handleResponseError` maps to `LoaderState` for **screen** loaders only.
-- Button/inline actions: toast on error + `false` in `finally` — never assign `LoaderState` to a button bool.
-- During Razorpay checkout (SDK modal), set the button bool to `false` so the UI is not blocked behind the modal.
+
 
 ---
 
@@ -280,12 +249,10 @@ LoaderState handleResponseError(ApiErrorTypes errorType) {
 ### API error handling (toast)
 
 - For all API calls (GET, POST, PUT, PATCH, DELETE), do **not** store error messages in state for UI display.
-- Display API errors with `showCustomErrorToast`. Display success with `showCustomToast` where appropriate.
-- Screen/content loaders still use `LoaderState` via `handleResponseError` — toasts are additive, not a replacement for loader state.
+- Display API errors and success with `showCustomToast` where appropriate.
 
 ### Avoid redundant try-catch
 
-- Do **not** wrap API `.fold()` chains in extra `try-catch` unless there is a specific, justified need.
 - Rely on `.fold()` left/right branches plus `.catchError()` for unexpected failures.
 - Do **not** add `try-catch` solely for toast or notification display.
 
@@ -296,23 +263,18 @@ return await ref.read(featureRepositoryProvider)
     .fold(
       (left) {
         final loaderState = handleResponseError(left.key);
-        debugPrint("🔴 API ERROR: ${left.message}");
         showCustomErrorToast(message: left.message ?? Strings.somethingWentWrong);
         state = state.copyWith(loaderState: loaderState);
       },
-      (right) { /* success */ },
+      (right) { /* success */ }, d   
     )
     .catchError((e) {
-      debugPrint("🔴 UNEXPECTED ERROR: $e");
       showCustomErrorToast(message: Strings.somethingWentWrong);
       state = state.copyWith(loaderState: LoaderState.error);
     });
 
 // PUT — bool action loader + toast; per-field errors in state only
-if (firstName.isEmpty) {
-  state = state.copyWith(firstNameError: Strings.firstNameRequired);
-  return false;
-}
+
 state = state.copyWith(isSaving: true, firstNameError: null, lastNameError: null);
 return await repo.update(payload).fold(
   (left) {
@@ -332,12 +294,6 @@ return await repo.update(payload).fold(
 });
 ```
 
-| Concern | Approach |
-|---------|----------|
-| Inline field validation | Dedicated `fieldNameError` per validated input in Freezed state |
-| API errors / success | Toast only — never `errorMessage` in state |
-| Screen loading | `LoaderState` via `handleResponseError` |
-| Button / inline actions | `bool isSaving` — reset in `.fold()` / `.catchError()`, not `try-finally` unless justified |
 
 ---
 
@@ -732,16 +688,7 @@ CommonAppBar(
 )
 ```
 
-### CommonNavBarButton
-Use for ALL icon buttons inside app bars and navigation areas.
 
-```dart
-CommonNavBarButton(
-  icon: AppIcons.notifications,
-  badgeCount: unreadCount,   // optional
-  onTap: () => _onTap(),
-)
-```
 
 ### CommonSearchBar
 Use for ALL search input fields. NEVER build a raw `TextField` for search.
@@ -989,37 +936,6 @@ Rules:
 
 All extensions live in `utils/extensions/`. Import only what is needed.
 
-```dart
-// utils/extensions/string_extensions.dart
-extension StringX on String {
-  bool get isValidEmail => RegExp(r'^[\w.]+@[\w]+\.\w+$').hasMatch(this);
-  bool get isNotBlank => trim().isNotEmpty;
-  String get capitalizeFirst => isEmpty ? this : '${this[0].toUpperCase()}${substring(1)}';
-  String get toDisplayDate => DateFormatter.format(this);
-}
-
-// utils/extensions/context_extensions.dart
-extension ContextX on BuildContext {
-  double get screenWidth  => MediaQuery.sizeOf(this).width;
-  double get screenHeight => MediaQuery.sizeOf(this).height;
-  ThemeData get theme     => Theme.of(this);
-  bool get isDarkMode     => Theme.of(this).brightness == Brightness.dark;
-  void hideKeyboard()     => FocusScope.of(this).unfocus();
-}
-
-// utils/extensions/list_extensions.dart
-extension ListX<T> on List<T> {
-  T? get firstOrNull => isEmpty ? null : first;
-  List<T> safeSublist(int start, [int? end]) =>
-      sublist(start.clamp(0, length), (end ?? length).clamp(0, length));
-}
-
-// utils/extensions/datetime_extensions.dart
-extension DateTimeX on DateTime {
-  bool get isToday => DateUtils.isSameDay(this, DateTime.now());
-  String get toDisplayString => DateFormatter.format(this);
-}
-```
 
 Rules:
 - NEVER define one-off extension methods inside feature files.
@@ -1096,11 +1012,16 @@ Enforce strictly. Exceed the limit → extract immediately into sub-files.
 
 | File Type       | Max Lines |
 |-----------------|-----------|
-| Screen          | 200       |
+| Screen/root UI  | 400       |
 | Widget file     | 150       |
 | Notifier        | 600       |
 | Repository      | 400       |
 | Model           | 200       |
+
+Screen/root UI files may compose the page up to 400 lines, but reusable sections,
+repeated UI, and complex widget branches MUST live in separate files under
+`view/widget/`. If a screen approaches the limit, extract immediately into
+focused widgets before adding more UI.
 
 ---
 
@@ -1114,7 +1035,7 @@ Enforce strictly. Exceed the limit → extract immediately into sub-files.
 | Force-unwrap `!`                     | Safe null handling (`??`, `?.`, guard clause)       |
 | Business logic in `build()`          | Move to notifier                                    |
 | API calls from UI                    | Move to repository                                  |
-| Monolithic widgets                   | Extract at >150 lines                               |
+| Monolithic widgets                   | Keep screen/root UI <=400 lines; extract reusable/complex UI into `view/widget/` files |
 | `json_serializable`                  | Manual `fromJson` with safe converters              |
 | `ChangeNotifier`                     | Riverpod code gen                                   |
 | `throw` in repository                | Return `Left(ResponseError(...))`                   |
@@ -1273,21 +1194,4 @@ When assigned a task:
 
 ---
 
-## OUTPUT FORMAT
 
-Every generated file MUST start with its full path as a comment:
-
-```dart
-// lib/src/feature_name/notifier/feature_notifier.dart
-```
-
-When generating a full feature, output files in this order:
-1. `model/`
-2. `state/`
-3. `repo/`
-4. `notifier/`
-5. `view/screen.dart`
-6. `view/widget/` (if needed)
-7. Additions to `res/constants/string_constants.dart`
-8. Additions to `res/styles/color_palette.dart`
-9. Additions to `res/styles/font_palette.dart`

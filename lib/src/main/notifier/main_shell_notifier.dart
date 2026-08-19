@@ -33,7 +33,7 @@ class MainShellNotifier extends _$MainShellNotifier {
     await oneSignal.requestNotificationPermission();
     await oneSignal.refreshDeviceRegistration();
     await oneSignal.registerDeviceWithBackend();
-
+    await ref.read(homeNotifierProvider.notifier).fetchCustomerGeneralData();
     ref.read(cartNotifierProvider.notifier).fetchCart(showLoader: true);
     ref.read(wishlistNotifierProvider.notifier).fetchWishlist(showLoader: true);
     ref.read(homeNotifierProvider.notifier).fetchHomeFeed();

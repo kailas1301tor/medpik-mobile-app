@@ -64,9 +64,7 @@ class LoginFormWidget extends ConsumerWidget {
           isLoading: isRequesting,
           onPressed: isRequesting || !isPhoneValid
               ? null
-              : () {
-                  notifier.requestOtp(context);
-                },
+              : () => notifier.requestOtp(context),
         ),
       ],
     );

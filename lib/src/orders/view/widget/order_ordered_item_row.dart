@@ -51,10 +51,7 @@ class OrderOrderedItemRow extends StatelessWidget {
                   children: [
                     Text(
                       product.name,
-                      style: FontPalette.base600(
-                        14,
-                        color: colors.primaryText,
-                      ),
+                      style: FontPalette.base600(14, color: colors.primaryText),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -100,7 +97,7 @@ class OrderOrderedItemRow extends StatelessWidget {
           Divider(
             height: 1.h,
             thickness: 1,
-            color: ColorPalette.orderBillDivider,
+            color: colors.divider.withValues(alpha: 0.7),
           ),
       ],
     );
@@ -152,10 +149,11 @@ class _OrderItemPriceColumn extends StatelessWidget {
         if (showStrikethrough)
           Text(
             grossLineTotal.toCurrency(decimalDigits: 0),
-            style: FontPalette.base400(12, color: colors.secondaryText).copyWith(
-              decoration: TextDecoration.lineThrough,
-              decorationColor: colors.secondaryText,
-            ),
+            style: FontPalette.base400(12, color: colors.secondaryText)
+                .copyWith(
+                  decoration: TextDecoration.lineThrough,
+                  decorationColor: colors.secondaryText,
+                ),
           ),
         Text(
           lineTotal.toCurrency(decimalDigits: 0),

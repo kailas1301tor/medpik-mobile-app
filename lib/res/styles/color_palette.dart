@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
 class ColorPalette {
-  // Brand colors — Custom Teal primary
-  static const primaryColor = Color(0xFF007F7F);
-  static const primaryColorDark = Color(0xFF005959);
-  static const accentIndigo = Color(0xFF007F7F);
-  static const secondaryColor = Color(0xFF14B8A6);
+  // Brand colors - Pantone 3425 C
+  static const primaryColor = Color(0xFF00704A);
+  static const primaryColorDark = Color(0xFF004D33);
+  static const accentIndigo = Color(0xFF00704A);
+  static const secondaryColor = Color(0xFF16A06D);
   static const formValidationErrorColor = Color(0xFFFF453A);
   static const successColor = Color(0xFF34C759);
   static const warningColor = Color(0xFFFF9F0A);
 
-  /// Soft CTA sheen — stays within brand teal; avoids the muddy dark right edge.
-  static const primaryGradientStart = Color(0xFF1AADAD);
-  static const primaryGradientEnd = Color(0xFF007F7F);
+  /// Soft CTA sheen - stays within brand green; avoids the muddy dark right edge.
+  static const primaryGradientStart = Color(0xFF1A8D64);
+  static const primaryGradientEnd = Color(0xFF00704A);
 
   static const primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
@@ -47,11 +47,11 @@ class ColorPalette {
   static const f9A1D20 = Color(0xFF9A1D20);
   static const f753401 = Color(0xFF753401);
   static const f656565 = Color(0xFF656565);
-  static const f009E35 = Color(0xFF009E35);
+  static const f009E35 = primaryColor;
   static const fF19121 = Color(0xFFF19121);
   static const f585858 = Color(0xFF585858);
   static const fFF6161 = Color(0xFFFF6161);
-  static const f00AF63 = Color(0xFF00AF63);
+  static const f00AF63 = primaryColor;
   static const f674011 = Color(0xFF674011);
   static const f7C6225 = Color(0xFF7C6225);
   static const fE53B40 = Color(0xFFE53B40);
@@ -60,7 +60,7 @@ class ColorPalette {
   static const f0E0F0C = Color(0xFF0E0F0C);
   static const f808080 = Color(0xFF808080);
   static const f5A5A5A = Color(0xFF5A5A5A);
-  static const f13AC00 = Color(0xFF13AC00);
+  static const f13AC00 = primaryColor;
   static const fFF9500 = Color(0xFFFF9500);
   static const f80011F = Color(0xFF80011F);
   static const f111113 = Color(0xFF111113);
@@ -73,8 +73,8 @@ class ColorPalette {
   static const f844800 = Color(0xFF844800);
   static const fCA8E00 = Color(0xFFCA8E00);
   static const fF10000 = Color(0xFFF10000);
-  static const f22A06D = Color(0xFF22A06D);
-  static const f2DBB7E = Color(0xFF2DBB7E);
+  static const f22A06D = primaryColor;
+  static const f2DBB7E = secondaryColor;
   static const f787879 = Color(0xFF787879);
   static const fBFBFBF = Color(0xFFBFBFBF);
 
@@ -85,10 +85,11 @@ class ColorPalette {
   static const offerBadgeText = Color(0xFF6B4F00);
 
   // Hero brand gradient stops
-  static const heroTealDark = Color(0xFF032B36);
-  static const heroTealMid = Color(0xFF064A5B);
-  static const heroTealLight = Color(0xFF0A6C7D);
-  static const homePinnedHeaderBackground = Color(0xFF043745);
+  static const heroTealDark = Color(0xFF003D2A);
+  static const heroTealMid = Color(0xFF005C3D);
+  static const heroTealLight = primaryColor;
+  static const homeHeaderActionIcon = Color(0xFFEAFBF4);
+  static const homePinnedHeaderBackground = Color(0xFF004D33);
   static const homePinnedHeaderFadeTop = Color(0x00000000);
   static const homePinnedHeaderFadeBottom = Color(0x14000000);
 
@@ -96,10 +97,10 @@ class ColorPalette {
   static const prescriptionGradientStart = Color(0xFFF2FCFC);
   static const prescriptionGradientMid = Color(0xFFDFF7F5);
   static const prescriptionGradientEnd = Color(0xFFC8F2EE);
-  static const prescriptionUploadBtn = Color(0xFF006D77);
-  static const prescriptionUploadBtnPressed = Color(0xFF005A63);
-  static const prescriptionIconTeal = Color(0xFF00897B);
-  static const prescriptionUploadDashedBorder = Color(0xFF7AB8B8);
+  static const prescriptionUploadBtn = primaryColor;
+  static const prescriptionUploadBtnPressed = primaryColorDark;
+  static const prescriptionIconTeal = primaryColor;
+  static const prescriptionUploadDashedBorder = Color(0xFF7DB8A1);
   static const prescriptionUploadAreaBg = Color(0xFFF8FCFC);
   static const prescriptionFileTileBg = Color(0xFFF5F7F7);
   static const prescriptionGuidelineIconBg = Color(0xFFEEF4FF);
@@ -111,7 +112,7 @@ class ColorPalette {
     0xBFFFFFFF,
   ); // rgba(255,255,255,0.75)
   static const prescriptionGlassBorder = Color(
-    0x14006D77,
+    0x1400704A,
   ); // rgba(0,109,119,0.08)
 
   // Liquid Glass surface tokens
@@ -119,7 +120,7 @@ class ColorPalette {
   static const glassBorderTop = Color(0x99FFFFFF); // luminous top edge
   static const glassBorderBottom = Color(0x1FFFFFFF); // faint bottom edge
   static const glassInnerHighlight = Color(0x80FFFFFF);
-  static const glassHighlightTeal = Color(0x3300B3A6); // cool radial glow
+  static const glassHighlightTeal = Color(0x3300704A); // cool radial glow
   static const glassHighlightWarm = Color(0x40FFFFFF); // warm radial glow
   static const glassChipFill = Color(0x59FFFFFF); // ~0.35 white frosted pill
 
@@ -129,8 +130,8 @@ class ColorPalette {
   ); // rgba(255,255,255,0.72)
   static const productGlassBorder = Color(0x8CFFFFFF); // rgba(255,255,255,0.55)
   static const productGlassReflection = Color(0xFFE8FAF8);
-  static const productAccentTeal = Color(0xFF0E8B8F);
-  static const productDiscountBadge = Color(0xE6006D77); // rgba(0,109,119,0.9)
+  static const productAccentTeal = primaryColor;
+  static const productDiscountBadge = Color(0xE600704A); // rgba(0,112,74,0.9)
   static const productWishlistGlass = Color(
     0x73FFFFFF,
   ); // rgba(255,255,255,0.45)
@@ -142,15 +143,15 @@ class ColorPalette {
   static const productCardBg = white;
   static const productCardBorder = Color(0xFFD9DEE3);
   static const productImageBg = Color(0xFFF4F7F8);
-  static const productSavingsGreen = Color(0xFF22A06D);
+  static const productSavingsGreen = primaryColor;
 
   // Order status badge tones
   static const orderStatusWarningBg = Color(0xFFFFF4E5);
   static const orderStatusWarningText = Color(0xFFE67E22);
   static const orderStatusInfoBg = Color(0xFFE8F7F7);
-  static const orderStatusInfoText = Color(0xFF0E8B8F);
+  static const orderStatusInfoText = primaryColor;
   static const orderStatusSuccessBg = Color(0xFFE8F8EF);
-  static const orderStatusSuccessText = Color(0xFF22A06D);
+  static const orderStatusSuccessText = primaryColor;
   static const orderStatusErrorBg = Color(0xFFFDEEEE);
   static const orderStatusErrorText = Color(0xFFE74C3C);
   static const orderStatusNeutralBg = Color(0xFFF4F5F7);
@@ -275,7 +276,7 @@ class ColorPalette {
   static const offerForestTeal = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [Color(0xFF064E3B), Color(0xFF2DD4BF)],
+    colors: [primaryColorDark, secondaryColor],
   );
 
   // Legacy aliases used by older call sites
@@ -571,7 +572,7 @@ class AppColors extends ThemeExtension<AppColors> {
     bannerSecureBorder: ColorPalette.orderBannerSecureBorder,
   );
 
-  /// Preset for Dark Mode — Midnight Slate (teal-tinted, soft elevation)
+  /// Preset for Dark Mode — Midnight Slate (green-tinted, soft elevation)
   static const AppColors dark = AppColors(
     primaryText: Color(0xFFEDEFF2),
     secondaryText: Color(0xFF9AA3AE),
@@ -581,10 +582,10 @@ class AppColors extends ThemeExtension<AppColors> {
     errorText: Color(0xFFFF7B72),
     inputBorder: Color(0xFF3A4553),
     inputBackground: Color(0xFF252E38),
-    primary: Color(0xFF26A3A3),
-    primaryDark: Color(0xFF007F7F),
-    secondary: Color(0xFF2DD4BF),
-    accent: Color(0xFF3DBFBF),
+    primary: ColorPalette.primaryColor,
+    primaryDark: ColorPalette.primaryColorDark,
+    secondary: ColorPalette.secondaryColor,
+    accent: ColorPalette.primaryColor,
     cardBackground: Color(0xFF1F2730),
     cardBorder: Color(0xFF2F3844),
     shimmerHighlight: Color(0xFF323C48),

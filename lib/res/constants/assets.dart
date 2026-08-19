@@ -11,7 +11,8 @@ class Assets {
       "assets/images/lottie/no_internet.json";
   static const String lottieSearching = "assets/images/lottie/searching.json";
   static const String lottieEmptyCart = "assets/images/lottie/empty_cart.json";
-  static const String lottieEmptyOrder = "assets/images/lottie/empty_order.json";
+  static const String lottieEmptyOrder =
+      "assets/images/lottie/empty_order.json";
   static const String lottieEmptyHeart =
       "assets/images/lottie/Empty Heart.json";
   static const String lottieSuccess = "assets/images/lottie/Success.json";
@@ -22,6 +23,14 @@ class Assets {
   static const String lottieLocation = "assets/images/lottie/Location.json";
   static const String lottieChatDoctor =
       "assets/images/lottie/Chat Doctor.json";
+
+  static const String pngError = "assets/images/png/error.png";
+  static const String pngNoData = "assets/images/png/no_Data.png";
+  static const String pngNoNetwork = "assets/images/png/no_network.png";
+  static const String pngNoNotification =
+      "assets/images/png/no_notification.png";
+  static const String pngNoSearch = "assets/images/png/no_search.png";
+  static const String pngNoWishlist = "assets/images/png/no_wishlist.png";
 
   static const String svgToastSuccess = "assets/icons/success_toast_icon.svg";
   static const String svgToastError = "assets/icons/error_toast_icon.svg";

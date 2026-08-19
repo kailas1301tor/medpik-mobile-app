@@ -11,7 +11,7 @@ import 'package:medpik/utils/common_widgets/common_text_form_field.dart';
 class CommonSearchBar extends StatelessWidget {
   const CommonSearchBar({
     super.key,
-    required this.controller,
+    this.controller,
     this.hintText,
     this.onChanged,
     this.onSubmitted,
@@ -24,7 +24,7 @@ class CommonSearchBar extends StatelessWidget {
     this.onTap,
   });
 
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String? hintText;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
@@ -43,66 +43,87 @@ class CommonSearchBar extends StatelessWidget {
     final iconSize = 18.r;
     final iconColor = context.appColors.secondaryText;
 
+    final controller = this.controller;
+    if (controller == null) {
+      return _buildField(
+        hasText: false,
+        fieldHeight: fieldHeight,
+        iconSlotWidth: iconSlotWidth,
+        iconSize: iconSize,
+        iconColor: iconColor,
+      );
+    }
+
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
-      builder: (context, value, _) {
-        final hasText = value.text.isNotEmpty;
-        final showSuffix = hasText || trailing != null;
+      builder: (context, value, _) => _buildField(
+        hasText: value.text.isNotEmpty,
+        fieldHeight: fieldHeight,
+        iconSlotWidth: iconSlotWidth,
+        iconSize: iconSize,
+        iconColor: iconColor,
+      ),
+    );
+  }
 
-        return CommonTextFormField(
-          height: fieldHeight,
-          controller: controller,
-          focusNode: focusNode,
-          readOnly: readOnly,
-          autoFocus: autoFocus,
-          onTap: onTap,
-          hintText: hintText ?? Strings.search,
-          onChanged: onChanged,
-          onSubmitted: onSubmitted,
-          inputAction: TextInputAction.search,
-          textAlignVertical: TextAlignVertical.center,
-          contentPadding: EdgeInsets.only(
-            top: 15.h,
-            bottom: 15.h,
-            right: showSuffix ? 0 : 12.w,
-          ),
-          suffix: _buildSuffix(
-            hasText: hasText,
-            fieldHeight: fieldHeight,
-            iconSlotWidth: iconSlotWidth,
-            iconSize: iconSize,
-            iconColor: iconColor,
-            trailing: trailing,
-            onClear: () {
-              controller.clear();
-              onClear?.call();
-            },
-          ),
-          prefixIcon:
-              prefixIcon ??
-              SizedBox(
-                width: iconSlotWidth,
-                height: fieldHeight,
-                child: Center(
-                  child: SvgPicture.asset(
-                    MedpikSvgAssets.search,
-                    width: iconSize,
-                    height: iconSize,
-                    colorFilter: ColorFilter.mode(
-                      iconColor,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
+  Widget _buildField({
+    required bool hasText,
+    required double fieldHeight,
+    required double iconSlotWidth,
+    required double iconSize,
+    required Color iconColor,
+  }) {
+    final showSuffix = hasText || trailing != null;
+
+    return CommonTextFormField(
+      height: fieldHeight,
+      controller: controller,
+      focusNode: focusNode,
+      readOnly: readOnly,
+      autoFocus: autoFocus,
+      onTap: onTap,
+      hintText: hintText ?? Strings.search,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      inputAction: TextInputAction.search,
+      textAlignVertical: TextAlignVertical.center,
+      contentPadding: EdgeInsets.only(
+        top: 15.h,
+        bottom: 15.h,
+        right: showSuffix ? 0 : 12.w,
+      ),
+      suffix: _buildSuffix(
+        hasText: hasText,
+        fieldHeight: fieldHeight,
+        iconSlotWidth: iconSlotWidth,
+        iconSize: iconSize,
+        iconColor: iconColor,
+        trailing: trailing,
+        onClear: () {
+          controller?.clear();
+          onClear?.call();
+        },
+      ),
+      prefixIcon:
+          prefixIcon ??
+          SizedBox(
+            width: iconSlotWidth,
+            height: fieldHeight,
+            child: Center(
+              child: SvgPicture.asset(
+                MedpikSvgAssets.search,
+                width: iconSize,
+                height: iconSize,
+                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
               ),
-          prefixIconConstraints: BoxConstraints(
-            minWidth: iconSlotWidth,
-            maxWidth: iconSlotWidth,
-            minHeight: fieldHeight,
-            maxHeight: fieldHeight,
+            ),
           ),
-        );
-      },
+      prefixIconConstraints: BoxConstraints(
+        minWidth: iconSlotWidth,
+        maxWidth: iconSlotWidth,
+        minHeight: fieldHeight,
+        maxHeight: fieldHeight,
+      ),
     );
   }
 

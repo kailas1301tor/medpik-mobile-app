@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
-import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/src/orders/view/widget/order_detail_section_card.dart';
 
 class OrderDetailNotesSection extends StatelessWidget {
   const OrderDetailNotesSection({
@@ -22,15 +22,9 @@ class OrderDetailNotesSection extends StatelessWidget {
     final prescription = prescriptionDescription.trim();
     final rows = <Widget>[
       if (delivery.isNotEmpty)
-        _NoteRow(
-          title: Strings.orderDeliveryInstructions,
-          body: delivery,
-        ),
+        _NoteRow(title: Strings.orderDeliveryInstructions, body: delivery),
       if (prescription.isNotEmpty)
-        _NoteRow(
-          title: Strings.orderPrescriptionNotes,
-          body: prescription,
-        ),
+        _NoteRow(title: Strings.orderPrescriptionNotes, body: prescription),
     ];
 
     if (rows.isEmpty) {
@@ -39,16 +33,19 @@ class OrderDetailNotesSection extends StatelessWidget {
 
     final colors = context.appColors;
 
-    return CommonContainer(
+    return OrderDetailSectionCard(
       padding: EdgeInsets.all(14.r),
-      borderRadius: 14.r,
       color: colors.surface,
-      side: BorderSide(color: colors.cardBorder, width: 1.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (var i = 0; i < rows.length; i++) ...[
-            if (i > 0) 12.verticalSpace,
+            if (i > 0) ...[
+              Divider(
+                height: 24.h,
+                color: colors.divider.withValues(alpha: 0.7),
+              ),
+            ],
             rows[i],
           ],
         ],
@@ -69,15 +66,9 @@ class _NoteRow extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: FontPalette.base600(13, color: colors.primaryText),
-        ),
+        Text(title, style: FontPalette.base600(13, color: colors.primaryText)),
         4.verticalSpace,
-        Text(
-          body,
-          style: FontPalette.base400(13, color: colors.secondaryText),
-        ),
+        Text(body, style: FontPalette.base400(13, color: colors.secondaryText)),
       ],
     );
   }

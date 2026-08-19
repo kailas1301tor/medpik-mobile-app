@@ -15,14 +15,12 @@ class HomeHeaderSection extends StatelessWidget {
     super.key,
     required this.greeting,
     required this.deliveryHint,
-    required this.searchController,
     required this.onSearchTap,
     this.isOnDarkBackground = false,
   });
 
   final String greeting;
   final String deliveryHint;
-  final TextEditingController searchController;
   final VoidCallback onSearchTap;
   final bool isOnDarkBackground;
 
@@ -51,6 +49,7 @@ class HomeHeaderSection extends StatelessWidget {
               ),
               HomeHeaderIconButton(
                 iconAsset: MedpikSvgAssets.heart,
+                iconColor: ColorPalette.homeHeaderActionIcon,
                 onTap: () {
                   Navigator.pushNamed(
                     context,
@@ -61,6 +60,7 @@ class HomeHeaderSection extends StatelessWidget {
               8.horizontalSpace,
               HomeHeaderIconButton(
                 iconAsset: MedpikSvgAssets.notification,
+                iconColor: ColorPalette.homeHeaderActionIcon,
                 onTap: () {
                   Navigator.pushNamed(
                     context,
@@ -107,7 +107,6 @@ class HomeHeaderSection extends StatelessWidget {
           ),
           14.verticalSpace,
           CommonSearchBar(
-            controller: searchController,
             readOnly: true,
             hintText: Strings.searchMedicinesHealthcare,
             onTap: onSearchTap,

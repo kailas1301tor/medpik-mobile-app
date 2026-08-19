@@ -13,14 +13,12 @@ class HomeCompactHeader extends StatelessWidget {
     required this.progress,
     required this.topInset,
     required this.deliveryHint,
-    required this.searchController,
     required this.onSearchTap,
   });
 
   final double progress;
   final double topInset;
   final String deliveryHint;
-  final TextEditingController searchController;
   final VoidCallback onSearchTap;
 
   @override
@@ -58,21 +56,13 @@ class HomeCompactHeader extends StatelessWidget {
               ],
             ),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                16.w,
-                topInset + 8.h,
-                16.w,
-                22.h,
-              ),
+              padding: EdgeInsets.fromLTRB(16.w, topInset + 8.h, 16.w, 22.h),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   HomeHeaderLocationRow(deliveryHint: deliveryHint),
                   10.verticalSpace,
-                  HomeHeaderSearchRow(
-                    searchController: searchController,
-                    onSearchTap: onSearchTap,
-                  ),
+                  HomeHeaderSearchRow(onSearchTap: onSearchTap),
                 ],
               ),
             ),

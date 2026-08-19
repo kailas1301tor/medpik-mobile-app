@@ -1,16 +1,3 @@
-// lib/src/address/view/address_book_screen.dart
-//
-// * Saved addresses list — two modes via [AddressBookArgs].
-//
-// ? Manage mode (selectMode: false, default):
-// ? - App bar + → map picker → form sheet → create address
-// ? - Tile edit → form sheet with [AddressNotifier.startEdit]
-// ? - Tile delete → confirmation dialog
-//
-// ? Select mode (selectMode: true):
-// ? Used by checkout / prescription checkout. Tap tile → Navigator.pop(address).
-// ? Edit/delete actions are hidden.
-//
 // * Entry points: home header, checkout, prescription checkout.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,12 +29,14 @@ class AddressBookScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final data = ref.watch(
-      addressNotifierProvider.select((s) => Tuple2(s.loaderState, s.addresses)),
+      addressNotifierProvider.select(
+        (s) => Tuple3(s.loaderState, s.addresses, s.isDeletingAddress),
+      ),
     );
     final loaderState = data.item1;
     final addresses = data.item2;
     final notifier = ref.read(addressNotifierProvider.notifier);
-
+    final isDeletingAddress = data.item3;
     return CommonScaffold(
       appBar: CommonAppBar(
         title: Strings.addressBook,
@@ -82,7 +71,12 @@ class AddressBookScreen extends ConsumerWidget {
                     : () => _openEditFlow(context, ref, address),
                 onDelete: args.selectMode
                     ? null
-                    : () => _confirmDelete(context, ref, address),
+                    : () => _confirmDelete(
+                        context,
+                        ref,
+                        address,
+                        isDeletingAddress,
+                      ),
               );
             },
           ),
@@ -116,27 +110,17 @@ class AddressBookScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     AddressModel address,
+    bool isLoading,
   ) async {
-    await showDialog<void>(
+    await CommonDialogBox.show<void>(
       context: context,
-      builder: (dialogContext) => Consumer(
-        builder: (context, ref, _) {
-          final isDeleting = ref.watch(
-            addressNotifierProvider.select((s) => s.isDeletingAddress),
-          );
-
-          return CommonDialogBox(
-            title: Strings.deleteAddressTitle,
-            message: Strings.deleteAddressMessage,
-            primaryLabel: Strings.confirm,
-            isLoading: isDeleting,
-            onPrimaryAsync: () => ref
-                .read(addressNotifierProvider.notifier)
-                .deleteAddress(address.id),
-            secondaryLabel: Strings.cancel,
-          );
-        },
-      ),
+      title: Strings.deleteAddressTitle,
+      message: Strings.deleteAddressMessage,
+      primaryLabel: Strings.confirm,
+      isLoading: isLoading,
+      onPrimaryAsync: () =>
+          ref.read(addressNotifierProvider.notifier).deleteAddress(address.id),
+      secondaryLabel: Strings.cancel,
     );
   }
 }

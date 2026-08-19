@@ -11,14 +11,12 @@ class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
     required this.topInset,
     required this.greeting,
     required this.deliveryHint,
-    required this.searchController,
     required this.onSearchTap,
   });
 
   final double topInset;
   final String greeting;
   final String deliveryHint;
-  final TextEditingController searchController;
   final VoidCallback onSearchTap;
 
   double get _contentHeight => 210.h;
@@ -73,7 +71,6 @@ class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
             child: HomeHeaderSection(
               greeting: greeting,
               deliveryHint: deliveryHint,
-              searchController: searchController,
               onSearchTap: onSearchTap,
               isOnDarkBackground: true,
             ),
@@ -105,7 +102,6 @@ class HomePinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant HomePinnedHeaderDelegate oldDelegate) {
     return greeting != oldDelegate.greeting ||
         deliveryHint != oldDelegate.deliveryHint ||
-        searchController != oldDelegate.searchController ||
         topInset != oldDelegate.topInset;
   }
 }

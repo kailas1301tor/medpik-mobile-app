@@ -1,22 +1,4 @@
-// lib/src/address/state/location_picker_state.dart
-//
-// ? Immutable UI state for LocationPickerNotifier.
-//
-// ? Map / pin:
-// ? - latitude / longitude — pin position (pan + geocode)
-// ? - reverseResult — parsed lines from Google reverse geocode
-//
-// ? Loading:
-// ? - isSearching → LocationSearchBar trailing spinner
-// ? - isReverseLoading → LocationConfirmCard shimmer
-// ? - isInitialCameraReady → defer GoogleMap mount until GPS/route coords resolved
-//
-// ? Validation:
-// ? - isServiceable — within delivery area (LocationConfig)
-// ? - errorMessage — pin / GPS / serviceability (bottom card)
-// ? - searchErrorMessage — search errors (below search bar)
-//
-// ? confirmedPick — set when confirmSelection succeeds (debug/audit)
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/services/location/geocode_client.dart';

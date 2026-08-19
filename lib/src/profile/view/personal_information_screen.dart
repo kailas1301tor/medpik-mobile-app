@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/constants/string_constants.dart';
-import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/src/profile/notifier/profile_notifier.dart';
@@ -23,15 +22,6 @@ class PersonalInformationScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final notifier = ref.read(profileNotifierProvider.notifier);
-
-    ref.listen(
-      profileNotifierProvider.select((s) => s.loaderState),
-      (previous, next) {
-        if (next == LoaderState.loaded && previous != LoaderState.loaded) {
-          notifier.initEditForm();
-        }
-      },
-    );
 
     final formData = ref.watch(
       profileNotifierProvider.select(
@@ -128,6 +118,7 @@ class PersonalInformationScreen extends ConsumerWidget {
                               RouteConstants.mainScreen,
                               (_) => false,
                             );
+                            return;
                           } else {
                             Navigator.of(context).pop();
                           }

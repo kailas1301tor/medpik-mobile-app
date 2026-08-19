@@ -1,13 +1,11 @@
 // lib/src/checkout/view/widget/checkout_address_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medpik/data/models/address_model.dart';
-import 'package:medpik/res/constants/medpik_svg_assets.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
-import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/src/checkout/view/widget/checkout_section_card.dart';
 
 class CheckoutAddressCard extends StatelessWidget {
   const CheckoutAddressCard({
@@ -24,78 +22,40 @@ class CheckoutAddressCard extends StatelessWidget {
     final colors = context.appColors;
     final selected = address;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                Strings.deliveryAddress,
-                style: FontPalette.base700(16, color: colors.primaryText),
-              ),
-            ),
-            GestureDetector(
-              onTap: onChangeAddress,
-              behavior: HitTestBehavior.opaque,
-              child: Text(
-                Strings.changeAddress,
-                style: FontPalette.base600(13, color: colors.primary),
-              ),
-            ),
-          ],
+    return CheckoutSectionCard(
+      title: Strings.deliveryAddress,
+      titleIcon: Icons.location_on_rounded,
+      trailing: GestureDetector(
+        onTap: onChangeAddress,
+        behavior: HitTestBehavior.opaque,
+        child: Text(
+          Strings.changeAddress,
+          style: FontPalette.base600(13, color: colors.primary),
         ),
-        10.verticalSpace,
-        CommonContainer(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-          borderRadius: 12.r,
-          color: colors.surface,
-          child: Row(
-            children: [
-              SvgPicture.asset(
-                MedpikSvgAssets.homeLocation,
-                width: 20.r,
-                height: 20.r,
-              ),
-              10.horizontalSpace,
-              Expanded(
-                child: selected == null
-                    ? Text(
-                        Strings.noAddressSaved,
-                        style: FontPalette.base400(
-                          13,
-                          color: colors.secondaryText,
-                        ),
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            selected.label,
-                            style: FontPalette.base700(
-                              14,
-                              color: colors.primaryText,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          2.verticalSpace,
-                          Text(
-                            selected.fullAddress,
-                            style: FontPalette.base400(
-                              12,
-                              color: colors.secondaryText,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
+      child: selected == null
+          ? Text(
+              Strings.noAddressSaved,
+              style: FontPalette.base400(14, color: colors.secondaryText),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  selected.label,
+                  style: FontPalette.base700(15, color: colors.primaryText),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                6.verticalSpace,
+                Text(
+                  selected.fullAddress,
+                  style: FontPalette.base400(14, color: colors.secondaryText),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
     );
   }
 }

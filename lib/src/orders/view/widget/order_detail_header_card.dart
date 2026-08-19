@@ -8,9 +8,9 @@ import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/orders/view/widget/order_detail_section_card.dart';
 import 'package:medpik/src/orders/view/widget/order_horizontal_stepper.dart';
 import 'package:medpik/src/orders/view/widget/order_status_badge.dart';
-import 'package:medpik/utils/common_widgets/common_container.dart';
 import 'package:medpik/utils/helpers/order_status_helper.dart';
 
 class OrderDetailHeaderCard extends StatelessWidget {
@@ -30,11 +30,15 @@ class OrderDetailHeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final steps = showStepper ? orderDetailHorizontalSteps(order.status) : const <OrderHorizontalStep>[];
+    final steps = showStepper
+        ? orderDetailHorizontalSteps(order.status)
+        : const <OrderHorizontalStep>[];
+    final orderId = order.displayOrderId.isNotEmpty
+        ? order.displayOrderId
+        : Strings.emDash;
 
-    return CommonContainer(
-      padding: EdgeInsets.all(16.r),
-      borderRadius: 16.r,
+    return OrderDetailSectionCard(
+      padding: EdgeInsets.all(18.r),
       color: colors.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,21 +47,38 @@ class OrderDetailHeaderCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Text(
-                  '${Strings.orderIdLabel}: ${order.displayOrderId.isNotEmpty ? order.displayOrderId : Strings.emDash}',
-                  style: FontPalette.base700(16, color: colors.primaryText),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      Strings.orderIdLabel,
+                      style: FontPalette.base500(
+                        12,
+                        color: colors.secondaryText,
+                      ),
+                    ),
+                    4.verticalSpace,
+                    Text(
+                      orderId,
+                      style: FontPalette.base700(18, color: colors.primaryText),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
+              12.horizontalSpace,
               OrderStatusBadge(
                 status: badgeStatus ?? order.status,
-                label: badgeLabel ??
+                label:
+                    badgeLabel ??
                     (order.displayStatus.isNotEmpty
                         ? order.displayStatus
                         : orderDetailStatusLabel(order.status)),
               ),
             ],
           ),
-          6.verticalSpace,
+          14.verticalSpace,
           Row(
             children: [
               SvgPicture.asset(
@@ -65,19 +86,24 @@ class OrderDetailHeaderCard extends StatelessWidget {
                 width: 14.r,
                 height: 14.r,
                 fit: BoxFit.contain,
+                colorFilter: ColorFilter.mode(colors.primary, BlendMode.srcIn),
               ),
-              6.horizontalSpace,
+              8.horizontalSpace,
               Expanded(
                 child: Text(
                   formatOrderDateTime(order.createdAt),
-                  style: FontPalette.base400(12, color: colors.secondaryText),
+                  style: FontPalette.base500(12, color: colors.secondaryText),
                 ),
               ),
             ],
           ),
-          if (showStepper) ...[
-            16.verticalSpace,
-            OrderHorizontalStepper(steps: steps),
+          if (showStepper && steps.isNotEmpty) ...[
+            18.verticalSpace,
+            OrderHorizontalStepper(
+              steps: steps,
+              activeColor: colors.primary,
+              inactiveColor: colors.secondaryText.withValues(alpha: 0.24),
+            ),
           ],
         ],
       ),

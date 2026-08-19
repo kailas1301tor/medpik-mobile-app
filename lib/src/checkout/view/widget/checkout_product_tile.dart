@@ -25,16 +25,13 @@ class CheckoutProductTile extends StatelessWidget {
     final product = item.product;
     final imageSize = 56.r;
     final packLabel = productPackDisplayLabel(product);
-    final subtitle = packLabel.isNotEmpty
-        ? packLabel
-        : product.category.trim();
+    final subtitle = packLabel.isNotEmpty ? packLabel : product.category.trim();
     final hasPrice = product.price > 0;
     final priceLabel = hasPrice
         ? item.lineTotal.toCurrency(decimalDigits: 0)
         : Strings.totalAmountSharedAfterReview;
 
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
           padding: EdgeInsets.symmetric(vertical: 10.h),
@@ -52,7 +49,6 @@ class CheckoutProductTile extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +118,7 @@ class CheckoutProductTile extends StatelessWidget {
           Divider(
             height: 1.h,
             thickness: 1,
-            color: colors.divider,
+            color: colors.divider.withValues(alpha: 0.7),
           ),
       ],
     );
@@ -141,15 +137,12 @@ class _CheckoutQtyChip extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
       decoration: BoxDecoration(
-        border: Border.all(color: colors.inputBorder, width: 1.w),
-        borderRadius: BorderRadius.circular(6.r),
+        color: colors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(999.r),
       ),
       child: Text(
         Strings.quantityTimes(quantity),
-        style: FontPalette.base600(
-          11,
-          color: ColorPalette.productAccentTeal,
-        ),
+        style: FontPalette.base600(11, color: colors.primary),
       ),
     );
   }

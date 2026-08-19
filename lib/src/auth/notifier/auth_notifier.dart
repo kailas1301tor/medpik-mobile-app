@@ -1,21 +1,18 @@
-// lib/src/auth/notifier/auth_notifier.dart
 import 'dart:async';
 
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/data/local/sembast_services.dart';
-import 'package:medpik/data/models/personal_information_args.dart';
 import 'package:medpik/data/remote/network_services.dart';
 import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/services/invalidate_di.dart';
 import 'package:medpik/services/onesignal_service.dart';
 import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/data/models/personal_information_args.dart';
 import 'package:medpik/src/auth/model/auth_model.dart';
 import 'package:medpik/src/auth/state/auth_state.dart';
-import 'package:medpik/utils/helpers/api_error_handler.dart';
-import 'package:medpik/utils/helpers/otp_resend_guard.dart';
 import 'package:medpik/utils/helpers/safe_converters.dart';
 import 'package:medpik/utils/helpers/toast_helper.dart';
 import 'package:medpik/utils/helpers/validators.dart';
@@ -50,124 +47,93 @@ class AuthNotifier extends _$AuthNotifier {
     return const AuthState();
   }
 
-  void _onPhoneChanged() {
-    final isValid =
-        Validators.validatePhone(phoneController.text.trim()) == null;
-    if (isValid == state.isPhoneValid && state.phoneErrorText == null) return;
-    state = state.copyWith(isPhoneValid: isValid, phoneErrorText: null);
-  }
+  // ! ----------------------------------- API CALLS-----------------------------------
 
-  void _onOtpChanged() {
-    final isValid = otpController.text.trim().length == AppConstants.otpLength;
-    if (isValid == state.isOtpValid && state.otpErrorMessage == null) return;
-    state = state.copyWith(isOtpValid: isValid, otpErrorMessage: null);
-  }
-
-  void onOtpCompleted(BuildContext context) {
-    if (state.isVerifyingOtp || state.isResendingOtp || state.isRequestingOtp) {
-      return;
-    }
-    if (otpController.text.trim().length != AppConstants.otpLength) return;
-    verifyOtp(context);
-  }
-
-  Future<String?> bootstrap() async {
-    await ref.read(sembastServicesProvider).initialize();
-    final authModel = await _restoreSession();
-    if (authModel == null) return null;
-    state = state.copyWith(authModel: authModel);
-    return authModel.id.toString();
-  }
-
-  Future<void> requestOtp(BuildContext context) async {
+  Future<bool> requestOtp(BuildContext context) async {
+    if (!_validatePhone()) return false;
     final phone = phoneController.text.trim();
-    final phoneError = Validators.validatePhone(phone);
-    if (phoneError != null) {
-      state = state.copyWith(phoneErrorText: phoneError, isPhoneValid: false);
-      return;
-    }
     state = state.copyWith(isRequestingOtp: true, phoneErrorText: null);
-    await ref
+
+    return ref
         .read(authRepositoryProvider)
         .requestOtp(phone: phone, countryCode: AppConstants.defaultCountryCode)
         .fold(
           (left) {
             state = state.copyWith(isRequestingOtp: false);
-            _toastError(
-              resolveApiErrorMessage(
-                error: left,
-                fallback: Strings.somethingWentWrong,
-              ),
+            showCustomToast(
+              message: left.message ?? Strings.somethingWentWrong,
+              isSuccess: false,
             );
+            return false;
           },
           (right) async {
             otpController.clear();
+            await startResendTimer();
+            showCustomToast(message: right.message, isSuccess: true);
             state = state.copyWith(
               otpPhone: phone,
               otpErrorMessage: null,
               isOtpValid: false,
             );
-            await startResendTimer();
-            state = state.copyWith(isRequestingOtp: false);
-            if (!context.mounted) return;
+            if (!context.mounted) {
+              state = state.copyWith(isRequestingOtp: false);
+              return false;
+            }
             Navigator.pushNamed(context, RouteConstants.routeOtpScreen);
-            _toastSuccess(right.message, fallback: Strings.otpSentSuccess);
+            state = state.copyWith(isRequestingOtp: false);
+            return true;
           },
         )
         .catchError((error) {
-          _toastError(Strings.somethingWentWrong);
           state = state.copyWith(isRequestingOtp: false);
+          showCustomToast(
+            message: Strings.somethingWentWrong,
+            isSuccess: false,
+          );
+          return false;
         });
   }
 
   Future<void> resendOtp() async {
-    final phone = state.otpPhone?.trim() ?? '';
-    if (!canResendOtp(
-      phone: phone,
-      isResendingOtp: state.isResendingOtp,
-      isRequestingOtp: state.isRequestingOtp,
-      isVerifyingOtp: state.isVerifyingOtp,
-      resendCountdown: state.resendCountdown,
-    )) {
+    if (!_validatePhone()) return;
+    // Prevent spamming of resend OTP.
+    if (_shouldBlockResendOtp()) {
       return;
     }
-
     state = state.copyWith(isResendingOtp: true);
 
     await ref
         .read(authRepositoryProvider)
-        .resendOtp(phone: phone, countryCode: AppConstants.defaultCountryCode)
+        .resendOtp(
+          phone: phoneController.text.trim(),
+          countryCode: AppConstants.defaultCountryCode,
+        )
         .fold(
           (left) {
-            _toastError(
-              resolveApiErrorMessage(
-                error: left,
-                fallback: Strings.somethingWentWrong,
-              ),
+            showCustomToast(
+              message: left.message ?? Strings.somethingWentWrong,
+              isSuccess: false,
             );
           },
           (right) async {
             otpController.clear();
             await startResendTimer();
             state = state.copyWith(otpErrorMessage: null, isOtpValid: false);
-            _toastSuccess(right.message, fallback: Strings.otpSentSuccess);
+            showCustomToast(message: right.message, isSuccess: true);
           },
         )
         .catchError((error) {
-          _toastError(Strings.somethingWentWrong);
+          showCustomToast(
+            message: Strings.somethingWentWrong,
+            isSuccess: false,
+          );
         });
-
     state = state.copyWith(isResendingOtp: false);
   }
 
   Future<void> verifyOtp(BuildContext context) async {
-    final phone = state.otpPhone?.trim() ?? '';
-    final otp = otpController.text.trim();
-    if (phone.isEmpty ||
-        state.isVerifyingOtp ||
-        state.isResendingOtp ||
-        state.isRequestingOtp ||
-        otp.length != AppConstants.otpLength) {
+    if (!_validateOtp()) return;
+    if (_shouldBlockVerifyOtp()) {
       return;
     }
 
@@ -176,71 +142,90 @@ class AuthNotifier extends _$AuthNotifier {
     await ref
         .read(authRepositoryProvider)
         .verifyOtp(
-          phone: phone,
-          otp: otp,
+          phone: phoneController.text.trim(),
+          otp: otpController.text.trim(),
           countryCode: AppConstants.defaultCountryCode,
         )
         .fold(
           (left) {
-            final message = resolveApiErrorMessage(
-              error: left,
-              fallback: Strings.otpVerificationFailed,
+            showCustomToast(
+              message: left.message ?? Strings.somethingWentWrong,
+              isSuccess: false,
             );
             state = state.copyWith(
-              otpErrorMessage: message,
+              otpErrorMessage: left.message ?? Strings.somethingWentWrong,
               isVerifyingOtp: false,
             );
-            _toastError(message);
           },
           (right) async {
-            final error = right.validationError;
-            if (error != null) {
-              state = state.copyWith(
-                otpErrorMessage: error,
-                isVerifyingOtp: false,
-              );
-              _toastError(error);
-              return;
-            }
-
             final authModel = right.authModel!;
             final saved = await _saveSession(
               authModel: authModel,
               isNewUser: right.isNewUser,
             );
 
-            state = state.copyWith(
-              authModel: saved,
-              otpErrorMessage: null,
-              isVerifyingOtp: false,
-            );
+            state = state.copyWith(authModel: saved, otpErrorMessage: null);
 
-            if (context.mounted) {
-              final destination = right.isNewUser
-                  ? RouteConstants.routePersonalInformationScreen
-                  : RouteConstants.mainScreen;
-
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                destination,
-                (_) => false,
-                arguments: right.isNewUser
-                    ? const PersonalInformationArgs(isOnboarding: true)
-                    : null,
-              );
+            if (!context.mounted) {
+              state = state.copyWith(isVerifyingOtp: false);
+              return;
             }
-            _toastSuccess(
-              right.resolvedMessage,
-              fallback: Strings.otpVerifiedSuccess,
-            );
+            _navigateToNextScreen(context, right.isNewUser);
+            showCustomToast(message: right.resolvedMessage, isSuccess: true);
+            state = state.copyWith(isVerifyingOtp: false);
           },
         )
         .catchError((error) {
-          _toastError(Strings.somethingWentWrong);
+          showCustomToast(
+            message: Strings.somethingWentWrong,
+            isSuccess: false,
+          );
           state = state.copyWith(isVerifyingOtp: false);
         });
   }
 
+  Future<void> signOut() async {
+    final refresh = AppConstants.refreshToken ?? '';
+
+    state = state.copyWith(isSigningOut: true);
+
+    if (refresh.isNotEmpty) {
+      await ref
+          .read(authRepositoryProvider)
+          .logout(refresh: refresh)
+          .fold(
+            (left) {
+              showCustomToast(
+                message: left.message ?? Strings.somethingWentWrong,
+                isSuccess: false,
+              );
+            },
+            (right) {
+              showCustomToast(message: right.message, isSuccess: true);
+            },
+          )
+          .catchError((error) {
+            showCustomToast(
+              message: Strings.somethingWentWrong,
+              isSuccess: false,
+            );
+          });
+    }
+
+    await _clearSession();
+    await _syncAfterLogout();
+    _cancelResendTimer();
+    phoneController.clear();
+    otpController.clear();
+    state = const AuthState();
+  }
+
+  // ! ----------------------------------- API CALLS-----------------------------------
+
+  // ============ UTILITY / INTERNAL LOGIC (Non-API) =====================
+
+  /// Updates the session profile data (name and phone) both in-memory and in persistent storage.
+  /// This should be called when the user edits their profile info in-app.
   Future<void> updateSessionProfile({
     required String name,
     required String phone,
@@ -266,6 +251,8 @@ class AuthNotifier extends _$AuthNotifier {
     state = state.copyWith(authModel: saved);
   }
 
+  /// Marks the profile as completed in the session and local storage.
+  /// Intended to be called after the user has completed onboarding/profile setup.
   Future<void> markProfileCompleted() async {
     if (!await ref.read(sembastServicesProvider).isNewUser()) return;
 
@@ -279,35 +266,8 @@ class AuthNotifier extends _$AuthNotifier {
     state = state.copyWith(authModel: saved);
   }
 
-  Future<void> signOut() async {
-    final refresh = AppConstants.refreshToken ?? '';
-
-    state = state.copyWith(isSigningOut: true);
-
-    if (refresh.isNotEmpty) {
-      await ref
-          .read(authRepositoryProvider)
-          .logout(refresh: refresh)
-          .fold((left) {
-            _toastError(
-              resolveApiErrorMessage(
-                error: left,
-                fallback: Strings.somethingWentWrong,
-              ),
-            );
-          }, (_) {})
-          .catchError((_) {});
-    }
-
-    await _clearSession();
-    await _syncAfterLogout();
-    _cancelResendTimer();
-    phoneController.clear();
-    otpController.clear();
-    state = const AuthState();
-    _toastSuccess(null, fallback: Strings.signedOut);
-  }
-
+  /// Clears all saved session/user data when access is unauthorized.
+  /// This is typically used when a 401/unauthorized error is encountered.
   Future<void> clearSessionOnUnauthorized() async {
     await _clearSession();
     await _syncAfterLogout();
@@ -317,6 +277,7 @@ class AuthNotifier extends _$AuthNotifier {
     state = const AuthState();
   }
 
+  // Timer logic used in preventing abuse of the OTP function
   Future<void> startResendTimer() async {
     _cancelResendTimer();
     state = state.copyWith(resendCountdown: AppConstants.otpResendDuration);
@@ -330,6 +291,7 @@ class AuthNotifier extends _$AuthNotifier {
     });
   }
 
+  /// Restore session state from persistence.
   Future<AuthModel?> _restoreSession() async {
     final session = await ref.read(sembastServicesProvider).getUserData();
     if (session == null) {
@@ -348,6 +310,7 @@ class AuthNotifier extends _$AuthNotifier {
     return AuthModel.fromSessionMap(session);
   }
 
+  /// Save session state to persistence.
   Future<AuthModel> _saveSession({
     required AuthModel authModel,
     required bool isNewUser,
@@ -362,31 +325,111 @@ class AuthNotifier extends _$AuthNotifier {
     return authModel;
   }
 
+  /// Completely clear current session and local DB.
   Future<void> _clearSession() async {
     await ref.read(networkServicesProvider).cancelPendingRequests();
     await ref.read(sembastServicesProvider).clearLocalDb();
     AppConstants.clearSessionTokens();
   }
 
+  /// Handle any logout side effects and invalidate services (such as OneSignal identity).
   Future<void> _syncAfterLogout() async {
     await ref.read(oneSignalServiceProvider).clearIdentity();
     InvalidateDI.invalidate(ref);
   }
 
-  void _toastError(String message) {
-    showCustomErrorToast(message: message);
-  }
-
-  void _toastSuccess(String? message, {required String fallback}) {
-    final text = (message == null || message.trim().isEmpty)
-        ? fallback
-        : message;
-    if (text.isEmpty) return;
-    showCustomToast(message: text, isSuccess: true);
-  }
-
+  // Cancel the OTP resend timer if running.
   void _cancelResendTimer() {
     _resendTimer?.cancel();
     _resendTimer = null;
+  }
+
+  /// Form field validation and state update helpers.
+  void _onPhoneChanged() {
+    final isValid =
+        Validators.validatePhone(phoneController.text.trim()) == null;
+    if (isValid == state.isPhoneValid && state.phoneErrorText == null) return;
+    state = state.copyWith(isPhoneValid: isValid, phoneErrorText: null);
+  }
+
+  void _onOtpChanged() {
+    final isValid = otpController.text.trim().length == AppConstants.otpLength;
+    if (isValid == state.isOtpValid && state.otpErrorMessage == null) return;
+    state = state.copyWith(isOtpValid: isValid, otpErrorMessage: null);
+  }
+
+  // Called when the OTP field input is completed by user. Triggers verification only if not busy.
+  void onOtpCompleted(BuildContext context) {
+    if (state.isVerifyingOtp || state.isResendingOtp || state.isRequestingOtp) {
+      return;
+    }
+    if (otpController.text.trim().length != AppConstants.otpLength) return;
+    verifyOtp(context);
+  }
+
+  // ===== Logics kept for form/UX and robustness =====
+
+  /// Prevent redundant verification requests while another auth action is running.
+  bool _shouldBlockVerifyOtp() {
+    return state.isVerifyingOtp ||
+        state.isResendingOtp ||
+        state.isRequestingOtp;
+  }
+
+  /// Validate OTP and update error state if not valid.
+  bool _validateOtp() {
+    final otp = otpController.text.trim();
+    if (otp.length != AppConstants.otpLength) {
+      state = state.copyWith(
+        otpErrorMessage: Strings.invalidOtp,
+        isOtpValid: false,
+      );
+      return false;
+    }
+    return true;
+  }
+
+  /// Call on app startup, restores session and updates state.
+  Future<String?> bootstrap() async {
+    await ref.read(sembastServicesProvider).initialize();
+    final authModel = await _restoreSession();
+    if (authModel == null) return null;
+    state = state.copyWith(authModel: authModel);
+    return authModel.id.toString();
+  }
+
+  /// Validate phone and update state with error.
+  bool _validatePhone() {
+    final phone = phoneController.text.trim();
+    final phoneError = Validators.validatePhone(phone);
+    if (phoneError != null) {
+      state = state.copyWith(phoneErrorText: phoneError, isPhoneValid: false);
+      return false;
+    }
+    return true;
+  }
+
+  /// Prevent sending OTP (either resend or initial) if waiting or busy.
+  bool _shouldBlockResendOtp() {
+    return state.isResendingOtp ||
+        state.isRequestingOtp ||
+        state.isVerifyingOtp ||
+        state.resendCountdown > 0;
+  }
+
+  /// Navigation helper for OTP success.
+  void _navigateToNextScreen(BuildContext context, bool isNewUser) {
+    if (!context.mounted) return;
+    final destination = isNewUser
+        ? RouteConstants.routePersonalInformationScreen
+        : RouteConstants.mainScreen;
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      destination,
+      (_) => false,
+      arguments: isNewUser
+          ? const PersonalInformationArgs(isOnboarding: true)
+          : null,
+    );
   }
 }

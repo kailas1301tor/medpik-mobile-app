@@ -14,6 +14,7 @@ import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/services/location/geocode_client.dart';
 import 'package:medpik/services/location/location_access_status.dart';
+import 'package:medpik/src/address/view/widget/location_access_banner.dart';
 import 'package:medpik/src/address/view/widget/location_confirm_address_shimmer.dart';
 import 'package:medpik/utils/common_widgets/common_container.dart';
 import 'package:medpik/utils/common_widgets/primary_button.dart';
@@ -50,8 +51,8 @@ class LocationConfirmCard extends StatelessWidget {
         ? formattedAddress
         : Strings.selectLocationOnMap;
     final accessIssue = locationAccessIssue;
-    final showAccessBanner = accessIssue != null &&
-        accessIssue != LocationAccessStatus.granted;
+    final showAccessBanner =
+        accessIssue != null && accessIssue != LocationAccessStatus.granted;
     final errorText = showAccessBanner ? null : errorMessage;
 
     return CommonContainer(
@@ -63,7 +64,7 @@ class LocationConfirmCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (showAccessBanner)
-            _LocationAccessBanner(
+            LocationAccessBanner(
               status: accessIssue,
               onAction: onLocationAccessAction,
             )
@@ -109,61 +110,6 @@ class LocationConfirmCard extends StatelessWidget {
           PrimaryButton(
             text: Strings.confirmLocation,
             onPressed: canConfirm ? onConfirm : null,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LocationAccessBanner extends StatelessWidget {
-  const _LocationAccessBanner({
-    required this.status,
-    required this.onAction,
-  });
-
-  final LocationAccessStatus status;
-  final VoidCallback onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final message = switch (status) {
-      LocationAccessStatus.servicesDisabled =>
-        Strings.locationServicesDisabled,
-      LocationAccessStatus.permissionDenied =>
-        Strings.locationPermissionRationale,
-      LocationAccessStatus.permissionDeniedForever =>
-        Strings.locationPermissionBlocked,
-      LocationAccessStatus.granted => '',
-    };
-    final actionLabel = switch (status) {
-      LocationAccessStatus.servicesDisabled => Strings.locationEnableServices,
-      LocationAccessStatus.permissionDenied => Strings.locationAllowAccess,
-      LocationAccessStatus.permissionDeniedForever =>
-        Strings.locationOpenSettings,
-      LocationAccessStatus.granted => Strings.useCurrentLocation,
-    };
-
-    return CommonContainer(
-      padding: EdgeInsets.all(12.r),
-      borderRadius: 12.r,
-      color: colors.inputBackground,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            message,
-            style: FontPalette.base400(12, color: colors.secondaryText),
-          ),
-          8.verticalSpace,
-          GestureDetector(
-            onTap: onAction,
-            behavior: HitTestBehavior.opaque,
-            child: Text(
-              actionLabel,
-              style: FontPalette.base600(13, color: colors.primary),
-            ),
           ),
         ],
       ),

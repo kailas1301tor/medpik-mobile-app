@@ -11,6 +11,8 @@ import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/common_switch_state.dart';
 import 'package:tuple/tuple.dart';
 
+import '../../../res/enums/enums.dart';
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -18,9 +20,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final feed = ref.watch(
-      homeNotifierProvider.select(
-        (s) => Tuple2(s.loaderState, s.data),
-      ),
+      homeNotifierProvider.select((s) => Tuple2(s.loaderState, s.data)),
     );
     final loaderState = feed.item1;
     final data = feed.item2;
@@ -38,15 +38,11 @@ class HomeScreen extends ConsumerWidget {
             ref.read(homeNotifierProvider.notifier).fetchHomeFeed(),
         child: CommonSwitchState(
           loaderState: loaderState,
-          reload: () =>
-              ref.read(homeNotifierProvider.notifier).fetchHomeFeed(),
-          loader: HomeShimmerWidget(
-            searchController: notifier.searchController,
-          ),
+          reload: () => ref.read(homeNotifierProvider.notifier).fetchHomeFeed(),
+          loader: const HomeShimmerWidget(),
           buttonText: Strings.refresh,
           child: HomeContentWidget(
             data: data,
-            searchController: notifier.searchController,
             scrollController: notifier.scrollController,
           ),
         ),

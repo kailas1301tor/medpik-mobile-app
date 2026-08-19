@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medpik/res/constants/medpik_svg_assets.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/emergency/view/widget/emergency_service_badge.dart';
 import 'package:medpik/utils/common_widgets/common_container.dart';
 import 'package:medpik/utils/helpers/phone_launch_helper.dart';
 
@@ -33,20 +34,11 @@ class EmergencyServiceTile extends StatelessWidget {
       padding: EdgeInsets.all(16.r),
       borderRadius: 16.r,
       color: colors.surface,
+      side: BorderSide.none,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CommonContainer(
-            height: 40.r,
-            width: 40.r,
-            borderRadius: 20.r,
-            color: colors.primary.withValues(alpha: 0.12),
-            child: Icon(
-              leadingIcon,
-              size: 20.r,
-              color: colors.primary,
-            ),
-          ),
+          EmergencyServiceBadge(icon: leadingIcon),
           12.horizontalSpace,
           Expanded(
             child: Column(
@@ -100,8 +92,15 @@ class EmergencyServiceTile extends StatelessWidget {
                 height: 36.r,
                 width: 36.r,
                 decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.12),
+                  color: colors.primary,
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: colors.primary.withValues(alpha: 0.24),
+                      blurRadius: 12.r,
+                      offset: Offset(0, 4.h),
+                    ),
+                  ],
                 ),
                 alignment: Alignment.center,
                 child: SvgPicture.asset(
@@ -109,7 +108,7 @@ class EmergencyServiceTile extends StatelessWidget {
                   width: 18.r,
                   height: 18.r,
                   colorFilter: ColorFilter.mode(
-                    colors.primary,
+                    ColorPalette.white,
                     BlendMode.srcIn,
                   ),
                 ),

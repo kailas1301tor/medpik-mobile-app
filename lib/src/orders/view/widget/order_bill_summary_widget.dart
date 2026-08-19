@@ -5,7 +5,7 @@ import 'package:medpik/data/models/order_model.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
-import 'package:medpik/utils/common_widgets/common_container.dart';
+import 'package:medpik/src/orders/view/widget/order_detail_section_card.dart';
 import 'package:medpik/utils/extensions/num_extensions.dart';
 import 'package:medpik/utils/helpers/order_status_helper.dart';
 
@@ -30,13 +30,6 @@ class OrderBillSummaryWidget extends StatelessWidget {
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (title != null) ...[
-          Text(
-            title??"",
-            style: FontPalette.base700(16, color: colors.primaryText),
-          ),
-          12.verticalSpace,
-        ],
         _SummaryRow(
           label: Strings.itemTotalWithCount(itemCount),
           value: breakdown.itemTotal.toCurrency(decimalDigits: 0),
@@ -69,7 +62,7 @@ class OrderBillSummaryWidget extends StatelessWidget {
           ),
         ],
         12.verticalSpace,
-        _DashedDivider(),
+        Divider(height: 1.h, color: colors.divider.withValues(alpha: 0.7)),
         12.verticalSpace,
         Row(
           children: [
@@ -89,9 +82,10 @@ class OrderBillSummaryWidget extends StatelessWidget {
 
     if (!showContainer) return content;
 
-    return CommonContainer(
+    return OrderDetailSectionCard(
+      title: title,
+      titleIcon: Icons.receipt_long_rounded,
       padding: EdgeInsets.all(16.r),
-      borderRadius: 16.r,
       color: colors.surface,
       child: content,
     );
@@ -134,29 +128,6 @@ class _SummaryRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _DashedDivider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final dashWidth = 6.w;
-        final dashCount = (constraints.maxWidth / (dashWidth * 2)).floor();
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(
-            dashCount,
-            (_) => Container(
-              width: dashWidth,
-              height: 1.h,
-              color: ColorPalette.orderBillDivider,
-            ),
-          ),
-        );
-      },
     );
   }
 }

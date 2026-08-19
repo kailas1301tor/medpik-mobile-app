@@ -30,6 +30,7 @@ class OtpVerifyButton extends ConsumerWidget {
     return PrimaryButton(
       text: Strings.verifyOtp,
       isLoading: isVerifying,
+    
       onPressed: isVerifying || isResendingOtp || isRequestingOtp || !isOtpValid
           ? null
           : () => notifier.verifyOtp(context),

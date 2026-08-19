@@ -14,14 +14,12 @@ class HomeHeroHeader extends StatelessWidget {
     required this.topInset,
     required this.greeting,
     required this.deliveryHint,
-    required this.searchController,
     required this.onSearchTap,
   });
 
   final double topInset;
   final String greeting;
   final String deliveryHint;
-  final TextEditingController searchController;
   final VoidCallback onSearchTap;
 
   @override
@@ -76,6 +74,7 @@ class HomeHeroHeader extends StatelessWidget {
                         ),
                         HomeHeaderIconButton(
                           iconAsset: MedpikSvgAssets.heart,
+                          iconColor: ColorPalette.homeHeaderActionIcon,
                           onTap: () {
                             Navigator.pushNamed(
                               context,
@@ -86,6 +85,7 @@ class HomeHeroHeader extends StatelessWidget {
                         8.horizontalSpace,
                         HomeHeaderIconButton(
                           iconAsset: MedpikSvgAssets.notification,
+                          iconColor: ColorPalette.homeHeaderActionIcon,
                           onTap: () {
                             Navigator.pushNamed(
                               context,
@@ -101,10 +101,7 @@ class HomeHeroHeader extends StatelessWidget {
                       isOnDarkBackground: true,
                     ),
                     20.verticalSpace,
-                    HomeHeaderSearchRow(
-                      searchController: searchController,
-                      onSearchTap: onSearchTap,
-                    ),
+                    HomeHeaderSearchRow(onSearchTap: onSearchTap),
                   ],
                 ),
               ),

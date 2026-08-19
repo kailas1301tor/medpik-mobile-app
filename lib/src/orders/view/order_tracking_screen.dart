@@ -10,9 +10,9 @@ import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/providers/order_status_options_provider.dart';
 import 'package:medpik/src/orders/notifier/orders_notifier.dart';
+import 'package:medpik/src/orders/view/widget/order_detail_section_card.dart';
 import 'package:medpik/src/orders/view/widget/order_tracking_step_tile.dart';
 import 'package:medpik/utils/common_widgets/common_app_bar.dart';
-import 'package:medpik/utils/common_widgets/common_container.dart';
 import 'package:medpik/src/orders/view/widget/order_detail_shimmer_widget.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/common_switch_state.dart';
@@ -42,9 +42,8 @@ class OrderTrackingScreen extends ConsumerWidget {
       backgroundColor: colors.background,
       body: CommonSwitchState(
         loaderState: loaderState,
-        reload: () => ref
-            .read(ordersNotifierProvider.notifier)
-            .loadOrderDetail(orderId),
+        reload: () =>
+            ref.read(ordersNotifierProvider.notifier).loadOrderDetail(orderId),
         buttonText: Strings.refresh,
         loader: const OrderDetailShimmerWidget(),
         child: order == null
@@ -75,68 +74,84 @@ class _OrderTrackingBody extends ConsumerWidget {
       fallbackStatus: order.status,
     );
 
-    return ListView.builder(
+    return ListView(
       padding: EdgeInsets.all(20.r),
-      itemCount: steps.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return Column(
+      children: [
+        OrderDetailSectionCard(
+          title: Strings.orderStatus,
+          titleIcon: Icons.receipt_long_rounded,
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              CommonContainer(
-                padding: EdgeInsets.all(16.r),
-                borderRadius: 16.r,
-                color: colors.surface,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${Strings.orderIdLabel}: ${order.displayOrderId.isNotEmpty ? order.displayOrderId : Strings.emDash}',
-                      style: FontPalette.base700(
-                        16,
-                        color: colors.primaryText,
-                      ),
+              Text(
+                order.displayOrderId.isNotEmpty
+                    ? order.displayOrderId
+                    : Strings.emDash,
+                style: FontPalette.base700(18, color: colors.primaryText),
+              ),
+              if (order.etaText?.isNotEmpty ?? false) ...[
+                12.verticalSpace,
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colors.inputBackground.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(999.r),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 8.h,
                     ),
-                    if (order.etaText?.isNotEmpty ?? false) ...[
-                      8.verticalSpace,
-                      Row(
-                        children: [
-                          SvgPicture.asset(
-                            MedpikSvgAssets.calendar,
-                            width: 16.r,
-                            height: 16.r,
-                            fit: BoxFit.contain,
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          MedpikSvgAssets.calendar,
+                          width: 16.r,
+                          height: 16.r,
+                          fit: BoxFit.contain,
+                          colorFilter: ColorFilter.mode(
+                            colors.primary,
+                            BlendMode.srcIn,
                           ),
-                          8.horizontalSpace,
-                          Expanded(
-                            child: Text(
-                              order.etaText ?? '',
-                              style: FontPalette.base500(
-                                14,
-                                color: colors.primary,
-                              ),
+                        ),
+                        8.horizontalSpace,
+                        Expanded(
+                          child: Text(
+                            order.etaText ?? '',
+                            style: FontPalette.base500(
+                              14,
+                              color: colors.primary,
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              24.verticalSpace,
+              ],
             ],
-          );
-        }
-
-        final stepIndex = index - 1;
-        final step = steps[stepIndex];
-        return OrderTrackingStepTile(
-          step: step,
-          isLast: stepIndex == steps.length - 1,
-          primaryColor: colors.primary,
-          inputBorderColor: colors.inputBorder,
-        );
-      },
+          ),
+        ),
+        18.verticalSpace,
+        OrderDetailSectionCard(
+          title: Strings.tracking,
+          titleIcon: Icons.route_rounded,
+          child: Column(
+            children: [
+              for (var i = 0; i < steps.length; i++)
+                OrderTrackingStepTile(
+                  step: steps[i],
+                  isLast: i == steps.length - 1,
+                  isCurrent:
+                      steps[i].isCompleted &&
+                      (i == steps.length - 1 || !steps[i + 1].isCompleted),
+                  index: i,
+                  primaryColor: colors.primary,
+                  inputBorderColor: colors.inputBorder,
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

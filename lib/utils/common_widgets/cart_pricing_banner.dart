@@ -7,7 +7,9 @@ import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/utils/common_widgets/common_container.dart';
 
 class CartPricingBanner extends StatelessWidget {
-  const CartPricingBanner({super.key});
+  const CartPricingBanner({super.key, this.showBorder = true});
+
+  final bool showBorder;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,9 @@ class CartPricingBanner extends StatelessWidget {
       padding: EdgeInsets.all(14.r),
       borderRadius: 12.r,
       color: colors.bannerWarningBg,
-      side: BorderSide(color: colors.bannerWarningBorder, width: 1.w),
+      side: showBorder
+          ? BorderSide(color: colors.bannerWarningBorder, width: 1.w)
+          : BorderSide.none,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -11,11 +11,7 @@ import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
 import 'package:medpik/utils/extensions/string_extensions.dart';
 
 class ProfileUserCard extends StatelessWidget {
-  const ProfileUserCard({
-    super.key,
-    this.profile,
-    this.authModel,
-  });
+  const ProfileUserCard({super.key, this.profile, this.authModel});
 
   final ProfileModel? profile;
   final AuthModel? authModel;
@@ -31,8 +27,7 @@ class ProfileUserCard extends StatelessWidget {
     final phone = profilePhone.isNotEmpty ? profilePhone : authPhone;
 
     final profileImageUrl = authModel?.profileImageUrl.trim() ?? '';
-    final displayName =
-        rawName.isNotEmpty ? rawName : Strings.member;
+    final displayName = rawName.isNotEmpty ? rawName : Strings.member;
     final initials = rawName.isNotEmpty
         ? (displayName.initials.isEmpty ? 'M' : displayName.initials)
         : 'M';
@@ -52,101 +47,103 @@ class ProfileUserCard extends StatelessWidget {
       child: SmoothClipRRect(
         smoothness: 2,
         borderRadius: radius,
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                ColorPalette.productAccentTeal,
-                ColorPalette.productAccentTeal.withValues(alpha: 0.82),
-              ],
-            ),
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                right: -4.w,
-                top: -16.h,
-                bottom: -16.h,
-                width: 130.w,
-                child: CustomPaint(
-                  painter: _ProfileWavePainter(
-                    color: ColorPalette.white.withValues(alpha: 0.14),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      ColorPalette.primaryColorDark,
+                      ColorPalette.primaryColor,
+                      ColorPalette.secondaryColor,
+                    ],
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.all(18.r),
-                child: Row(
-                  children: [
-                    _ProfileAvatar(
-                      imageUrl: profileImageUrl,
-                      initials: initials,
-                    ),
-                    16.horizontalSpace,
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+            ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      ColorPalette.black.withValues(alpha: 0.04),
+                      ColorPalette.black.withValues(alpha: 0.22),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(18.r),
+              child: Row(
+                children: [
+                  _ProfileAvatar(imageUrl: profileImageUrl, initials: initials),
+                  16.horizontalSpace,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName,
+                          style: FontPalette.base700(
+                            18,
+                            color: ColorPalette.white,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (phone.isNotEmpty) ...[
+                          4.verticalSpace,
                           Text(
-                            displayName,
-                            style: FontPalette.base700(
-                              18,
-                              color: ColorPalette.white,
+                            phone,
+                            style: FontPalette.base400(
+                              13,
+                              color: ColorPalette.white.withValues(alpha: 0.78),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          if (phone.isNotEmpty) ...[
-                            4.verticalSpace,
-                            Text(
-                              phone,
-                              style: FontPalette.base400(
-                                13,
-                                color: ColorPalette.white.withValues(alpha: 0.78),
+                        ],
+                        10.verticalSpace,
+                        SmoothContainer(
+                          smoothness: 2,
+                          borderRadius: BorderRadius.circular(999.r),
+                          color: ColorPalette.black.withValues(alpha: 0.18),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.w,
+                            vertical: 4.h,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.verified_rounded,
+                                size: 12.r,
+                                color: ColorPalette.white,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                          10.verticalSpace,
-                          SmoothContainer(
-                            smoothness: 2,
-                            borderRadius: BorderRadius.circular(999.r),
-                            color: ColorPalette.black.withValues(alpha: 0.18),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 10.w,
-                              vertical: 4.h,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.verified_rounded,
-                                  size: 12.r,
+                              4.horizontalSpace,
+                              Text(
+                                Strings.activeMember,
+                                style: FontPalette.base600(
+                                  11,
                                   color: ColorPalette.white,
                                 ),
-                                4.horizontalSpace,
-                                Text(
-                                  Strings.activeMember,
-                                  style: FontPalette.base600(
-                                    11,
-                                    color: ColorPalette.white,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -154,10 +151,7 @@ class ProfileUserCard extends StatelessWidget {
 }
 
 class _ProfileAvatar extends StatelessWidget {
-  const _ProfileAvatar({
-    required this.imageUrl,
-    required this.initials,
-  });
+  const _ProfileAvatar({required this.imageUrl, required this.initials});
 
   final String imageUrl;
   final String initials;
@@ -205,38 +199,4 @@ class _ProfileAvatar extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ProfileWavePainter extends CustomPainter {
-  const _ProfileWavePainter({required this.color});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..strokeCap = StrokeCap.round;
-
-    for (var i = 0; i < 5; i++) {
-      final path = Path();
-      final dx = size.width * (0.15 + i * 0.16);
-      path.moveTo(dx, 0);
-      path.cubicTo(
-        dx - 18,
-        size.height * 0.25,
-        dx + 18,
-        size.height * 0.55,
-        dx - 10,
-        size.height,
-      );
-      canvas.drawPath(path, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ProfileWavePainter oldDelegate) =>
-      oldDelegate.color != color;
 }

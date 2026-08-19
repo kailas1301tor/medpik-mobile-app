@@ -3,6 +3,7 @@ import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/data/models/prescription_selected_product_model.dart';
+import 'package:medpik/providers/shell_providers.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/providers/cart_providers.dart';
@@ -11,6 +12,7 @@ import 'package:medpik/providers/wishlist_providers.dart';
 import 'package:medpik/services/repo_di.dart';
 import 'package:medpik/src/product_detail/repo/product_detail_repository.dart';
 import 'package:medpik/src/product_detail/state/product_detail_state.dart';
+import 'package:medpik/src/root/medpik_app.dart';
 import 'package:medpik/utils/helpers/api_error_handler.dart';
 import 'package:medpik/utils/helpers/cart_quantity_helper.dart';
 import 'package:medpik/utils/helpers/toast_helper.dart';
@@ -19,6 +21,8 @@ part 'product_detail_notifier.g.dart';
 
 @Riverpod(keepAlive: false)
 class ProductDetailNotifier extends _$ProductDetailNotifier {
+  static const int _cartTabIndex = 2;
+
   late ProductDetailRepo productDetailRepo;
   late final ScrollController scrollController;
   int? _productId;
@@ -41,7 +45,9 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
   }) async {
     if (_productId == productId && state.detail != null) {
       if (state.isFromUploadPrescription != isFromUploadPrescription) {
-        state = state.copyWith(isFromUploadPrescription: isFromUploadPrescription);
+        state = state.copyWith(
+          isFromUploadPrescription: isFromUploadPrescription,
+        );
       }
       return;
     }
@@ -80,9 +86,9 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
               return;
             }
             debugPrint("🟢 PRODUCT SUCCESS: ${detail.product.name}");
-            ref
-                .read(wishlistNotifierProvider.notifier)
-                .syncFromProducts([detail.product]);
+            ref.read(wishlistNotifierProvider.notifier).syncFromProducts([
+              detail.product,
+            ]);
             final seededQty = isFromUploadPrescription
                 ? _prescriptionQuantityFor(productId)
                 : 0;
@@ -115,7 +121,10 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
   }
 
   int _cartQuantityFor(int productId) {
-    return cartQuantityForProduct(ref.read(cartNotifierProvider).items, productId);
+    return cartQuantityForProduct(
+      ref.read(cartNotifierProvider).items,
+      productId,
+    );
   }
 
   int _prescriptionQuantityFor(int productId) {
@@ -130,7 +139,9 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
 
     if (state.isFromUploadPrescription) {
       state = state.copyWith(quantity: state.quantity + 1);
-      debugPrint("🔵 ACTION: prescription preview qty +1 product_id=$productId");
+      debugPrint(
+        "🔵 ACTION: prescription preview qty +1 product_id=$productId",
+      );
       return;
     }
 
@@ -149,7 +160,9 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
     if (state.isFromUploadPrescription) {
       if (state.quantity <= 1) return;
       state = state.copyWith(quantity: state.quantity - 1);
-      debugPrint("🔵 ACTION: prescription preview qty -1 product_id=$productId");
+      debugPrint(
+        "🔵 ACTION: prescription preview qty -1 product_id=$productId",
+      );
       return;
     }
 
@@ -179,7 +192,9 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
       return false;
     }
 
-    ref.read(prescriptionNotifierProvider.notifier).addOrUpdateSelectedProduct(
+    ref
+        .read(prescriptionNotifierProvider.notifier)
+        .addOrUpdateSelectedProduct(
           selectedProduct: PrescriptionSelectedProductModel(
             product: product,
             quantity: state.quantity,
@@ -200,7 +215,7 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
 
     if (alreadyInCart) {
       await cartNotifier.incrementItem(product.id);
-      showCustomToast(message: Strings.addedToCart, isSuccess: true);
+      _showAddedToCartToast();
       debugPrint("🔵 ACTION: addToCart increment product_id=${product.id}");
       return true;
     }
@@ -210,11 +225,29 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
       quantity: state.quantity,
     );
     if (ok) {
-      showCustomToast(message: Strings.addedToCart, isSuccess: true);
+      _showAddedToCartToast();
       debugPrint(
         "🔵 ACTION: addToCart product_id=${product.id} qty=${state.quantity}",
       );
     }
     return ok;
+  }
+
+  void _showAddedToCartToast() {
+    showCustomToast(
+      message: Strings.addedToCart,
+      isSuccess: true,
+      link: Strings.goToCart,
+      onTap: _goToCartFromToast,
+      increaseBottomPadding: true,
+    );
+  }
+
+  void _goToCartFromToast() {
+    ref.read(mainShellNotifierProvider.notifier).setTab(_cartTabIndex);
+    ref
+        .read(navigatorKeyProvider)
+        .currentState
+        ?.popUntil((route) => route.isFirst);
   }
 }

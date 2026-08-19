@@ -21,59 +21,44 @@ class CommonQtySelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final height = compact ? 28.h : 34.h;
-    final segmentSize = compact ? 28.r : 34.r;
+    final height = compact ? 30.h : 36.h;
+    final buttonSize = compact ? 26.r : 30.r;
     final iconSize = compact ? 14.r : 16.r;
     final fontSize = compact ? 11.0 : 12.0;
-    final qtyWidth = compact ? 24.w : 28.w;
-    final borderRadius = compact ? 8.r : 10.r;
+    final qtyWidth = compact ? 26.w : 32.w;
 
     return Container(
       height: height,
+      padding: EdgeInsets.symmetric(horizontal: 3.w),
       decoration: BoxDecoration(
-        border: Border.all(color: colors.inputBorder, width: 1.w),
-        borderRadius: BorderRadius.circular(borderRadius),
+        color: colors.inputBackground.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(999.r),
       ),
-      child: IntrinsicHeight(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _QtySegmentButton(
-              icon: Icons.remove_rounded,
-              onTap: onDecrement,
-              size: segmentSize,
-              iconSize: iconSize,
-            ),
-            VerticalDivider(
-              width: 1.w,
-              thickness: 1,
-              color: colors.inputBorder,
-            ),
-            SizedBox(
-              width: qtyWidth,
-              child: Center(
-                child: Text(
-                  '$quantity',
-                  style: FontPalette.base700(
-                    fontSize,
-                    color: colors.primaryText,
-                  ),
-                ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _QtySegmentButton(
+            icon: Icons.remove_rounded,
+            onTap: onDecrement,
+            size: buttonSize,
+            iconSize: iconSize,
+          ),
+          SizedBox(
+            width: qtyWidth,
+            child: Center(
+              child: Text(
+                '$quantity',
+                style: FontPalette.base700(fontSize, color: colors.primaryText),
               ),
             ),
-            VerticalDivider(
-              width: 1.w,
-              thickness: 1,
-              color: colors.inputBorder,
-            ),
-            _QtySegmentButton(
-              icon: Icons.add_rounded,
-              onTap: onIncrement,
-              size: segmentSize,
-              iconSize: iconSize,
-            ),
-          ],
-        ),
+          ),
+          _QtySegmentButton(
+            icon: Icons.add_rounded,
+            onTap: onIncrement,
+            size: buttonSize,
+            iconSize: iconSize,
+          ),
+        ],
       ),
     );
   }
@@ -94,17 +79,22 @@ class _QtySegmentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Material(
       color: ColorPalette.transparent,
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(999.r),
         child: SizedBox(
           width: size,
           height: size,
-          child: Icon(
-            icon,
-            size: iconSize,
-            color: ColorPalette.productAccentTeal,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: colors.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: iconSize, color: colors.primary),
           ),
         ),
       ),

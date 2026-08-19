@@ -18,10 +18,10 @@ class OrderBillPdfButton extends StatelessWidget {
 
     return CommonContainer(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-      borderRadius: 12.r,
-      color: colors.surface,
-      side: BorderSide(color: colors.primary, width: 1.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      borderRadius: 16.r,
+      color: colors.primary.withValues(alpha: 0.12),
+      side: BorderSide.none,
       onTap: () => Navigator.pushNamed(
         context,
         RouteConstants.routeOrderBillPdfScreen,
@@ -41,11 +41,7 @@ class OrderBillPdfButton extends StatelessWidget {
               style: FontPalette.base600(14, color: colors.primary),
             ),
           ),
-          Icon(
-            Icons.chevron_right_rounded,
-            size: 20.r,
-            color: colors.primary,
-          ),
+          Icon(Icons.chevron_right_rounded, size: 20.r, color: colors.primary),
         ],
       ),
     );

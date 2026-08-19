@@ -19,6 +19,7 @@ class Strings {
   static const String showPassword = "Show password";
   static const String hidePassword = "Hide password";
   static const String orLabel = "OR";
+  static const String invalidOtp = "Invalid OTP";
 
   // Error messages
   static const String somethingWentWrong = "Something went wrong";
