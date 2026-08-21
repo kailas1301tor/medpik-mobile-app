@@ -155,7 +155,21 @@ final class OneSignalService {
     if (!_isSdkInitialized) return;
 
     try {
-      await OneSignal.Notifications.requestPermission(false);
+      final accepted = await OneSignal.Notifications.requestPermission(false);
+      await OneSignal.User.pushSubscription.optIn();
+
+      final nativePermission =
+          await OneSignal.Notifications.permissionNative();
+      final subscription = OneSignal.User.pushSubscription;
+      debugPrint(
+        '🟦 ONESIGNAL PERMISSION: accepted=$accepted '
+        'permission=${OneSignal.Notifications.permission} '
+        'native=$nativePermission',
+      );
+      debugPrint(
+        '🟦 ONESIGNAL PUSH STATE: subscriptionId=${subscription.id} '
+        'pushToken=${subscription.token} optedIn=${subscription.optedIn}',
+      );
     } catch (e) {
       debugPrint('🟨 ONESIGNAL PERMISSION REQUEST FAILED: $e');
     }
