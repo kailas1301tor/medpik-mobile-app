@@ -20,12 +20,14 @@ class OrderDetailHeaderCard extends StatelessWidget {
     this.showStepper = true,
     this.badgeLabel,
     this.badgeStatus,
+    this.onStepperTap,
   });
 
   final OrderModel order;
   final bool showStepper;
   final String? badgeLabel;
   final OrderStatus? badgeStatus;
+  final VoidCallback? onStepperTap;
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +101,44 @@ class OrderDetailHeaderCard extends StatelessWidget {
           ),
           if (showStepper && steps.isNotEmpty) ...[
             18.verticalSpace,
-            OrderHorizontalStepper(
-              steps: steps,
-              activeColor: colors.primary,
-              inactiveColor: colors.secondaryText.withValues(alpha: 0.24),
+            InkWell(
+              borderRadius: BorderRadius.circular(12.r),
+              onTap: onStepperTap,
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 4.h),
+                child: Column(
+                  children: [
+                    OrderHorizontalStepper(
+                      steps: steps,
+                      activeColor: colors.primary,
+                      inactiveColor: colors.secondaryText.withValues(
+                        alpha: 0.24,
+                      ),
+                    ),
+                    if (onStepperTap != null) ...[
+                      4.verticalSpace,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            Strings.viewDetailedStatus,
+                            style: FontPalette.base600(
+                              12,
+                              color: colors.primary,
+                            ),
+                          ),
+                          4.horizontalSpace,
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            size: 18.r,
+                            color: colors.primary,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
           ],
         ],

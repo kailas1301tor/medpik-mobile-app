@@ -20,7 +20,6 @@ import 'package:medpik/utils/common_widgets/common_switch_state.dart';
 import 'package:medpik/utils/common_widgets/shell_tab_header.dart';
 import 'package:medpik/utils/helpers/legal_url_helper.dart';
 import 'package:medpik/utils/helpers/shell_insets_helper.dart';
-import 'package:medpik/utils/helpers/toast_helper.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
 import 'package:tuple/tuple.dart';
 
@@ -36,6 +35,10 @@ class ProfileScreen extends ConsumerWidget {
     final isSigningOut = ref.watch(
       authNotifierProvider.select((s) => s.isSigningOut),
     );
+    final isDeletingAccount = ref.watch(
+      authNotifierProvider.select((s) => s.isDeletingAccount),
+    );
+    final isAccountActionLoading = isSigningOut || isDeletingAccount;
     final profileData = ref.watch(
       profileNotifierProvider.select((s) => Tuple2(s.loaderState, s.profile)),
     );
@@ -49,8 +52,9 @@ class ProfileScreen extends ConsumerWidget {
             const ShellTabHeader(title: Strings.profileTitle),
             Expanded(
               child: CommonRefreshIndicator(
-                onRefresh: () =>
-                    ref.read(profileNotifierProvider.notifier).fetchProfile(),
+                onRefresh: () => ref
+                    .read(profileNotifierProvider.notifier)
+                    .refreshProfileData(),
                 child: ListView(
                   padding: EdgeInsets.fromLTRB(
                     16.w,
@@ -90,6 +94,16 @@ class ProfileScreen extends ConsumerWidget {
                             );
                           },
                         ),
+                        ProfileMenuTile(
+                          icon: Icons.delete_outline_rounded,
+                          iconColor: ColorPalette.prescriptionUploadBtn,
+                          title: Strings.deleteAccount,
+                          subtitle: Strings.deleteAccountSubtitle,
+                          showDivider: false,
+                          onTap: isAccountActionLoading
+                              ? null
+                              : () => _confirmDeleteAccount(context, ref),
+                        ),
                         const ProfileDarkModeTile(),
                       ],
                     ),
@@ -119,8 +133,9 @@ class ProfileScreen extends ConsumerWidget {
                           title: Strings.helpAndSupport,
                           subtitle: Strings.helpAndSupportSubtitle,
                           showDivider: false,
-                          onTap: () => showCustomToast(
-                            message: Strings.supportComingSoon,
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            RouteConstants.routeHelpAndSupportScreen,
                           ),
                         ),
                       ],
@@ -149,7 +164,7 @@ class ProfileScreen extends ConsumerWidget {
                       padding: EdgeInsets.symmetric(vertical: 14.h),
                       borderRadius: 14.r,
                       color: colors.surface,
-                      onTap: isSigningOut
+                      onTap: isAccountActionLoading
                           ? null
                           : () => _confirmSignOut(context, ref),
                       child: Row(
@@ -178,7 +193,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ],
         ),
-        if (isSigningOut)
+        if (isAccountActionLoading)
           Positioned.fill(
             child: ColoredBox(
               color: ColorPalette.black.withValues(alpha: 0.25),
@@ -204,6 +219,28 @@ class ProfileScreen extends ConsumerWidget {
             (route) => false,
           );
         }
+      },
+      secondaryLabel: Strings.cancel,
+    );
+  }
+
+  void _confirmDeleteAccount(BuildContext context, WidgetRef ref) {
+    final profilePhone =
+        ref.read(profileNotifierProvider).profile?.phoneNumber.trim() ?? '';
+    final authPhone =
+        ref.read(authNotifierProvider).authModel?.phone.trim() ?? '';
+    final phone = profilePhone.isNotEmpty ? profilePhone : authPhone;
+
+    CommonDialogBox.show(
+      context: context,
+      title: Strings.deleteAccountTitle,
+      message: Strings.deleteAccountMessage,
+      primaryLabel: Strings.deleteAccount,
+      onPrimary: () {
+        ref.read(authNotifierProvider.notifier).startDeleteAccountOtpFlow(
+              context,
+              phoneOverride: phone,
+            );
       },
       secondaryLabel: Strings.cancel,
     );

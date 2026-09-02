@@ -27,6 +27,8 @@ mixin _$AuthState {
   bool get isResendingOtp => throw _privateConstructorUsedError;
   bool get isVerifyingOtp => throw _privateConstructorUsedError;
   bool get isSigningOut => throw _privateConstructorUsedError;
+  bool get isDeletingAccount => throw _privateConstructorUsedError;
+  AuthOtpFlow get otpFlow => throw _privateConstructorUsedError;
   int get resendCountdown => throw _privateConstructorUsedError;
 
   /// Create a copy of AuthState
@@ -52,6 +54,8 @@ abstract class $AuthStateCopyWith<$Res> {
     bool isResendingOtp,
     bool isVerifyingOtp,
     bool isSigningOut,
+    bool isDeletingAccount,
+    AuthOtpFlow otpFlow,
     int resendCountdown,
   });
 }
@@ -81,6 +85,8 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
     Object? isResendingOtp = null,
     Object? isVerifyingOtp = null,
     Object? isSigningOut = null,
+    Object? isDeletingAccount = null,
+    Object? otpFlow = null,
     Object? resendCountdown = null,
   }) {
     return _then(
@@ -125,6 +131,14 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
                 ? _value.isSigningOut
                 : isSigningOut // ignore: cast_nullable_to_non_nullable
                       as bool,
+            isDeletingAccount: null == isDeletingAccount
+                ? _value.isDeletingAccount
+                : isDeletingAccount // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            otpFlow: null == otpFlow
+                ? _value.otpFlow
+                : otpFlow // ignore: cast_nullable_to_non_nullable
+                      as AuthOtpFlow,
             resendCountdown: null == resendCountdown
                 ? _value.resendCountdown
                 : resendCountdown // ignore: cast_nullable_to_non_nullable
@@ -155,6 +169,8 @@ abstract class _$$AuthStateImplCopyWith<$Res>
     bool isResendingOtp,
     bool isVerifyingOtp,
     bool isSigningOut,
+    bool isDeletingAccount,
+    AuthOtpFlow otpFlow,
     int resendCountdown,
   });
 }
@@ -183,6 +199,8 @@ class __$$AuthStateImplCopyWithImpl<$Res>
     Object? isResendingOtp = null,
     Object? isVerifyingOtp = null,
     Object? isSigningOut = null,
+    Object? isDeletingAccount = null,
+    Object? otpFlow = null,
     Object? resendCountdown = null,
   }) {
     return _then(
@@ -227,6 +245,14 @@ class __$$AuthStateImplCopyWithImpl<$Res>
             ? _value.isSigningOut
             : isSigningOut // ignore: cast_nullable_to_non_nullable
                   as bool,
+        isDeletingAccount: null == isDeletingAccount
+            ? _value.isDeletingAccount
+            : isDeletingAccount // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        otpFlow: null == otpFlow
+            ? _value.otpFlow
+            : otpFlow // ignore: cast_nullable_to_non_nullable
+                  as AuthOtpFlow,
         resendCountdown: null == resendCountdown
             ? _value.resendCountdown
             : resendCountdown // ignore: cast_nullable_to_non_nullable
@@ -250,6 +276,8 @@ class _$AuthStateImpl implements _AuthState {
     this.isResendingOtp = false,
     this.isVerifyingOtp = false,
     this.isSigningOut = false,
+    this.isDeletingAccount = false,
+    this.otpFlow = AuthOtpFlow.login,
     this.resendCountdown = 0,
   });
 
@@ -281,11 +309,17 @@ class _$AuthStateImpl implements _AuthState {
   final bool isSigningOut;
   @override
   @JsonKey()
+  final bool isDeletingAccount;
+  @override
+  @JsonKey()
+  final AuthOtpFlow otpFlow;
+  @override
+  @JsonKey()
   final int resendCountdown;
 
   @override
   String toString() {
-    return 'AuthState(authModel: $authModel, otpPhone: $otpPhone, phoneErrorText: $phoneErrorText, otpErrorMessage: $otpErrorMessage, isPhoneValid: $isPhoneValid, isOtpValid: $isOtpValid, isRequestingOtp: $isRequestingOtp, isResendingOtp: $isResendingOtp, isVerifyingOtp: $isVerifyingOtp, isSigningOut: $isSigningOut, resendCountdown: $resendCountdown)';
+    return 'AuthState(authModel: $authModel, otpPhone: $otpPhone, phoneErrorText: $phoneErrorText, otpErrorMessage: $otpErrorMessage, isPhoneValid: $isPhoneValid, isOtpValid: $isOtpValid, isRequestingOtp: $isRequestingOtp, isResendingOtp: $isResendingOtp, isVerifyingOtp: $isVerifyingOtp, isSigningOut: $isSigningOut, isDeletingAccount: $isDeletingAccount, otpFlow: $otpFlow, resendCountdown: $resendCountdown)';
   }
 
   @override
@@ -313,6 +347,9 @@ class _$AuthStateImpl implements _AuthState {
                 other.isVerifyingOtp == isVerifyingOtp) &&
             (identical(other.isSigningOut, isSigningOut) ||
                 other.isSigningOut == isSigningOut) &&
+            (identical(other.isDeletingAccount, isDeletingAccount) ||
+                other.isDeletingAccount == isDeletingAccount) &&
+            (identical(other.otpFlow, otpFlow) || other.otpFlow == otpFlow) &&
             (identical(other.resendCountdown, resendCountdown) ||
                 other.resendCountdown == resendCountdown));
   }
@@ -330,6 +367,8 @@ class _$AuthStateImpl implements _AuthState {
     isResendingOtp,
     isVerifyingOtp,
     isSigningOut,
+    isDeletingAccount,
+    otpFlow,
     resendCountdown,
   );
 
@@ -354,6 +393,8 @@ abstract class _AuthState implements AuthState {
     final bool isResendingOtp,
     final bool isVerifyingOtp,
     final bool isSigningOut,
+    final bool isDeletingAccount,
+    final AuthOtpFlow otpFlow,
     final int resendCountdown,
   }) = _$AuthStateImpl;
 
@@ -377,6 +418,10 @@ abstract class _AuthState implements AuthState {
   bool get isVerifyingOtp;
   @override
   bool get isSigningOut;
+  @override
+  bool get isDeletingAccount;
+  @override
+  AuthOtpFlow get otpFlow;
   @override
   int get resendCountdown;
 

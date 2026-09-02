@@ -45,6 +45,7 @@ class AppConstants {
   static String logout = '$authPrefix/logout';
   static String requestOtp = '$authPrefix/request-otp';
   static String verifyOtp = '$authPrefix/verify-otp';
+  static String deleteAccount = '$authPrefix/delete-account';
   static String resendOtp = requestOtp;
 
   // Catalog endpoints
@@ -71,6 +72,7 @@ class AppConstants {
 
   // Profile endpoints
   static String customerProfile = '$api/customer-profile';
+  static String storeProfile = '$api/core/app/store-profile/';
 
   // Device endpoints
   static String devicesRegister = '$api/devices/register';

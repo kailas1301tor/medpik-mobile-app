@@ -18,7 +18,9 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$ProfileState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
+  LoaderState get supportLoaderState => throw _privateConstructorUsedError;
   ProfileModel? get profile => throw _privateConstructorUsedError;
+  StoreProfileModel? get storeProfile => throw _privateConstructorUsedError;
   bool get isSaving => throw _privateConstructorUsedError;
   bool get isProfileFormValid => throw _privateConstructorUsedError;
   String? get firstNameError => throw _privateConstructorUsedError;
@@ -40,7 +42,9 @@ abstract class $ProfileStateCopyWith<$Res> {
   @useResult
   $Res call({
     LoaderState loaderState,
+    LoaderState supportLoaderState,
     ProfileModel? profile,
+    StoreProfileModel? storeProfile,
     bool isSaving,
     bool isProfileFormValid,
     String? firstNameError,
@@ -64,7 +68,9 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
   @override
   $Res call({
     Object? loaderState = null,
+    Object? supportLoaderState = null,
     Object? profile = freezed,
+    Object? storeProfile = freezed,
     Object? isSaving = null,
     Object? isProfileFormValid = null,
     Object? firstNameError = freezed,
@@ -76,10 +82,18 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
                 ? _value.loaderState
                 : loaderState // ignore: cast_nullable_to_non_nullable
                       as LoaderState,
+            supportLoaderState: null == supportLoaderState
+                ? _value.supportLoaderState
+                : supportLoaderState // ignore: cast_nullable_to_non_nullable
+                      as LoaderState,
             profile: freezed == profile
                 ? _value.profile
                 : profile // ignore: cast_nullable_to_non_nullable
                       as ProfileModel?,
+            storeProfile: freezed == storeProfile
+                ? _value.storeProfile
+                : storeProfile // ignore: cast_nullable_to_non_nullable
+                      as StoreProfileModel?,
             isSaving: null == isSaving
                 ? _value.isSaving
                 : isSaving // ignore: cast_nullable_to_non_nullable
@@ -113,7 +127,9 @@ abstract class _$$ProfileStateImplCopyWith<$Res>
   @useResult
   $Res call({
     LoaderState loaderState,
+    LoaderState supportLoaderState,
     ProfileModel? profile,
+    StoreProfileModel? storeProfile,
     bool isSaving,
     bool isProfileFormValid,
     String? firstNameError,
@@ -136,7 +152,9 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? loaderState = null,
+    Object? supportLoaderState = null,
     Object? profile = freezed,
+    Object? storeProfile = freezed,
     Object? isSaving = null,
     Object? isProfileFormValid = null,
     Object? firstNameError = freezed,
@@ -148,10 +166,18 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
             ? _value.loaderState
             : loaderState // ignore: cast_nullable_to_non_nullable
                   as LoaderState,
+        supportLoaderState: null == supportLoaderState
+            ? _value.supportLoaderState
+            : supportLoaderState // ignore: cast_nullable_to_non_nullable
+                  as LoaderState,
         profile: freezed == profile
             ? _value.profile
             : profile // ignore: cast_nullable_to_non_nullable
                   as ProfileModel?,
+        storeProfile: freezed == storeProfile
+            ? _value.storeProfile
+            : storeProfile // ignore: cast_nullable_to_non_nullable
+                  as StoreProfileModel?,
         isSaving: null == isSaving
             ? _value.isSaving
             : isSaving // ignore: cast_nullable_to_non_nullable
@@ -178,7 +204,9 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
 class _$ProfileStateImpl implements _ProfileState {
   const _$ProfileStateImpl({
     this.loaderState = LoaderState.loaded,
+    this.supportLoaderState = LoaderState.loading,
     this.profile,
+    this.storeProfile,
     this.isSaving = false,
     this.isProfileFormValid = false,
     this.firstNameError,
@@ -189,7 +217,12 @@ class _$ProfileStateImpl implements _ProfileState {
   @JsonKey()
   final LoaderState loaderState;
   @override
+  @JsonKey()
+  final LoaderState supportLoaderState;
+  @override
   final ProfileModel? profile;
+  @override
+  final StoreProfileModel? storeProfile;
   @override
   @JsonKey()
   final bool isSaving;
@@ -203,7 +236,7 @@ class _$ProfileStateImpl implements _ProfileState {
 
   @override
   String toString() {
-    return 'ProfileState(loaderState: $loaderState, profile: $profile, isSaving: $isSaving, isProfileFormValid: $isProfileFormValid, firstNameError: $firstNameError, lastNameError: $lastNameError)';
+    return 'ProfileState(loaderState: $loaderState, supportLoaderState: $supportLoaderState, profile: $profile, storeProfile: $storeProfile, isSaving: $isSaving, isProfileFormValid: $isProfileFormValid, firstNameError: $firstNameError, lastNameError: $lastNameError)';
   }
 
   @override
@@ -213,7 +246,11 @@ class _$ProfileStateImpl implements _ProfileState {
             other is _$ProfileStateImpl &&
             (identical(other.loaderState, loaderState) ||
                 other.loaderState == loaderState) &&
+            (identical(other.supportLoaderState, supportLoaderState) ||
+                other.supportLoaderState == supportLoaderState) &&
             (identical(other.profile, profile) || other.profile == profile) &&
+            (identical(other.storeProfile, storeProfile) ||
+                other.storeProfile == storeProfile) &&
             (identical(other.isSaving, isSaving) ||
                 other.isSaving == isSaving) &&
             (identical(other.isProfileFormValid, isProfileFormValid) ||
@@ -228,7 +265,9 @@ class _$ProfileStateImpl implements _ProfileState {
   int get hashCode => Object.hash(
     runtimeType,
     loaderState,
+    supportLoaderState,
     profile,
+    storeProfile,
     isSaving,
     isProfileFormValid,
     firstNameError,
@@ -247,7 +286,9 @@ class _$ProfileStateImpl implements _ProfileState {
 abstract class _ProfileState implements ProfileState {
   const factory _ProfileState({
     final LoaderState loaderState,
+    final LoaderState supportLoaderState,
     final ProfileModel? profile,
+    final StoreProfileModel? storeProfile,
     final bool isSaving,
     final bool isProfileFormValid,
     final String? firstNameError,
@@ -257,7 +298,11 @@ abstract class _ProfileState implements ProfileState {
   @override
   LoaderState get loaderState;
   @override
+  LoaderState get supportLoaderState;
+  @override
   ProfileModel? get profile;
+  @override
+  StoreProfileModel? get storeProfile;
   @override
   bool get isSaving;
   @override

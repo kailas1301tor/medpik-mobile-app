@@ -461,6 +461,42 @@ const _terminalFailureStatusIds = {
   'billrejected',
 };
 
+const backendOrderStatusChoices = <OrderStatusOptionModel>[
+  OrderStatusOptionModel(id: 'Pending', name: Strings.orderStatusPending),
+  OrderStatusOptionModel(id: 'Accepted', name: Strings.orderStatusAccepted),
+  OrderStatusOptionModel(
+    id: 'Bill Generated',
+    name: Strings.orderStatusBillGenerated,
+  ),
+  OrderStatusOptionModel(id: 'Bill Sent', name: Strings.orderStatusBillSent),
+  OrderStatusOptionModel(
+    id: 'Bill Accepted',
+    name: Strings.orderStatusBillAccepted,
+  ),
+  OrderStatusOptionModel(
+    id: 'Bill Rejected',
+    name: Strings.orderStatusBillRejected,
+  ),
+  OrderStatusOptionModel(
+    id: 'Payment Received',
+    name: Strings.orderStatusPaymentReceived,
+  ),
+  OrderStatusOptionModel(id: 'Packed', name: Strings.orderStatusPacked),
+  OrderStatusOptionModel(
+    id: 'Out for Delivery',
+    name: Strings.orderStatusOutForDelivery,
+  ),
+  OrderStatusOptionModel(id: 'Delivered', name: Strings.orderStatusDelivered),
+  OrderStatusOptionModel(id: 'Cancelled', name: Strings.orderStatusCancelled),
+  OrderStatusOptionModel(
+    id: 'Cancelled By Admin',
+    name: Strings.orderStatusCancelledByAdmin,
+  ),
+  OrderStatusOptionModel(id: 'Rejected', name: Strings.orderStatusRejected),
+];
+
+const _maximumVisibleTrackingSteps = 5;
+
 String normalizeOrderStatusId(String value) {
   return value.toLowerCase().replaceAll(RegExp(r'[\s_]+'), '');
 }
@@ -475,36 +511,37 @@ List<OrderTrackingStep> orderTrackingStepsFromApi({
   OrderStatus? fallbackStatus,
 }) {
   if (statuses.isEmpty) {
-    if (fallbackStatus != null) {
-      return orderTrackingSteps(fallbackStatus);
-    }
-    return const [];
+    return orderTrackingStepsFromApi(
+      currentStatusId: currentStatusId,
+      statuses: backendOrderStatusChoices,
+      fallbackStatus: fallbackStatus,
+    );
   }
 
   final normalizedCurrent = normalizeOrderStatusId(currentStatusId);
 
-  if (isTerminalFailureOrderStatus(currentStatusId)) {
-    final failedStatus = statuses.firstWhere(
-      (status) => normalizeOrderStatusId(status.id) == normalizedCurrent,
-      orElse: () =>
-          OrderStatusOptionModel(id: currentStatusId, name: currentStatusId),
-    );
-    return [
-      OrderTrackingStep(
-        label: failedStatus.name,
-        isCompleted: true,
-        isFailed: true,
-      ),
-    ];
-  }
-
   final currentIndex = statuses.indexWhere(
-    (status) => normalizeOrderStatusId(status.id) == normalizedCurrent,
+    (status) =>
+        normalizeOrderStatusId(status.id) == normalizedCurrent ||
+        normalizeOrderStatusId(status.name) == normalizedCurrent,
   );
 
   if (currentIndex < 0) {
     if (fallbackStatus != null) {
-      return orderTrackingSteps(fallbackStatus);
+      final fallbackSteps = orderTrackingSteps(fallbackStatus);
+      final fallbackCurrentIndex = fallbackSteps.lastIndexWhere(
+        (step) => step.isCompleted,
+      );
+      final start = (fallbackCurrentIndex - 2).clamp(
+        0,
+        fallbackSteps.length > _maximumVisibleTrackingSteps
+            ? fallbackSteps.length - _maximumVisibleTrackingSteps
+            : 0,
+      );
+      return fallbackSteps
+          .skip(start)
+          .take(_maximumVisibleTrackingSteps)
+          .toList();
     }
     return statuses
         .map(
@@ -517,14 +554,25 @@ List<OrderTrackingStep> orderTrackingStepsFromApi({
         .toList();
   }
 
+  final lastStartIndex = statuses.length > _maximumVisibleTrackingSteps
+      ? statuses.length - _maximumVisibleTrackingSteps
+      : 0;
+  final windowStart = (currentIndex - 2).clamp(0, lastStartIndex);
+  final windowEnd = (windowStart + _maximumVisibleTrackingSteps).clamp(
+    0,
+    statuses.length,
+  );
+  final isTerminalFailure = isTerminalFailureOrderStatus(currentStatusId);
+
   return statuses
       .asMap()
       .entries
+      .where((entry) => entry.key >= windowStart && entry.key < windowEnd)
       .map(
         (entry) => OrderTrackingStep(
           label: entry.value.name,
           isCompleted: entry.key <= currentIndex,
-          isFailed: false,
+          isFailed: isTerminalFailure && entry.key == currentIndex,
         ),
       )
       .toList();

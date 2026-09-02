@@ -1,5 +1,6 @@
 // lib/src/auth/state/auth_state.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/src/auth/model/auth_model.dart';
 
 part 'auth_state.freezed.dart';
@@ -17,6 +18,8 @@ sealed class AuthState with _$AuthState {
     @Default(false) bool isResendingOtp,
     @Default(false) bool isVerifyingOtp,
     @Default(false) bool isSigningOut,
+    @Default(false) bool isDeletingAccount,
+    @Default(AuthOtpFlow.login) AuthOtpFlow otpFlow,
     @Default(0) int resendCountdown,
   }) = _AuthState;
 }

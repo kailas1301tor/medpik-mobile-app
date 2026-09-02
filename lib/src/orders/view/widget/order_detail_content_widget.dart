@@ -18,23 +18,26 @@ class OrderDetailContentWidget extends StatelessWidget {
     super.key,
     required this.order,
     this.onBannerTap,
+    this.onStatusTap,
   });
 
   final OrderModel order;
   final VoidCallback? onBannerTap;
+  final VoidCallback? onStatusTap;
 
   @override
   Widget build(BuildContext context) {
     final banner = orderDetailStatusBanner(order.status, order);
     final hasPrescriptions = order.prescriptionImageUrls.isNotEmpty;
     final showBillPdf = order.hasBillPdf;
-    final hasNotes = order.deliveryInstructions.trim().isNotEmpty ||
+    final hasNotes =
+        order.deliveryInstructions.trim().isNotEmpty ||
         order.prescriptionDescription.trim().isNotEmpty;
 
     return ListView(
       padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 16.h),
       children: [
-        OrderDetailHeaderCard(order: order),
+        OrderDetailHeaderCard(order: order, onStepperTap: onStatusTap),
         if (banner != null) ...[
           16.verticalSpace,
           OrderStatusBanner(data: banner, onTap: onBannerTap),

@@ -330,6 +330,8 @@ class Strings {
       "No on-call doctor contacts are listed right now.";
   static const String couldNotLaunchPhoneCall =
       "Unable to open the phone dialer. Please try again.";
+  static const String couldNotLaunchSupportEmail =
+      "Unable to open your email app. Please try again.";
   static const String supportSection = "Support";
   static const String legalSection = "Legal";
   static const String legalDocumentEmpty = "No content available right now.";
@@ -356,6 +358,13 @@ class Strings {
   static const String darkModeSubtitle = "Use dark appearance across the app";
   static const String helpAndSupport = "Help & Support";
   static const String helpAndSupportSubtitle = "FAQs, chat, and assistance";
+  static const String callSupport = "Call Support";
+  static const String callSupportSubtitle = "Speak with our pharmacy team";
+  static const String emailSupport = "Email Support";
+  static const String emailSupportSubtitle = "Send our pharmacy team an email";
+  static const String noSupportContacts = "No support contacts available";
+  static const String noSupportContactsDescription =
+      "Support contact details are not available right now. Please try again later.";
   static const String contactSupport = "Contact Support";
   static const String contactSupportSubtitle = "Reach our pharmacy team";
   static const String aboutUs = "About Us";
@@ -366,6 +375,19 @@ class Strings {
   static const String signOutTitle = "Sign out?";
   static const String signOutMessage =
       "You will need to sign in again to access your account.";
+  static const String deleteAccount = "Delete Account";
+  static const String deleteAccountSubtitle =
+      "Permanently remove your account and data";
+  static const String deleteAccountTitle = "Delete your account?";
+  static const String deleteAccountMessage =
+      "This permanently deletes your Medpik account and personal data. "
+      "This action cannot be undone.";
+  static const String deleteAccountSuccess =
+      "Your account has been deleted successfully.";
+  static const String deleteAccountOtpTitle = "Confirm deletion";
+  static const String deleteAccountOtpSubtitle =
+      "Enter the code sent to your registered number to permanently delete your account.";
+  static const String deleteAccountVerifyCta = "Delete account";
   static const String ordersStatLabel = "Orders";
   static const String addressesStatLabel = "Addresses";
   static const String cartStatLabel = "Cart Items";
@@ -516,6 +538,12 @@ class Strings {
   static const String orderStatusOutForDelivery = "Out for Delivery";
   static const String orderStatusDelivered = "Delivered";
   static const String orderStatusCancelled = "Cancelled";
+  static const String orderStatusPending = "Pending";
+  static const String orderStatusAccepted = "Accepted";
+  static const String orderStatusBillSent = "Bill Sent";
+  static const String orderStatusPaymentReceived = "Payment Received";
+  static const String orderStatusCancelledByAdmin = "Cancelled By Admin";
+  static const String orderStatusRejected = "Rejected";
   static const String estimatedArrival = "Estimated arrival";
   static const String tracking = "Tracking";
   static const String liveTracking = "Live Tracking";
@@ -594,7 +622,7 @@ class Strings {
   static const String stepperPacked = "Packed";
   static const String stepperDelivery = "Delivery";
   static const String stepperOutForDelivery = "Out for Delivery";
-  static const String supportComingSoon = "Support will be available soon";
+  static const String viewDetailedStatus = "View detailed status";
   static const String billAcceptedToast = "Bill accepted successfully";
   static const String billRejectedToast = "Bill rejected";
   static const String paymentSuccessToast = "Payment initiated successfully";

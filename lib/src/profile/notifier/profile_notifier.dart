@@ -19,6 +19,7 @@ part 'profile_notifier.g.dart';
 class ProfileNotifier extends _$ProfileNotifier {
   late final TextEditingController firstNameController;
   late final TextEditingController lastNameController;
+  late final TextEditingController phoneDisplayController;
 
   late final ProfileRepo profileRepo;
 
@@ -26,6 +27,7 @@ class ProfileNotifier extends _$ProfileNotifier {
   ProfileState build() {
     firstNameController = TextEditingController();
     lastNameController = TextEditingController();
+    phoneDisplayController = TextEditingController();
     profileRepo = ref.read(profileRepositoryProvider);
 
     firstNameController.addListener(_onFirstNameChanged);
@@ -36,10 +38,53 @@ class ProfileNotifier extends _$ProfileNotifier {
       lastNameController.removeListener(_onLastNameChanged);
       firstNameController.dispose();
       lastNameController.dispose();
+      phoneDisplayController.dispose();
     });
 
-    Future.microtask(fetchProfile);
+    Future.microtask(refreshProfileData);
     return const ProfileState(loaderState: LoaderState.loading);
+  }
+
+  Future<void> refreshProfileData() async {
+    await Future.wait([fetchProfile(), fetchStoreProfile()]);
+  }
+
+  Future<void> fetchStoreProfile() async {
+    state = state.copyWith(supportLoaderState: LoaderState.loading);
+
+    return await profileRepo
+        .getStoreProfile()
+        .fold(
+          (error) {
+            final loaderState = handleResponseError(error.key);
+            debugPrint("🔴 STORE PROFILE ERROR: ${error.message}");
+            showCustomErrorToast(
+              message: error.message ?? Strings.somethingWentWrong,
+            );
+            state = state.copyWith(supportLoaderState: loaderState);
+          },
+          (response) {
+            final storeProfile = response.data;
+            if (storeProfile == null || !storeProfile.hasContact) {
+              state = state.copyWith(
+                supportLoaderState: LoaderState.noData,
+                storeProfile: storeProfile,
+              );
+              return;
+            }
+
+            debugPrint("🟢 STORE PROFILE SUCCESS: $storeProfile");
+            state = state.copyWith(
+              supportLoaderState: LoaderState.loaded,
+              storeProfile: storeProfile,
+            );
+          },
+        )
+        .catchError((error) {
+          debugPrint("🔴 UNEXPECTED STORE PROFILE ERROR: $error");
+          showCustomErrorToast(message: Strings.somethingWentWrong);
+          state = state.copyWith(supportLoaderState: LoaderState.error);
+        });
   }
 
   void _onFirstNameChanged() {
@@ -90,6 +135,7 @@ class ProfileNotifier extends _$ProfileNotifier {
               loaderState: LoaderState.loaded,
               profile: profile,
             );
+            _syncPhoneDisplay(profile.phoneNumber);
             await _syncAuthSession(profile);
           },
         )
@@ -104,8 +150,15 @@ class ProfileNotifier extends _$ProfileNotifier {
     final profile = state.profile;
     firstNameController.text = profile?.firstName ?? '';
     lastNameController.text = profile?.lastName ?? '';
+    _syncPhoneDisplay(profile?.phoneNumber ?? '');
     state = state.copyWith(firstNameError: null, lastNameError: null);
     _syncFormValidity();
+  }
+
+  void _syncPhoneDisplay(String phoneNumber) {
+    final display = phoneNumber.trim();
+    if (phoneDisplayController.text == display) return;
+    phoneDisplayController.text = display;
   }
 
   Future<bool> updateProfile() async {

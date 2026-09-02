@@ -109,8 +109,7 @@ class OrderItemModel {
   final int? appliedOfferId;
   final AppliedOfferModel? appliedOfferDetail;
 
-  double get lineTotal =>
-      totalPrice > 0 ? totalPrice : unitPrice * quantity;
+  double get lineTotal => totalPrice > 0 ? totalPrice : unitPrice * quantity;
 
   double get grossLineTotal => unitPrice * quantity;
 
@@ -224,18 +223,16 @@ class OrderModel {
   }
 
   bool get isActive => switch (status) {
-        OrderStatus.delivered ||
-        OrderStatus.cancelled ||
-        OrderStatus.prescriptionRejected ||
-        OrderStatus.billRejected =>
-          false,
-        _ => true,
-      };
+    OrderStatus.delivered ||
+    OrderStatus.cancelled ||
+    OrderStatus.prescriptionRejected ||
+    OrderStatus.billRejected => false,
+    _ => true,
+  };
 
   double get displayGrandTotal => billBreakdown?.grandTotal ?? amount;
 
-  bool get hasBillPdf =>
-      billBreakdown?.billPdfUrl?.trim().isNotEmpty ?? false;
+  bool get hasBillPdf => billBreakdown?.billPdfUrl?.trim().isNotEmpty ?? false;
 
   String? get billPdfUrl => billBreakdown?.billPdfUrl;
 
@@ -267,8 +264,9 @@ class OrderModel {
     final billBreakdown = _parseBillBreakdown(json);
 
     final hasTotalAmountKey = json.containsKey('total_amount');
-    var hasKnownAmount =
-        hasTotalAmountKey ? json['total_amount'] != null : true;
+    var hasKnownAmount = hasTotalAmountKey
+        ? json['total_amount'] != null
+        : true;
     var amount = hasTotalAmountKey
         ? convertToDouble(json['total_amount'])
         : convertToDouble(json['amount']);
@@ -290,11 +288,15 @@ class OrderModel {
         .toList();
 
     final statusRaw = convertToString(json['status']);
-    final customer = _parseCustomerContact(convertToMap(json['customer_detail']));
-    final deliveryInstructions =
-        convertToString(json['delivery_instructions']).trim();
-    final prescriptionDescription =
-        convertToString(json['prescription_description']).trim();
+    final customer = _parseCustomerContact(
+      convertToMap(json['customer_detail']),
+    );
+    final deliveryInstructions = convertToString(
+      json['delivery_instructions'],
+    ).trim();
+    final prescriptionDescription = convertToString(
+      json['prescription_description'],
+    ).trim();
 
     final customerName = customer.$1.isNotEmpty
         ? customer.$1
@@ -303,9 +305,9 @@ class OrderModel {
     return OrderModel(
       id: convertToString(json['id']),
       orderCode: orderCode,
-      items: convertToList(json['items'])
-          .map((e) => OrderItemModel.fromJson(convertToMap(e)))
-          .toList(),
+      items: convertToList(
+        json['items'],
+      ).map((e) => OrderItemModel.fromJson(convertToMap(e))).toList(),
       amount: amount,
       hasKnownAmount: hasKnownAmount,
       status: _parseStatus(statusRaw),
@@ -315,7 +317,8 @@ class OrderModel {
       etaText: convertToString(json['eta_text']).isEmpty
           ? null
           : convertToString(json['eta_text']),
-      hasPrescription: convertToBool(json['is_prescription_order']) ||
+      hasPrescription:
+          convertToBool(json['is_prescription_order']) ||
           convertToBool(json['has_prescription']),
       rejectionReason: convertToString(json['rejection_reason']).isEmpty
           ? null
@@ -347,15 +350,18 @@ class OrderModel {
     final userDetail = convertToMap(json['user_detail']);
     final firstName = convertToString(userDetail['first_name']).trim();
     final lastName = convertToString(userDetail['last_name']).trim();
-    final name = [firstName, lastName].where((part) => part.isNotEmpty).join(' ');
+    final name = [
+      firstName,
+      lastName,
+    ].where((part) => part.isNotEmpty).join(' ');
 
     final countryCode = convertToString(json['country_code']).trim();
     final phoneNumber = convertToString(json['phone_number']).trim();
     final phone = phoneNumber.isEmpty
         ? ''
         : countryCode.isEmpty
-            ? phoneNumber
-            : '$countryCode$phoneNumber';
+        ? phoneNumber
+        : '$countryCode$phoneNumber';
 
     return (name, phone);
   }
@@ -388,7 +394,7 @@ class OrderModel {
       'prescription_uploaded' => OrderStatus.prescriptionUploaded,
       'under_review' => OrderStatus.underReview,
       'prescription_accepted' || 'accepted' => OrderStatus.prescriptionAccepted,
-      'prescription_rejected' => OrderStatus.prescriptionRejected,
+      'prescription_rejected' || 'rejected' => OrderStatus.prescriptionRejected,
       'bill_generated' => OrderStatus.billGenerated,
       'bill_sent' => OrderStatus.awaitingBillApproval,
       'awaiting_bill_approval' => OrderStatus.awaitingBillApproval,
@@ -403,7 +409,7 @@ class OrderModel {
       'delivery_partner_assigned' => OrderStatus.deliveryPartnerAssigned,
       'outfordelivery' || 'out_for_delivery' => OrderStatus.outForDelivery,
       'delivered' => OrderStatus.delivered,
-      'cancelled' => OrderStatus.cancelled,
+      'cancelled' || 'cancelled_by_admin' => OrderStatus.cancelled,
       'placed' => OrderStatus.orderConfirmed,
       'confirmed' => OrderStatus.orderConfirmed,
       _ => OrderStatus.prescriptionUploaded,

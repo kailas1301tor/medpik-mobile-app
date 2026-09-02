@@ -27,6 +27,12 @@ abstract class AuthRepo {
   Future<Either<ResponseError, CommonResponseModel>> logout({
     required String refresh,
   });
+
+  Future<Either<ResponseError, CommonResponseModel>> deleteAccount({
+    required String phone,
+    required String otp,
+    String countryCode = AppConstants.defaultCountryCode,
+  });
 }
 
 class AuthRepoImpl implements AuthRepo {
@@ -95,6 +101,29 @@ class AuthRepoImpl implements AuthRepo {
           _networkServices.postRequest(
             endPoint: AppConstants.logout,
             parameters: {'refresh': refresh},
+          ),
+        )
+        .thenRight(_networkServices.checkHttpStatus)
+        .thenRight(_networkServices.parseJson)
+        .mapRight((right) => CommonResponseModel.fromJson(convertToMap(right)));
+  }
+
+  @override
+  Future<Either<ResponseError, CommonResponseModel>> deleteAccount({
+    required String phone,
+    required String otp,
+    String countryCode = AppConstants.defaultCountryCode,
+  }) async {
+    return await _networkServices
+        .safe(
+          _networkServices.postRequest(
+            endPoint: AppConstants.deleteAccount,
+            parameters: {
+              'country_code': countryCode,
+              'phone_number': phone,
+              'otp': otp,
+            },
+            isFromAuth: true,
           ),
         )
         .thenRight(_networkServices.checkHttpStatus)

@@ -11,8 +11,6 @@ import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/common_switch_state.dart';
 import 'package:tuple/tuple.dart';
 
-import '../../../res/enums/enums.dart';
-
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 

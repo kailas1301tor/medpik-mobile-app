@@ -14,7 +14,8 @@ import 'utils/helpers/common_functions.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   configureAppEnvironment(
-    kDebugMode ? AppEnvironment.stage : AppEnvironment.prod,
+    kDebugMode ? AppEnvironment.stage :
+    AppEnvironment.prod,
   );
   PreCacheImages.initializeAllImages();
   configureImageCache();

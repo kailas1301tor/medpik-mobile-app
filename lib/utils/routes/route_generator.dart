@@ -36,6 +36,7 @@ import '../../src/notifications/view/notifications_screen.dart';
 import '../../src/emergency/view/emergency_services_screen.dart';
 import '../../src/profile/view/legal_document_screen.dart';
 import '../../src/profile/view/personal_information_screen.dart';
+import '../../src/profile/view/help_and_support_screen.dart';
 import 'route_constants.dart';
 
 /// Route generator for named navigation.
@@ -209,6 +210,12 @@ class RouteGenerator {
           builder: (_) => PersonalInformationScreen(
             isOnboarding: personalInfoArgs.isOnboarding,
           ),
+          settings: settings,
+        );
+
+      case RouteConstants.routeHelpAndSupportScreen:
+        return _route(
+          builder: (_) => const HelpAndSupportScreen(),
           settings: settings,
         );
 

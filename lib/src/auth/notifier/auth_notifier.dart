@@ -7,17 +7,19 @@ import 'package:medpik/data/local/sembast_services.dart';
 import 'package:medpik/data/remote/network_services.dart';
 import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/services/invalidate_di.dart';
 import 'package:medpik/services/onesignal_service.dart';
 import 'package:medpik/services/repo_di.dart';
 import 'package:medpik/data/models/personal_information_args.dart';
 import 'package:medpik/src/auth/model/auth_model.dart';
 import 'package:medpik/src/auth/state/auth_state.dart';
+import 'package:medpik/src/root/medpik_app.dart';
 import 'package:medpik/utils/helpers/safe_converters.dart';
 import 'package:medpik/utils/helpers/toast_helper.dart';
 import 'package:medpik/utils/helpers/validators.dart';
 
-import '../../../utils/routes/route_constants.dart';
+import 'package:medpik/utils/routes/route_constants.dart';
 
 part 'auth_notifier.g.dart';
 
@@ -72,6 +74,7 @@ class AuthNotifier extends _$AuthNotifier {
             showCustomToast(message: right.message, isSuccess: true);
             state = state.copyWith(
               otpPhone: phone,
+              otpFlow: AuthOtpFlow.login,
               otpErrorMessage: null,
               isOtpValid: false,
             );
@@ -95,8 +98,9 @@ class AuthNotifier extends _$AuthNotifier {
   }
 
   Future<void> resendOtp() async {
-    if (!_validatePhone()) return;
-    // Prevent spamming of resend OTP.
+    if (state.otpFlow == AuthOtpFlow.login && !_validatePhone()) return;
+    final phone = _otpPhoneForRequest();
+    if (phone.isEmpty) return;
     if (_shouldBlockResendOtp()) {
       return;
     }
@@ -105,8 +109,8 @@ class AuthNotifier extends _$AuthNotifier {
     await ref
         .read(authRepositoryProvider)
         .resendOtp(
-          phone: phoneController.text.trim(),
-          countryCode: AppConstants.defaultCountryCode,
+          phone: phone,
+          countryCode: _countryCodeForRequest(),
         )
         .fold(
           (left) {
@@ -137,14 +141,19 @@ class AuthNotifier extends _$AuthNotifier {
       return;
     }
 
+    if (state.otpFlow == AuthOtpFlow.deleteAccount) {
+      await _confirmDeleteAccountWithOtp(context);
+      return;
+    }
+
     state = state.copyWith(isVerifyingOtp: true, otpErrorMessage: null);
 
     await ref
         .read(authRepositoryProvider)
         .verifyOtp(
-          phone: phoneController.text.trim(),
+          phone: _otpPhoneForRequest(),
           otp: otpController.text.trim(),
-          countryCode: AppConstants.defaultCountryCode,
+          countryCode: _countryCodeForRequest(),
         )
         .fold(
           (left) {
@@ -218,6 +227,149 @@ class AuthNotifier extends _$AuthNotifier {
     phoneController.clear();
     otpController.clear();
     state = const AuthState();
+  }
+
+  Future<bool> startDeleteAccountOtpFlow(
+    BuildContext context, {
+    String? phoneOverride,
+    String? countryCodeOverride,
+  }) async {
+    final authModel = state.authModel;
+    final resolvedPhone = phoneOverride?.trim().isNotEmpty == true
+        ? phoneOverride!.trim()
+        : authModel?.phone.trim() ?? '';
+    if (resolvedPhone.isEmpty) {
+      debugPrint('🔴 DELETE ACCOUNT: missing phone in session/profile');
+      showCustomErrorToast(message: Strings.somethingWentWrong);
+      return false;
+    }
+
+    final countryCode = _resolveCountryCode(
+      countryCodeOverride ?? authModel?.countryCode,
+    );
+    state = state.copyWith(
+      isRequestingOtp: true,
+      otpFlow: AuthOtpFlow.deleteAccount,
+      otpErrorMessage: null,
+    );
+
+    return ref
+        .read(authRepositoryProvider)
+        .requestOtp(phone: resolvedPhone, countryCode: countryCode)
+        .fold(
+          (left) {
+            state = state.copyWith(
+              isRequestingOtp: false,
+              otpFlow: AuthOtpFlow.login,
+            );
+            showCustomErrorToast(
+              message: left.message ?? Strings.somethingWentWrong,
+            );
+            return false;
+          },
+          (right) async {
+            otpController.clear();
+            await startResendTimer();
+            state = state.copyWith(
+              otpPhone: resolvedPhone,
+              otpFlow: AuthOtpFlow.deleteAccount,
+              otpErrorMessage: null,
+              isOtpValid: false,
+              isRequestingOtp: false,
+            );
+            showCustomToast(message: right.message, isSuccess: true);
+            final navigator = ref.read(navigatorKeyProvider).currentState;
+            if (navigator == null) {
+              debugPrint('🔴 DELETE ACCOUNT: navigator unavailable');
+              showCustomErrorToast(message: Strings.somethingWentWrong);
+              return false;
+            }
+            unawaited(navigator.pushNamed(RouteConstants.routeOtpScreen));
+            return true;
+          },
+        )
+        .catchError((error) {
+          debugPrint('🔴 DELETE ACCOUNT OTP ERROR: $error');
+          state = state.copyWith(
+            isRequestingOtp: false,
+            otpFlow: AuthOtpFlow.login,
+          );
+          showCustomErrorToast(message: Strings.somethingWentWrong);
+          return false;
+        });
+  }
+
+  Future<void> _confirmDeleteAccountWithOtp(BuildContext context) async {
+    final phone = state.otpPhone?.trim() ?? '';
+    if (phone.isEmpty) {
+      showCustomErrorToast(message: Strings.somethingWentWrong);
+      return;
+    }
+
+    state = state.copyWith(isDeletingAccount: true, otpErrorMessage: null);
+
+    final deleted = await ref
+        .read(authRepositoryProvider)
+        .deleteAccount(
+          phone: phone,
+          otp: otpController.text.trim(),
+          countryCode: _countryCodeForRequest(),
+        )
+        .fold(
+          (left) {
+            showCustomErrorToast(
+              message: left.message ?? Strings.somethingWentWrong,
+            );
+            state = state.copyWith(
+              otpErrorMessage: left.message ?? Strings.somethingWentWrong,
+              isDeletingAccount: false,
+            );
+            return false;
+          },
+          (right) {
+            showCustomToast(
+              message: right.message.isNotEmpty
+                  ? right.message
+                  : Strings.deleteAccountSuccess,
+              isSuccess: true,
+            );
+            return true;
+          },
+        )
+        .catchError((error) {
+          showCustomErrorToast(message: Strings.somethingWentWrong);
+          state = state.copyWith(isDeletingAccount: false);
+          return false;
+        });
+
+    if (!deleted) return;
+
+    await _clearSession();
+    await _syncAfterLogout();
+    _cancelResendTimer();
+    phoneController.clear();
+    otpController.clear();
+    state = const AuthState();
+
+    if (!context.mounted) return;
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      RouteConstants.routeLoginScreen,
+      (route) => false,
+    );
+  }
+
+  void resetOtpFlow() {
+    if (state.otpFlow != AuthOtpFlow.deleteAccount) return;
+    _cancelResendTimer();
+    otpController.clear();
+    state = state.copyWith(
+      otpFlow: AuthOtpFlow.login,
+      otpPhone: null,
+      otpErrorMessage: null,
+      isOtpValid: false,
+      resendCountdown: 0,
+    );
   }
 
   // ! ----------------------------------- API CALLS-----------------------------------
@@ -360,7 +512,10 @@ class AuthNotifier extends _$AuthNotifier {
 
   // Called when the OTP field input is completed by user. Triggers verification only if not busy.
   void onOtpCompleted(BuildContext context) {
-    if (state.isVerifyingOtp || state.isResendingOtp || state.isRequestingOtp) {
+    if (state.isVerifyingOtp ||
+        state.isResendingOtp ||
+        state.isRequestingOtp ||
+        state.isDeletingAccount) {
       return;
     }
     if (otpController.text.trim().length != AppConstants.otpLength) return;
@@ -373,7 +528,8 @@ class AuthNotifier extends _$AuthNotifier {
   bool _shouldBlockVerifyOtp() {
     return state.isVerifyingOtp ||
         state.isResendingOtp ||
-        state.isRequestingOtp;
+        state.isRequestingOtp ||
+        state.isDeletingAccount;
   }
 
   /// Validate OTP and update error state if not valid.
@@ -414,7 +570,29 @@ class AuthNotifier extends _$AuthNotifier {
     return state.isResendingOtp ||
         state.isRequestingOtp ||
         state.isVerifyingOtp ||
+        state.isDeletingAccount ||
         state.resendCountdown > 0;
+  }
+
+  String _otpPhoneForRequest() {
+    if (state.otpFlow == AuthOtpFlow.deleteAccount) {
+      return state.otpPhone?.trim() ?? '';
+    }
+    return phoneController.text.trim().isNotEmpty
+        ? phoneController.text.trim()
+        : state.otpPhone?.trim() ?? '';
+  }
+
+  String _countryCodeForRequest() {
+    if (state.otpFlow == AuthOtpFlow.deleteAccount) {
+      return _resolveCountryCode(state.authModel?.countryCode);
+    }
+    return AppConstants.defaultCountryCode;
+  }
+
+  String _resolveCountryCode(String? countryCode) {
+    final resolved = countryCode?.trim() ?? '';
+    return resolved.isEmpty ? AppConstants.defaultCountryCode : resolved;
   }
 
   /// Navigation helper for OTP success.

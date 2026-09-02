@@ -83,9 +83,7 @@ class CheckoutNotifier extends _$CheckoutNotifier {
   }
 
   void savePharmacistInstructions(String value) {
-    final trimmed = value.trim();
-    pharmacistInstructionsController.text = trimmed;
-    state = state.copyWith(pharmacistInstructions: trimmed);
+    state = state.copyWith(pharmacistInstructions: value);
   }
 
   Future<String?> placeMedicineCartOrder() async {
@@ -109,7 +107,7 @@ class CheckoutNotifier extends _$CheckoutNotifier {
     return await _checkoutRepo
         .placeOrder(
           addressId: address.id,
-          deliveryInstructions: state.pharmacistInstructions,
+          deliveryInstructions: state.pharmacistInstructions.trim(),
         )
         .fold(
           (error) {

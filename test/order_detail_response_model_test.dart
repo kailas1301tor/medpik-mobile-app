@@ -1,10 +1,35 @@
 // test/order_detail_response_model_test.dart
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medpik/data/models/order_model.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/src/orders/model/order_detail_response_model.dart';
 
 void main() {
   group('OrderDetailResponse', () {
+    test('maps every backend status choice to a supported order state', () {
+      const expectedStatuses = <String, OrderStatus>{
+        'Pending': OrderStatus.underReview,
+        'Accepted': OrderStatus.prescriptionAccepted,
+        'Bill Generated': OrderStatus.billGenerated,
+        'Bill Sent': OrderStatus.awaitingBillApproval,
+        'Bill Accepted': OrderStatus.billAccepted,
+        'Bill Rejected': OrderStatus.billRejected,
+        'Payment Received': OrderStatus.paymentCompleted,
+        'Packed': OrderStatus.packed,
+        'Out for Delivery': OrderStatus.outForDelivery,
+        'Delivered': OrderStatus.delivered,
+        'Cancelled': OrderStatus.cancelled,
+        'Cancelled By Admin': OrderStatus.cancelled,
+        'Rejected': OrderStatus.prescriptionRejected,
+      };
+
+      for (final entry in expectedStatuses.entries) {
+        final order = OrderModel.fromJson({'status': entry.key});
+        expect(order.status, entry.value, reason: entry.key);
+        expect(order.statusRaw, entry.key, reason: entry.key);
+      }
+    });
+
     test('parses single-object results.data into OrderModel', () {
       final response = OrderDetailResponse.fromJson({
         'message': 'Success',
@@ -21,10 +46,7 @@ void main() {
             'customer_detail': {
               'country_code': '+91',
               'phone_number': '9876543210',
-              'user_detail': {
-                'first_name': 'Anita',
-                'last_name': 'Sharma',
-              },
+              'user_detail': {'first_name': 'Anita', 'last_name': 'Sharma'},
             },
             'address_detail': {
               'id': 10,
@@ -103,96 +125,95 @@ void main() {
       expect(order.createdAt.isUtc, isTrue);
     });
 
-    test('parses new bill object, Bill Sent status, and item-level pricing', () {
-      final response = OrderDetailResponse.fromJson({
-        'message': 'Success',
-        'results': {
-          'data': {
-            'id': 8,
-            'order_id': 'MPK260717000008',
-            'status': 'Bill Sent',
-            'total_amount': null,
-            'is_prescription_order': false,
-            'delivery_instructions': 'placeoutside',
-            'created_at': '17 Jul 2026, 12:59 PM',
-            'customer_detail': {
-              'id': 2,
-              'country_code': '+91',
-              'phone_number': '8943936486',
-              'user_detail': {
+    test(
+      'parses new bill object, Bill Sent status, and item-level pricing',
+      () {
+        final response = OrderDetailResponse.fromJson({
+          'message': 'Success',
+          'results': {
+            'data': {
+              'id': 8,
+              'order_id': 'MPK260717000008',
+              'status': 'Bill Sent',
+              'total_amount': null,
+              'is_prescription_order': false,
+              'delivery_instructions': 'placeoutside',
+              'created_at': '17 Jul 2026, 12:59 PM',
+              'customer_detail': {
                 'id': 2,
-                'first_name': '',
-                'last_name': '',
+                'country_code': '+91',
+                'phone_number': '9876543210',
+                'user_detail': {'id': 2, 'first_name': '', 'last_name': ''},
               },
-            },
-            'address_detail': {
-              'id': 4,
-              'full_name': 'work',
-              'phone_number': '92424242424',
-              'address_line_1': 'Powai',
-              'address_line_2': 'Hiranandani Gardens',
-              'city': 'Mumbai',
-              'state': 'Maharashtra',
-              'postal_code': '400076',
-            },
-            'items': [
-              {
-                'id': 12,
-                'quantity': 3,
-                'price': '10.00',
-                'total_price': '33.00',
-                'status': 'Available',
-                'expiry_date': '2026-07-21',
-                'sgst': '5.00',
-                'cgst': '5.00',
-                'product_detail': {
+              'address_detail': {
+                'id': 4,
+                'full_name': 'work',
+                'phone_number': '92424242424',
+                'address_line_1': 'Powai',
+                'address_line_2': 'Hiranandani Gardens',
+                'city': 'Mumbai',
+                'state': 'Maharashtra',
+                'postal_code': '400076',
+              },
+              'items': [
+                {
                   'id': 12,
-                  'name': 'DIGENE GEL MINT 200 ML+LEMON FIZZ',
-                  'rate': '0.00',
-                  'image': 'https://example.com/p.png',
-                  'is_otc': true,
+                  'quantity': 3,
+                  'price': '10.00',
+                  'total_price': '33.00',
+                  'status': 'Available',
+                  'expiry_date': '2026-07-21',
+                  'sgst': '5.00',
+                  'cgst': '5.00',
+                  'product_detail': {
+                    'id': 12,
+                    'name': 'DIGENE GEL MINT 200 ML+LEMON FIZZ',
+                    'rate': '0.00',
+                    'image': 'https://example.com/p.png',
+                    'is_otc': true,
+                  },
                 },
+              ],
+              'bill': {
+                'subtotal': '240.00',
+                'delivery_fee': '10.00',
+                'tax': '0.00',
+                'total': '250.00',
+                'is_sent_to_customer': true,
+                'bill_pdf': null,
               },
-            ],
-            'bill': {
-              'subtotal': '240.00',
-              'delivery_fee': '10.00',
-              'tax': '0.00',
-              'total': '250.00',
-              'is_sent_to_customer': true,
-              'bill_pdf': null,
             },
           },
-        },
-      });
+        });
 
-      final order = response.order;
-      expect(order, isNotNull);
-      expect(order!.status, OrderStatus.awaitingBillApproval);
-      expect(order.statusRaw, 'Bill Sent');
-      expect(order.hasKnownAmount, isTrue);
-      expect(order.amount, 250);
-      expect(order.customerName, 'work');
-      expect(order.customerPhone, '+918943936486');
+        final order = response.order;
+        expect(order, isNotNull);
+        expect(order!.status, OrderStatus.awaitingBillApproval);
+        expect(order.statusRaw, 'Bill Sent');
+        expect(order.hasKnownAmount, isTrue);
+        expect(order.amount, 250);
+        expect(order.customerName, 'work');
+        expect(order.customerPhone, '+919876543210');
 
-      final bill = order.billBreakdown!;
-      expect(bill.itemTotal, 240);
-      expect(bill.deliveryCharges, 10);
-      expect(bill.tax, 0);
-      expect(bill.grandTotal, 250);
-      expect(bill.isSentToCustomer, isTrue);
-      expect(bill.billPdfUrl, isNull);
-      expect(order.hasBillPdf, isFalse);
+        final bill = order.billBreakdown!;
+        expect(bill.itemTotal, 240);
+        expect(bill.deliveryCharges, 10);
+        expect(bill.tax, 0);
+        expect(bill.grandTotal, 250);
+        expect(bill.isSentToCustomer, isTrue);
+        expect(bill.billPdfUrl, isNull);
+        expect(order.hasBillPdf, isFalse);
 
-      final item = order.items.first;
-      expect(item.unitPrice, 10);
-      expect(item.totalPrice, 33);
-      expect(item.lineTotal, 33);
-      expect(item.status, 'Available');
-      expect(item.expiryDate, '2026-07-21');
-      expect(item.sgst, 5);
-      expect(item.cgst, 5);
-    });
+        final item = order.items.first;
+        expect(item.unitPrice, 10);
+        expect(item.totalPrice, 33);
+        expect(item.lineTotal, 33);
+        expect(item.status, 'Available');
+        expect(item.expiryDate, '2026-07-21');
+        expect(item.sgst, 5);
+        expect(item.cgst, 5);
+      },
+    );
 
     test('parses bill_pdf URL when present', () {
       final order = OrderDetailResponse.fromJson({
@@ -281,12 +302,8 @@ void main() {
             'customer_detail': {
               'id': 2,
               'country_code': '+91',
-              'phone_number': '8943936486',
-              'user_detail': {
-                'id': 2,
-                'first_name': '',
-                'last_name': '',
-              },
+              'phone_number': '9876543210',
+              'user_detail': {'id': 2, 'first_name': '', 'last_name': ''},
             },
             'address_detail': {
               'id': 4,
@@ -422,10 +439,7 @@ void main() {
                 'price': '34.00',
                 'total_price': '448.80',
                 'discount_amount': '0.00',
-                'product_detail': {
-                  'id': 6492,
-                  'name': 'PREGNACARE TAB',
-                },
+                'product_detail': {'id': 6492, 'name': 'PREGNACARE TAB'},
               },
             ],
             'bill': {

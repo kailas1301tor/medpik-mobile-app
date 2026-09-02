@@ -48,6 +48,15 @@ class FakeAuthRepo implements AuthRepo {
   }) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<Either<ResponseError, CommonResponseModel>> deleteAccount({
+    required String phone,
+    required String otp,
+    String countryCode = AppConstants.defaultCountryCode,
+  }) {
+    throw UnimplementedError();
+  }
 }
 
 void main() {

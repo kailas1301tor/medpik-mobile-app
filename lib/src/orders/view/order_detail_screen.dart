@@ -70,9 +70,8 @@ class OrderDetailScreen extends ConsumerWidget {
       safeAreaBottom: false,
       body: CommonSwitchState(
         loaderState: detailLoaderState,
-        reload: () => ref
-            .read(ordersNotifierProvider.notifier)
-            .loadOrderDetail(orderId),
+        reload: () =>
+            ref.read(ordersNotifierProvider.notifier).loadOrderDetail(orderId),
         buttonText: Strings.refresh,
         loader: const OrderDetailShimmerWidget(),
         child: order == null
@@ -82,11 +81,16 @@ class OrderDetailScreen extends ConsumerWidget {
                   Expanded(
                     child: OrderDetailContentWidget(
                       order: order,
+                      onStatusTap: () => Navigator.pushNamed(
+                        context,
+                        RouteConstants.routeTrackingScreen,
+                        arguments: orderId,
+                      ),
                       onBannerTap: orderDetailShowsBillCard(order.status)
                           ? () => _onCtaPressed(
-                                context,
-                                OrderDetailCtaAction.reviewBill,
-                              )
+                              context,
+                              OrderDetailCtaAction.reviewBill,
+                            )
                           : null,
                     ),
                   ),

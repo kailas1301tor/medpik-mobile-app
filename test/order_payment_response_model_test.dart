@@ -17,9 +17,9 @@ void main() {
             'name': 'medpik',
             'description': 'Order MPK260722000011',
             'prefill': {
-              'name': '+918943936486',
+              'name': '+919876543210',
               'email': '',
-              'contact': '8943936486',
+              'contact': '9876543210',
             },
           },
         },
@@ -32,7 +32,7 @@ void main() {
       expect(checkout.razorpayOrderId, 'order_TGVUbWUoZhxXVG');
       expect(checkout.amount, 10000);
       expect(checkout.currency, 'INR');
-      expect(checkout.prefill.contact, '8943936486');
+      expect(checkout.prefill.contact, '9876543210');
     });
 
     test('supports key_id alias for razorpay key', () {

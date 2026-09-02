@@ -13,6 +13,11 @@ enum UserAccountStatus {
   suspended,
 }
 
+enum AuthOtpFlow {
+  login,
+  deleteAccount,
+}
+
 enum OrderStatus {
   prescriptionUploaded,
   underReview,

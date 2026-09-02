@@ -10,6 +10,7 @@ class RouteConstants {
   static const String routeOtpScreen = '/otp';
   static const String routeProfileScreen = '/profile';
   static const String routePersonalInformationScreen = '/personal-information';
+  static const String routeHelpAndSupportScreen = '/help-and-support';
   static const String routeSearchScreen = '/search';
   static const String routeSearchResultsScreen = '/search-results';
   static const String routeProductDetailScreen = '/product-detail';
