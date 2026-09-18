@@ -41,6 +41,10 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Medpik needs camera access to capture prescription photos.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Medpik uses your location to set a delivery address accurately. Location is only used while you are placing or tracking an order, not for background tracking.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Medpik uses your location to set a delivery address accurately. Location is only used while you are placing or tracking an order, not for background tracking.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Medpik needs your location to set delivery address accurately.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

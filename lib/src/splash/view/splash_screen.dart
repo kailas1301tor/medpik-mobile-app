@@ -17,16 +17,36 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    PreCacheImages.initializeAllImages();
-  }
+  bool _precacheStarted = false;
+  bool _imagesPrecached = false;
+  bool _didNavigate = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    PreCacheImages.preCacheImages(context);
+    if (_precacheStarted) return;
+    _precacheStarted = true;
+
+    // Warm Flutter ImageCache before leaving splash so home/login first paint
+    // reuses the same ImageProviders.
+    PreCacheImages.preCacheImages(context).whenComplete(() {
+      if (!mounted) return;
+      setState(() => _imagesPrecached = true);
+      _tryNavigate();
+    });
+  }
+
+  void _tryNavigate() {
+    if (_didNavigate || !_imagesPrecached) return;
+
+    final splash = ref.read(splashNotifierProvider);
+    if (splash.loaderState != LoaderState.loaded) return;
+
+    _didNavigate = true;
+    final route = splash.hasSession
+        ? RouteConstants.mainScreen
+        : RouteConstants.routeLoginScreen;
+    Navigator.pushNamedAndRemoveUntil(context, route, (route) => false);
   }
 
   @override
@@ -35,19 +55,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       previous,
       next,
     ) {
-      if (next != LoaderState.loaded) return;
-      final hasSession = ref.read(
-        splashNotifierProvider.select((s) => s.hasSession),
-      );
-      final route = hasSession
-          ? RouteConstants.mainScreen
-          : RouteConstants.routeLoginScreen;
-      Navigator.pushNamedAndRemoveUntil(context, route, (route) => false);
+      if (next == LoaderState.loaded) {
+        _tryNavigate();
+      }
     });
 
-    return CommonScaffold(
+    return const CommonScaffold(
       backgroundColor: ColorPalette.white,
-      body: const Center(
+      body: Center(
         child: SplashAnimatedLogo(),
       ),
     );

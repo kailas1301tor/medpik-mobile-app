@@ -40,9 +40,10 @@ class HomeCompactHeaderScope extends ConsumerWidget {
         statusBarBrightness: useDarkStatusIcons
             ? Brightness.light
             : Brightness.dark,
-        systemNavigationBarColor: colors.background,
+        systemNavigationBarColor: ColorPalette.transparent,
         systemNavigationBarIconBrightness: navBarIconBrightness,
-        systemNavigationBarContrastEnforced: true,
+        systemNavigationBarContrastEnforced: false,
+        systemStatusBarContrastEnforced: false,
       ),
       child: HomeCompactHeader(
         progress: compactProgress,

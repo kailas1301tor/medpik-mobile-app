@@ -7,6 +7,7 @@ import 'package:medpik/res/constants/medpik_image_assets.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/utils/helpers/pre_cache_images.dart';
 
 /// Entrance animation for the Medpik splash wordmark.
 class SplashAnimatedLogo extends StatefulWidget {
@@ -79,8 +80,10 @@ class _SplashAnimatedLogoState extends State<SplashAnimatedLogo>
           child: ScaleTransition(
             scale: _logoScale,
             alignment: Alignment.center,
-            child: Image.asset(
-              MedpikImageAssets.splashLogo,
+            child: Image(
+              image:
+                  PreCacheImages.providerFor(MedpikImageAssets.splashLogo) ??
+                  const AssetImage(MedpikImageAssets.splashLogo),
               width: logoWidth,
               fit: BoxFit.cover,
               gaplessPlayback: true,

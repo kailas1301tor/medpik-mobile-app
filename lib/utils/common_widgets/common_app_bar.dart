@@ -40,15 +40,17 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     final iconsAreDark = luminance > 0.179;
 
     return SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-
-      // Android
+      statusBarColor: ColorPalette.transparent,
       statusBarIconBrightness: iconsAreDark
           ? Brightness.dark
           : Brightness.light,
-
-      // iOS
       statusBarBrightness: iconsAreDark ? Brightness.light : Brightness.dark,
+      systemNavigationBarColor: ColorPalette.transparent,
+      systemNavigationBarIconBrightness: iconsAreDark
+          ? Brightness.dark
+          : Brightness.light,
+      systemNavigationBarContrastEnforced: false,
+      systemStatusBarContrastEnforced: false,
     );
   }
 

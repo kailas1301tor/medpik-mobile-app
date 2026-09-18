@@ -16,7 +16,6 @@ class MedpikImageAssets {
   /// Icon mark only — launcher, compact UI.
   static const String appCrest = '$_base/Medpik Crest #01.png';
   static const String primaryBackground = '$_base/compressed_home_bg.png';
-  static const String profileBackground = '$_base/profile_bg.png';
   static const String productPlaceholder =
       '$_base/product_placeholder_green.png';
   static const String categoryPlaceholder =

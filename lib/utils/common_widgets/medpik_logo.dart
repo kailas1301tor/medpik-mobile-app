@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/constants/medpik_image_assets.dart';
 import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/utils/helpers/pre_cache_images.dart';
 
 enum MedpikLogoVariant { crest, horizontal, vertical }
 
@@ -68,8 +69,9 @@ class MedpikLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final assetPath = _assetPath();
-    final image = Image.asset(
-      assetPath,
+    final precachedProvider = PreCacheImages.providerFor(assetPath);
+    final image = Image(
+      image: precachedProvider ?? AssetImage(assetPath),
       height: height,
       width: width,
       fit: fit,

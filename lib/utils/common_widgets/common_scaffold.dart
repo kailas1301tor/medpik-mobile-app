@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:medpik/res/styles/color_palette.dart';
 
 class CommonScaffold extends StatefulWidget {
   const CommonScaffold({
@@ -102,7 +103,9 @@ class _CommonScaffoldState extends State<CommonScaffold>
     final isDark = theme.brightness == Brightness.dark;
 
     final resolvedBg = widget.backgroundColor ?? colorScheme.surface;
-    final resolvedNavBarColor =
+    // Icon brightness still follows the scaffold surface / optional override.
+    // System bar *colors* stay transparent for Android 15 edge-to-edge.
+    final navBarIconSource =
         widget.navigationBarColor ??
         (widget.bottomNavigationBar != null
             ? colorScheme.surfaceContainerHighest
@@ -129,18 +132,16 @@ class _CommonScaffoldState extends State<CommonScaffold>
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        statusBarColor: widget.statusBarColor ?? Colors.transparent,
+        statusBarColor: widget.statusBarColor ?? ColorPalette.transparent,
         statusBarBrightness: statusIconBrightness == Brightness.dark
             ? Brightness.light
             : Brightness.dark,
         statusBarIconBrightness: statusIconBrightness,
-        systemNavigationBarColor: resolvedNavBarColor,
-        systemNavigationBarIconBrightness: _iconBrightness(resolvedNavBarColor),
-        systemNavigationBarDividerColor: Colors.transparent,
+        systemNavigationBarColor: ColorPalette.transparent,
+        systemNavigationBarIconBrightness: _iconBrightness(navBarIconSource),
+        systemNavigationBarDividerColor: ColorPalette.transparent,
         systemStatusBarContrastEnforced: false,
-        // Keep the Android system nav bar opaque so edge-to-edge content
-        // does not show through behind the back/home/recents buttons.
-        systemNavigationBarContrastEnforced: true,
+        systemNavigationBarContrastEnforced: false,
       ),
       child: Scaffold(
         backgroundColor: resolvedBg,
