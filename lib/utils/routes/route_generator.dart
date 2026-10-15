@@ -1,4 +1,7 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:medpik/data/models/address_model.dart';
 import 'package:medpik/data/models/product_detail_args.dart';
@@ -243,6 +246,11 @@ class RouteGenerator {
     required WidgetBuilder builder,
     required RouteSettings settings,
   }) {
-    return CupertinoPageRoute<T>(builder: builder, settings: settings);
+    // Cupertino slide feels right on iOS; Material transitions are cheaper and
+    // more familiar on Android (avoids stacking with any scaffold fades).
+    if (!kIsWeb && Platform.isIOS) {
+      return CupertinoPageRoute<T>(builder: builder, settings: settings);
+    }
+    return MaterialPageRoute<T>(builder: builder, settings: settings);
   }
 }

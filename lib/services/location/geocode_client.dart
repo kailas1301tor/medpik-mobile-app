@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/services/location/location_config.dart';
+import 'package:medpik/utils/helpers/forward_geocode_filter.dart';
 import 'package:medpik/utils/helpers/geocode_address_formatter.dart';
 
 part 'geocode_client.g.dart';
@@ -34,6 +35,7 @@ class ReverseGeocodeResult {
 
 class GeocodeLruCache {
   final Map<String, ReverseGeocodeResult> _entries = {};
+  final Map<String, List<ReverseGeocodeResult>> _listEntries = {};
 
   String keyForLatLng(double lat, double lng) {
     final decimals = LocationConfig.geocodeCacheLatLngDecimals;
@@ -56,6 +58,22 @@ class GeocodeLruCache {
     _entries[key] = value;
     while (_entries.length > LocationConfig.geocodeCacheMaxEntries) {
       _entries.remove(_entries.keys.first);
+    }
+  }
+
+  /// Exact-query forward pick list. Different queries never collide.
+  List<ReverseGeocodeResult>? getList(String key) {
+    final value = _listEntries.remove(key);
+    if (value == null) return null;
+    _listEntries[key] = value;
+    return List<ReverseGeocodeResult>.unmodifiable(value);
+  }
+
+  void putList(String key, List<ReverseGeocodeResult> value) {
+    _listEntries.remove(key);
+    _listEntries[key] = List<ReverseGeocodeResult>.unmodifiable(value);
+    while (_listEntries.length > LocationConfig.geocodeCacheMaxEntries) {
+      _listEntries.remove(_listEntries.keys.first);
     }
   }
 }
@@ -94,7 +112,11 @@ class GeocodeClient {
     final cacheKey = _cache.keyForLatLng(latitude, longitude);
     final cached = _cache.get(cacheKey);
     if (cached != null) {
-      debugPrint("🟢 GEOCODE CACHE HIT: $cacheKey");
+      _logResultSummary(
+        tag: 'GEOCODE CACHE HIT',
+        cacheKey: cacheKey,
+        result: cached,
+      );
       return cached;
     }
 
@@ -110,15 +132,18 @@ class GeocodeClient {
         },
       );
 
-      final result = _parseFirstResult(
-        data: response.data ?? const {},
+      final data = response.data ?? const <String, dynamic>{};
+      final results = _parseResults(
+        data: data,
         fallbackLat: latitude,
         fallbackLng: longitude,
       );
-      if (result == null) return null;
+      _logApiResponse(tag: 'REVERSE GEOCODE', data: data, results: results);
 
+      if (results.isEmpty) return null;
+
+      final result = results.first;
       _cache.put(cacheKey, result);
-      debugPrint("🟢 GEOCODE SUCCESS: $cacheKey");
       return result;
     } catch (e) {
       debugPrint("🔴 GEOCODE ERROR: $e");
@@ -126,20 +151,39 @@ class GeocodeClient {
     }
   }
 
+  /// Prefer [forwardGeocodeResults] when the UI needs a pick list.
   Future<ReverseGeocodeResult?> forwardGeocode({
     required String address,
   }) async {
+    final results = await forwardGeocodeResults(address: address);
+    return results.isEmpty ? null : results.first;
+  }
+
+  Future<List<ReverseGeocodeResult>> forwardGeocodeResults({
+    required String address,
+  }) async {
     final query = address.trim();
-    if (query.length < LocationConfig.minSearchQueryLength) return null;
+    if (query.length < LocationConfig.minSearchQueryLength) {
+      return const [];
+    }
 
     final cacheKey = _cache.keyForQuery(query);
-    final cached = _cache.get(cacheKey);
+    final cached = _cache.getList(cacheKey);
     if (cached != null) {
-      debugPrint("🟢 FORWARD GEOCODE CACHE HIT: $cacheKey");
+      debugPrint(
+        '🟢 FORWARD GEOCODE CACHE HIT: key=$cacheKey count=${cached.length}',
+      );
+      for (var i = 0; i < cached.length && i < 5; i++) {
+        _logResultSummary(
+          tag: 'FORWARD GEOCODE CACHE[$i]',
+          cacheKey: cacheKey,
+          result: cached[i],
+        );
+      }
       return cached;
     }
 
-    if (!_ensureApiKey()) return null;
+    if (!_ensureApiKey()) return const [];
 
     try {
       final response = await _dio.get<Map<String, dynamic>>(
@@ -150,44 +194,81 @@ class GeocodeClient {
           'language': 'en',
           'components': LocationConfig.geocodeCountryBias,
           'region': LocationConfig.geocodeRegionBias,
+          // Bias toward service area (still may return coarse hits — filtered below).
+          'bounds':
+              '${LocationConfig.keralaMinLat},${LocationConfig.keralaMinLng}|'
+              '${LocationConfig.keralaMaxLat},${LocationConfig.keralaMaxLng}',
         },
       );
 
-      final result = _parseFirstResult(data: response.data ?? const {});
-      if (result == null) {
-        debugPrint("🟡 FORWARD GEOCODE: no results for $cacheKey");
-        return null;
-      }
-
-      _cache.put(cacheKey, result);
-      _cache.put(
-        _cache.keyForLatLng(result.latitude, result.longitude),
-        result,
+      final data = response.data ?? const <String, dynamic>{};
+      final results = _parseResults(
+        data: data,
+        forForwardPickList: true,
       );
-      debugPrint("🟢 FORWARD GEOCODE SUCCESS: $cacheKey");
-      return result;
+      _logApiResponse(
+        tag: 'FORWARD GEOCODE',
+        data: data,
+        results: results,
+        cacheKey: cacheKey,
+      );
+
+      if (results.isEmpty) return const [];
+
+      final capped = results
+          .take(LocationConfig.maxForwardSearchResults)
+          .toList(growable: false);
+
+      for (final result in capped) {
+        _cache.put(
+          _cache.keyForLatLng(result.latitude, result.longitude),
+          result,
+        );
+      }
+      _cache.putList(cacheKey, capped);
+      return capped;
     } catch (e) {
       debugPrint("🔴 FORWARD GEOCODE ERROR: $e");
-      return null;
+      return const [];
     }
   }
 
-  ReverseGeocodeResult? _parseFirstResult({
+  List<ReverseGeocodeResult> _parseResults({
     required Map<String, dynamic> data,
     double? fallbackLat,
     double? fallbackLng,
+    bool forForwardPickList = false,
   }) {
     final status = data['status']?.toString() ?? '';
-    if (status == 'ZERO_RESULTS') return null;
+    if (status == 'ZERO_RESULTS') return const [];
     if (status != 'OK') {
       debugPrint("🔴 GEOCODE: $status ${data['error_message']}");
-      return null;
+      return const [];
     }
 
-    final results = data['results'];
-    if (results is! List || results.isEmpty) return null;
+    final rawResults = data['results'];
+    if (rawResults is! List || rawResults.isEmpty) return const [];
 
-    final first = Map<String, dynamic>.from(results.first as Map);
+    final parsed = <ReverseGeocodeResult>[];
+    for (final item in rawResults) {
+      if (item is! Map) continue;
+      final result = _parseResultMap(
+        Map<String, dynamic>.from(item),
+        fallbackLat: fallbackLat,
+        fallbackLng: fallbackLng,
+        forForwardPickList: forForwardPickList,
+      );
+      if (result != null) parsed.add(result);
+    }
+    return parsed;
+  }
+
+  ReverseGeocodeResult? _parseResultMap(
+    Map<String, dynamic> first, {
+    double? fallbackLat,
+    double? fallbackLng,
+    bool forForwardPickList = false,
+  }) {
     final geometry = Map<String, dynamic>.from(
       (first['geometry'] as Map?) ?? const {},
     );
@@ -199,6 +280,25 @@ class GeocodeClient {
     if (lat == null || lng == null) return null;
 
     final components = _parseGeocodeComponents(first['address_components']);
+    final types = (first['types'] as List?)
+            ?.map((e) => e.toString())
+            .toList(growable: false) ??
+        const <String>[];
+
+    if (forForwardPickList &&
+        !isUsefulForwardGeocodeResult(
+          types: types,
+          latitude: lat,
+          longitude: lng,
+          state: components.state,
+        )) {
+      debugPrint(
+        '🟡 FORWARD GEOCODE SKIP: coarse/out-of-area '
+        'types=$types address=${first['formatted_address']}',
+      );
+      return null;
+    }
+
     final rawFormatted = first['formatted_address']?.toString() ?? '';
     return ReverseGeocodeResult(
       latitude: lat,
@@ -210,6 +310,40 @@ class GeocodeClient {
       state: components.state,
       pincode: components.pincode,
       placeId: first['place_id']?.toString(),
+    );
+  }
+
+  void _logApiResponse({
+    required String tag,
+    required Map<String, dynamic> data,
+    required List<ReverseGeocodeResult> results,
+    String? cacheKey,
+  }) {
+    final status = data['status']?.toString() ?? '';
+    final keyPart = cacheKey == null ? '' : ' key=$cacheKey';
+    debugPrint(
+      '🟢 $tag RESPONSE: status=$status count=${results.length}$keyPart',
+    );
+    for (var i = 0; i < results.length && i < 5; i++) {
+      _logResultSummary(
+        tag: '$tag[$i]',
+        cacheKey: cacheKey ?? '',
+        result: results[i],
+      );
+    }
+  }
+
+  void _logResultSummary({
+    required String tag,
+    required String cacheKey,
+    required ReverseGeocodeResult result,
+  }) {
+    final place = result.placeId ?? '';
+    debugPrint(
+      '🟢 $tag: $cacheKey\n'
+      '   address=${result.formattedAddress}\n'
+      '   lat=${result.latitude} lng=${result.longitude} '
+      'state=${result.state} place_id=$place',
     );
   }
 }

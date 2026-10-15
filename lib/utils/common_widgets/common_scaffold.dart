@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 
-class CommonScaffold extends StatefulWidget {
+class CommonScaffold extends StatelessWidget {
   const CommonScaffold({
     super.key,
     required this.body,
@@ -23,10 +23,11 @@ class CommonScaffold extends StatefulWidget {
     this.useSafeArea = true,
     this.safeAreaTop = true,
     this.safeAreaBottom = true,
-    // ✅ Fade config
-    this.enableFadeIn = true,
-    this.fadeInDuration = const Duration(milliseconds: 350),
-    this.fadeInCurve = Curves.easeIn,
+    /// Off by default — route transitions already animate; a second fade makes
+    /// Android navigation feel lagged (content starts transparent).
+    this.enableFadeIn = false,
+    this.fadeInDuration = const Duration(milliseconds: 200),
+    this.fadeInCurve = Curves.easeOut,
   });
 
   final Widget body;
@@ -48,48 +49,10 @@ class CommonScaffold extends StatefulWidget {
   final bool safeAreaTop;
   final bool safeAreaBottom;
 
-  /// Enables fade-in animation when page mounts
+  /// Optional body fade after mount. Prefer leaving off for push/pop routes.
   final bool enableFadeIn;
   final Duration fadeInDuration;
   final Curve fadeInCurve;
-
-  @override
-  State<CommonScaffold> createState() => _CommonScaffoldState();
-}
-
-class _CommonScaffoldState extends State<CommonScaffold>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.fadeInDuration,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: widget.fadeInCurve,
-    );
-
-    if (widget.enableFadeIn) {
-      // Start invisible, then fade in after first frame
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _controller.forward();
-      });
-    } else {
-      _controller.value = 1.0; // Skip animation — fully visible immediately
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   bool _isNearBlack(Color color) => color.computeLuminance() < 0.05;
 
@@ -102,37 +65,42 @@ class _CommonScaffoldState extends State<CommonScaffold>
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    final resolvedBg = widget.backgroundColor ?? colorScheme.surface;
+    final resolvedBg = backgroundColor ?? colorScheme.surface;
     // Icon brightness still follows the scaffold surface / optional override.
     // System bar *colors* stay transparent for Android 15 edge-to-edge.
     final navBarIconSource =
-        widget.navigationBarColor ??
-        (widget.bottomNavigationBar != null
+        navigationBarColor ??
+        (bottomNavigationBar != null
             ? colorScheme.surfaceContainerHighest
             : resolvedBg);
 
     final statusIconBrightness =
-        widget.statusBarIconBrightness ??
-        (widget.forceDarkIcons
+        statusBarIconBrightness ??
+        (forceDarkIcons
             ? Brightness.dark
             : (_isNearBlack(resolvedBg) || isDark)
             ? Brightness.light
             : Brightness.dark);
 
-    final applyTop =
-        widget.useSafeArea && widget.safeAreaTop && widget.appBar == null;
+    final applyTop = useSafeArea && safeAreaTop && appBar == null;
     final applyBottom =
-        widget.useSafeArea &&
-        widget.safeAreaBottom &&
-        widget.bottomNavigationBar == null;
+        useSafeArea && safeAreaBottom && bottomNavigationBar == null;
 
     Widget effectiveBody = (applyTop || applyBottom)
-        ? SafeArea(top: applyTop, bottom: applyBottom, child: widget.body)
-        : widget.body;
+        ? SafeArea(top: applyTop, bottom: applyBottom, child: body)
+        : body;
+
+    if (enableFadeIn) {
+      effectiveBody = _ScaffoldFadeIn(
+        duration: fadeInDuration,
+        curve: fadeInCurve,
+        child: effectiveBody,
+      );
+    }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        statusBarColor: widget.statusBarColor ?? ColorPalette.transparent,
+        statusBarColor: statusBarColor ?? ColorPalette.transparent,
         statusBarBrightness: statusIconBrightness == Brightness.dark
             ? Brightness.light
             : Brightness.dark,
@@ -145,18 +113,60 @@ class _CommonScaffoldState extends State<CommonScaffold>
       ),
       child: Scaffold(
         backgroundColor: resolvedBg,
-        appBar: widget.appBar,
-        // ✅ Only the body fades — scaffold chrome (appbar, navbar) stays solid
-        body: FadeTransition(opacity: _fadeAnimation, child: effectiveBody),
-        bottomNavigationBar: widget.bottomNavigationBar,
-        floatingActionButton: widget.floatingActionButton,
-        floatingActionButtonLocation: widget.floatingActionButtonLocation,
-        drawer: widget.drawer,
-        endDrawer: widget.endDrawer,
-        resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-        extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
-        extendBody: widget.extendBody,
+        appBar: appBar,
+        body: effectiveBody,
+        bottomNavigationBar: bottomNavigationBar,
+        floatingActionButton: floatingActionButton,
+        floatingActionButtonLocation: floatingActionButtonLocation,
+        drawer: drawer,
+        endDrawer: endDrawer,
+        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+        extendBodyBehindAppBar: extendBodyBehindAppBar,
+        extendBody: extendBody,
       ),
     );
+  }
+}
+
+/// Isolated ticker so most screens never pay AnimationController cost.
+class _ScaffoldFadeIn extends StatefulWidget {
+  const _ScaffoldFadeIn({
+    required this.child,
+    required this.duration,
+    required this.curve,
+  });
+
+  final Widget child;
+  final Duration duration;
+  final Curve curve;
+
+  @override
+  State<_ScaffoldFadeIn> createState() => _ScaffoldFadeInState();
+}
+
+class _ScaffoldFadeInState extends State<_ScaffoldFadeIn>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: widget.duration);
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: widget.curve);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(opacity: _fadeAnimation, child: widget.child);
   }
 }

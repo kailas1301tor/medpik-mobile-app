@@ -666,6 +666,9 @@ class Strings {
   static const String searchDeliveryLocation =
       "Search for area, street name...";
   static const String searchLocationHint = "Search area, street, or landmark";
+  static const String searchLocationResultsTitle = "Search results";
+  static const String locationSearchQueryTooShort =
+      "Enter at least 4 characters to search.";
   static const String useCurrentLocation = "Use current location";
   static const String deliveryLocation = "Delivery location";
   static const String selectLocationOnMap = "Move the map to select a location";

@@ -15,6 +15,7 @@ sealed class LocationPickerState with _$LocationPickerState {
     @Default(LocationConfig.defaultLat) double latitude,
     @Default(LocationConfig.defaultLng) double longitude,
     ReverseGeocodeResult? reverseResult,
+    @Default(<ReverseGeocodeResult>[]) List<ReverseGeocodeResult> searchSuggestions,
     @Default(false) bool isSearching,
     @Default(false) bool isReverseLoading,
     @Default(false) bool isInitialCameraReady,

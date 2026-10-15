@@ -9,6 +9,7 @@ import 'package:medpik/src/address/notifier/location_picker_notifier.dart';
 import 'package:medpik/src/address/view/widget/location_confirm_card.dart';
 import 'package:medpik/src/address/view/widget/location_picker_map.dart';
 import 'package:medpik/src/address/view/widget/location_search_bar.dart';
+import 'package:medpik/src/address/view/widget/location_search_suggestions.dart';
 import 'package:medpik/utils/common_widgets/common_back_button.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:tuple/tuple.dart';
@@ -60,12 +61,14 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen>
       longitude: widget.initialLongitude,
     );
 
-    final searchErrorMessage = ref.watch(
-      locationPickerNotifierProvider.select((s) => s.searchErrorMessage),
+    final searchChrome = ref.watch(
+      locationPickerNotifierProvider.select(
+        (s) => Tuple3(s.searchErrorMessage, s.isSearching, s.searchSuggestions),
+      ),
     );
-    final isSearching = ref.watch(
-      locationPickerNotifierProvider.select((s) => s.isSearching),
-    );
+    final searchErrorMessage = searchChrome.item1;
+    final isSearching = searchChrome.item2;
+    final searchSuggestions = searchChrome.item3;
     final canConfirm = ref.watch(
       locationPickerNotifierProvider.select(
         (s) => canConfirmLocationPicker(
@@ -114,49 +117,69 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen>
           ),
           Positioned(
             top: padding.top + 8.h,
-            left: 16.w,
-            right: 16.w,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            left: 0,
+            right: 0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CommonBackButton(
-                  margin: EdgeInsets.zero,
-                  overlayStyle: true,
-                ),
-                10.horizontalSpace,
-                Expanded(
-                  child: LocationSearchBar(
-                    controller: notifier.searchController,
-                    isSearching: isSearching,
-                    searchErrorMessage: searchErrorMessage,
-                    onSubmit: notifier.submitAddressSearch,
-                    onClear: notifier.clearSearch,
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const CommonBackButton(
+                        margin: EdgeInsets.zero,
+                        overlayStyle: true,
+                      ),
+                      10.horizontalSpace,
+                      Expanded(
+                        child: LocationSearchBar(
+                          controller: notifier.searchController,
+                          isSearching: isSearching,
+                          searchErrorMessage: searchErrorMessage,
+                          onSubmit: notifier.submitAddressSearch,
+                          onClear: notifier.clearSearch,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                if (searchSuggestions.isNotEmpty) ...[
+                  8.verticalSpace,
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: LocationSearchSuggestions(
+                      suggestions: searchSuggestions,
+                      onSelect: notifier.selectSearchSuggestion,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
-          Positioned(
-            left: 16.w,
-            right: 16.w,
-            bottom: padding.bottom + 16.h,
-            child: LocationConfirmCard(
-              result: confirmData.item4,
-              isLoading: confirmData.item1,
-              isServiceable: confirmData.item2,
-              errorMessage: confirmData.item3,
-              locationAccessIssue: confirmData.item5,
-              canConfirm: canConfirm,
-              onUseCurrentLocation: notifier.useCurrentLocation,
-              onLocationAccessAction: notifier.onLocationAccessAction,
-              onConfirm: () {
-                final pick = notifier.confirmSelection();
-                if (pick != null && context.mounted) {
-                  Navigator.of(context).pop<PickedLocationModel>(pick);
-                }
-              },
+          if (searchSuggestions.isEmpty)
+            Positioned(
+              left: 16.w,
+              right: 16.w,
+              bottom: padding.bottom + 16.h,
+              child: LocationConfirmCard(
+                result: confirmData.item4,
+                isLoading: confirmData.item1,
+                isServiceable: confirmData.item2,
+                errorMessage: confirmData.item3,
+                locationAccessIssue: confirmData.item5,
+                canConfirm: canConfirm,
+                onUseCurrentLocation: notifier.useCurrentLocation,
+                onLocationAccessAction: notifier.onLocationAccessAction,
+                onConfirm: () {
+                  final pick = notifier.confirmSelection();
+                  if (pick != null && context.mounted) {
+                    Navigator.of(context).pop<PickedLocationModel>(pick);
+                  }
+                },
+              ),
             ),
-          ),
         ],
       ),
     );

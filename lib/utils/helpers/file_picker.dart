@@ -17,8 +17,10 @@ class FileSelectionService {
 
   final ImagePicker _picker = ImagePicker();
 
-  static const double _maxDimension = 800;
-  static const int _pickQuality = 50;
+  /// Prefer clarity for pharmacy review: light downscale only, high JPEG quality.
+  /// Full camera resolution is capped so uploads stay under [AppConstants.maxImageSizeMb].
+  static const double _maxDimension = 2560;
+  static const int _pickQuality = 92;
 
   static const _imageExtensions = ['.png', '.heic', '.jpg', '.jpeg'];
   static const _documentExtensions = ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg'];

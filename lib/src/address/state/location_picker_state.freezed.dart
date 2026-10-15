@@ -21,6 +21,8 @@ mixin _$LocationPickerState {
   double get latitude => throw _privateConstructorUsedError;
   double get longitude => throw _privateConstructorUsedError;
   ReverseGeocodeResult? get reverseResult => throw _privateConstructorUsedError;
+  List<ReverseGeocodeResult> get searchSuggestions =>
+      throw _privateConstructorUsedError;
   bool get isSearching => throw _privateConstructorUsedError;
   bool get isReverseLoading => throw _privateConstructorUsedError;
   bool get isInitialCameraReady => throw _privateConstructorUsedError;
@@ -50,6 +52,7 @@ abstract class $LocationPickerStateCopyWith<$Res> {
     double latitude,
     double longitude,
     ReverseGeocodeResult? reverseResult,
+    List<ReverseGeocodeResult> searchSuggestions,
     bool isSearching,
     bool isReverseLoading,
     bool isInitialCameraReady,
@@ -80,6 +83,7 @@ class _$LocationPickerStateCopyWithImpl<$Res, $Val extends LocationPickerState>
     Object? latitude = null,
     Object? longitude = null,
     Object? reverseResult = freezed,
+    Object? searchSuggestions = null,
     Object? isSearching = null,
     Object? isReverseLoading = null,
     Object? isInitialCameraReady = null,
@@ -107,6 +111,10 @@ class _$LocationPickerStateCopyWithImpl<$Res, $Val extends LocationPickerState>
                 ? _value.reverseResult
                 : reverseResult // ignore: cast_nullable_to_non_nullable
                       as ReverseGeocodeResult?,
+            searchSuggestions: null == searchSuggestions
+                ? _value.searchSuggestions
+                : searchSuggestions // ignore: cast_nullable_to_non_nullable
+                      as List<ReverseGeocodeResult>,
             isSearching: null == isSearching
                 ? _value.isSearching
                 : isSearching // ignore: cast_nullable_to_non_nullable
@@ -159,6 +167,7 @@ abstract class _$$LocationPickerStateImplCopyWith<$Res>
     double latitude,
     double longitude,
     ReverseGeocodeResult? reverseResult,
+    List<ReverseGeocodeResult> searchSuggestions,
     bool isSearching,
     bool isReverseLoading,
     bool isInitialCameraReady,
@@ -188,6 +197,7 @@ class __$$LocationPickerStateImplCopyWithImpl<$Res>
     Object? latitude = null,
     Object? longitude = null,
     Object? reverseResult = freezed,
+    Object? searchSuggestions = null,
     Object? isSearching = null,
     Object? isReverseLoading = null,
     Object? isInitialCameraReady = null,
@@ -215,6 +225,10 @@ class __$$LocationPickerStateImplCopyWithImpl<$Res>
             ? _value.reverseResult
             : reverseResult // ignore: cast_nullable_to_non_nullable
                   as ReverseGeocodeResult?,
+        searchSuggestions: null == searchSuggestions
+            ? _value._searchSuggestions
+            : searchSuggestions // ignore: cast_nullable_to_non_nullable
+                  as List<ReverseGeocodeResult>,
         isSearching: null == isSearching
             ? _value.isSearching
             : isSearching // ignore: cast_nullable_to_non_nullable
@@ -260,6 +274,8 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
     this.latitude = LocationConfig.defaultLat,
     this.longitude = LocationConfig.defaultLng,
     this.reverseResult,
+    final List<ReverseGeocodeResult> searchSuggestions =
+        const <ReverseGeocodeResult>[],
     this.isSearching = false,
     this.isReverseLoading = false,
     this.isInitialCameraReady = false,
@@ -268,7 +284,7 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
     this.errorMessage,
     this.searchErrorMessage,
     this.confirmedPick,
-  });
+  }) : _searchSuggestions = searchSuggestions;
 
   @override
   @JsonKey()
@@ -281,6 +297,16 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
   final double longitude;
   @override
   final ReverseGeocodeResult? reverseResult;
+  final List<ReverseGeocodeResult> _searchSuggestions;
+  @override
+  @JsonKey()
+  List<ReverseGeocodeResult> get searchSuggestions {
+    if (_searchSuggestions is EqualUnmodifiableListView)
+      return _searchSuggestions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_searchSuggestions);
+  }
+
   @override
   @JsonKey()
   final bool isSearching;
@@ -304,7 +330,7 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
 
   @override
   String toString() {
-    return 'LocationPickerState(loaderState: $loaderState, latitude: $latitude, longitude: $longitude, reverseResult: $reverseResult, isSearching: $isSearching, isReverseLoading: $isReverseLoading, isInitialCameraReady: $isInitialCameraReady, isServiceable: $isServiceable, locationAccessIssue: $locationAccessIssue, errorMessage: $errorMessage, searchErrorMessage: $searchErrorMessage, confirmedPick: $confirmedPick)';
+    return 'LocationPickerState(loaderState: $loaderState, latitude: $latitude, longitude: $longitude, reverseResult: $reverseResult, searchSuggestions: $searchSuggestions, isSearching: $isSearching, isReverseLoading: $isReverseLoading, isInitialCameraReady: $isInitialCameraReady, isServiceable: $isServiceable, locationAccessIssue: $locationAccessIssue, errorMessage: $errorMessage, searchErrorMessage: $searchErrorMessage, confirmedPick: $confirmedPick)';
   }
 
   @override
@@ -320,6 +346,10 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
                 other.longitude == longitude) &&
             (identical(other.reverseResult, reverseResult) ||
                 other.reverseResult == reverseResult) &&
+            const DeepCollectionEquality().equals(
+              other._searchSuggestions,
+              _searchSuggestions,
+            ) &&
             (identical(other.isSearching, isSearching) ||
                 other.isSearching == isSearching) &&
             (identical(other.isReverseLoading, isReverseLoading) ||
@@ -345,6 +375,7 @@ class _$LocationPickerStateImpl implements _LocationPickerState {
     latitude,
     longitude,
     reverseResult,
+    const DeepCollectionEquality().hash(_searchSuggestions),
     isSearching,
     isReverseLoading,
     isInitialCameraReady,
@@ -373,6 +404,7 @@ abstract class _LocationPickerState implements LocationPickerState {
     final double latitude,
     final double longitude,
     final ReverseGeocodeResult? reverseResult,
+    final List<ReverseGeocodeResult> searchSuggestions,
     final bool isSearching,
     final bool isReverseLoading,
     final bool isInitialCameraReady,
@@ -391,6 +423,8 @@ abstract class _LocationPickerState implements LocationPickerState {
   double get longitude;
   @override
   ReverseGeocodeResult? get reverseResult;
+  @override
+  List<ReverseGeocodeResult> get searchSuggestions;
   @override
   bool get isSearching;
   @override

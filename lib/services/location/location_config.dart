@@ -29,7 +29,10 @@ class LocationConfig {
   static const String deliveryState = 'Kerala';
 
   static const int reverseGeocodeDebounceMs = 700;
-  static const int minSearchQueryLength = 3;
+  static const int minSearchQueryLength = 4;
+
+  /// Cap Geocoding `results[]` shown in the post-submit pick list.
+  static const int maxForwardSearchResults = 5;
 
   /// Skip reverse geocode if camera moved less than this (meters).
   static const double minMoveMetersForReverseGeocode = 50;

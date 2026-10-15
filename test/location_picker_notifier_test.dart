@@ -51,7 +51,7 @@ void main() {
         );
 
     test('submitAddressSearch sets searchErrorMessage on failure', () async {
-      fakeGeocode.nextForward = null;
+      fakeGeocode.nextForwardResults = const [];
       final notifier = readNotifier();
 
       notifier.searchController.text = 'Unknown place xyz';
@@ -59,17 +59,49 @@ void main() {
 
       final state = container.read(locationPickerNotifierProvider);
       expect(state.searchErrorMessage, Strings.locationLookupFailed);
+      expect(state.searchSuggestions, isEmpty);
       expect(state.reverseResult, isNull);
       expect(state.isSearching, isFalse);
     });
 
-    test('submitAddressSearch clears searchErrorMessage on success', () async {
-      fakeGeocode.nextForward = const ReverseGeocodeResult(
-        latitude: 10.5241,
-        longitude: 76.2121,
-        formattedAddress: 'Thrissur, Kerala',
-        state: 'Kerala',
-      );
+    test('submitAddressSearch skips short queries', () async {
+      fakeGeocode.nextForwardResults = [
+        const ReverseGeocodeResult(
+          latitude: 10.5241,
+          longitude: 76.2121,
+          formattedAddress: 'Thrissur, Kerala',
+          state: 'Kerala',
+        ),
+      ];
+      final notifier = readNotifier();
+
+      notifier.searchController.text = 'thr';
+      await notifier.submitAddressSearch();
+
+      final state = container.read(locationPickerNotifierProvider);
+      expect(state.searchErrorMessage, Strings.locationSearchQueryTooShort);
+      expect(state.searchSuggestions, isEmpty);
+      expect(fakeGeocode.forwardGeocodeResultsCallCount, 0);
+    });
+
+    test('submitAddressSearch populates searchSuggestions without moving pin',
+        () async {
+      fakeGeocode.nextForwardResults = [
+        const ReverseGeocodeResult(
+          latitude: 10.5241,
+          longitude: 76.2121,
+          formattedAddress: 'Thrissur, Kerala',
+          city: 'Thrissur',
+          state: 'Kerala',
+        ),
+        const ReverseGeocodeResult(
+          latitude: 10.53,
+          longitude: 76.22,
+          formattedAddress: 'Thrissur Junction, Kerala',
+          city: 'Thrissur',
+          state: 'Kerala',
+        ),
+      ];
       final notifier = readNotifier();
 
       notifier.searchController.text = 'Thrissur';
@@ -77,7 +109,37 @@ void main() {
 
       final state = container.read(locationPickerNotifierProvider);
       expect(state.searchErrorMessage, isNull);
-      expect(state.reverseResult?.formattedAddress, 'Thrissur, Kerala');
+      expect(state.searchSuggestions, hasLength(2));
+      expect(state.reverseResult, isNull);
+      expect(state.isSearching, isFalse);
+    });
+
+    test('selectSearchSuggestion applies pick and clears suggestions', () async {
+      const first = ReverseGeocodeResult(
+        latitude: 10.5241,
+        longitude: 76.2121,
+        formattedAddress: 'Thrissur, Kerala',
+        state: 'Kerala',
+      );
+      const second = ReverseGeocodeResult(
+        latitude: 10.53,
+        longitude: 76.22,
+        formattedAddress: 'Thrissur Junction, Kerala',
+        state: 'Kerala',
+      );
+      fakeGeocode.nextForwardResults = [first, second];
+      final notifier = readNotifier();
+
+      notifier.searchController.text = 'Thrissur';
+      await notifier.submitAddressSearch();
+      await notifier.selectSearchSuggestion(second);
+
+      final state = container.read(locationPickerNotifierProvider);
+      expect(state.searchSuggestions, isEmpty);
+      expect(state.reverseResult?.formattedAddress, 'Thrissur Junction, Kerala');
+      expect(state.latitude, 10.53);
+      expect(state.longitude, 76.22);
+      expect(notifier.searchController.text, 'Thrissur Junction, Kerala');
     });
 
     test('reverseAt clears reverseResult on failure', () async {
@@ -111,22 +173,29 @@ void main() {
       expect(pick, isNull);
     });
 
-    test('clearSearch clears searchErrorMessage', () async {
-      fakeGeocode.nextForward = null;
+    test('clearSearch clears searchErrorMessage and suggestions', () async {
+      fakeGeocode.nextForwardResults = [
+        const ReverseGeocodeResult(
+          latitude: 10.5241,
+          longitude: 76.2121,
+          formattedAddress: 'Thrissur, Kerala',
+          state: 'Kerala',
+        ),
+      ];
       final notifier = readNotifier();
-      notifier.searchController.text = 'bad query';
+      notifier.searchController.text = 'Thrissur';
       await notifier.submitAddressSearch();
       expect(
-        container.read(locationPickerNotifierProvider).searchErrorMessage,
-        isNotNull,
+        container.read(locationPickerNotifierProvider).searchSuggestions,
+        isNotEmpty,
       );
 
       notifier.clearSearch();
 
-      expect(
-        container.read(locationPickerNotifierProvider).searchErrorMessage,
-        isNull,
-      );
+      final state = container.read(locationPickerNotifierProvider);
+      expect(state.searchErrorMessage, isNull);
+      expect(state.searchSuggestions, isEmpty);
+      expect(notifier.searchController.text, isEmpty);
     });
 
     test('applyInitialCoordinates uses GPS before map mount', () async {
@@ -346,7 +415,8 @@ void main() {
 
 class FakeGeocodeClient extends GeocodeClient {
   ReverseGeocodeResult? nextReverse;
-  ReverseGeocodeResult? nextForward;
+  List<ReverseGeocodeResult> nextForwardResults = const [];
+  int forwardGeocodeResultsCallCount = 0;
 
   @override
   Future<ReverseGeocodeResult?> reverseGeocode({
@@ -356,10 +426,20 @@ class FakeGeocodeClient extends GeocodeClient {
       nextReverse;
 
   @override
+  Future<List<ReverseGeocodeResult>> forwardGeocodeResults({
+    required String address,
+  }) async {
+    forwardGeocodeResultsCallCount++;
+    return nextForwardResults;
+  }
+
+  @override
   Future<ReverseGeocodeResult?> forwardGeocode({
     required String address,
-  }) async =>
-      nextForward;
+  }) async {
+    final results = await forwardGeocodeResults(address: address);
+    return results.isEmpty ? null : results.first;
+  }
 }
 
 class FakeLocationPermissionService extends LocationPermissionService {

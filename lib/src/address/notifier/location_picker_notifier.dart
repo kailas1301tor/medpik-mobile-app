@@ -34,6 +34,7 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
   bool _disposed = false;
   bool _mapReady = false;
   int _reverseGeneration = 0;
+  int _forwardGeneration = 0;
   DateTime? _lastGpsAt;
   LatLng? _pendingCameraTarget;
   double _cameraLat = LocationConfig.defaultLat;
@@ -229,34 +230,66 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
 
   void clearSearch() {
     searchController.clear();
-    state = state.copyWith(isSearching: false, searchErrorMessage: null);
+    state = state.copyWith(
+      isSearching: false,
+      searchErrorMessage: null,
+      searchSuggestions: const [],
+    );
   }
 
-  // ? Forward geocode from searchController; moves map on success.
+  void dismissSearchSuggestions() {
+    if (state.searchSuggestions.isEmpty) return;
+    state = state.copyWith(searchSuggestions: const []);
+  }
+
+  // ? Forward geocode from searchController; shows pick list (no auto map jump).
   Future<void> submitAddressSearch() async {
     final query = searchController.text.trim();
-    if (query.length < LocationConfig.minSearchQueryLength) return;
+    if (query.length < LocationConfig.minSearchQueryLength) {
+      state = state.copyWith(
+        isSearching: false,
+        searchSuggestions: const [],
+        searchErrorMessage: Strings.locationSearchQueryTooShort,
+      );
+      return;
+    }
 
+    final generation = ++_forwardGeneration;
     state = state.copyWith(
       isSearching: true,
       errorMessage: null,
       searchErrorMessage: null,
+      searchSuggestions: const [],
     );
-    final result = await _geocode.forwardGeocode(address: query);
-    if (_disposed) return;
 
-    if (result == null) {
+    final results = await _geocode.forwardGeocodeResults(address: query);
+    if (_disposed || generation != _forwardGeneration) return;
+
+    if (results.isEmpty) {
       state = state.copyWith(
         isSearching: false,
-        reverseResult: null,
+        searchSuggestions: const [],
         searchErrorMessage: Strings.locationLookupFailed,
       );
       return;
     }
 
-    await _applyGeocodeResult(result, moveCamera: true);
-    searchController.text = result.formattedAddress;
-    state = state.copyWith(isSearching: false);
+    state = state.copyWith(
+      isSearching: false,
+      searchSuggestions: results,
+      searchErrorMessage: null,
+    );
+  }
+
+  Future<void> selectSearchSuggestion(ReverseGeocodeResult suggestion) async {
+    _forwardGeneration++;
+    state = state.copyWith(
+      isSearching: false,
+      searchSuggestions: const [],
+      searchErrorMessage: null,
+    );
+    searchController.text = suggestion.formattedAddress;
+    await _applyGeocodeResult(suggestion, moveCamera: true);
   }
 
   // ? GPS centering — rate-limited by LocationConfig.useCurrentLocationCooldownMs.
@@ -319,6 +352,7 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
   // ? Live camera position while user pans (ignored during programmatic moves).
   void onCameraMove(CameraPosition position) {
     if (_programmaticMove) return;
+    dismissSearchSuggestions();
     _cameraLat = position.target.latitude;
     _cameraLng = position.target.longitude;
   }
@@ -439,6 +473,12 @@ class LocationPickerNotifier extends _$LocationPickerNotifier {
     if (moveCamera) {
       await _moveCamera(result.latitude, result.longitude);
     }
+
+    debugPrint(
+      '🟢 LOCATION PICKER APPLY: serviceable=$serviceable '
+      'lat=${result.latitude} lng=${result.longitude} '
+      'address=${result.formattedAddress}',
+    );
 
     state = state.copyWith(
       latitude: result.latitude,

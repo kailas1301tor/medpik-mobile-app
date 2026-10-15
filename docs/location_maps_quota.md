@@ -54,10 +54,13 @@ Never commit `config/secrets.local.json` or `config/dart_defines.json`.
 - Cap daily quotas for Geocoding if abuse is a concern.
 - This app reduces cost with:
   - Forward geocode only on explicit search submit (no live autocomplete)
-  - Forward geocode uses `country:in` + `region=in` bias
+  - After submit, show a capped Geocoding pick list (max 5); map moves only when the user taps a result — **not** Places Autocomplete
+  - Min search query length: 4 characters
+  - Forward geocode uses `country:in` + `region=in` + Kerala `bounds` bias
+  - Forward pick list drops country/continent-only and out-of-Kerala hits (avoids bare "India" rows)
   - Reverse geocode only on `cameraIdle` (700ms debounce) and skip moves &lt; 50m
   - Skip reverse-geocode HTTP when pin is outside Kerala bbox **and** outside hub radius
-  - In-memory LRU geocode cache (~111m grid + query cache, 96 entries)
+  - In-memory LRU geocode cache (~111m grid + **exact-query forward list** cache, 96 entries each). Re-submitting the same search string reuses the pick list (no extra Geocoding call); a different query always networks.
   - Plus-code stripping for cleaner display (no extra API calls)
   - **Local Haversine** serviceability (no Distance Matrix)
   - Saved addresses store lat/lng so list/cart/home never re-call Google
