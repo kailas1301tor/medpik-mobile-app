@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 
 class ColorPalette {
-  // Brand colors - Pantone 3425 C
-  static const primaryColor = Color(0xFF00704A);
-  static const primaryColorDark = Color(0xFF004D33);
-  static const accentIndigo = Color(0xFF00704A);
-  static const secondaryColor = Color(0xFF16A06D);
+  // Brand colors — primary #009301
+  static const primaryColor = Color(0xFF009301);
+  static const primaryColorDark = Color(0xFF006B01);
+  static const accentIndigo = Color(0xFF009301);
+  static const secondaryColor = Color(0xFF2EBF2F);
   static const formValidationErrorColor = Color(0xFFFF453A);
   static const successColor = Color(0xFF34C759);
   static const warningColor = Color(0xFFFF9F0A);
+  static const splashColor = Color(0xFF009301);
 
   /// Soft CTA sheen - stays within brand green; avoids the muddy dark right edge.
-  static const primaryGradientStart = Color(0xFF1A8D64);
-  static const primaryGradientEnd = Color(0xFF00704A);
+  static const primaryGradientStart = Color(0xFF26B027);
+  static const primaryGradientEnd = Color(0xFF009301);
 
   static const primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
@@ -85,14 +86,13 @@ class ColorPalette {
   static const offerBadgeText = Color(0xFF6B4F00);
 
   // Hero brand gradient stops
-  static const heroTealDark = Color(0xFF003D2A);
-  static const heroTealMid = Color(0xFF005C3D);
+  static const heroTealDark = Color(0xFF004D02);
+  static const heroTealMid = Color(0xFF007A01);
   static const heroTealLight = primaryColor;
   static const homeHeaderActionIcon = Color(0xFFEAFBF4);
-  static const homePinnedHeaderBackground = Color(0xFF004D33);
+  static const homePinnedHeaderBackground = primaryColorDark;
   static const homePinnedHeaderFadeTop = Color(0x00000000);
   static const homePinnedHeaderFadeBottom = Color(0x14000000);
-
   // Prescription card — healthcare palette
   static const prescriptionGradientStart = Color(0xFFF2FCFC);
   static const prescriptionGradientMid = Color(0xFFDFF7F5);
@@ -112,15 +112,15 @@ class ColorPalette {
     0xBFFFFFFF,
   ); // rgba(255,255,255,0.75)
   static const prescriptionGlassBorder = Color(
-    0x1400704A,
-  ); // rgba(0,109,119,0.08)
+    0x14009301,
+  ); // rgba(0,147,1,0.08)
 
   // Liquid Glass surface tokens
   static const glassSurface = Color.fromARGB(194, 255, 255, 255); // ~0.76 white
   static const glassBorderTop = Color(0x99FFFFFF); // luminous top edge
   static const glassBorderBottom = Color(0x1FFFFFFF); // faint bottom edge
   static const glassInnerHighlight = Color(0x80FFFFFF);
-  static const glassHighlightTeal = Color(0x3300704A); // cool radial glow
+  static const glassHighlightTeal = Color(0x33009301); // cool radial glow
   static const glassHighlightWarm = Color(0x40FFFFFF); // warm radial glow
   static const glassChipFill = Color(0x59FFFFFF); // ~0.35 white frosted pill
 
@@ -131,7 +131,7 @@ class ColorPalette {
   static const productGlassBorder = Color(0x8CFFFFFF); // rgba(255,255,255,0.55)
   static const productGlassReflection = Color(0xFFE8FAF8);
   static const productAccentTeal = primaryColor;
-  static const productDiscountBadge = Color(0xE600704A); // rgba(0,112,74,0.9)
+  static const productDiscountBadge = Color(0xE6009301); // rgba(0,147,1,0.9)
   static const productWishlistGlass = Color(
     0x73FFFFFF,
   ); // rgba(255,255,255,0.45)

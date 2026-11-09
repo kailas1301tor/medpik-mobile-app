@@ -23,7 +23,7 @@ import 'package:medpik/utils/routes/route_constants.dart';
 
 part 'auth_notifier.g.dart';
 
-@Riverpod(keepAlive: false)
+@Riverpod(keepAlive: true)
 class AuthNotifier extends _$AuthNotifier {
   late final TextEditingController phoneController;
   late final TextEditingController otpController;
@@ -382,13 +382,29 @@ class AuthNotifier extends _$AuthNotifier {
     required String name,
     required String phone,
   }) async {
-    final current = state.authModel;
-    if (current == null) return;
+    var current = state.authModel;
+    if (current == null) {
+      current = await _restoreSession();
+      if (current == null) {
+        debugPrint('🔴 AUTH: updateSessionProfile skipped — no session');
+        return;
+      }
+      state = state.copyWith(authModel: current);
+    }
+
+    final trimmedName = name.trim();
+    final trimmedPhone = phone.trim().isNotEmpty
+        ? phone.trim()
+        : current.phone;
+
+    if (current.name == trimmedName && current.phone == trimmedPhone) {
+      return;
+    }
 
     final updated = AuthModel(
       id: current.id,
-      name: name,
-      phone: phone,
+      name: trimmedName,
+      phone: trimmedPhone,
       email: current.email,
       profileImageUrl: current.profileImageUrl,
       customerId: current.customerId,
@@ -400,6 +416,7 @@ class AuthNotifier extends _$AuthNotifier {
 
     final isNewUser = await ref.read(sembastServicesProvider).isNewUser();
     final saved = await _saveSession(authModel: updated, isNewUser: isNewUser);
+    debugPrint('🟢 AUTH: session profile saved name="$trimmedName"');
     state = state.copyWith(authModel: saved);
   }
 

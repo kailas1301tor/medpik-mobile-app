@@ -13,6 +13,8 @@ sealed class ProductDetailState with _$ProductDetailState {
     @Default(1) int quantity,
     @Default(false) bool isFromUploadPrescription,
     @Default(false) bool isWishlisted,
+    @Default(0) int selectedPackagingIndex,
+    @Default(0) int galleryPageIndex,
     String? errorMessage,
   }) = _ProductDetailState;
 }

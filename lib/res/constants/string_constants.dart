@@ -161,7 +161,13 @@ class Strings {
   static const String goodMorning = "Good morning";
   static const String goodAfternoon = "Good afternoon";
   static const String goodEvening = "Good evening";
+  static const String goodMorningGreeting = "Good Morning,";
+  static const String goodAfternoonGreeting = "Good Afternoon,";
+  static const String goodEveningGreeting = "Good Evening,";
+  static const String hi = "Hi";
+  static String hiWithName(String name) => "Hi, $name";
   static const String deliverTo = "Deliver to";
+  static const String deliveringTo = "Delivering to";
   static const String searchMedicines = "Search medicines";
   static const String searchMedicinesHealthcare =
       "Search medicines & healthcare";
@@ -206,6 +212,20 @@ class Strings {
   static const String otcMedicine = "OTC Medicine";
   static const String prescriptionMedicine = "Prescription Medicine";
   static const String manufacturer = "Manufacturer";
+  static const String selectPackaging = "Select packaging";
+  static const String composition = "Composition";
+  static const String uses = "Uses";
+  static const String indications = "Indications";
+  static const String contraindications = "Contraindications";
+  static const String warnings = "Warnings";
+  static const String precautions = "Precautions";
+  static const String sideEffects = "Side effects";
+  static const String drugInteractions = "Drug interactions";
+  static const String drugsetuProduct = "Drugsetu";
+  static const String drugClass = "Drug class";
+  static const String saltName = "Salt";
+  static const String strength = "Strength";
+  static const String productForm = "Form";
   static const String safeToUseAsDirected = "Safe to use as directed";
   static const String categoryLabel = "Category";
   static const String trustedAndEffective = "Trusted & Effective";
@@ -612,6 +632,22 @@ class Strings {
   static const String termsAndConditions = "Terms & Conditions";
   static const String termsAgreementPrefix = "By proceeding, you agree to our";
   static const String qtyLabel = "Qty:";
+  static String packLabel(int count) =>
+      count == 1 ? '1 pack' : '$count packs';
+  static String looseUnitsLabel(int count) =>
+      count == 1 ? '1 loose' : '$count loose';
+  static String packPlusLoose(int packs, int loose) =>
+      '${Strings.qtyLabel} ${packLabel(packs)} + ${looseUnitsLabel(loose)}';
+  static String totalUnitsBilled(int count) => '$count total';
+  static String totalUnitsChip(int count) => '$count total';
+  static String individualUnits(int count) =>
+      '${Strings.qtyLabel} ${looseUnitsLabel(count)}';
+  static String unitsPerPackTotal(int perPack, int total) =>
+      '$perPack / pack · $total total';
+  static String packagingUnitsPerPack(int count) => '$count / pack';
+  static String qtyWithValue(int quantity) => '$qtyLabel $quantity';
+  static String qtyPacksOnly(int packs) =>
+      '${Strings.qtyLabel} ${packLabel(packs)}';
   static const String stepperUploaded = "Uploaded";
   static const String stepperAccepted = "Accepted";
   static const String stepperReviewed = "Reviewed";

@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 
 class FontPalette {
-  static const String fontFamily = 'onest';
+  static const String fontFamily = 'Google Sans';
 
   //! 🔹 Base styles by weight
   static TextStyle base400(

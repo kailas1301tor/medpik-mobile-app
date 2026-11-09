@@ -25,18 +25,34 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
 
   late ProductDetailRepo productDetailRepo;
   late final ScrollController scrollController;
+  late final PageController galleryPageController;
   int? _productId;
 
   @override
   ProductDetailState build() {
     productDetailRepo = ref.read(productDetailRepositoryProvider);
     scrollController = ScrollController();
+    galleryPageController = PageController();
 
     ref.onDispose(() {
       scrollController.dispose();
+      galleryPageController.dispose();
     });
 
     return const ProductDetailState();
+  }
+
+  void selectPackaging(int index) {
+    final packagings = state.detail?.packagings ?? const [];
+    if (packagings.isEmpty) return;
+    final clamped = index.clamp(0, packagings.length - 1);
+    if (clamped == state.selectedPackagingIndex) return;
+    state = state.copyWith(selectedPackagingIndex: clamped);
+  }
+
+  void onGalleryPageChanged(int index) {
+    if (index == state.galleryPageIndex) return;
+    state = state.copyWith(galleryPageIndex: index);
   }
 
   Future<void> loadProduct(
@@ -98,7 +114,12 @@ class ProductDetailNotifier extends _$ProductDetailNotifier {
               quantity: seededQty > 0 ? seededQty : 1,
               isWishlisted: detail.product.isWishlisted,
               isFromUploadPrescription: isFromUploadPrescription,
+              selectedPackagingIndex: 0,
+              galleryPageIndex: 0,
             );
+            if (galleryPageController.hasClients) {
+              galleryPageController.jumpToPage(0);
+            }
           },
         )
         .catchError((error) {

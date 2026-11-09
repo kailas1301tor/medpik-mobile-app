@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:medpik/data/models/address_model.dart';
 import 'package:medpik/data/models/applied_offer_model.dart';
 import 'package:medpik/data/models/product_model.dart';
+import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/utils/helpers/order_bill_pdf_loader.dart';
 import 'package:medpik/utils/helpers/safe_converters.dart';
@@ -84,6 +85,10 @@ class OrderItemModel {
   const OrderItemModel({
     required this.product,
     required this.quantity,
+    this.packageQuantity = 0,
+    this.looseUnits = 0,
+    this.billedUnits = 1,
+    this.unitsPerPackage = 1,
     this.unitPrice = 0,
     this.totalPrice = 0,
     this.status = '',
@@ -98,6 +103,10 @@ class OrderItemModel {
 
   final ProductModel product;
   final int quantity;
+  final int packageQuantity;
+  final int looseUnits;
+  final int billedUnits;
+  final int unitsPerPackage;
   final double unitPrice;
   final double totalPrice;
   final String status;
@@ -123,10 +132,59 @@ class OrderItemModel {
 
   bool get hasOfferChip => offerChipLabel.isNotEmpty;
 
+  bool get hasPackagingBreakdown =>
+      packageQuantity > 0 || looseUnits > 0;
+
+  bool get hasLooseUnits => looseUnits > 0;
+
+  bool get isMultiUnit => unitsPerPackage > 1;
+
+  /// True when chips/subtitle breakdown should render instead of plain Qty.
+  bool get showsQuantityBreakdown {
+    if (packageQuantity > 0 && looseUnits > 0) return true;
+    if (looseUnits > 0) return true;
+    if (packageQuantity > 0 && unitsPerPackage > 1) return true;
+    return false;
+  }
+
+  String get quantityDisplayLabel {
+    if (packageQuantity > 0 && looseUnits > 0) {
+      return Strings.packPlusLoose(packageQuantity, looseUnits);
+    }
+    if (looseUnits > 0) {
+      return Strings.individualUnits(looseUnits);
+    }
+    if (packageQuantity > 0 && unitsPerPackage > 1) {
+      return Strings.qtyPacksOnly(packageQuantity);
+    }
+    final displayQty = packageQuantity > 0 ? packageQuantity : quantity;
+    return Strings.qtyWithValue(displayQty);
+  }
+
+  String? get quantitySubtitle {
+    if (packageQuantity > 0 && looseUnits > 0) {
+      return '${Strings.packagingUnitsPerPack(unitsPerPackage)} · ${Strings.totalUnitsBilled(billedUnits)}';
+    }
+    if (packageQuantity > 0 && unitsPerPackage > 1) {
+      return Strings.unitsPerPackTotal(unitsPerPackage, billedUnits);
+    }
+    return null;
+  }
+
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
     final productJson = json['product_detail'] ?? json['product'];
     final product = ProductModel.fromJson(convertToMap(productJson));
     final quantity = convertToInt(json['quantity']);
+    final packageQuantity = convertToInt(json['package_quantity']);
+    final looseUnits = convertToInt(json['loose_units']);
+    final rawUnitsPerPackage = convertToInt(json['units_per_package']);
+    final unitsPerPackage =
+        rawUnitsPerPackage > 0 ? rawUnitsPerPackage : 1;
+    final calculated =
+        (packageQuantity * unitsPerPackage) + looseUnits;
+    final billedUnits = json['billed_units'] == null
+        ? (calculated > 0 ? calculated : quantity)
+        : convertToInt(json['billed_units']);
     final unitPrice = json.containsKey('price')
         ? convertToDouble(json['price'])
         : product.price;
@@ -139,6 +197,10 @@ class OrderItemModel {
     return OrderItemModel(
       product: product,
       quantity: quantity,
+      packageQuantity: packageQuantity,
+      looseUnits: looseUnits,
+      billedUnits: billedUnits,
+      unitsPerPackage: unitsPerPackage,
       unitPrice: unitPrice,
       totalPrice: totalPrice,
       status: convertToString(json['status']),

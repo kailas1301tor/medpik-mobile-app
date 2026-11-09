@@ -80,6 +80,7 @@ dependencies:
   url_launcher: ^6.3.1
   webview_flutter: ^4.14.1
   webview_flutter_wkwebview: ^3.24.0
+  gif_view: ^1.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -113,6 +114,7 @@ flutter:
   assets:
     - assets/images/lottie/
     - assets/images/png/
+    - assets/images/gif/
     - assets/images/svg/
     - assets/icons/
   #   - images/a_dot_burr.jpeg
@@ -124,25 +126,17 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
 
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package
+  fonts:
+    - family: Google Sans
+      fonts:
+        - asset: assets/fonts/google_sans/GoogleSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/google_sans/GoogleSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/google_sans/GoogleSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/google_sans/GoogleSans-Bold.ttf
+          weight: 700
 
 flutter_launcher_icons:
   android: true
@@ -155,17 +149,17 @@ flutter_launcher_icons:
   remove_alpha_ios: true
 
 flutter_native_splash:
-  # Solid white only — Flutter SplashScreen owns the logo animation.
+  # Solid splash green — Flutter SplashScreen owns the white wordmark animation.
   # Android 12+ requires an icon; use transparent so the launcher icon is not shown.
-  color: "#FFFFFF"
-  color_dark: "#FFFFFF"
+  color: "#009301"
+  color_dark: "#009301"
   android_12:
-    color: "#FFFFFF"
-    color_dark: "#FFFFFF"
+    color: "#009301"
+    color_dark: "#009301"
     image: "assets/images/png/transparent_splash.png"
     image_dark: "assets/images/png/transparent_splash.png"
-    icon_background_color: "#FFFFFF"
-    icon_background_color_dark: "#FFFFFF"
+    icon_background_color: "#009301"
+    icon_background_color_dark: "#009301"
   android: true
   ios: true
   web: false

@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/data/models/order_model.dart';
-import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/src/orders/view/widget/order_item_quantity_badge.dart';
 import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
 import 'package:medpik/utils/extensions/num_extensions.dart';
 
@@ -68,13 +68,7 @@ class OrderOrderedItemRow extends StatelessWidget {
                       ),
                     ],
                     4.verticalSpace,
-                    Text(
-                      '${Strings.qtyLabel} ${item.quantity}',
-                      style: FontPalette.base400(
-                        12,
-                        color: colors.secondaryText,
-                      ),
-                    ),
+                    OrderItemQuantityBadge(item: item),
                     if (item.hasOfferChip) ...[
                       6.verticalSpace,
                       _OrderItemOfferChip(label: item.offerChipLabel),

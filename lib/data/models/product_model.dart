@@ -15,6 +15,13 @@ class ProductModel {
     this.packSize = '',
     this.manufacturerName = '',
     this.isWishlisted = false,
+    this.images = const [],
+    this.isDrugsetuProducts = false,
+    this.drugsetuProductId = '',
+    this.productType = '',
+    this.composition = '',
+    this.packageType = '',
+    this.productForm = '',
   });
 
   final int id;
@@ -29,6 +36,42 @@ class ProductModel {
   final String packSize;
   final String manufacturerName;
   final bool isWishlisted;
+  final List<String> images;
+  final bool isDrugsetuProducts;
+  final String drugsetuProductId;
+  final String productType;
+  final String composition;
+  final String packageType;
+  final String productForm;
+
+  static List<String> _parseImageList(Map<String, dynamic> json) {
+    final fromImages = convertToList(json['images'])
+        .map(convertToString)
+        .where((url) => url.isNotEmpty)
+        .toList();
+    if (fromImages.isNotEmpty) return fromImages;
+
+    final fromProductImages = convertToList(json['product_images'])
+        .map(convertToString)
+        .where((url) => url.isNotEmpty)
+        .toList();
+    if (fromProductImages.isNotEmpty) return fromProductImages;
+
+    final single = convertToString(json['image']).isNotEmpty
+        ? convertToString(json['image'])
+        : convertToString(json['image_url']);
+    return single.isEmpty ? const [] : [single];
+  }
+
+  static String _resolveImageUrl(
+    Map<String, dynamic> json,
+    List<String> images,
+  ) {
+    final image = convertToString(json['image']);
+    if (image.isNotEmpty) return image;
+    if (images.isNotEmpty) return images.first;
+    return convertToString(json['image_url']);
+  }
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     final categoryDetail = convertToMap(json['category_detail']);
@@ -42,9 +85,8 @@ class ProductModel {
             ? convertToString(rawCategory)
             : '';
 
-    final imageUrl = convertToString(json['image_url']).isNotEmpty
-        ? convertToString(json['image_url'])
-        : convertToString(json['image']);
+    final images = _parseImageList(json);
+    final imageUrl = _resolveImageUrl(json, images);
 
     final price = json['rate'] != null
         ? convertToDouble(json['rate'])
@@ -74,6 +116,13 @@ class ProductModel {
       packSize: convertToString(json['pack_size']),
       manufacturerName: manufacturerName,
       isWishlisted: convertToBool(json['is_wishlisted']),
+      images: images,
+      isDrugsetuProducts: convertToBool(json['is_drugsetu_products']),
+      drugsetuProductId: convertToString(json['drugsetu_product_id']),
+      productType: convertToString(json['product_type']),
+      composition: convertToString(json['composition']),
+      packageType: convertToString(json['package']),
+      productForm: convertToString(json['product_form']),
     );
   }
 
@@ -90,6 +139,13 @@ class ProductModel {
     String? packSize,
     String? manufacturerName,
     bool? isWishlisted,
+    List<String>? images,
+    bool? isDrugsetuProducts,
+    String? drugsetuProductId,
+    String? productType,
+    String? composition,
+    String? packageType,
+    String? productForm,
   }) {
     return ProductModel(
       id: id ?? this.id,
@@ -104,6 +160,13 @@ class ProductModel {
       packSize: packSize ?? this.packSize,
       manufacturerName: manufacturerName ?? this.manufacturerName,
       isWishlisted: isWishlisted ?? this.isWishlisted,
+      images: images ?? this.images,
+      isDrugsetuProducts: isDrugsetuProducts ?? this.isDrugsetuProducts,
+      drugsetuProductId: drugsetuProductId ?? this.drugsetuProductId,
+      productType: productType ?? this.productType,
+      composition: composition ?? this.composition,
+      packageType: packageType ?? this.packageType,
+      productForm: productForm ?? this.productForm,
     );
   }
 }

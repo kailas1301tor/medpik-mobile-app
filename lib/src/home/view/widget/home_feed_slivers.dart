@@ -10,6 +10,7 @@ import 'package:medpik/src/home/view/widget/home_offer_carousel.dart';
 import 'package:medpik/src/home/view/widget/home_popular_products_grid.dart';
 import 'package:medpik/src/home/view/widget/home_prescription_card.dart';
 import 'package:medpik/src/home/view/widget/home_section_header.dart';
+import 'package:medpik/src/home/view/widget/home_shimmer_sections.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
 
 abstract final class HomeFeedSlivers {
@@ -18,21 +19,68 @@ abstract final class HomeFeedSlivers {
     required double topInset,
     required HomeFeedModel? data,
     required VoidCallback onSearchTap,
+    bool isLoading = false,
   }) {
-    final offers = data?.offers ?? const <OfferModel>[];
-
     return [
+      // Only the GIF header stays constantly mounted across loading → loaded.
       SliverToBoxAdapter(
         child: HomeHeroHeader(
           topInset: topInset,
           greeting: data?.greeting ?? '',
+          userName: data?.userName ?? '',
           deliveryHint: data?.deliveryHint ?? '',
+          isLoading: isLoading,
           onSearchTap: onSearchTap,
         ),
       ),
       SliverToBoxAdapter(
         child: Padding(padding: EdgeInsets.only(top: 10.h)),
       ),
+      ..._bodySlivers(
+        context: context,
+        data: data,
+        isLoading: isLoading,
+      ),
+    ];
+  }
+
+  /// Everything below the hero: full section shimmers while loading.
+  static List<Widget> _bodySlivers({
+    required BuildContext context,
+    required HomeFeedModel? data,
+    required bool isLoading,
+  }) {
+    if (isLoading) {
+      return [
+        const SliverToBoxAdapter(child: HomePrescriptionCardShimmer()),
+        SliverToBoxAdapter(
+          child: HomeSectionHeader(title: Strings.offersForYou),
+        ),
+        const SliverToBoxAdapter(child: HomeOfferCarouselShimmer()),
+        SliverToBoxAdapter(
+          child: HomeSectionHeader(title: Strings.shopByCategory),
+        ),
+        const SliverToBoxAdapter(child: HomeCategoryShimmerRow()),
+        SliverToBoxAdapter(
+          child: HomeSectionHeader(
+            title: Strings.popularProducts,
+            bottomPadding: 4.h,
+          ),
+        ),
+        const SliverToBoxAdapter(child: HomeProductGridShimmer()),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 140.h + MediaQuery.viewPaddingOf(context).bottom,
+          ),
+        ),
+      ];
+    }
+
+    final offers = data?.offers ?? const <OfferModel>[];
+    final categories = data?.categories ?? const [];
+    final products = data?.featuredProducts ?? const [];
+
+    return [
       SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
@@ -60,7 +108,7 @@ abstract final class HomeFeedSlivers {
       ),
       SliverToBoxAdapter(
         child: HomeCategoryRow(
-          categories: data?.categories ?? const [],
+          categories: categories,
           onCategoryTap: (category) => _openCategory(context, category),
         ),
       ),
@@ -71,9 +119,7 @@ abstract final class HomeFeedSlivers {
           onSeeAll: () => _openPopularProducts(context),
         ),
       ),
-      HomePopularProductsGrid.sliver(
-        products: data?.featuredProducts ?? const [],
-      ),
+      HomePopularProductsGrid.sliver(products: products),
       SliverToBoxAdapter(
         child: SizedBox(
           height: 140.h + MediaQuery.viewPaddingOf(context).bottom,

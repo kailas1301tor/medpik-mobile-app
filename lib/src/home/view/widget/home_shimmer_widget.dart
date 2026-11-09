@@ -1,6 +1,8 @@
 // lib/src/home/view/widget/home_shimmer_widget.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medpik/providers/auth_providers.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/src/home/view/widget/home_hero_header.dart';
 import 'package:medpik/src/home/view/widget/home_prescription_card.dart';
@@ -22,15 +24,25 @@ class HomeShimmerWidget extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
-          child: HomeHeroHeader(
-            topInset: topInset,
-            greeting: timeOfDayGreeting(),
-            deliveryHint: Strings.selectDeliveryAddress,
-            onSearchTap: () {
-              Navigator.pushNamed(
-                context,
-                RouteConstants.routeSearchResultsScreen,
-                arguments: ProductCatalogArgs.searchEntry,
+          child: Consumer(
+            builder: (context, ref, _) {
+              final name = ref.watch(
+                authNotifierProvider.select((s) => s.authModel?.name ?? ''),
+              );
+              return HomeHeroHeader(
+                topInset: topInset,
+                greeting: timeOfDayGreetingLabel(),
+                userName: sessionFirstName(name),
+                deliveryHint: Strings.selectDeliveryAddress,
+                animateBackground: false,
+                isLoading: true,
+                onSearchTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    RouteConstants.routeSearchResultsScreen,
+                    arguments: ProductCatalogArgs.searchEntry,
+                  );
+                },
               );
             },
           ),

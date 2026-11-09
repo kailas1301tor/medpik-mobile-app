@@ -56,11 +56,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     final notifier = ref.read(productDetailNotifierProvider.notifier);
     final screenData = ref.watch(
       productDetailNotifierProvider.select(
-        (s) => Tuple2(s.loaderState, s.detail),
+        (s) => Tuple3(s.loaderState, s.detail, s.galleryPageIndex),
       ),
     );
     final loaderState = screenData.item1;
     final detail = screenData.item2;
+    final galleryPageIndex = screenData.item3;
     final topInset = MediaQuery.paddingOf(context).top;
 
     return CommonScaffold(
@@ -93,8 +94,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         height: ProductDetailHeroImage.heightFor(context),
                         child: RepaintBoundary(
                           child: ProductDetailHeroImage(
-                            key: ValueKey(detail.product.imageUrl),
-                            imageUrl: detail.product.imageUrl,
+                            key: ValueKey(detail.product.id),
+                            imageUrls: detail.galleryImageUrls.isNotEmpty
+                                ? detail.galleryImageUrls
+                                : [
+                                    if (detail.product.imageUrl.isNotEmpty)
+                                      detail.product.imageUrl,
+                                  ],
+                            pageController: notifier.galleryPageController,
+                            activeIndex: galleryPageIndex,
+                            onPageChanged: notifier.onGalleryPageChanged,
                           ),
                         ),
                       ),
@@ -102,9 +111,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            ProductDetailContentWidget(
-                              detail: detail,
-                              scrollController: notifier.scrollController,
+                            // Sit below the hero so PageView can receive swipes.
+                            // Sheet still overlaps the hero visually via sheetOverlap.
+                            Positioned(
+                              top: ProductDetailContentWidget.sheetTopInsetFor(
+                                context,
+                              ),
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              child: ProductDetailContentWidget(
+                                detail: detail,
+                                scrollController: notifier.scrollController,
+                              ),
                             ),
                             Positioned(
                               top: topInset + 8.h,

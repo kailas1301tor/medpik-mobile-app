@@ -9,6 +9,7 @@ class HomeFeedModel {
   const HomeFeedModel({
     required this.results,
     this.greeting = '',
+    this.userName = '',
     this.deliveryHint = '',
     this.message = '',
     this.status = true,
@@ -16,6 +17,7 @@ class HomeFeedModel {
 
   final HomeResultsModel results;
   final String greeting;
+  final String userName;
   final String deliveryHint;
   final String message;
   final bool status;
@@ -37,6 +39,7 @@ class HomeFeedModel {
   HomeFeedModel copyWith({
     HomeResultsModel? results,
     String? greeting,
+    String? userName,
     String? deliveryHint,
     String? message,
     bool? status,
@@ -44,6 +47,7 @@ class HomeFeedModel {
       HomeFeedModel(
         results: results ?? this.results,
         greeting: greeting ?? this.greeting,
+        userName: userName ?? this.userName,
         deliveryHint: deliveryHint ?? this.deliveryHint,
         message: message ?? this.message,
         status: status ?? this.status,

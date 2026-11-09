@@ -1,9 +1,10 @@
 // lib/utils/helpers/pre_cache_images.dart
 import 'package:flutter/material.dart';
+import 'package:gif_view/gif_view.dart';
 import 'package:medpik/res/constants/medpik_image_assets.dart';
 
-/// Holds in-memory [Image] widgets for critical PNG/JPG assets and warms the
-/// Flutter image cache during splash so the first home/login paint is instant.
+/// Holds in-memory [Image] widgets for critical PNG/JPG/GIF assets and warms
+/// the Flutter image cache during splash so the first home/login paint is instant.
 class PreCacheImages {
   PreCacheImages._();
 
@@ -73,6 +74,10 @@ class PreCacheImages {
       precacheImage(appLogoHorizontal.image, context),
       precacheImage(splashLogo.image, context),
       precacheImage(appCrest.image, context),
+      // Warm gif_view's own loader so home GifView skips the empty loading frame.
+      GifView.preFetchImage(
+        const AssetImage(MedpikImageAssets.primaryBackground),
+      ),
     ]);
   }
 

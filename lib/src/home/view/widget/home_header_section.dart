@@ -44,7 +44,9 @@ class HomeHeaderSection extends StatelessWidget {
               Expanded(
                 child: Text(
                   greeting,
-                  style: FontPalette.base700(22, color: titleColor),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: FontPalette.base700(28, color: titleColor),
                 ),
               ),
               HomeHeaderIconButton(

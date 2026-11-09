@@ -5,6 +5,7 @@ import 'package:medpik/providers/wishlist_providers.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/services/onesignal_service.dart';
 import 'package:medpik/src/home/notifier/home_notifier.dart';
+import 'package:medpik/src/profile/notifier/profile_notifier.dart';
 import 'package:medpik/utils/common_widgets/custom_toast.dart';
 
 part 'main_shell_notifier.g.dart';
@@ -20,6 +21,10 @@ class MainShellNotifier extends _$MainShellNotifier {
       _didBootstrap = false;
     });
 
+    // Keeps the profile fetch alive for the shell session so the home
+    // greeting can pick up the signed-in name.
+    ref.listen(profileNotifierProvider, (previous, next) {});
+
     Future.microtask(_bootstrapSessionData);
     return 0;
   }
@@ -33,7 +38,10 @@ class MainShellNotifier extends _$MainShellNotifier {
     await oneSignal.requestNotificationPermission();
     await oneSignal.refreshDeviceRegistration();
     await oneSignal.registerDeviceWithBackend();
-    await ref.read(homeNotifierProvider.notifier).fetchCustomerGeneralData();
+    ref.read(homeNotifierProvider.notifier).fetchCustomerGeneralData();
+    // Greeting uses local session name immediately; profile refresh syncs
+    // a newer display name when the API returns.
+    ref.read(profileNotifierProvider.notifier).fetchProfile();
     ref.read(cartNotifierProvider.notifier).fetchCart(showLoader: true);
     ref.read(wishlistNotifierProvider.notifier).fetchWishlist(showLoader: true);
     ref.read(homeNotifierProvider.notifier).fetchHomeFeed();

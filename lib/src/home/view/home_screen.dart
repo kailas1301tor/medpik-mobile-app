@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/src/home/notifier/home_notifier.dart';
 import 'package:medpik/src/home/view/widget/home_content_widget.dart';
-import 'package:medpik/src/home/view/widget/home_shimmer_widget.dart';
 import 'package:medpik/utils/common_widgets/common_refresh_indicator.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/common_switch_state.dart';
@@ -23,6 +23,10 @@ class HomeScreen extends ConsumerWidget {
     final loaderState = feed.item1;
     final data = feed.item2;
     final notifier = ref.read(homeNotifierProvider.notifier);
+    // Same content widget for loading + loaded keeps the GIF header mounted.
+    // Section shimmers (not real feed) render while loading.
+    final showHomeShell = loaderState == LoaderState.loading ||
+        loaderState == LoaderState.loaded;
 
     return CommonScaffold(
       backgroundColor: colors.background,
@@ -34,16 +38,22 @@ class HomeScreen extends ConsumerWidget {
       body: CommonRefreshIndicator(
         onRefresh: () =>
             ref.read(homeNotifierProvider.notifier).fetchHomeFeed(),
-        child: CommonSwitchState(
-          loaderState: loaderState,
-          reload: () => ref.read(homeNotifierProvider.notifier).fetchHomeFeed(),
-          loader: const HomeShimmerWidget(),
-          buttonText: Strings.refresh,
-          child: HomeContentWidget(
-            data: data,
-            scrollController: notifier.scrollController,
-          ),
-        ),
+        child: showHomeShell
+            ? HomeContentWidget(
+                data: data,
+                isLoading: loaderState == LoaderState.loading,
+                scrollController: notifier.scrollController,
+              )
+            : CommonSwitchState(
+                loaderState: loaderState,
+                reload: () =>
+                    ref.read(homeNotifierProvider.notifier).fetchHomeFeed(),
+                buttonText: Strings.refresh,
+                child: HomeContentWidget(
+                  data: data,
+                  scrollController: notifier.scrollController,
+                ),
+              ),
       ),
     );
   }

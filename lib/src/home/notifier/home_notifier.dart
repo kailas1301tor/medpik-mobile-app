@@ -2,10 +2,13 @@
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/providers/address_providers.dart';
+import 'package:medpik/providers/auth_providers.dart';
 import 'package:medpik/providers/wishlist_providers.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/home/model/home_model.dart';
 import 'package:medpik/src/home/repo/home_repository.dart';
 import 'package:medpik/src/home/state/home_state.dart';
 import 'package:medpik/utils/helpers/address_resolution_helper.dart';
@@ -38,19 +41,33 @@ class HomeNotifier extends _$HomeNotifier {
       _lifecycleInitialized = false;
     });
 
-    ref.listen(addressNotifierProvider.select((s) => s.addresses), (
-      previous,
-      next,
-    ) {
-      final data = state.data;
-      if (data == null) return;
-      final deliveryHint = deliveryHintFromAddresses(next);
-      if (data.deliveryHint == deliveryHint) return;
-      state = state.copyWith(data: data.copyWith(deliveryHint: deliveryHint));
-    });
+    ref.listen(
+      addressNotifierProvider.select((s) => (s.addresses, s.loaderState)),
+      (previous, next) {
+        final data = state.data;
+        if (data == null) return;
+        final deliveryHint = _resolveDeliveryHint();
+        if (data.deliveryHint == deliveryHint) return;
+        state = state.copyWith(
+          data: data.copyWith(deliveryHint: deliveryHint),
+        );
+      },
+    );
+
+    ref.listen(
+      authNotifierProvider.select((s) => s.authModel?.name ?? ''),
+      (previous, next) {
+        _applyGreeting(next);
+      },
+    );
 
     homeRepo = ref.read(homeRepositoryProvider);
-    return const HomeState(loaderState: LoaderState.loading);
+    // Paint greeting/name/delivery from local session immediately — don't wait
+    // for the home API. Catalog sections still load behind body shimmers.
+    return HomeState(
+      loaderState: LoaderState.loading,
+      data: _shellFeed(),
+    );
   }
 
   Future<void> fetchCustomerGeneralData() async {
@@ -93,7 +110,12 @@ class HomeNotifier extends _$HomeNotifier {
   }
 
   Future<void> fetchHomeFeed() async {
-    state = state.copyWith(loaderState: LoaderState.loading);
+    // Keep a shell feed so the home header (and GIF) can mount immediately
+    // while the API is in flight — without a separate shimmer tree.
+    state = state.copyWith(
+      loaderState: LoaderState.loading,
+      data: state.data ?? _shellFeed(),
+    );
 
     return await homeRepo
         .getHomeFeed()
@@ -104,8 +126,10 @@ class HomeNotifier extends _$HomeNotifier {
             );
           },
           (right) {
+            final displayName = _sessionDisplayName();
             final feed = right.copyWith(
-              greeting: timeOfDayGreeting(),
+              greeting: timeOfDayGreetingLabel(),
+              userName: sessionFirstName(displayName),
               deliveryHint: _resolveDeliveryHint(),
             );
             state = state.copyWith(loaderState: LoaderState.loaded, data: feed);
@@ -119,9 +143,40 @@ class HomeNotifier extends _$HomeNotifier {
         });
   }
 
+  HomeFeedModel _shellFeed() {
+    return HomeFeedModel(
+      results: const HomeResultsModel(data: HomeDataModel()),
+      greeting: timeOfDayGreetingLabel(),
+      userName: sessionFirstName(_sessionDisplayName()),
+      deliveryHint: _resolveDeliveryHint(),
+    );
+  }
+
   String _resolveDeliveryHint() {
-    return deliveryHintFromAddresses(
-      ref.read(addressNotifierProvider).addresses,
+    final addressState = ref.read(addressNotifierProvider);
+    final selected = resolveDefaultAddress(addressState.addresses);
+    if (selected != null) {
+      return selected.deliveryHint;
+    }
+    // Empty while addresses are still loading so the hero can shimmer that row.
+    if (addressState.loaderState == LoaderState.loading) {
+      return '';
+    }
+    return Strings.selectDeliveryAddress;
+  }
+
+  String _sessionDisplayName() {
+    return ref.read(authNotifierProvider).authModel?.name ?? '';
+  }
+
+  void _applyGreeting(String rawName) {
+    final data = state.data;
+    if (data == null) return;
+    final greeting = timeOfDayGreetingLabel();
+    final userName = sessionFirstName(rawName);
+    if (data.greeting == greeting && data.userName == userName) return;
+    state = state.copyWith(
+      data: data.copyWith(greeting: greeting, userName: userName),
     );
   }
 }

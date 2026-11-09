@@ -67,7 +67,6 @@ class _SplashAnimatedLogoState extends State<SplashAnimatedLogo>
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
     final screenWidth = MediaQuery.sizeOf(context).width;
     final logoWidth = math.min(180.w, screenWidth * 0.48);
 
@@ -80,13 +79,19 @@ class _SplashAnimatedLogoState extends State<SplashAnimatedLogo>
           child: ScaleTransition(
             scale: _logoScale,
             alignment: Alignment.center,
-            child: Image(
-              image:
-                  PreCacheImages.providerFor(MedpikImageAssets.splashLogo) ??
-                  const AssetImage(MedpikImageAssets.splashLogo),
-              width: logoWidth,
-              fit: BoxFit.cover,
-              gaplessPlayback: true,
+            child: ColorFiltered(
+              colorFilter: const ColorFilter.mode(
+                ColorPalette.white,
+                BlendMode.srcIn,
+              ),
+              child: Image(
+                image:
+                    PreCacheImages.providerFor(MedpikImageAssets.splashLogo) ??
+                    const AssetImage(MedpikImageAssets.splashLogo),
+                width: logoWidth,
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+              ),
             ),
           ),
         ),
@@ -98,7 +103,7 @@ class _SplashAnimatedLogoState extends State<SplashAnimatedLogo>
               position: _taglineSlide,
               child: Text(
                 Strings.splashTagline,
-                style: FontPalette.base400(15, color: colors.secondaryText),
+                style: FontPalette.base400(15, color: ColorPalette.white),
                 textAlign: TextAlign.center,
               ),
             ),

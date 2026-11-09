@@ -83,10 +83,27 @@ void main() {
       expect(display.howToUse, 'Dissolve in water before use.');
     });
 
+    test('uses dosage when how-to-use is empty', () {
+      final detail = ProductDetailModel(
+        product: otcProduct,
+        dosage: '1 drop twice daily',
+        packLabel: '',
+        aboutText: '',
+        howToUse: '',
+        safetyInformation: '',
+      );
+
+      final display = resolveProductDetailDisplay(detail);
+
+      expect(display.howToUse, '1 drop twice daily');
+    });
+
     test('uses generic safety fallback when API safety is empty', () {
       final display = resolveProductDetailDisplay(emptyDetail(otcProduct));
 
-      expect(display.safetyInformation, Strings.genericSafetyBody);
+      expect(display.safetyBlocks, hasLength(1));
+      expect(display.safetyBlocks.first.title, Strings.safetyInformation);
+      expect(display.safetyBlocks.first.body, Strings.genericSafetyBody);
     });
 
     test('prefers API safety information over fallback', () {
@@ -101,7 +118,75 @@ void main() {
 
       final display = resolveProductDetailDisplay(detail);
 
-      expect(display.safetyInformation, 'Avoid during pregnancy.');
+      expect(display.safetyBlocks, hasLength(1));
+      expect(display.safetyBlocks.first.body, 'Avoid during pregnancy.');
+    });
+
+    test('builds structured safety blocks from enrichment fields', () {
+      final detail = ProductDetailModel(
+        product: otcProduct,
+        dosage: '',
+        packLabel: '',
+        aboutText: '',
+        howToUse: '',
+        safetyInformation: '',
+        warnings: 'Do not swallow',
+        sideEffects: 'Mild irritation',
+      );
+
+      final display = resolveProductDetailDisplay(detail);
+
+      expect(display.safetyBlocks, hasLength(2));
+      expect(display.safetyBlocks.first.title, Strings.warnings);
+      expect(display.safetyBlocks.last.title, Strings.sideEffects);
+    });
+
+    test('hides uses when identical to about', () {
+      final detail = ProductDetailModel(
+        product: otcProduct,
+        dosage: '',
+        packLabel: '',
+        aboutText: 'Same copy',
+        howToUse: '',
+        safetyInformation: '',
+        uses: 'Same copy',
+      );
+
+      final display = resolveProductDetailDisplay(detail);
+
+      expect(display.showUses, isFalse);
+    });
+
+    test('shows composition when present', () {
+      final detail = ProductDetailModel(
+        product: otcProduct.copyWith(composition: 'PEG + PG'),
+        dosage: '',
+        packLabel: '',
+        aboutText: '',
+        howToUse: '',
+        safetyInformation: '',
+      );
+
+      final display = resolveProductDetailDisplay(detail);
+
+      expect(display.showComposition, isTrue);
+      expect(display.composition, 'PEG + PG');
+    });
+
+    test('prefers API storage over generic fallback', () {
+      final detail = ProductDetailModel(
+        product: otcProduct,
+        dosage: '',
+        packLabel: '',
+        aboutText: '',
+        howToUse: '',
+        safetyInformation: '',
+        storage: 'Store below 25C',
+      );
+
+      final display = resolveProductDetailDisplay(detail);
+
+      expect(display.storageBody, 'Store below 25C');
     });
 
     test('shows benefits only when API provides key benefits', () {

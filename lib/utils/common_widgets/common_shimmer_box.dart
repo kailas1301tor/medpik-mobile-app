@@ -12,6 +12,7 @@ class CommonShimmerBox extends StatelessWidget {
     this.borderRadius,
     this.baseColor,
     this.highlightColor,
+    this.color,
   });
 
   final double? width;
@@ -19,17 +20,20 @@ class CommonShimmerBox extends StatelessWidget {
   final double? borderRadius;
   final Color? baseColor;
   final Color? highlightColor;
+  /// Fill color of the shimmer bar (defaults to theme input background).
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final fill = color ?? context.appColors.inputBackground;
     return Shimmer.fromColors(
-      baseColor: baseColor ?? context.appColors.inputBackground,
+      baseColor: baseColor ?? fill,
       highlightColor: highlightColor ?? context.appColors.shimmerHighlight,
       child: Container(
         width: width,
         height: height ?? 16.h,
         decoration: BoxDecoration(
-          color: context.appColors.inputBackground,
+          color: fill,
           borderRadius: BorderRadius.circular((borderRadius ?? 12).r),
         ),
       ),

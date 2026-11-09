@@ -3,6 +3,7 @@ class MedpikImageAssets {
   MedpikImageAssets._();
 
   static const String _base = 'assets/images/png';
+  static const String _gifBase = 'assets/images/gif';
 
   /// Horizontal wordmark — native and in-app splash.
   static const String splashLogo = '$_base/medpik_splash_logo.png';
@@ -15,7 +16,7 @@ class MedpikImageAssets {
 
   /// Icon mark only — launcher, compact UI.
   static const String appCrest = '$_base/Medpik Crest #01.png';
-  static const String primaryBackground = '$_base/compressed_home_bg.png';
+  static const String primaryBackground = '$_gifBase/home_header_bg.gif';
   static const String productPlaceholder =
       '$_base/product_placeholder_green.png';
   static const String categoryPlaceholder =

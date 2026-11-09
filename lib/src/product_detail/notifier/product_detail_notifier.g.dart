@@ -7,7 +7,7 @@ part of 'product_detail_notifier.dart';
 // **************************************************************************
 
 String _$productDetailNotifierHash() =>
-    r'9cb6c21aae964e43fb0e9d1cde0d03ac34fefd10';
+    r'528010618a33d60666e8cae7668e628e63a3665b';
 
 /// See also [ProductDetailNotifier].
 @ProviderFor(ProductDetailNotifier)

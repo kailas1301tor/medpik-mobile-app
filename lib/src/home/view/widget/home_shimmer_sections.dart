@@ -3,6 +3,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 
+class HomePrescriptionCardShimmer extends StatelessWidget {
+  const HomePrescriptionCardShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
+      child: CommonShimmerBox(
+        height: 132.h,
+        width: double.infinity,
+        borderRadius: 20.r,
+      ),
+    );
+  }
+}
+
+class HomeOfferCarouselShimmer extends StatelessWidget {
+  const HomeOfferCarouselShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: CommonShimmerBox(
+        height: 160.h,
+        width: double.infinity,
+        borderRadius: 20.r,
+      ),
+    );
+  }
+}
+
 class HomeCategoryShimmerRow extends StatelessWidget {
   const HomeCategoryShimmerRow({super.key});
 

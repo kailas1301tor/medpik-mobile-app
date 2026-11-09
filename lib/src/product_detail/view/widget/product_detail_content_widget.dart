@@ -5,12 +5,15 @@ import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/src/product_detail/model/product_detail_model.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_about_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_benefits_section.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_composition_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_hero_image.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_how_to_use_section.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_packaging_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_quantity_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_safety_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_storage_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_title_section.dart';
+import 'package:medpik/src/product_detail/view/widget/product_detail_uses_section.dart';
 import 'package:medpik/utils/extensions/context_extensions.dart';
 import 'package:medpik/utils/helpers/product_detail_content_resolver.dart';
 
@@ -24,23 +27,28 @@ class ProductDetailContentWidget extends StatelessWidget {
   final ProductDetailModel detail;
   final ScrollController scrollController;
 
-  static const _sheetOverlap = 28.0;
+  /// How far the sheet overlaps the hero (visual only).
+  static const sheetOverlap = 28.0;
   static const _sheetRadius = 28.0;
+
+  static double sheetTopInsetFor(BuildContext context) =>
+      ProductDetailHeroImage.heightFor(context) - sheetOverlap.h;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final heroHeight = ProductDetailHeroImage.heightFor(context);
-    final sheetTopInset = heroHeight - _sheetOverlap.h;
-    final minSheetHeight = context.screenHeight - sheetTopInset;
+    final minSheetHeight =
+        context.screenHeight - sheetTopInsetFor(context);
     final footerClearance = 96.h + MediaQuery.paddingOf(context).bottom;
     final display = resolveProductDetailDisplay(detail);
 
+    // Sheet is positioned below the hero in the parent Stack so the PageView
+    // receives horizontal swipes. Do not insert a full-width spacer above —
+    // that would steal gestures from the gallery.
     return CustomScrollView(
       controller: scrollController,
       physics: const ClampingScrollPhysics(),
       slivers: [
-        SliverToBoxAdapter(child: SizedBox(height: sheetTopInset)),
         SliverToBoxAdapter(
           child: ClipRRect(
             borderRadius: BorderRadius.vertical(
@@ -68,12 +76,26 @@ class ProductDetailContentWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ProductDetailTitleSection(detail: detail),
+                      if (display.showPackagings)
+                        ProductDetailPackagingSection(
+                          packagings: detail.packagings,
+                        ),
                       ProductDetailQuantitySection(
                         productId: detail.product.id,
                       ),
                       if (display.showAbout) ...[
                         24.verticalSpace,
                         ProductDetailAboutSection(detail: detail),
+                      ],
+                      if (display.showComposition) ...[
+                        24.verticalSpace,
+                        ProductDetailCompositionSection(
+                          composition: display.composition,
+                        ),
+                      ],
+                      if (display.showUses) ...[
+                        24.verticalSpace,
+                        ProductDetailUsesSection(uses: display.uses),
                       ],
                       if (display.showBenefits) ...[
                         24.verticalSpace,
@@ -83,10 +105,12 @@ class ProductDetailContentWidget extends StatelessWidget {
                       ProductDetailHowToUseSection(howToUse: display.howToUse),
                       24.verticalSpace,
                       ProductDetailSafetySection(
-                        safetyInformation: display.safetyInformation,
+                        safetyBlocks: display.safetyBlocks,
                       ),
                       24.verticalSpace,
-                      const ProductDetailStorageSection(),
+                      ProductDetailStorageSection(
+                        storageBody: display.storageBody,
+                      ),
                     ],
                   ),
                 ),

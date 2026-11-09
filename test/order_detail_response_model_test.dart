@@ -491,4 +491,108 @@ void main() {
       expect(regularItem.hasOfferChip, isFalse);
     });
   });
+
+  group('OrderItemModel packaging', () {
+    test('parses mixed pack + loose units', () {
+      final item = OrderItemModel.fromJson({
+        'quantity': 1,
+        'package_quantity': 1,
+        'loose_units': 5,
+        'billed_units': 15,
+        'units_per_package': 10,
+        'product_detail': {'id': 1, 'name': 'Dolo 650'},
+      });
+
+      expect(item.packageQuantity, 1);
+      expect(item.looseUnits, 5);
+      expect(item.billedUnits, 15);
+      expect(item.unitsPerPackage, 10);
+      expect(item.showsQuantityBreakdown, isTrue);
+      expect(item.quantityDisplayLabel, 'Qty: 1 pack + 5 loose');
+      expect(item.quantitySubtitle, '10 / pack · 15 total');
+    });
+
+    test('parses loose units only', () {
+      final item = OrderItemModel.fromJson({
+        'quantity': 0,
+        'package_quantity': 0,
+        'loose_units': 4,
+        'billed_units': 4,
+        'units_per_package': 10,
+        'product_detail': {'id': 2, 'name': 'Crocin'},
+      });
+
+      expect(item.packageQuantity, 0);
+      expect(item.looseUnits, 4);
+      expect(item.billedUnits, 4);
+      expect(item.showsQuantityBreakdown, isTrue);
+      expect(item.quantityDisplayLabel, 'Qty: 4 loose');
+      expect(item.quantitySubtitle, isNull);
+    });
+
+    test('parses full multi-unit packs', () {
+      final item = OrderItemModel.fromJson({
+        'quantity': 2,
+        'package_quantity': 2,
+        'loose_units': 0,
+        'billed_units': 20,
+        'units_per_package': 10,
+        'product_detail': {'id': 3, 'name': 'Aspirin'},
+      });
+
+      expect(item.packageQuantity, 2);
+      expect(item.looseUnits, 0);
+      expect(item.billedUnits, 20);
+      expect(item.unitsPerPackage, 10);
+      expect(item.showsQuantityBreakdown, isTrue);
+      expect(item.quantityDisplayLabel, 'Qty: 2 packs');
+      expect(item.quantitySubtitle, '10 / pack · 20 total');
+    });
+
+    test('uses standard qty for single-unit products', () {
+      final item = OrderItemModel.fromJson({
+        'quantity': 1,
+        'package_quantity': 1,
+        'loose_units': 0,
+        'billed_units': 1,
+        'units_per_package': 1,
+        'product_detail': {'id': 4, 'name': 'Syrup'},
+      });
+
+      expect(item.packageQuantity, 1);
+      expect(item.unitsPerPackage, 1);
+      expect(item.showsQuantityBreakdown, isFalse);
+      expect(item.quantityDisplayLabel, 'Qty: 1');
+      expect(item.quantitySubtitle, isNull);
+    });
+
+    test('falls back to quantity when packaging fields are missing', () {
+      final item = OrderItemModel.fromJson({
+        'quantity': 2,
+        'product_detail': {'id': 5, 'name': 'Legacy Item'},
+      });
+
+      expect(item.packageQuantity, 0);
+      expect(item.looseUnits, 0);
+      expect(item.billedUnits, 2);
+      expect(item.unitsPerPackage, 1);
+      expect(item.showsQuantityBreakdown, isFalse);
+      expect(item.quantityDisplayLabel, 'Qty: 2');
+      expect(item.quantitySubtitle, isNull);
+    });
+
+    test('clamps zero units_per_package to 1 and calculates billed units', () {
+      final item = OrderItemModel.fromJson({
+        'quantity': 1,
+        'package_quantity': 1,
+        'loose_units': 3,
+        'units_per_package': 0,
+        'product_detail': {'id': 6, 'name': 'Fallback Pack'},
+      });
+
+      expect(item.unitsPerPackage, 1);
+      expect(item.billedUnits, 4);
+      expect(item.quantityDisplayLabel, 'Qty: 1 pack + 3 loose');
+    });
+  });
 }

@@ -111,11 +111,21 @@ class _ProductDetailStickyFooterState extends ConsumerState<ProductDetailStickyF
 
     final detailData = ref.watch(
       productDetailNotifierProvider.select(
-        (s) => Tuple3(
-          s.detail?.product.id,
-          s.detail?.product.price,
-          s.quantity,
-        ),
+        (s) {
+          final detail = s.detail;
+          final packagings = detail?.packagings ?? const [];
+          double? unitPrice = detail?.product.price;
+          if (packagings.isNotEmpty) {
+            final index =
+                s.selectedPackagingIndex.clamp(0, packagings.length - 1);
+            unitPrice = packagings[index].mrp ?? unitPrice;
+          }
+          return Tuple3(
+            detail?.product.id,
+            unitPrice,
+            s.quantity,
+          );
+        },
       ),
     );
     final productId = detailData.item1;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/res/styles/font_palette.dart';
 
 class AppTheme {
   AppTheme._(); // ✅ Prevent instantiation — pure static class
@@ -49,6 +50,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      fontFamily: FontPalette.fontFamily,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: ColorPalette.white,
       extensions: const [AppColors.light],
@@ -82,6 +84,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      fontFamily: FontPalette.fontFamily,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.dark.background,
       extensions: const [AppColors.dark],

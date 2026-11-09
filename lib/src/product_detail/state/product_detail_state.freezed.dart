@@ -22,6 +22,8 @@ mixin _$ProductDetailState {
   int get quantity => throw _privateConstructorUsedError;
   bool get isFromUploadPrescription => throw _privateConstructorUsedError;
   bool get isWishlisted => throw _privateConstructorUsedError;
+  int get selectedPackagingIndex => throw _privateConstructorUsedError;
+  int get galleryPageIndex => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of ProductDetailState
@@ -44,6 +46,8 @@ abstract class $ProductDetailStateCopyWith<$Res> {
     int quantity,
     bool isFromUploadPrescription,
     bool isWishlisted,
+    int selectedPackagingIndex,
+    int galleryPageIndex,
     String? errorMessage,
   });
 }
@@ -68,6 +72,8 @@ class _$ProductDetailStateCopyWithImpl<$Res, $Val extends ProductDetailState>
     Object? quantity = null,
     Object? isFromUploadPrescription = null,
     Object? isWishlisted = null,
+    Object? selectedPackagingIndex = null,
+    Object? galleryPageIndex = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -92,6 +98,14 @@ class _$ProductDetailStateCopyWithImpl<$Res, $Val extends ProductDetailState>
                 ? _value.isWishlisted
                 : isWishlisted // ignore: cast_nullable_to_non_nullable
                       as bool,
+            selectedPackagingIndex: null == selectedPackagingIndex
+                ? _value.selectedPackagingIndex
+                : selectedPackagingIndex // ignore: cast_nullable_to_non_nullable
+                      as int,
+            galleryPageIndex: null == galleryPageIndex
+                ? _value.galleryPageIndex
+                : galleryPageIndex // ignore: cast_nullable_to_non_nullable
+                      as int,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -117,6 +131,8 @@ abstract class _$$ProductDetailStateImplCopyWith<$Res>
     int quantity,
     bool isFromUploadPrescription,
     bool isWishlisted,
+    int selectedPackagingIndex,
+    int galleryPageIndex,
     String? errorMessage,
   });
 }
@@ -140,6 +156,8 @@ class __$$ProductDetailStateImplCopyWithImpl<$Res>
     Object? quantity = null,
     Object? isFromUploadPrescription = null,
     Object? isWishlisted = null,
+    Object? selectedPackagingIndex = null,
+    Object? galleryPageIndex = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -164,6 +182,14 @@ class __$$ProductDetailStateImplCopyWithImpl<$Res>
             ? _value.isWishlisted
             : isWishlisted // ignore: cast_nullable_to_non_nullable
                   as bool,
+        selectedPackagingIndex: null == selectedPackagingIndex
+            ? _value.selectedPackagingIndex
+            : selectedPackagingIndex // ignore: cast_nullable_to_non_nullable
+                  as int,
+        galleryPageIndex: null == galleryPageIndex
+            ? _value.galleryPageIndex
+            : galleryPageIndex // ignore: cast_nullable_to_non_nullable
+                  as int,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -182,6 +208,8 @@ class _$ProductDetailStateImpl implements _ProductDetailState {
     this.quantity = 1,
     this.isFromUploadPrescription = false,
     this.isWishlisted = false,
+    this.selectedPackagingIndex = 0,
+    this.galleryPageIndex = 0,
     this.errorMessage,
   });
 
@@ -200,11 +228,17 @@ class _$ProductDetailStateImpl implements _ProductDetailState {
   @JsonKey()
   final bool isWishlisted;
   @override
+  @JsonKey()
+  final int selectedPackagingIndex;
+  @override
+  @JsonKey()
+  final int galleryPageIndex;
+  @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'ProductDetailState(loaderState: $loaderState, detail: $detail, quantity: $quantity, isFromUploadPrescription: $isFromUploadPrescription, isWishlisted: $isWishlisted, errorMessage: $errorMessage)';
+    return 'ProductDetailState(loaderState: $loaderState, detail: $detail, quantity: $quantity, isFromUploadPrescription: $isFromUploadPrescription, isWishlisted: $isWishlisted, selectedPackagingIndex: $selectedPackagingIndex, galleryPageIndex: $galleryPageIndex, errorMessage: $errorMessage)';
   }
 
   @override
@@ -224,6 +258,10 @@ class _$ProductDetailStateImpl implements _ProductDetailState {
                 other.isFromUploadPrescription == isFromUploadPrescription) &&
             (identical(other.isWishlisted, isWishlisted) ||
                 other.isWishlisted == isWishlisted) &&
+            (identical(other.selectedPackagingIndex, selectedPackagingIndex) ||
+                other.selectedPackagingIndex == selectedPackagingIndex) &&
+            (identical(other.galleryPageIndex, galleryPageIndex) ||
+                other.galleryPageIndex == galleryPageIndex) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -236,6 +274,8 @@ class _$ProductDetailStateImpl implements _ProductDetailState {
     quantity,
     isFromUploadPrescription,
     isWishlisted,
+    selectedPackagingIndex,
+    galleryPageIndex,
     errorMessage,
   );
 
@@ -258,6 +298,8 @@ abstract class _ProductDetailState implements ProductDetailState {
     final int quantity,
     final bool isFromUploadPrescription,
     final bool isWishlisted,
+    final int selectedPackagingIndex,
+    final int galleryPageIndex,
     final String? errorMessage,
   }) = _$ProductDetailStateImpl;
 
@@ -271,6 +313,10 @@ abstract class _ProductDetailState implements ProductDetailState {
   bool get isFromUploadPrescription;
   @override
   bool get isWishlisted;
+  @override
+  int get selectedPackagingIndex;
+  @override
+  int get galleryPageIndex;
   @override
   String? get errorMessage;
 

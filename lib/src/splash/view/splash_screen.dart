@@ -61,7 +61,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     });
 
     return const CommonScaffold(
-      backgroundColor: ColorPalette.white,
+      backgroundColor: ColorPalette.splashColor,
+      statusBarIconBrightness: Brightness.light,
       body: Center(
         child: SplashAnimatedLogo(),
       ),

@@ -10,10 +10,12 @@ class HomeContentWidget extends StatelessWidget {
   const HomeContentWidget({
     super.key,
     this.data,
+    this.isLoading = false,
     required this.scrollController,
   });
 
   final HomeFeedModel? data;
+  final bool isLoading;
   final ScrollController scrollController;
 
   @override
@@ -31,24 +33,32 @@ class HomeContentWidget extends StatelessWidget {
       children: [
         CustomScrollView(
           controller: scrollController,
-          physics: const ClampingScrollPhysics(),
+          physics: isLoading
+              ? const NeverScrollableScrollPhysics()
+              : const ClampingScrollPhysics(),
+          // Hero GIF is always the first sliver; body swaps shimmer ↔ content
+          // inside HomeFeedSlivers when [isLoading] toggles.
           slivers: HomeFeedSlivers.build(
             context: context,
             topInset: topInset,
             data: data,
+            isLoading: isLoading,
             onSearchTap: onSearchTap,
           ),
         ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: HomeCompactHeaderScope(
-            topInset: topInset,
-            deliveryHint: data?.deliveryHint ?? '',
-            onSearchTap: onSearchTap,
+        // Compact overlay only after load — avoids a second header while
+        // the GIF hero is the sole constant chrome during loading.
+        if (!isLoading)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: HomeCompactHeaderScope(
+              topInset: topInset,
+              deliveryHint: data?.deliveryHint ?? '',
+              onSearchTap: onSearchTap,
+            ),
           ),
-        ),
       ],
     );
   }
