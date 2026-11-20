@@ -30,6 +30,7 @@ with secrets_path.open(encoding="utf-8") as f:
 android_key = (secrets.get("GOOGLE_MAPS_ANDROID_KEY") or "").strip()
 ios_key = (secrets.get("GOOGLE_MAPS_IOS_KEY") or "").strip()
 geocoding_key = (secrets.get("GOOGLE_GEOCODING_KEY") or "").strip()
+onesignal_app_id = (secrets.get("ONESIGNAL_APP_ID") or "").strip()
 
 missing = [
     name
@@ -37,6 +38,7 @@ missing = [
         ("GOOGLE_MAPS_ANDROID_KEY", android_key),
         ("GOOGLE_MAPS_IOS_KEY", ios_key),
         ("GOOGLE_GEOCODING_KEY", geocoding_key),
+        ("ONESIGNAL_APP_ID", onesignal_app_id),
     ]
     if not value
 ]
@@ -72,7 +74,14 @@ ios_path.write_text(
 
 dart_path.parent.mkdir(parents=True, exist_ok=True)
 dart_path.write_text(
-    json.dumps({"GOOGLE_MAPS_API_KEY": geocoding_key}, indent=2) + "\n",
+    json.dumps(
+        {
+            "GOOGLE_MAPS_API_KEY": geocoding_key,
+            "ONESIGNAL_APP_ID": onesignal_app_id,
+        },
+        indent=2,
+    )
+    + "\n",
     encoding="utf-8",
 )
 

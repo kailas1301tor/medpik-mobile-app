@@ -20,8 +20,11 @@ pluginManagement {
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
     id("com.android.application") version "8.11.1" apply false
-    id("org.jetbrains.kotlin.android") version "2.2.20" apply false
+    // Play Services Measurement / Firebase Analytics ship Kotlin metadata 2.4.0;
+    // 2.2.x cannot read that and fails :firebase_analytics:compileReleaseKotlin.
+    id("org.jetbrains.kotlin.android") version "2.4.21" apply false
     id("com.google.gms.google-services") version "4.4.2" apply false
+    id("com.google.firebase.crashlytics") version "3.0.3" apply false
 }
 
 include(":app")

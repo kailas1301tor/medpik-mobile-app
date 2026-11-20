@@ -106,7 +106,10 @@ class OrderReviewPayScreen extends ConsumerWidget {
           context,
           RouteConstants.routeOrderPaymentSuccessScreen,
           (route) => route.settings.name == RouteConstants.mainScreen,
-          arguments: OrderPaymentResultArgs(orderId: orderId),
+          arguments: OrderPaymentResultArgs(
+            orderId: orderId,
+            isCashOnDelivery: result.isCashOnDelivery,
+          ),
         );
       case OrderPaymentOutcome.failure:
       case OrderPaymentOutcome.cancelled:

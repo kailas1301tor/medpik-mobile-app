@@ -6,7 +6,6 @@ import 'package:medpik/data/models/order_model.dart';
 import 'package:medpik/res/constants/medpik_svg_assets.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
-import 'package:medpik/src/orders/view/widget/order_product_preview_row.dart';
 import 'package:medpik/src/orders/view/widget/order_tile_footer.dart';
 import 'package:medpik/src/orders/view/widget/order_tile_glass_card.dart';
 import 'package:medpik/src/orders/view/widget/order_tile_header.dart';
@@ -21,9 +20,9 @@ class OrderTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final city = order.address.city.trim();
     final locationLabel = city.isNotEmpty ? city : Strings.unavailableValue;
-    final previewUrls = order.previewImageUrls;
 
     return OrderTileGlassCard(
       onTap: onTap,
@@ -32,7 +31,7 @@ class OrderTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           OrderTileHeader(order: order),
-          8.verticalSpace,
+          14.verticalSpace,
           OrderTileMetaRow(
             items: [
               OrderTileMetaItem(
@@ -46,6 +45,7 @@ class OrderTile extends StatelessWidget {
                   ),
                 ),
                 value: formatOrderDate(order.createdAt),
+                label: Strings.orderDateLabel,
               ),
               OrderTileMetaItem(
                 icon: Icon(
@@ -54,6 +54,7 @@ class OrderTile extends StatelessWidget {
                   color: ColorPalette.fCA8E00,
                 ),
                 value: formatOrderTime(order.createdAt),
+                label: Strings.orderTimeLabel,
               ),
               OrderTileMetaItem(
                 icon: SvgPicture.asset(
@@ -66,14 +67,17 @@ class OrderTile extends StatelessWidget {
                   ),
                 ),
                 value: locationLabel,
+                label: Strings.orderLocationLabel,
               ),
             ],
           ),
-          if (previewUrls.isNotEmpty) ...[
-            10.verticalSpace,
-            OrderProductPreviewRow(imageUrls: previewUrls),
-          ],
-          10.verticalSpace,
+          12.verticalSpace,
+          Divider(
+            height: 1.h,
+            thickness: 1.h,
+            color: colors.divider.withValues(alpha: 0.45),
+          ),
+          12.verticalSpace,
           OrderTileFooter(order: order),
         ],
       ),

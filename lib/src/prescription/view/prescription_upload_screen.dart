@@ -6,6 +6,7 @@ import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/src/prescription/notifier/prescription_notifier.dart';
+import 'package:medpik/src/prescription/notifier/prescription_products_notifier.dart';
 import 'package:medpik/src/prescription/view/widget/prescription_file_grid.dart';
 import 'package:medpik/src/prescription/view/widget/prescription_guidelines_sheet.dart';
 import 'package:medpik/src/prescription/view/widget/prescription_products_section.dart';
@@ -17,6 +18,7 @@ import 'package:medpik/utils/common_widgets/common_loader.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/common_text_form_field.dart';
 import 'package:medpik/utils/common_widgets/primary_button.dart';
+import 'package:medpik/utils/helpers/pagination_scroll_helper.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
 import 'package:tuple/tuple.dart';
 
@@ -37,6 +39,11 @@ class PrescriptionUploadScreen extends ConsumerWidget {
     final isPickingFiles = uploadData.item3;
     final hasFiles = pickedPaths.isNotEmpty;
     final isBusy = isSubmitting || isPickingFiles;
+    final productsPaging = ref.watch(
+      prescriptionProductsNotifierProvider.select(
+        (s) => Tuple2(s.hasMore, s.isLoadingMore),
+      ),
+    );
 
     return CommonScaffold(
       appBar: CommonAppBar(
@@ -56,42 +63,56 @@ class PrescriptionUploadScreen extends ConsumerWidget {
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    Strings.prescriptionReviewNote,
-                    style: FontPalette.base400(14, color: colors.secondaryText),
-                  ),
-                  16.verticalSpace,
-                  if (!hasFiles)
-                    PrescriptionUploadArea(
-                      onTap: () => PrescriptionSourceSheet.show(context, ref),
+            child: PaginationScrollListener(
+              hasMore: productsPaging.item1,
+              isLoadingMore: productsPaging.item2,
+              onLoadMore: () => ref
+                  .read(prescriptionProductsNotifierProvider.notifier)
+                  .loadMore(),
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      Strings.prescriptionReviewNote,
+                      style: FontPalette.base400(
+                        14,
+                        color: colors.secondaryText,
+                      ),
                     ),
-                  const PrescriptionFileGrid(),
-                  24.verticalSpace,
-                  Text(
-                    Strings.prescriptionDescription,
-                    style: FontPalette.base600(14, color: colors.primaryText),
-                  ),
-                  8.verticalSpace,
-                  CommonTextFormField(
-                    controller: notifier.notesController,
-                    hintText: Strings.prescriptionDescriptionHint,
-                    maxLines: 4,
-                    minLines: 4,
-                    borderRadius: 16,
-                  ),
-                  const PrescriptionSelectedProductsList(),
-                  24.verticalSpace,
-                  const PrescriptionProductsSection(),
-                  if (isBusy) ...[
+                    16.verticalSpace,
+                    if (!hasFiles)
+                      PrescriptionUploadArea(
+                        onTap: () =>
+                            PrescriptionSourceSheet.show(context, ref),
+                      ),
+                    const PrescriptionFileGrid(),
                     24.verticalSpace,
-                    const Center(child: CommonLoader()),
+                    Text(
+                      Strings.prescriptionDescription,
+                      style: FontPalette.base600(
+                        14,
+                        color: colors.primaryText,
+                      ),
+                    ),
+                    8.verticalSpace,
+                    CommonTextFormField(
+                      controller: notifier.notesController,
+                      hintText: Strings.prescriptionDescriptionHint,
+                      maxLines: 4,
+                      minLines: 4,
+                      borderRadius: 16,
+                    ),
+                    const PrescriptionSelectedProductsList(),
+                    24.verticalSpace,
+                    const PrescriptionProductsSection(),
+                    if (isBusy) ...[
+                      24.verticalSpace,
+                      const Center(child: CommonLoader()),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),

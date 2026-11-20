@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/utils/common_widgets/common_floating_circle_button.dart';
+import 'package:medpik/utils/helpers/haptic_helper.dart';
 
 class CommonBackButton extends StatelessWidget {
   const CommonBackButton({
@@ -21,7 +22,10 @@ class CommonBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonFloatingCircleButton(
-      onTap: onTap ?? () => Navigator.of(context).maybePop(),
+      onTap: () {
+        AppHaptics.selection();
+        (onTap ?? () => Navigator.of(context).maybePop())();
+      },
       size: size,
       margin: margin,
       overlayStyle: overlayStyle,

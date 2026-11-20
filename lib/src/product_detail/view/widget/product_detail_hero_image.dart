@@ -12,12 +12,15 @@ class ProductDetailHeroImage extends StatelessWidget {
     required this.pageController,
     required this.activeIndex,
     required this.onPageChanged,
+    this.dotsBottomInset,
   });
 
   final List<String> imageUrls;
   final PageController pageController;
   final int activeIndex;
   final ValueChanged<int> onPageChanged;
+  /// Keeps gallery dots above the overlapping white sheet.
+  final double? dotsBottomInset;
 
   static double heightFor(BuildContext context) =>
       context.screenHeight * 0.42;
@@ -37,6 +40,11 @@ class ProductDetailHeroImage extends StatelessWidget {
           PageView.builder(
             controller: pageController,
             itemCount: urls.length,
+            physics: urls.length > 1
+                ? const PageScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  )
+                : const NeverScrollableScrollPhysics(),
             onPageChanged: onPageChanged,
             itemBuilder: (context, index) {
               return Stack(
@@ -72,7 +80,7 @@ class ProductDetailHeroImage extends StatelessWidget {
             Positioned(
               left: 0,
               right: 0,
-              bottom: 40.h,
+              bottom: dotsBottomInset ?? 40.h,
               child: _GalleryDots(
                 count: urls.length,
                 activeIndex: activeIndex.clamp(0, urls.length - 1),

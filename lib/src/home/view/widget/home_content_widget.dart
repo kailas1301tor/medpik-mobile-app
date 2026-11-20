@@ -4,6 +4,7 @@ import 'package:medpik/data/models/product_catalog_args.dart';
 import 'package:medpik/src/home/model/home_model.dart';
 import 'package:medpik/src/home/view/widget/home_compact_header_scope.dart';
 import 'package:medpik/src/home/view/widget/home_feed_slivers.dart';
+import 'package:medpik/src/home/view/widget/home_floating_search_bar.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
 
 class HomeContentWidget extends StatelessWidget {
@@ -43,7 +44,6 @@ class HomeContentWidget extends StatelessWidget {
             topInset: topInset,
             data: data,
             isLoading: isLoading,
-            onSearchTap: onSearchTap,
           ),
         ),
         // Compact overlay only after load — avoids a second header while
@@ -56,9 +56,13 @@ class HomeContentWidget extends StatelessWidget {
             child: HomeCompactHeaderScope(
               topInset: topInset,
               deliveryHint: data?.deliveryHint ?? '',
-              onSearchTap: onSearchTap,
             ),
           ),
+        // Search crossfades banner ↔ compact (no mid-banner slide).
+        HomeFloatingSearchBar(
+          topInset: topInset,
+          onSearchTap: onSearchTap,
+        ),
       ],
     );
   }

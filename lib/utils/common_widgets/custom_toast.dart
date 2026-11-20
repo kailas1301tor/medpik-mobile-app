@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medpik/utils/helpers/haptic_helper.dart';
 import 'package:toastification/toastification.dart';
 
 import 'custom_toast_widget.dart';
@@ -12,6 +13,12 @@ void showCustomToast({
   bool? increaseBottomPadding,
 }) {
   toastification.dismissAll();
+
+  if (isSuccess == true) {
+    AppHaptics.success();
+  } else if (isSuccess == false) {
+    AppHaptics.error();
+  }
 
   toastification.showCustom(
     autoCloseDuration: duration ?? const Duration(seconds: 3),

@@ -19,18 +19,32 @@ class OrderTileGlassCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final radius = BorderRadius.circular(16.r);
+    final radius = BorderRadius.circular(24.r);
     final surface = isDark
         ? colors.cardBackground.withValues(alpha: 0.9)
         : ColorPalette.glassSurface;
     final borderColor = isDark
-        ? colors.cardBorder.withValues(alpha: 0.45)
-        : ColorPalette.prescriptionGlassBorder;
+        ? colors.cardBorder.withValues(alpha: 0.5)
+        : colors.cardBorder.withValues(alpha: 0.9);
 
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: radius,
-        boxShadow: ColorPalette.productCardShadow,
+        boxShadow: isDark
+            ? ColorPalette.orderTileShadow
+            : [
+                BoxShadow(
+                  color: ColorPalette.black.withValues(alpha: 0.08),
+                  blurRadius: 18,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 6),
+                ),
+                BoxShadow(
+                  color: ColorPalette.black.withValues(alpha: 0.04),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: ClipRRect(
         borderRadius: radius,
@@ -46,7 +60,7 @@ class OrderTileGlassCard extends StatelessWidget {
                   borderRadius: radius,
                 ),
                 child: Padding(
-                  padding: EdgeInsets.all(12.r),
+                  padding: EdgeInsets.all(14.r),
                   child: child,
                 ),
               ),

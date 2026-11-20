@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/services/connectivity_service.dart';
 
 /// A single, app-root-level widget that observes connectivity changes
@@ -51,17 +53,16 @@ class _ConnectivityObserverState extends ConsumerState<ConnectivityObserver> {
     final messenger = ScaffoldMessenger.maybeOf(context);
     if (messenger == null) return;
 
-    // Clear existing connectivity snackbars before showing a new one
     messenger.clearSnackBars();
 
     messenger.showSnackBar(
       SnackBar(
         content: Text(
-          isOnline
-              ? 'Back online!'
-              : "You're offline. Some features may not work.",
+          isOnline ? Strings.backOnline : Strings.offlineSnackbar,
         ),
-        backgroundColor: isOnline ? Colors.green : Colors.redAccent,
+        backgroundColor: isOnline
+            ? ColorPalette.successColor
+            : ColorPalette.formValidationErrorColor,
         behavior: SnackBarBehavior.floating,
         duration: Duration(seconds: isOnline ? 2 : 3),
       ),

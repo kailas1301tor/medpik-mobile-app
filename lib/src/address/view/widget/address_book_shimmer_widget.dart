@@ -24,40 +24,72 @@ class AddressBookShimmerWidget extends StatelessWidget {
         return CommonContainer(
           margin: EdgeInsets.only(bottom: 12.h),
           padding: EdgeInsets.all(16.r),
-          borderRadius: 16.r,
+          borderRadius: 20.r,
           color: colors.surface,
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CommonShimmerBox(
-                height: 22.r,
-                width: 22.r,
-                borderRadius: 11.r,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CommonShimmerBox(
+                    height: 40.r,
+                    width: 40.r,
+                    borderRadius: 12.r,
+                  ),
+                  12.horizontalSpace,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CommonShimmerBox(
+                          height: 16.h,
+                          width: 100.w,
+                          borderRadius: 6.r,
+                        ),
+                        8.verticalSpace,
+                        CommonShimmerBox(
+                          height: 12.h,
+                          width: double.infinity,
+                          borderRadius: 6.r,
+                        ),
+                        6.verticalSpace,
+                        CommonShimmerBox(
+                          height: 12.h,
+                          width: 180.w,
+                          borderRadius: 6.r,
+                        ),
+                      ],
+                    ),
+                  ),
+                  CommonShimmerBox(
+                    height: 40.r,
+                    width: 40.r,
+                    borderRadius: 12.r,
+                  ),
+                  8.horizontalSpace,
+                  CommonShimmerBox(
+                    height: 40.r,
+                    width: 40.r,
+                    borderRadius: 12.r,
+                  ),
+                ],
               ),
-              12.horizontalSpace,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CommonShimmerBox(
-                      height: 16.h,
-                      width: 120.w,
-                      borderRadius: 6.r,
-                    ),
-                    8.verticalSpace,
-                    CommonShimmerBox(
-                      height: 12.h,
-                      width: double.infinity,
-                      borderRadius: 6.r,
-                    ),
-                    6.verticalSpace,
-                    CommonShimmerBox(
-                      height: 12.h,
-                      width: 180.w,
-                      borderRadius: 6.r,
-                    ),
-                  ],
-                ),
+              14.verticalSpace,
+              Row(
+                children: [
+                  CommonShimmerBox(
+                    height: 32.r,
+                    width: 32.r,
+                    borderRadius: 12.r,
+                  ),
+                  10.horizontalSpace,
+                  CommonShimmerBox(
+                    height: 14.h,
+                    width: 120.w,
+                    borderRadius: 6.r,
+                  ),
+                ],
               ),
             ],
           ),

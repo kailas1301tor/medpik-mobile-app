@@ -15,14 +15,21 @@ class HomeHeaderIconButton extends StatelessWidget {
     required this.iconAsset,
     required this.onTap,
     required this.iconColor,
+    this.badgeCount = 0,
   });
 
   final String iconAsset;
   final VoidCallback onTap;
   final Color iconColor;
 
+  /// When > 0, shows a count badge on the top-right of the icon.
+  final int badgeCount;
+
   @override
   Widget build(BuildContext context) {
+    final showBadge = badgeCount > 0;
+    final badgeLabel = badgeCount > 99 ? '99+' : '$badgeCount';
+
     return Material(
       color: ColorPalette.transparent,
       child: InkWell(
@@ -35,13 +42,46 @@ class HomeHeaderIconButton extends StatelessWidget {
             color: ColorPalette.white.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
-          child: Center(
-            child: SvgPicture.asset(
-              iconAsset,
-              width: 24.w,
-              height: 24.w,
-              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-            ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Center(
+                child: SvgPicture.asset(
+                  iconAsset,
+                  width: 24.w,
+                  height: 24.w,
+                  colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                ),
+              ),
+              if (showBadge)
+                Positioned(
+                  top: 4.h,
+                  right: 2.w,
+                  child: Container(
+                    constraints: BoxConstraints(minWidth: 16.r),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 4.w,
+                      vertical: 1.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: ColorPalette.fE53B40,
+                      borderRadius: BorderRadius.circular(999.r),
+                      border: Border.all(
+                        color: ColorPalette.white,
+                        width: 1.2,
+                      ),
+                    ),
+                    child: Text(
+                      badgeLabel,
+                      textAlign: TextAlign.center,
+                      style: FontPalette.base700(
+                        9,
+                        color: ColorPalette.white,
+                      ).copyWith(height: 1.1),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),

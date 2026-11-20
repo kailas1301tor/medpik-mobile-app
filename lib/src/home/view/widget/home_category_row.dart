@@ -14,27 +14,53 @@ class HomeCategoryRow extends StatelessWidget {
     required this.onCategoryTap,
   });
 
+  /// Home grid shows complete rows of this many items (4 / 8 / 12…).
+  static const int crossAxisCount = 4;
+
   final List<CategoryModel> categories;
   final ValueChanged<CategoryModel> onCategoryTap;
 
+  /// Largest multiple of [crossAxisCount] that fits; if fewer than one row,
+  /// show whatever is available.
+  static List<CategoryModel> visibleCategories(List<CategoryModel> all) {
+    if (all.isEmpty) return const [];
+    if (all.length < crossAxisCount) return all;
+    final visibleCount = (all.length ~/ crossAxisCount) * crossAxisCount;
+    return all.take(visibleCount).toList(growable: false);
+  }
+
+  static bool hasHiddenCategories(List<CategoryModel> all) =>
+      all.length > visibleCategories(all).length;
+
   @override
   Widget build(BuildContext context) {
-    if (categories.isEmpty) return const SizedBox.shrink();
+    final visible = visibleCategories(categories);
+    if (visible.isEmpty) return const SizedBox.shrink();
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (var i = 0; i < categories.length; i++) ...[
-            if (i > 0) 16.horizontalSpace,
-            _CategoryTile(
-              category: categories[i],
-              onTap: () => onCategoryTap(categories[i]),
-            ),
-          ],
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final gap = 8.w;
+          final itemWidth =
+              (constraints.maxWidth - gap * (crossAxisCount - 1)) /
+                  crossAxisCount;
+
+          return Wrap(
+            spacing: gap,
+            runSpacing: 12.h,
+            children: [
+              for (final category in visible)
+                SizedBox(
+                  width: itemWidth,
+                  child: _CategoryTile(
+                    category: category,
+                    onTap: () => onCategoryTap(category),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -60,42 +86,37 @@ class _CategoryTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
-        width: 72.w,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: colors.inputBackground,
-                border: Border.all(color: colors.cardBorder),
-                boxShadow: ColorPalette.productCardShadow,
-              ),
-              child: ClipOval(
-                child: CommonCachedNetworkImage(
-                  imageUrl: category.imageUrl,
-                  width: tileSize,
-                  height: tileSize,
-                  borderRadius: tileSize / 2,
-                  fit: BoxFit.cover,
-                  errorWidget: categoryPlaceholder,
-                ),
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ClipOval(
+            child: ColoredBox(
+              // Match page background so soft PNG edges don't read as a grey ring.
+              color: colors.background,
+              child: CommonCachedNetworkImage(
+                imageUrl: category.imageUrl,
+                width: tileSize,
+                height: tileSize,
+                borderRadius: tileSize / 2,
+                fit: BoxFit.cover,
+                showBorder: false,
+                errorWidget: categoryPlaceholder,
               ),
             ),
-            6.verticalSpace,
-            Text(
-              category.name,
-              style: FontPalette.base500(
-                11,
-                color: colors.primaryText,
-              ).copyWith(height: 1.2),
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
+          ),
+          6.verticalSpace,
+          Text(
+            category.name,
+            style: FontPalette.base500(
+              11,
+              color: colors.primaryText,
+            ).copyWith(height: 1.2),
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

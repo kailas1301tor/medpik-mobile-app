@@ -27,10 +27,29 @@ class AppConstants {
   );
 
   /// OneSignal App ID from dashboard Settings > Keys & IDs.
-  /// Override at build time: `--dart-define=ONESIGNAL_APP_ID=...`
+  /// Required at build time: `--dart-define=ONESIGNAL_APP_ID=...`
+  /// Empty default fails closed (push init skipped).
   static const String oneSignalAppId = String.fromEnvironment(
     'ONESIGNAL_APP_ID',
-    defaultValue: 'bc15686a-2431-4099-8916-1f2c0ff361ac',
+    defaultValue: '',
+  );
+
+  /// Minimum supported app version (`x.y.z`). Empty = no force-update gate.
+  /// Override: `--dart-define=MIN_APP_VERSION=1.0.0`
+  static const String minAppVersion = String.fromEnvironment(
+    'MIN_APP_VERSION',
+    defaultValue: '',
+  );
+
+  static const String androidStoreUrl = String.fromEnvironment(
+    'ANDROID_STORE_URL',
+    defaultValue:
+        'https://play.google.com/store/apps/details?id=com.medpik',
+  );
+
+  static const String iosStoreUrl = String.fromEnvironment(
+    'IOS_STORE_URL',
+    defaultValue: 'https://apps.apple.com/app/id0000000000',
   );
 
   static String api = '/api';
@@ -46,6 +65,8 @@ class AppConstants {
   static String requestOtp = '$authPrefix/request-otp';
   static String verifyOtp = '$authPrefix/verify-otp';
   static String deleteAccount = '$authPrefix/delete-account';
+  /// POST body: `{ "refresh": "<refresh_token>" }` → access (+ optional refresh).
+  static String refreshAccessToken = '$authPrefix/token/refresh';
   static String resendOtp = requestOtp;
 
   // Catalog endpoints

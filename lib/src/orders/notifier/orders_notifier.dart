@@ -1,4 +1,6 @@
 // lib/src/orders/notifier/orders_notifier.dart
+import 'dart:async';
+
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,8 +8,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/data/models/order_model.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/analytics_service.dart';
 import 'package:medpik/services/razorpay_payment_service.dart';
 import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/data/remote/network_base_services.dart';
+import 'package:medpik/src/orders/helper/pending_payment_store.dart';
 import 'package:medpik/src/orders/model/order_payment_outcome.dart';
 import 'package:medpik/src/orders/repo/orders_repository.dart';
 import 'package:medpik/src/orders/state/orders_state.dart';
@@ -23,6 +28,8 @@ part 'orders_notifier.g.dart';
 class OrdersNotifier extends _$OrdersNotifier {
   late OrdersRepo ordersRepo;
   late final TextEditingController rejectReasonController;
+
+  static const int _verifyMaxAttempts = 3;
 
   @override
   OrdersState build() {
@@ -42,9 +49,10 @@ class OrdersNotifier extends _$OrdersNotifier {
         .getOrders()
         .fold(
           (error) {
-            final loaderState = handleResponseError(error.key);
             debugPrint("🔴 ORDERS ERROR: ${error.message}");
-            state = state.copyWith(loaderState: loaderState);
+            state = state.copyWith(
+              loaderState: loaderStateForSessionAwareError(error.key),
+            );
           },
           (response) {
             final orders = List<OrderModel>.from(response.orders)
@@ -79,9 +87,10 @@ class OrdersNotifier extends _$OrdersNotifier {
         .getOrderById(trimmedId)
         .fold(
           (error) {
-            final loaderState = handleResponseError(error.key);
             debugPrint("🔴 ORDER DETAIL ERROR: ${error.message}");
-            state = state.copyWith(detailLoaderState: loaderState);
+            state = state.copyWith(
+              detailLoaderState: loaderStateForSessionAwareError(error.key),
+            );
           },
           (response) {
             final order = response.order;
@@ -126,9 +135,10 @@ class OrdersNotifier extends _$OrdersNotifier {
           (error) {
             debugPrint("🔴 BILL ACCEPT ERROR: ${error.message}");
             showCustomErrorToast(
-              message: (error.message ?? '').isNotEmpty
-                  ? error.message!
-                  : Strings.billActionFailed,
+              message: resolveApiErrorMessage(
+                error: error,
+                fallback: Strings.billActionFailed,
+              ),
             );
           },
           (response) async {
@@ -175,9 +185,10 @@ class OrdersNotifier extends _$OrdersNotifier {
           (error) {
             debugPrint("🔴 BILL REJECT ERROR: ${error.message}");
             showCustomErrorToast(
-              message: (error.message ?? '').isNotEmpty
-                  ? error.message!
-                  : Strings.billActionFailed,
+              message: resolveApiErrorMessage(
+                error: error,
+                fallback: Strings.billActionFailed,
+              ),
             );
           },
           (response) async {
@@ -204,28 +215,92 @@ class OrdersNotifier extends _$OrdersNotifier {
   Future<OrderPaymentResult> payOrder({required String orderId}) async {
     debugPrint('🔵 ACTION: payOrder called orderId=$orderId');
 
+    if (state.isPaymentLoading) {
+      return const OrderPaymentResult(
+        outcome: OrderPaymentOutcome.failure,
+        message: Strings.paymentAlreadyInProgress,
+      );
+    }
+
     final parsedOrderId = convertToInt(orderId);
     if (parsedOrderId <= 0) {
-      return const OrderPaymentResult(outcome: OrderPaymentOutcome.failure);
+      return const OrderPaymentResult(
+        outcome: OrderPaymentOutcome.failure,
+        message: Strings.paymentFailed,
+      );
     }
 
     state = state.copyWith(isPaymentLoading: true);
 
-    final result =
-        state.selectedPaymentMethod == OrderPaymentMethod.cashOnDelivery
-        ? await _submitCodPayment(
-            orderId: orderId,
-            parsedOrderId: parsedOrderId,
-          )
-        : await _payOnline(orderId: orderId, parsedOrderId: parsedOrderId);
+    try {
+      if (state.selectedPaymentMethod == OrderPaymentMethod.cashOnDelivery) {
+        return await _submitCodPayment(
+          orderId: orderId,
+          parsedOrderId: parsedOrderId,
+        );
+      }
+      return await _payOnline(
+        orderId: orderId,
+        parsedOrderId: parsedOrderId,
+      );
+    } catch (error, stack) {
+      debugPrint('🔴 UNEXPECTED PAY ORDER ERROR: $error');
+      debugPrint('$stack');
+      return const OrderPaymentResult(
+        outcome: OrderPaymentOutcome.failure,
+        message: Strings.paymentFailed,
+      );
+    } finally {
+      state = state.copyWith(isPaymentLoading: false);
+    }
+  }
 
-    state = state.copyWith(isPaymentLoading: false);
-    return result;
+  /// Call on app launch to finish a payment interrupted by kill/background.
+  Future<OrderPaymentResult?> resumePendingPaymentIfAny() async {
+    final pending = await PendingPaymentStore.read();
+    if (pending == null) return null;
+
+    if (!pending.canResumeVerify) {
+      showCustomErrorToast(message: Strings.paymentPendingIncompletePrompt);
+      return const OrderPaymentResult(
+        outcome: OrderPaymentOutcome.failure,
+        message: Strings.paymentPendingIncompletePrompt,
+      );
+    }
+
+    if (state.isPaymentLoading) {
+      return const OrderPaymentResult(
+        outcome: OrderPaymentOutcome.failure,
+        message: Strings.paymentAlreadyInProgress,
+      );
+    }
+
+    showCustomToast(message: Strings.paymentPendingResumePrompt);
+    state = state.copyWith(isPaymentLoading: true);
+    try {
+      return await _submitRazorpaySuccess(
+        orderId: pending.orderId,
+        parsedOrderId: pending.parsedOrderId,
+        razorpayOrderId: pending.razorpayOrderId,
+        razorpayPaymentId: pending.razorpayPaymentId,
+        razorpaySignature: pending.razorpaySignature,
+      );
+    } finally {
+      state = state.copyWith(isPaymentLoading: false);
+    }
   }
 
   Future<void> _refreshOrderData(String orderId) async {
     await fetchOrders();
     await loadOrderDetail(orderId);
+  }
+
+  bool _isRetryableNetworkError(ApiErrorTypes key) {
+    return key == ApiErrorTypes.noInternet ||
+        key == ApiErrorTypes.connectionError ||
+        key == ApiErrorTypes.connectionTimeout ||
+        key == ApiErrorTypes.sendTimeout ||
+        key == ApiErrorTypes.receiveTimeout;
   }
 
   Future<OrderPaymentResult> _submitCodPayment({
@@ -240,22 +315,29 @@ class OrdersNotifier extends _$OrdersNotifier {
             await _refreshOrderData(orderId);
             return OrderPaymentResult(
               outcome: OrderPaymentOutcome.failure,
-              message: (error.message ?? '').isNotEmpty
-                  ? error.message!
-                  : Strings.paymentFailed,
+              message: resolveApiErrorMessage(
+                error: error,
+                fallback: Strings.paymentFailed,
+              ),
             );
           },
           (response) async {
             debugPrint('🟢 COD PAYMENT SUCCESS: ${response.message}');
+            await PendingPaymentStore.clear();
             await _refreshOrderData(orderId);
             return const OrderPaymentResult(
               outcome: OrderPaymentOutcome.success,
+              isCashOnDelivery: true,
             );
           },
         )
-        .catchError((error) {
+        .catchError((error) async {
           debugPrint('🔴 UNEXPECTED COD PAYMENT ERROR: $error');
-          return const OrderPaymentResult(outcome: OrderPaymentOutcome.failure);
+          await _refreshOrderData(orderId);
+          return const OrderPaymentResult(
+            outcome: OrderPaymentOutcome.failure,
+            message: Strings.paymentFailed,
+          );
         });
   }
 
@@ -282,10 +364,13 @@ class OrdersNotifier extends _$OrdersNotifier {
     }
 
     final checkoutData = initResult.checkoutData;
+    final razorpayKey = checkoutData?.razorpayKey.trim() ?? '';
+    final razorpayOrderId = checkoutData?.razorpayOrderId.trim() ?? '';
+    final amount = checkoutData?.amount ?? 0;
     if (checkoutData == null ||
-        checkoutData.razorpayKey.trim().isEmpty ||
-        checkoutData.razorpayOrderId.trim().isEmpty ||
-        checkoutData.amount <= 0) {
+        razorpayKey.isEmpty ||
+        razorpayOrderId.isEmpty ||
+        amount <= 0) {
       debugPrint('🔴 INIT PAYMENT ERROR: invalid checkout data');
       return const OrderPaymentResult(
         outcome: OrderPaymentOutcome.failure,
@@ -293,26 +378,56 @@ class OrdersNotifier extends _$OrdersNotifier {
       );
     }
 
-    final razorpayService = ref.read(razorpayPaymentServiceProvider);
-    final checkoutResult = await razorpayService.openCheckout(
-      buildRazorpayCheckoutOptions(checkoutData),
+    await PendingPaymentStore.save(
+      PendingPaymentSnapshot(
+        orderId: orderId,
+        parsedOrderId: parsedOrderId,
+        razorpayOrderId: razorpayOrderId,
+      ),
     );
+
+    final razorpayService = ref.read(razorpayPaymentServiceProvider);
+    final RazorpayCheckoutResult checkoutResult;
+    try {
+      checkoutResult = await razorpayService.openCheckout(
+        buildRazorpayCheckoutOptions(checkoutData),
+      );
+    } catch (error, stack) {
+      debugPrint('🔴 UNEXPECTED RAZORPAY SDK ERROR: $error');
+      debugPrint('$stack');
+      await _reportRazorpayFailure(
+        parsedOrderId: parsedOrderId,
+        razorpayOrderId: razorpayOrderId,
+        paymentResponseData: {
+          'description': error.toString().trim().isNotEmpty
+              ? error.toString()
+              : Strings.paymentFailed,
+        },
+      );
+      await PendingPaymentStore.clear();
+      await _refreshOrderData(orderId);
+      return const OrderPaymentResult(
+        outcome: OrderPaymentOutcome.failure,
+        message: Strings.paymentFailed,
+      );
+    }
 
     if (checkoutResult.isCancelled) {
       debugPrint('🟡 PAYMENT CANCELLED');
       await _reportRazorpayFailure(
         parsedOrderId: parsedOrderId,
-        razorpayOrderId: checkoutData.razorpayOrderId,
+        razorpayOrderId: razorpayOrderId,
         paymentResponseData: {
-          'description': checkoutResult.message.isNotEmpty
+          'description': checkoutResult.message.trim().isNotEmpty
               ? checkoutResult.message
               : Strings.paymentCancelled,
         },
       );
+      await PendingPaymentStore.clear();
       await _refreshOrderData(orderId);
       return OrderPaymentResult(
         outcome: OrderPaymentOutcome.cancelled,
-        message: checkoutResult.message.isNotEmpty
+        message: checkoutResult.message.trim().isNotEmpty
             ? checkoutResult.message
             : Strings.paymentCancelled,
       );
@@ -322,13 +437,14 @@ class OrdersNotifier extends _$OrdersNotifier {
       debugPrint('🔴 PAYMENT CHECKOUT ERROR: ${checkoutResult.message}');
       await _reportRazorpayFailure(
         parsedOrderId: parsedOrderId,
-        razorpayOrderId: checkoutData.razorpayOrderId,
+        razorpayOrderId: razorpayOrderId,
         paymentResponseData: {
-          'description': checkoutResult.message.isNotEmpty
+          'description': checkoutResult.message.trim().isNotEmpty
               ? checkoutResult.message
               : Strings.paymentFailed,
         },
       );
+      await PendingPaymentStore.clear();
       await _refreshOrderData(orderId);
       return OrderPaymentResult(
         outcome: OrderPaymentOutcome.failure,
@@ -338,20 +454,40 @@ class OrdersNotifier extends _$OrdersNotifier {
       );
     }
 
+    final paymentId = checkoutResult.paymentId.trim();
+    final signature = checkoutResult.signature.trim();
+    final successOrderId = checkoutResult.orderId.trim().isNotEmpty
+        ? checkoutResult.orderId.trim()
+        : razorpayOrderId;
+
+    if (paymentId.isEmpty || signature.isEmpty) {
+      await _reportRazorpayFailure(
+        parsedOrderId: parsedOrderId,
+        razorpayOrderId: successOrderId,
+        paymentResponseData: const {'description': 'Missing payment fields'},
+      );
+      await PendingPaymentStore.clear();
+      await _refreshOrderData(orderId);
+      return const OrderPaymentResult(
+        outcome: OrderPaymentOutcome.failure,
+        message: Strings.paymentFailed,
+      );
+    }
+
     return await _submitRazorpaySuccess(
       orderId: orderId,
       parsedOrderId: parsedOrderId,
-      razorpayOrderId: checkoutResult.orderId.isNotEmpty
-          ? checkoutResult.orderId
-          : checkoutData.razorpayOrderId,
-      razorpayPaymentId: checkoutResult.paymentId,
-      razorpaySignature: checkoutResult.signature,
+      razorpayOrderId: successOrderId,
+      razorpayPaymentId: paymentId,
+      razorpaySignature: signature,
     );
   }
 
   Future<void> _reportRazorpayFailure({
     required int parsedOrderId,
     required String razorpayOrderId,
+    String razorpayPaymentId = '',
+    String razorpaySignature = '',
     Map<String, dynamic> paymentResponseData = const {},
   }) async {
     await ordersRepo
@@ -359,6 +495,8 @@ class OrdersNotifier extends _$OrdersNotifier {
           body: buildRazorpayFailedPaymentBody(
             orderId: parsedOrderId,
             razorpayOrderId: razorpayOrderId,
+            razorpayPaymentId: razorpayPaymentId,
+            razorpaySignature: razorpaySignature,
             paymentResponseData: paymentResponseData,
           ),
         )
@@ -382,38 +520,97 @@ class OrdersNotifier extends _$OrdersNotifier {
     required String razorpayPaymentId,
     required String razorpaySignature,
   }) async {
-    return await ordersRepo
-        .submitPayment(
+    await PendingPaymentStore.save(
+      PendingPaymentSnapshot(
+        orderId: orderId,
+        parsedOrderId: parsedOrderId,
+        razorpayOrderId: razorpayOrderId,
+        razorpayPaymentId: razorpayPaymentId,
+        razorpaySignature: razorpaySignature,
+      ),
+    );
+
+    ResponseError? lastError;
+
+    for (var attempt = 1; attempt <= _verifyMaxAttempts; attempt++) {
+      try {
+        final either = await ordersRepo.submitPayment(
           body: buildRazorpaySuccessPaymentBody(
             orderId: parsedOrderId,
             razorpayOrderId: razorpayOrderId,
             razorpayPaymentId: razorpayPaymentId,
             razorpaySignature: razorpaySignature,
           ),
-        )
-        .fold(
+        );
+
+        final success = await either.fold(
           (error) async {
-            debugPrint('🔴 SUBMIT PAYMENT ERROR: ${error.message}');
-            await _refreshOrderData(orderId);
-            return OrderPaymentResult(
-              outcome: OrderPaymentOutcome.failure,
-              message: (error.message ?? '').isNotEmpty
-                  ? error.message!
-                  : Strings.paymentFailed,
+            lastError = error;
+            debugPrint(
+              '🔴 SUBMIT PAYMENT ERROR (attempt $attempt): ${error.message}',
             );
+            return false;
           },
           (response) async {
             debugPrint('🟢 SUBMIT PAYMENT SUCCESS: ${response.message}');
-            await _refreshOrderData(orderId);
-            return const OrderPaymentResult(
-              outcome: OrderPaymentOutcome.success,
-            );
+            return true;
           },
-        )
-        .catchError((error) {
-          debugPrint('🔴 UNEXPECTED SUBMIT PAYMENT ERROR: $error');
-          return const OrderPaymentResult(outcome: OrderPaymentOutcome.failure);
-        });
+        );
+
+        if (success) {
+          await PendingPaymentStore.clear();
+          await _refreshOrderData(orderId);
+          if (razorpaySignature.trim().isNotEmpty) {
+            unawaited(
+              AnalyticsService.instance.logPaymentResult(outcome: 'success'),
+            );
+          }
+          return const OrderPaymentResult(
+            outcome: OrderPaymentOutcome.success,
+          );
+        }
+
+        final error = lastError;
+        final canRetry =
+            error != null &&
+            _isRetryableNetworkError(error.key) &&
+            attempt < _verifyMaxAttempts;
+        if (!canRetry) break;
+
+        final delayMs = 500 * (1 << (attempt - 1));
+        await Future<void>.delayed(Duration(milliseconds: delayMs));
+      } catch (error, stack) {
+        debugPrint('🔴 UNEXPECTED SUBMIT PAYMENT ERROR: $error');
+        debugPrint('$stack');
+        lastError = null;
+        if (attempt >= _verifyMaxAttempts) break;
+        final delayMs = 500 * (1 << (attempt - 1));
+        await Future<void>.delayed(Duration(milliseconds: delayMs));
+      }
+    }
+
+    final failedError = lastError;
+    await _reportRazorpayFailure(
+      parsedOrderId: parsedOrderId,
+      razorpayOrderId: razorpayOrderId,
+      razorpayPaymentId: razorpayPaymentId,
+      razorpaySignature: razorpaySignature,
+      paymentResponseData: {
+        'description': failedError == null
+            ? Strings.paymentMayHaveGoneThrough
+            : resolveApiErrorMessage(
+                error: failedError,
+                fallback: Strings.paymentMayHaveGoneThrough,
+              ),
+      },
+    );
+    // Keep pending so the next launch can retry verify (backend should be
+    // idempotent). User is warned that payment may already have gone through.
+    await _refreshOrderData(orderId);
+    return const OrderPaymentResult(
+      outcome: OrderPaymentOutcome.failure,
+      message: Strings.paymentMayHaveGoneThrough,
+    );
   }
 }
 

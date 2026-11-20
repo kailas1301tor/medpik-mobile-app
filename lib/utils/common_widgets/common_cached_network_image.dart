@@ -23,6 +23,7 @@ class CommonCachedNetworkImage extends StatelessWidget {
     this.memCacheWidth,
     this.memCacheHeight,
     this.memCacheMax = 300,
+    this.showBorder = true,
   });
 
   final String? imageUrl;
@@ -35,6 +36,7 @@ class CommonCachedNetworkImage extends StatelessWidget {
   final int? memCacheWidth;
   final int? memCacheHeight;
   final int memCacheMax;
+  final bool showBorder;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +75,32 @@ class CommonCachedNetworkImage extends StatelessWidget {
     final effectiveMemCacheWidth = memCacheWidth ?? resolvedMemCache.width;
     final effectiveMemCacheHeight = memCacheHeight ?? resolvedMemCache.height;
 
+    final image = SizedBox(
+      width: width,
+      height: height,
+      child: CachedNetworkImage(
+        imageUrl: normalizedUrl,
+        cacheKey: cacheKey,
+        cacheManager: AppImageCacheManager.instance,
+        width: width,
+        height: height,
+        fit: fit,
+        memCacheWidth: effectiveMemCacheWidth,
+        memCacheHeight: effectiveMemCacheHeight,
+        fadeInDuration: const Duration(milliseconds: 120),
+        fadeOutDuration: Duration.zero,
+        useOldImageOnUrlChange: true,
+        filterQuality: FilterQuality.low,
+        placeholder: (context, url) => effectivePlaceholder,
+        errorWidget: (context, url, error) => fallback,
+      ),
+    );
+
+    // Skip SmoothClipRRect when borderless — its stroke/AA can leave a hairline.
+    if (!showBorder) {
+      return RepaintBoundary(child: image);
+    }
+
     return RepaintBoundary(
       child: SmoothClipRRect(
         smoothness: 2,
@@ -81,26 +109,7 @@ class CommonCachedNetworkImage extends StatelessWidget {
           width: 1.w,
         ),
         borderRadius: BorderRadius.circular((borderRadius ?? 16).r),
-        child: SizedBox(
-          width: width,
-          height: height,
-          child: CachedNetworkImage(
-            imageUrl: normalizedUrl,
-            cacheKey: cacheKey,
-            cacheManager: AppImageCacheManager.instance,
-            width: width,
-            height: height,
-            fit: fit,
-            memCacheWidth: effectiveMemCacheWidth,
-            memCacheHeight: effectiveMemCacheHeight,
-            fadeInDuration: const Duration(milliseconds: 120),
-            fadeOutDuration: Duration.zero,
-            useOldImageOnUrlChange: true,
-            filterQuality: FilterQuality.low,
-            placeholder: (context, url) => effectivePlaceholder,
-            errorWidget: (context, url, error) => fallback,
-          ),
-        ),
+        child: image,
       ),
     );
   }

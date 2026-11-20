@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/utils/common_widgets/common_floating_circle_button.dart';
+import 'package:medpik/utils/helpers/haptic_helper.dart';
 
 /// Shared favorite control used on product cards, detail, and grids.
 ///
@@ -197,7 +198,14 @@ class _CommonWishlistButtonState extends State<CommonWishlistButton>
     final size = widget.size ?? (widget.overlayStyle ? 44.r : 30.r);
     final iconSize = widget.iconSize ?? (widget.overlayStyle ? 20.r : 16.r);
     final inactiveColor = _resolveInactiveColor(context, colors);
-    final onTap = widget.isLoading ? () {} : widget.onTap;
+    void handleTap() {
+      if (widget.isLoading) return;
+      // Overlay path gets haptic from CommonFloatingCircleButton(enableHaptic).
+      if (!widget.overlayStyle) {
+        AppHaptics.light();
+      }
+      widget.onTap();
+    }
 
     final heart = _buildHeartIcon(
       iconSize: iconSize,
@@ -206,16 +214,17 @@ class _CommonWishlistButtonState extends State<CommonWishlistButton>
 
     if (widget.overlayStyle) {
       return CommonFloatingCircleButton(
-        onTap: onTap,
+        onTap: handleTap,
         size: size,
         margin: widget.margin,
         overlayStyle: true,
+        enableHaptic: true,
         child: heart,
       );
     }
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: handleTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: size,

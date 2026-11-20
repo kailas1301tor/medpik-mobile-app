@@ -38,6 +38,7 @@ class CommonDialogBox extends StatefulWidget {
     bool? isLoading,
     String? secondaryLabel,
     VoidCallback? onSecondary,
+    bool barrierDismissible = true,
   }) {
     assert(
       (onPrimary != null && onPrimaryAsync == null) ||
@@ -47,15 +48,19 @@ class CommonDialogBox extends StatefulWidget {
 
     return showDialog<T>(
       context: context,
-      builder: (_) => CommonDialogBox(
-        title: title,
-        message: message,
-        primaryLabel: primaryLabel,
-        onPrimary: onPrimary,
-        onPrimaryAsync: onPrimaryAsync,
-        isLoading: isLoading,
-        secondaryLabel: secondaryLabel,
-        onSecondary: onSecondary,
+      barrierDismissible: barrierDismissible,
+      builder: (_) => PopScope(
+        canPop: barrierDismissible,
+        child: CommonDialogBox(
+          title: title,
+          message: message,
+          primaryLabel: primaryLabel,
+          onPrimary: onPrimary,
+          onPrimaryAsync: onPrimaryAsync,
+          isLoading: isLoading,
+          secondaryLabel: secondaryLabel,
+          onSecondary: onSecondary,
+        ),
       ),
     );
   }

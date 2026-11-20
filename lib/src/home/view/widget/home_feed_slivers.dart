@@ -2,13 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/data/models/product_catalog_args.dart';
+import 'package:medpik/data/models/product_model.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/src/home/model/home_model.dart';
 import 'package:medpik/src/home/view/widget/home_category_row.dart';
 import 'package:medpik/src/home/view/widget/home_hero_header.dart';
 import 'package:medpik/src/home/view/widget/home_offer_carousel.dart';
-import 'package:medpik/src/home/view/widget/home_popular_products_grid.dart';
 import 'package:medpik/src/home/view/widget/home_prescription_card.dart';
+import 'package:medpik/src/home/view/widget/home_product_rail.dart';
+import 'package:medpik/src/home/view/widget/home_promo_banner_carousel.dart';
 import 'package:medpik/src/home/view/widget/home_section_header.dart';
 import 'package:medpik/src/home/view/widget/home_shimmer_sections.dart';
 import 'package:medpik/utils/routes/route_constants.dart';
@@ -18,7 +20,6 @@ abstract final class HomeFeedSlivers {
     required BuildContext context,
     required double topInset,
     required HomeFeedModel? data,
-    required VoidCallback onSearchTap,
     bool isLoading = false,
   }) {
     return [
@@ -29,8 +30,8 @@ abstract final class HomeFeedSlivers {
           greeting: data?.greeting ?? '',
           userName: data?.userName ?? '',
           deliveryHint: data?.deliveryHint ?? '',
+          notificationCount: data?.inAppNotificationCount ?? 0,
           isLoading: isLoading,
-          onSearchTap: onSearchTap,
         ),
       ),
       SliverToBoxAdapter(
@@ -54,20 +55,27 @@ abstract final class HomeFeedSlivers {
       return [
         const SliverToBoxAdapter(child: HomePrescriptionCardShimmer()),
         SliverToBoxAdapter(
-          child: HomeSectionHeader(title: Strings.offersForYou),
-        ),
-        const SliverToBoxAdapter(child: HomeOfferCarouselShimmer()),
-        SliverToBoxAdapter(
           child: HomeSectionHeader(title: Strings.shopByCategory),
         ),
         const SliverToBoxAdapter(child: HomeCategoryShimmerRow()),
+        SliverToBoxAdapter(
+          child: HomeSectionHeader(title: Strings.offersForYou),
+        ),
+        const SliverToBoxAdapter(child: HomeOfferCarouselShimmer()),
         SliverToBoxAdapter(
           child: HomeSectionHeader(
             title: Strings.popularProducts,
             bottomPadding: 4.h,
           ),
         ),
-        const SliverToBoxAdapter(child: HomeProductGridShimmer()),
+        const SliverToBoxAdapter(child: HomeProductRailShimmer()),
+        SliverToBoxAdapter(
+          child: HomeSectionHeader(
+            title: Strings.vitaminsAndSupplements,
+            bottomPadding: 4.h,
+          ),
+        ),
+        const SliverToBoxAdapter(child: HomeProductRailShimmer()),
         SliverToBoxAdapter(
           child: SizedBox(
             height: 140.h + MediaQuery.viewPaddingOf(context).bottom,
@@ -76,17 +84,36 @@ abstract final class HomeFeedSlivers {
       ];
     }
 
-    final offers = data?.offers ?? const <OfferModel>[];
     final categories = data?.categories ?? const [];
+    final offers = data?.offers ?? const [];
     final products = data?.featuredProducts ?? const [];
+    final vitamins = data?.vitaminsAndSupplements ?? const [];
+    final personalCare = data?.personalCare ?? const [];
+    final babyCare = data?.babyCare ?? const [];
+    final bannerUrls = data?.bannerImageUrls ?? const [];
 
     return [
       SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
           child: HomePrescriptionCard(
+            supportPhone: data?.supportPhone ?? '',
             onUploadTap: () => _openPrescriptionUpload(context),
           ),
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: HomeSectionHeader(
+          title: Strings.shopByCategory,
+          onSeeAll: HomeCategoryRow.hasHiddenCategories(categories)
+              ? () => _openAllCategories(context)
+              : null,
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: HomeCategoryRow(
+          categories: categories,
+          onCategoryTap: (category) => _openCategory(context, category),
         ),
       ),
       if (offers.isNotEmpty) ...[
@@ -100,26 +127,37 @@ abstract final class HomeFeedSlivers {
           ),
         ),
       ],
-      SliverToBoxAdapter(
-        child: HomeSectionHeader(
-          title: Strings.shopByCategory,
-          onSeeAll: () => _openPopularProducts(context),
-        ),
+      ..._productRailSlivers(
+        context: context,
+        title: Strings.popularProducts,
+        products: products,
       ),
-      SliverToBoxAdapter(
-        child: HomeCategoryRow(
-          categories: categories,
-          onCategoryTap: (category) => _openCategory(context, category),
-        ),
+      ..._productRailSlivers(
+        context: context,
+        title: Strings.vitaminsAndSupplements,
+        products: vitamins,
       ),
-      SliverToBoxAdapter(
-        child: HomeSectionHeader(
-          title: Strings.popularProducts,
-          bottomPadding: 4.h,
-          onSeeAll: () => _openPopularProducts(context),
-        ),
+      ..._productRailSlivers(
+        context: context,
+        title: Strings.personalCare,
+        products: personalCare,
       ),
-      HomePopularProductsGrid.sliver(products: products),
+      ..._productRailSlivers(
+        context: context,
+        title: Strings.babyCare,
+        products: babyCare,
+      ),
+      if (bannerUrls.isNotEmpty) ...[
+        SliverToBoxAdapter(
+          child: HomeSectionHeader(
+            title: Strings.featuredBrands,
+            bottomPadding: 8.h,
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: HomePromoBannerCarousel(imageUrls: bannerUrls),
+        ),
+      ],
       SliverToBoxAdapter(
         child: SizedBox(
           height: 140.h + MediaQuery.viewPaddingOf(context).bottom,
@@ -128,16 +166,27 @@ abstract final class HomeFeedSlivers {
     ];
   }
 
-  static void _openPrescriptionUpload(BuildContext context) {
-    Navigator.pushNamed(context, RouteConstants.routePrescriptionUploadScreen);
+  static List<Widget> _productRailSlivers({
+    required BuildContext context,
+    required String title,
+    required List<ProductModel> products,
+  }) {
+    if (products.isEmpty) return const [];
+
+    return [
+      SliverToBoxAdapter(
+        child: HomeSectionHeader(
+          title: title,
+          bottomPadding: 4.h,
+          onSeeAll: () => _openProductCatalog(context, title: title),
+        ),
+      ),
+      SliverToBoxAdapter(child: HomeProductRail(products: products)),
+    ];
   }
 
-  static void _openOffer(BuildContext context, OfferModel offer) {
-    Navigator.pushNamed(
-      context,
-      RouteConstants.routeSearchResultsScreen,
-      arguments: ProductCatalogArgs(title: offer.title, offerId: offer.id),
-    );
+  static void _openPrescriptionUpload(BuildContext context) {
+    Navigator.pushNamed(context, RouteConstants.routePrescriptionUploadScreen);
   }
 
   static void _openCategory(BuildContext context, CategoryModel category) {
@@ -151,11 +200,33 @@ abstract final class HomeFeedSlivers {
     );
   }
 
-  static void _openPopularProducts(BuildContext context) {
+  static void _openAllCategories(BuildContext context) {
     Navigator.pushNamed(
       context,
       RouteConstants.routeSearchResultsScreen,
-      arguments: const ProductCatalogArgs(title: Strings.popularProducts),
+      arguments: const ProductCatalogArgs(title: Strings.shopByCategory),
+    );
+  }
+
+  static void _openOffer(BuildContext context, OfferModel offer) {
+    Navigator.pushNamed(
+      context,
+      RouteConstants.routeSearchResultsScreen,
+      arguments: ProductCatalogArgs(
+        title: offer.title.isNotEmpty ? offer.title : Strings.offersForYou,
+        offerId: offer.id > 0 ? offer.id : null,
+      ),
+    );
+  }
+
+  static void _openProductCatalog(
+    BuildContext context, {
+    required String title,
+  }) {
+    Navigator.pushNamed(
+      context,
+      RouteConstants.routeSearchResultsScreen,
+      arguments: ProductCatalogArgs(title: title),
     );
   }
 }

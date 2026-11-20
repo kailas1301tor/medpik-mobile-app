@@ -174,8 +174,21 @@ class Strings {
   static const String uploadPrescription = "Upload Prescription";
   static const String uploadPrescriptionDesc =
       "Order medicines with your prescription";
+  static const String orderYourMedicines = "Order Your Medicines";
   static const String uploadPrescriptionSubtitle =
-      "Get medicines home delivered";
+      "Get your medicines delivered ";
+  static const String uploadPrescriptionSubtitleEmphasis =
+      "quickly, safely and reliably.";
+  static const String callAndOrder = "Call & Order";
+  static const String callLabel = "Call";
+  static const String whatsappOrder = "WhatsApp Order";
+  static const String whatsappLabel = "WhatsApp";
+  static const String whatsappOrderPrefillMessage =
+      "Hi, I'd like to place a medicine order.";
+  static const String supportPhoneUnavailable =
+      "Support phone number is not available right now.";
+  static const String couldNotLaunchWhatsApp =
+      "Unable to open WhatsApp. Please try again.";
   static const String upload = "Upload";
   static const String uploadNow = "Upload Now";
   static const String quick = "Quick";
@@ -184,6 +197,10 @@ class Strings {
   static const String offersForYou = "Offers for you";
   static const String shopByCategory = "Shop by category";
   static const String popularProducts = "Popular products";
+  static const String featuredBrands = "Featured brands";
+  static const String vitaminsAndSupplements = "Vitamins & Supplements";
+  static const String personalCare = "Personal Care";
+  static const String babyCare = "Baby Care";
   static const String seeAll = "See all";
   static const String painRelief = "Pain Relief";
   static const String feverReducer = "Fever Reducer";
@@ -412,6 +429,14 @@ class Strings {
   static const String addressesStatLabel = "Addresses";
   static const String cartStatLabel = "Cart Items";
   static String appVersionLabel(String version) => 'Medpik v$version';
+  static const String forceUpdateTitle = "Update required";
+  static const String forceUpdateMessage =
+      "A newer version of medpik is required to continue. Please update from the store.";
+  static const String forceUpdateCta = "Update now";
+  static const String couldNotOpenStore = "Could not open the app store";
+  static const String backOnline = "Back online!";
+  static const String offlineSnackbar =
+      "You're offline. Some features may not work.";
   static const String addAddress = "Add Address";
   static const String signOut = "Sign Out";
   static const String savedAddresses = "Saved Addresses";
@@ -468,7 +493,6 @@ class Strings {
   static const String mostBoughtProducts = "Most bought products";
   static const String prescriptionProducts = "Prescription products";
   static const String searchProductsHint = "Search products to add";
-  static const String loadMore = "Load more";
   static const String addToPrescriptionRequest = "Add to prescription request";
   static const String productAlreadyAddedToPrescription =
       "This product is already added to your prescription request.";
@@ -665,6 +689,16 @@ class Strings {
   static const String paymentVerifiedSuccess = "Payment completed successfully";
   static const String paymentFailed = "Payment failed. Please try again.";
   static const String paymentCancelled = "Payment was cancelled.";
+  static const String paymentAlreadyInProgress =
+      "A payment is already in progress. Please wait.";
+  static const String paymentMayHaveGoneThrough =
+      "Payment may have gone through. Please contact support before trying again.";
+  static const String paymentPendingResumePrompt =
+      "We found an unfinished payment. Verifying it now…";
+  static const String paymentPendingIncompletePrompt =
+      "We found an unfinished payment. Please open the order and try again, or contact support.";
+  static const String paymentExternalWalletPrompt =
+      "Continue the payment in your wallet app, then return here. If it did not complete, try again.";
   static const String paymentSuccessTitle = "Payment Successful";
   static const String paymentSuccessMessage =
       "Your payment has been completed successfully.";

@@ -39,6 +39,7 @@ int getPhoneMaxLength(String countryCode) {
 }
 void configureImageCache() {
   final imageCache = PaintingBinding.instance.imageCache;
-  imageCache.maximumSize = 500;
-  imageCache.maximumSizeBytes = 200 << 20;
+  // Keep mid-device RAM in check while still caching a browse session.
+  imageCache.maximumSize = 150;
+  imageCache.maximumSizeBytes = 80 << 20; // 80 MB
 }

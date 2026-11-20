@@ -2,7 +2,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/string_constants.dart';
+import 'package:medpik/res/enums/app_environment.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/utils/common_widgets/common_app_bar.dart';
@@ -37,9 +39,19 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
     _initWebView();
   }
 
+  bool _isAllowedLegalUri(Uri uri) {
+    if (uri.scheme.toLowerCase() != 'https') return false;
+    final allowedHost =
+        Uri.tryParse(AppConstants.environment.webBaseUrl)?.host.toLowerCase() ??
+        '';
+    if (allowedHost.isEmpty) return false;
+    return uri.host.toLowerCase() == allowedHost;
+  }
+
   Future<void> _initWebView() async {
     final uri = Uri.tryParse(widget.url);
-    if (uri == null || !uri.hasScheme) {
+    if (uri == null || !_isAllowedLegalUri(uri)) {
+      debugPrint('🔴 LEGAL WEBVIEW blocked initial URL: ${widget.url}');
       _setPageState(loading: false, hasError: true);
       return;
     }
@@ -51,10 +63,26 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
         ..setBackgroundColor(ColorPalette.transparent)
         ..setNavigationDelegate(
           NavigationDelegate(
+            onNavigationRequest: (request) {
+              final next = Uri.tryParse(request.url);
+              if (next != null && _isAllowedLegalUri(next)) {
+                return NavigationDecision.navigate;
+              }
+              debugPrint('🟡 LEGAL WEBVIEW blocked navigation: ${request.url}');
+              return NavigationDecision.prevent;
+            },
             onPageStarted: (_) => _setPageState(loading: true, hasError: false),
             onPageFinished: (_) => _setPageState(loading: false),
-            onWebResourceError: (_) =>
-                _setPageState(loading: false, hasError: true),
+            onWebResourceError: (error) {
+              // SPA shells often fail on subresources; only fail the main frame.
+              if (error.isForMainFrame ?? true) {
+                debugPrint(
+                  '🔴 LEGAL WEBVIEW MAIN FRAME ERROR: '
+                  '${error.errorCode} ${error.description} url=${widget.url}',
+                );
+                _setPageState(loading: false, hasError: true);
+              }
+            },
           ),
         );
 

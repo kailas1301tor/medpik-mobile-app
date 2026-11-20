@@ -15,5 +15,6 @@ sealed class HomeState with _$HomeState {
     @Default(LoaderState.loading) LoaderState generalDataLoaderState,
     String? errorMessage,
     @Default(0) double compactHeaderProgress,
+    @Default(0) double scrollOffset,
   }) = _HomeState;
 }

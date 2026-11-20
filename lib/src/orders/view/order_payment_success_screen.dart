@@ -18,6 +18,7 @@ class OrderPaymentSuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final content = OrderPaymentSuccessContent.fromArgs(args);
 
     return CommonScaffold(
       backgroundColor: colors.background,
@@ -30,13 +31,13 @@ class OrderPaymentSuccessScreen extends StatelessWidget {
               const CommonSuccessLottie(),
               8.verticalSpace,
               Text(
-                Strings.paymentSuccessTitle,
+                content.title,
                 style: FontPalette.base700(24, color: colors.primaryText),
                 textAlign: TextAlign.center,
               ),
               12.verticalSpace,
               Text(
-                Strings.paymentSuccessMessage,
+                content.message,
                 textAlign: TextAlign.center,
                 style: FontPalette.base400(14, color: colors.secondaryText),
               ),

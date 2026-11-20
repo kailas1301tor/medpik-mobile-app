@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/utils/helpers/haptic_helper.dart';
 
 class CommonQtySelector extends StatelessWidget {
   const CommonQtySelector({
@@ -84,7 +85,10 @@ class _QtySegmentButton extends StatelessWidget {
     return Material(
       color: ColorPalette.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          AppHaptics.selection();
+          onTap();
+        },
         borderRadius: BorderRadius.circular(999.r),
         child: SizedBox(
           width: size,

@@ -1,6 +1,7 @@
 // lib/src/product_detail/view/widget/product_detail_content_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:smooth_corner/smooth_corner.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/src/product_detail/model/product_detail_model.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_about_section.dart';
@@ -14,7 +15,6 @@ import 'package:medpik/src/product_detail/view/widget/product_detail_safety_sect
 import 'package:medpik/src/product_detail/view/widget/product_detail_storage_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_title_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_uses_section.dart';
-import 'package:medpik/utils/extensions/context_extensions.dart';
 import 'package:medpik/utils/helpers/product_detail_content_resolver.dart';
 
 class ProductDetailContentWidget extends StatelessWidget {
@@ -22,14 +22,20 @@ class ProductDetailContentWidget extends StatelessWidget {
     super.key,
     required this.detail,
     required this.scrollController,
+    required this.galleryPageController,
+    required this.galleryPageIndex,
+    required this.onGalleryPageChanged,
   });
 
   final ProductDetailModel detail;
   final ScrollController scrollController;
+  final PageController galleryPageController;
+  final int galleryPageIndex;
+  final ValueChanged<int> onGalleryPageChanged;
 
-  /// How far the sheet overlaps the hero (visual only).
-  static const sheetOverlap = 28.0;
-  static const _sheetRadius = 28.0;
+  /// How far the curved sheet sits up over the fixed gallery.
+  static const sheetOverlap = 56.0;
+  static const sheetRadius = 32.0;
 
   static double sheetTopInsetFor(BuildContext context) =>
       ProductDetailHeroImage.heightFor(context) - sheetOverlap.h;
@@ -37,88 +43,133 @@ class ProductDetailContentWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final minSheetHeight =
-        context.screenHeight - sheetTopInsetFor(context);
-    final footerClearance = 96.h + MediaQuery.paddingOf(context).bottom;
+    final heroHeight = ProductDetailHeroImage.heightFor(context);
+    final overlap = sheetOverlap.h;
+    final sheetTopInset = heroHeight - overlap;
+    // Sticky bar ≈ 72.h + home-indicator; keep a small gap above it.
+    final footerClearance =
+        72.h + 16.h + MediaQuery.viewPaddingOf(context).bottom;
     final display = resolveProductDetailDisplay(detail);
+    final imageUrls = detail.galleryImageUrls.isNotEmpty
+        ? detail.galleryImageUrls
+        : [
+            if (detail.product.imageUrl.isNotEmpty) detail.product.imageUrl,
+          ];
+    final topRadius = BorderRadius.vertical(
+      top: Radius.circular(sheetRadius.r),
+    );
 
-    // Sheet is positioned below the hero in the parent Stack so the PageView
-    // receives horizontal swipes. Do not insert a full-width spacer above —
-    // that would steal gestures from the gallery.
-    return CustomScrollView(
-      controller: scrollController,
-      physics: const ClampingScrollPhysics(),
-      slivers: [
-        SliverToBoxAdapter(
-          child: ClipRRect(
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(_sheetRadius.r),
-            ),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: colors.surface,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(_sheetRadius.r),
+    // Gallery stays behind; curved sheet paints on top and scrolls over it.
+    // IgnorePointer on the hero spacer so PageView still receives horizontal swipes.
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: heroHeight,
+          child: ProductDetailHeroImage(
+            key: ValueKey(detail.product.id),
+            imageUrls: imageUrls,
+            pageController: galleryPageController,
+            activeIndex: galleryPageIndex,
+            onPageChanged: onGalleryPageChanged,
+            dotsBottomInset: overlap + 12.h,
+          ),
+        ),
+        Positioned.fill(
+          child: CustomScrollView(
+            controller: scrollController,
+            physics: const ClampingScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: IgnorePointer(
+                  child: SizedBox(height: sheetTopInset),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: ColorPalette.black.withValues(alpha: 0.12),
-                    blurRadius: 24,
-                    offset: Offset(0, -8.h),
-                  ),
-                ],
               ),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: minSheetHeight),
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 8.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ProductDetailTitleSection(detail: detail),
-                      if (display.showPackagings)
-                        ProductDetailPackagingSection(
-                          packagings: detail.packagings,
-                        ),
-                      ProductDetailQuantitySection(
-                        productId: detail.product.id,
-                      ),
-                      if (display.showAbout) ...[
-                        24.verticalSpace,
-                        ProductDetailAboutSection(detail: detail),
-                      ],
-                      if (display.showComposition) ...[
-                        24.verticalSpace,
-                        ProductDetailCompositionSection(
-                          composition: display.composition,
-                        ),
-                      ],
-                      if (display.showUses) ...[
-                        24.verticalSpace,
-                        ProductDetailUsesSection(uses: display.uses),
-                      ],
-                      if (display.showBenefits) ...[
-                        24.verticalSpace,
-                        ProductDetailBenefitsSection(detail: detail),
-                      ],
-                      24.verticalSpace,
-                      ProductDetailHowToUseSection(howToUse: display.howToUse),
-                      24.verticalSpace,
-                      ProductDetailSafetySection(
-                        safetyBlocks: display.safetyBlocks,
-                      ),
-                      24.verticalSpace,
-                      ProductDetailStorageSection(
-                        storageBody: display.storageBody,
+              // Curved sheet — fills remaining viewport when short; grows when tall.
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: DecoratedBox(
+                  decoration: ShapeDecoration(
+                    color: colors.surface,
+                    shape: SmoothRectangleBorder(
+                      smoothness: 1.0,
+                      borderRadius: topRadius,
+                    ),
+                    shadows: [
+                      BoxShadow(
+                        color: ColorPalette.black.withValues(alpha: 0.14),
+                        blurRadius: 20,
+                        offset: Offset(0, -6.h),
                       ),
                     ],
                   ),
+                  child: ClipPath(
+                    clipper: ShapeBorderClipper(
+                      shape: SmoothRectangleBorder(
+                        smoothness: 1.0,
+                        borderRadius: topRadius,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        20.w,
+                        24.h,
+                        20.w,
+                        footerClearance,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ProductDetailTitleSection(detail: detail),
+                          if (display.showPackagings)
+                            ProductDetailPackagingSection(
+                              packagings: detail.packagings,
+                            ),
+                          ProductDetailQuantitySection(
+                            productId: detail.product.id,
+                          ),
+                          if (display.showAbout) ...[
+                            24.verticalSpace,
+                            ProductDetailAboutSection(detail: detail),
+                          ],
+                          if (display.showComposition) ...[
+                            24.verticalSpace,
+                            ProductDetailCompositionSection(
+                              composition: display.composition,
+                            ),
+                          ],
+                          if (display.showUses) ...[
+                            24.verticalSpace,
+                            ProductDetailUsesSection(uses: display.uses),
+                          ],
+                          if (display.showBenefits) ...[
+                            24.verticalSpace,
+                            ProductDetailBenefitsSection(detail: detail),
+                          ],
+                          24.verticalSpace,
+                          ProductDetailHowToUseSection(
+                            howToUse: display.howToUse,
+                          ),
+                          24.verticalSpace,
+                          ProductDetailSafetySection(
+                            safetyBlocks: display.safetyBlocks,
+                          ),
+                          24.verticalSpace,
+                          ProductDetailStorageSection(
+                            storageBody: display.storageBody,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
-        SliverToBoxAdapter(child: SizedBox(height: footerClearance)),
       ],
     );
   }

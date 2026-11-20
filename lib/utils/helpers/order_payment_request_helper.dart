@@ -42,6 +42,8 @@ Map<String, dynamic> buildRazorpaySuccessPaymentBody({
 Map<String, dynamic> buildRazorpayFailedPaymentBody({
   required int orderId,
   required String razorpayOrderId,
+  String razorpayPaymentId = '',
+  String razorpaySignature = '',
   Map<String, dynamic> paymentResponseData = const {},
 }) =>
     {
@@ -49,7 +51,7 @@ Map<String, dynamic> buildRazorpayFailedPaymentBody({
       'payment_method': OrderPaymentMethods.razorpay,
       'payment_status': OrderPaymentStatuses.failed,
       'razorpay_order_id': razorpayOrderId,
-      'razorpay_payment_id': '',
-      'razorpay_signature': '',
+      'razorpay_payment_id': razorpayPaymentId,
+      'razorpay_signature': razorpaySignature,
       'payment_response_data': paymentResponseData,
     };

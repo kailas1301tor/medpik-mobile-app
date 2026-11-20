@@ -1,5 +1,7 @@
 // lib/services/invalidate_di.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:medpik/providers/app_container.dart';
 import 'package:medpik/src/profile/notifier/customer_general_notifier.dart';
 import 'package:medpik/providers/order_status_options_provider.dart';
 import 'package:medpik/services/location/geocode_client.dart';
@@ -22,27 +24,43 @@ class InvalidateDI {
   InvalidateDI._();
 
   static void invalidate(Ref ref) {
-    _invalidateAll(ref.invalidate);
+    // Prefer root container so Auth ↔ Network cycles do not block cleanup.
+    final container = appProviderContainer;
+    if (container != null) {
+      invalidateAll(container.invalidate);
+      return;
+    }
+    invalidateAll(ref.invalidate);
   }
 
   static void invalidateWidget(WidgetRef ref) {
-    _invalidateAll(ref.invalidate);
+    final container = appProviderContainer;
+    if (container != null) {
+      invalidateAll(container.invalidate);
+      return;
+    }
+    invalidateAll(ref.invalidate);
   }
 
-  static void _invalidateAll(void Function(ProviderOrFamily provider) invalidate) {
-    invalidate(orderStatusOptionsProvider);
-    invalidate(customerGeneralNotifierProvider);
-    invalidate(homeNotifierProvider);
-    invalidate(cartNotifierProvider);
-    invalidate(wishlistNotifierProvider);
-    invalidate(addressNotifierProvider);
-    invalidate(prescriptionNotifierProvider);
+  /// Shared invalidation body — safe to call from a microtask after logout.
+  static void invalidateAll(void Function(ProviderOrFamily provider) invalidate) {
+    try {
+      invalidate(orderStatusOptionsProvider);
+      invalidate(customerGeneralNotifierProvider);
+      invalidate(homeNotifierProvider);
+      invalidate(cartNotifierProvider);
+      invalidate(wishlistNotifierProvider);
+      invalidate(addressNotifierProvider);
+      invalidate(prescriptionNotifierProvider);
 
-    invalidate(cartRepositoryProvider);
-    invalidate(prescriptionRepositoryProvider);
-    invalidate(deviceRepositoryProvider);
+      invalidate(cartRepositoryProvider);
+      invalidate(prescriptionRepositoryProvider);
+      invalidate(deviceRepositoryProvider);
 
-    invalidate(razorpayPaymentServiceProvider);
-    invalidate(geocodeClientProvider);
+      invalidate(razorpayPaymentServiceProvider);
+      invalidate(geocodeClientProvider);
+    } catch (error) {
+      debugPrint('🟡 InvalidateDI failed: $error');
+    }
   }
 }

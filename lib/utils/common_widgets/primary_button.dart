@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/utils/common_widgets/common_inline_loader.dart';
+import 'package:medpik/utils/helpers/haptic_helper.dart';
 
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
@@ -87,7 +88,12 @@ class PrimaryButton extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: isInteractable ? onPressed : null,
+              onTap: isInteractable
+                  ? () {
+                      AppHaptics.light();
+                      onPressed?.call();
+                    }
+                  : null,
               customBorder: smoothShape,
               splashColor:
                   splashColor ?? ColorPalette.black.withValues(alpha: 0.05),

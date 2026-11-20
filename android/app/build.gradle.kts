@@ -4,14 +4,17 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 import java.util.Properties
 import java.util.Base64
 import groovy.json.JsonSlurper
 import com.flutter.gradle.tasks.FlutterTask
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import kotlin.text.Charsets
 import org.gradle.api.GradleException
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
@@ -127,10 +130,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-    }
-
     defaultConfig {
         applicationId = "com.medpik"
         minSdk = flutter.minSdkVersion
@@ -159,16 +158,37 @@ android {
     buildTypes {
         release {
             val releaseSigning = signingConfigs.getByName("release")
-            signingConfig = if (releaseSigning.storeFile?.exists() == true) {
-                releaseSigning
-            } else {
-                signingConfigs.getByName("debug")
+            if (releaseSigning.storeFile?.exists() != true) {
+                throw GradleException(
+                    """
+                    Release signing keystore is missing. Refusing to fall back to
+                    the debug keystore for production builds.
+
+                    Configure keyAlias / keyPassword / storeFile / storePassword
+                    in android/key.properties (or your CI secrets) before building
+                    a release APK / App Bundle.
+                    """.trimIndent(),
+                )
             }
+            signingConfig = releaseSigning
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Upload R8/ProGuard mapping + native .so symbols with each release.
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = true
+                nativeSymbolUploadEnabled = true
+            }
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
 

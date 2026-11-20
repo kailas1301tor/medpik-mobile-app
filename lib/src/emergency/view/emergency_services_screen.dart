@@ -12,6 +12,7 @@ import 'package:medpik/utils/common_widgets/common_app_bar.dart';
 import 'package:medpik/utils/common_widgets/common_refresh_indicator.dart';
 import 'package:medpik/utils/common_widgets/common_scaffold.dart';
 import 'package:medpik/utils/common_widgets/common_switch_state.dart';
+import 'package:medpik/utils/helpers/haptic_helper.dart';
 import 'package:tuple/tuple.dart';
 
 class EmergencyServicesScreen extends ConsumerWidget {
@@ -29,6 +30,7 @@ class EmergencyServicesScreen extends ConsumerWidget {
         appBar: CommonAppBar(
           title: Strings.emergencyServices,
           bottom: TabBar(
+            onTap: (_) => AppHaptics.selection(),
             labelColor: colors.primary,
             unselectedLabelColor: colors.secondaryText,
             indicatorColor: colors.primary,

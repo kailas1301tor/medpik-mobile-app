@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
+import 'package:medpik/utils/helpers/haptic_helper.dart';
 
 class ProductDetailQtyStepper extends StatelessWidget {
   const ProductDetailQtyStepper({
@@ -72,7 +73,14 @@ class _StepButton extends StatelessWidget {
     return Material(
       color: ColorPalette.transparent,
       child: InkWell(
-        onTap: enabled ? onTap : null,
+        onTap: !enabled
+            ? null
+            : () {
+                final handler = onTap;
+                if (handler == null) return;
+                AppHaptics.selection();
+                handler();
+              },
         customBorder: const CircleBorder(),
         child: Ink(
           width: 48.r,

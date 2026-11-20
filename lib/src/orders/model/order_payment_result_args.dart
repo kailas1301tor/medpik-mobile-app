@@ -7,11 +7,36 @@ class OrderPaymentResultArgs {
     required this.orderId,
     this.outcome = OrderPaymentOutcome.success,
     this.message = '',
+    this.isCashOnDelivery = false,
   });
 
   final String orderId;
   final OrderPaymentOutcome outcome;
   final String message;
+  final bool isCashOnDelivery;
+}
+
+class OrderPaymentSuccessContent {
+  const OrderPaymentSuccessContent({
+    required this.title,
+    required this.message,
+  });
+
+  final String title;
+  final String message;
+
+  factory OrderPaymentSuccessContent.fromArgs(OrderPaymentResultArgs args) {
+    if (args.isCashOnDelivery) {
+      return const OrderPaymentSuccessContent(
+        title: Strings.orderPlacedSuccess,
+        message: Strings.codOrderPlacedSuccess,
+      );
+    }
+    return const OrderPaymentSuccessContent(
+      title: Strings.paymentSuccessTitle,
+      message: Strings.paymentSuccessMessage,
+    );
+  }
 }
 
 class OrderPaymentFailureContent {

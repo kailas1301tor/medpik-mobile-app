@@ -9,7 +9,6 @@ import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/src/product_detail/notifier/product_detail_notifier.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_content_widget.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_floating_action.dart';
-import 'package:medpik/src/product_detail/view/widget/product_detail_hero_image.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_shimmer_widget.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_sticky_footer.dart';
 import 'package:medpik/utils/common_widgets/cart_mutation_overlay.dart';
@@ -84,74 +83,42 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             ),
             child: detail == null
                 ? const SizedBox.shrink()
-                : Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: ProductDetailHeroImage.heightFor(context),
-                        child: RepaintBoundary(
-                          child: ProductDetailHeroImage(
-                            key: ValueKey(detail.product.id),
-                            imageUrls: detail.galleryImageUrls.isNotEmpty
-                                ? detail.galleryImageUrls
-                                : [
-                                    if (detail.product.imageUrl.isNotEmpty)
-                                      detail.product.imageUrl,
-                                  ],
-                            pageController: notifier.galleryPageController,
-                            activeIndex: galleryPageIndex,
-                            onPageChanged: notifier.onGalleryPageChanged,
+                : CartMutationOverlay(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ProductDetailContentWidget(
+                          detail: detail,
+                          scrollController: notifier.scrollController,
+                          galleryPageController: notifier.galleryPageController,
+                          galleryPageIndex: galleryPageIndex,
+                          onGalleryPageChanged: notifier.onGalleryPageChanged,
+                        ),
+                        Positioned(
+                          top: topInset + 8.h,
+                          left: 16.w,
+                          right: 16.w,
+                          child: Row(
+                            children: [
+                              ProductDetailFloatingAction(
+                                icon: Icons.arrow_back_ios_new_rounded,
+                                onTap: () => Navigator.of(context).pop(),
+                              ),
+                              const Spacer(),
+                              _ProductDetailWishlistButton(
+                                onToggle: notifier.toggleWishlist,
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      CartMutationOverlay(
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            // Sit below the hero so PageView can receive swipes.
-                            // Sheet still overlaps the hero visually via sheetOverlap.
-                            Positioned(
-                              top: ProductDetailContentWidget.sheetTopInsetFor(
-                                context,
-                              ),
-                              left: 0,
-                              right: 0,
-                              bottom: 0,
-                              child: ProductDetailContentWidget(
-                                detail: detail,
-                                scrollController: notifier.scrollController,
-                              ),
-                            ),
-                            Positioned(
-                              top: topInset + 8.h,
-                              left: 16.w,
-                              right: 16.w,
-                              child: Row(
-                                children: [
-                                  ProductDetailFloatingAction(
-                                    icon: Icons.arrow_back_ios_new_rounded,
-                                    onTap: () => Navigator.of(context).pop(),
-                                  ),
-                                  const Spacer(),
-                                  _ProductDetailWishlistButton(
-                                    onToggle: notifier.toggleWishlist,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Positioned(
-                              left: 0,
-                              right: 0,
-                              bottom: 0,
-                              child: ProductDetailStickyFooter(),
-                            ),
-                          ],
+                        const Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: ProductDetailStickyFooter(),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
           ),
           // Loaded content already has an overlay back; keep one for error/load/empty.

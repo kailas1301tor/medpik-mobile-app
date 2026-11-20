@@ -21,4 +21,5 @@ class MedpikSvgAssets {
   static const String sourceGallery = '$_base/Frame (3).svg';
   static const String sourceFiles = '$_base/Frame (4).svg';
   static const String phone = '$_base/phone.svg';
+  static const String whatsapp = '$_base/whatsapp.svg';
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medpik/utils/helpers/haptic_helper.dart';
 
 class CommonRefreshIndicator extends StatelessWidget {
   const CommonRefreshIndicator({
@@ -27,7 +28,10 @@ class CommonRefreshIndicator extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return RefreshIndicator.adaptive(
-      onRefresh: onRefresh,
+      onRefresh: () async {
+        AppHaptics.light();
+        await onRefresh();
+      },
       color: color ?? colorScheme.primary,
       backgroundColor: backgroundColor ?? colorScheme.surface,
       displacement: displacement,

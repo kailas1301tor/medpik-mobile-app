@@ -74,8 +74,6 @@ class ProductDetailTitleSection extends ConsumerWidget {
           spacing: 8.w,
           runSpacing: 8.h,
           children: [
-            if (product.isDrugsetuProducts)
-              const _MetaChip(label: Strings.drugsetuProduct),
             if (packBadge.isNotEmpty) _MetaChip(label: packBadge),
             if (categoryLabel.isNotEmpty) _MetaChip(label: categoryLabel),
             _MetaChip(label: typeLabel),

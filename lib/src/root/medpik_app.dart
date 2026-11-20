@@ -30,28 +30,28 @@ class MedpikApp extends ConsumerWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (_, __) => ToastificationWrapper(
-        child: ConnectivityObserver(          
-          child: MaterialApp(
-            title: Strings.appName,
-            debugShowCheckedModeBanner: false,
-            navigatorKey: navigatorKey,       
-            builder: (_, child) => MediaQuery.withClampedTextScaling(
+        child: MaterialApp(
+          title: Strings.appName,
+          debugShowCheckedModeBanner: false,
+          navigatorKey: navigatorKey,
+          builder: (_, child) => ConnectivityObserver(
+            child: MediaQuery.withClampedTextScaling(
               minScaleFactor: 1,
               maxScaleFactor: 1,
               child: child ?? const SizedBox(),
             ),
-            localizationsDelegates:  [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [Locale('en')],
-            onGenerateRoute: RouteGenerator.generateRoute,
-            initialRoute: RouteConstants.routeInitial,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: themeMode,
           ),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('en')],
+          onGenerateRoute: RouteGenerator.generateRoute,
+          initialRoute: RouteConstants.routeInitial,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
         ),
       ),
     );

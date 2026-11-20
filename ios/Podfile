@@ -1,6 +1,11 @@
 # App Store requires iOS 15.0+ starting Spring 2027.
 platform :ios, '15.0'
 
+# firebase_core 5.1.0 pins Firebase iOS 12.19.3, which is not on CocoaPods trunk yet
+# (latest published is 12.19.0). Override until FlutterFire / CocoaPods catch up.
+# https://firebase.flutter.dev/docs/overview/#improving-ios-build-times
+$FirebaseSDKVersion = '12.19.0'
+
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 

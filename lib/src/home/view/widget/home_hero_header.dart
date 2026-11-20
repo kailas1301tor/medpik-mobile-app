@@ -17,7 +17,7 @@ class HomeHeroHeader extends StatelessWidget {
     required this.greeting,
     required this.userName,
     required this.deliveryHint,
-    required this.onSearchTap,
+    this.notificationCount = 0,
     this.animateBackground = true,
     this.isLoading = false,
   });
@@ -26,7 +26,7 @@ class HomeHeroHeader extends StatelessWidget {
   final String greeting;
   final String userName;
   final String deliveryHint;
-  final VoidCallback onSearchTap;
+  final int notificationCount;
   final bool animateBackground;
   final bool isLoading;
 
@@ -78,6 +78,7 @@ class HomeHeroHeader extends StatelessWidget {
                         HomeHeaderIconButton(
                           iconAsset: MedpikSvgAssets.notification,
                           iconColor: ColorPalette.homeHeaderActionIcon,
+                          badgeCount: notificationCount,
                           onTap: () {
                             Navigator.pushNamed(
                               context,
@@ -87,8 +88,10 @@ class HomeHeroHeader extends StatelessWidget {
                         ),
                       ],
                     ),
+                    // Search lives in [HomeFloatingSearchBar]; keep bottom
+                    // space so the banner layout matches the overlay slot.
                     const Spacer(),
-                    HomeHeaderSearchRow(onSearchTap: onSearchTap),
+                    SizedBox(height: 50.h),
                   ],
                 ),
               ),

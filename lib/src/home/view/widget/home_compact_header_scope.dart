@@ -12,12 +12,10 @@ class HomeCompactHeaderScope extends ConsumerWidget {
     super.key,
     required this.topInset,
     required this.deliveryHint,
-    required this.onSearchTap,
   });
 
   final double topInset;
   final String deliveryHint;
-  final VoidCallback onSearchTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,7 +47,6 @@ class HomeCompactHeaderScope extends ConsumerWidget {
         progress: compactProgress,
         topInset: topInset,
         deliveryHint: deliveryHint,
-        onSearchTap: onSearchTap,
       ),
     );
   }

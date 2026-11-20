@@ -11,8 +11,10 @@ import '../../res/constants/app_constants.dart';
 import '../../utils/helpers/common_functions.dart';
 import '../../utils/helpers/api_error_handler.dart';
 import '../../utils/helpers/network_logger.dart';
+import '../../utils/helpers/safe_converters.dart';
 import '../../utils/routes/route_constants.dart';
 import 'network_base_services.dart';
+import '../../data/local/sembast_services.dart';
 import '../../services/connectivity_service.dart';
 import '../../src/auth/notifier/auth_notifier.dart';
 
@@ -32,6 +34,7 @@ class NetworkServices extends NetWorkBaseServices {
   final Ref _ref;
   CancelToken _sessionCancelToken = CancelToken();
   bool _sessionGuardInProgress = false;
+  bool _tokenRefreshInProgress = false;
   /// Sticky until a valid session is observed again — prevents
   /// invalidate → keepAlive rebuild → fetch → sessionRequired loops.
   bool _sessionRequiredHandled = false;
@@ -71,8 +74,24 @@ class NetworkServices extends NetWorkBaseServices {
         },
         onError: (DioException e, handler) async {
           if (e.response?.statusCode == 401) {
-            final isFromAuth = e.requestOptions.extra['isFromAuth'] ?? false;
-            if (!isFromAuth) {
+            final isFromAuth = e.requestOptions.extra['isFromAuth'] == true;
+            final isRetry = e.requestOptions.extra['isTokenRetry'] == true;
+            if (!isFromAuth && !isRetry) {
+              final refreshed = await getAccessTokenWithRefreshToken();
+              if (refreshed) {
+                final request = e.requestOptions;
+                request.extra['isTokenRetry'] = true;
+                final token = AppConstants.accessToken;
+                if (token != null && token.isNotEmpty) {
+                  request.headers['Authorization'] = 'Bearer $token';
+                }
+                try {
+                  final response = await _dio.fetch(request);
+                  return handler.resolve(response);
+                } catch (retryError) {
+                  debugPrint('🔴 TOKEN RETRY FAILED: $retryError');
+                }
+              }
               await _forceLogout();
             }
           }
@@ -172,6 +191,25 @@ class NetworkServices extends NetWorkBaseServices {
     }
   }
 
+  /// Maps transport-level Dio failures to typed [ApiExceptions] so notifiers
+  /// receive [LoaderState.networkError] instead of generic unknown.
+  void _rethrowNetworkDioException(DioException error) {
+    final mapped = switch (error.type) {
+      DioExceptionType.connectionTimeout => ApiErrorTypes.connectionTimeout,
+      DioExceptionType.sendTimeout => ApiErrorTypes.sendTimeout,
+      DioExceptionType.receiveTimeout => ApiErrorTypes.receiveTimeout,
+      DioExceptionType.connectionError => ApiErrorTypes.connectionError,
+      DioExceptionType.badCertificate => ApiErrorTypes.badCertificate,
+      _ => null,
+    };
+    if (mapped == null) return;
+    throw ApiExceptions(
+      message: error.message ?? mapped.name,
+      errorType: mapped,
+      response: error.response?.data,
+    );
+  }
+
   // ── Internet Check (singleton Connectivity) ────────────────────────────
 
   Future<void> _assertInternetAvailable() async {
@@ -209,6 +247,7 @@ class NetworkServices extends NetWorkBaseServices {
       return BaseResponse(statusCode: response.statusCode, data: response.data);
     } on DioException catch (error) {
       _rethrowSessionDioException(error);
+      _rethrowNetworkDioException(error);
       return BaseResponse(
         statusCode: error.response?.statusCode,
         data: error.response?.data,
@@ -324,6 +363,8 @@ class NetworkServices extends NetWorkBaseServices {
       );
       return BaseResponse(statusCode: response.statusCode, data: response.data);
     } on DioException catch (error) {
+      _rethrowSessionDioException(error);
+      _rethrowNetworkDioException(error);
       return BaseResponse(
         statusCode: error.response?.statusCode,
         data: error.response?.data,
@@ -361,6 +402,8 @@ class NetworkServices extends NetWorkBaseServices {
       );
       return BaseResponse(statusCode: response.statusCode, data: response.data);
     } on DioException catch (error) {
+      _rethrowSessionDioException(error);
+      _rethrowNetworkDioException(error);
       return BaseResponse(
         statusCode: error.response?.statusCode,
         data: error.response?.data,
@@ -384,6 +427,8 @@ class NetworkServices extends NetWorkBaseServices {
       );
       return BaseResponse(statusCode: response.statusCode, data: response.data);
     } on DioException catch (error) {
+      _rethrowSessionDioException(error);
+      _rethrowNetworkDioException(error);
       return BaseResponse(
         statusCode: error.response?.statusCode,
         data: error.response?.data,
@@ -666,10 +711,64 @@ class NetworkServices extends NetWorkBaseServices {
 
   @override
   Future<bool> getAccessTokenWithRefreshToken() async {
-    // No refresh endpoint — always force re-login on expiry.
-    debugPrint(
-      '🟡 Token refresh not supported; session must be re-authenticated',
-    );
-    return false;
+    if (_tokenRefreshInProgress) {
+      debugPrint('🟡 TOKEN REFRESH already in progress');
+      return false;
+    }
+
+    final refresh = AppConstants.refreshToken?.trim() ?? '';
+    if (refresh.isEmpty) {
+      debugPrint('🟡 TOKEN REFRESH skipped — no refresh token');
+      return false;
+    }
+
+    _tokenRefreshInProgress = true;
+    try {
+      debugPrint('🔵 TOKEN REFRESH: requesting new access token');
+      final response = await _dio.post(
+        AppConstants.refreshAccessToken,
+        data: {'refresh': refresh},
+        options: Options(
+          extra: {'isFromAuth': true, 'isTokenRetry': true},
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        debugPrint('🔴 TOKEN REFRESH HTTP ${response.statusCode}');
+        return false;
+      }
+
+      final root = convertToMap(response.data);
+      final results = convertToMap(root['results']);
+      final data = results.isNotEmpty
+          ? convertToMap(results['data'] ?? results)
+          : root;
+      final access = convertToString(
+        data['access'] ?? data['access_token'] ?? data['accessToken'],
+      );
+      final nextRefresh = convertToString(
+        data['refresh'] ?? data['refresh_token'] ?? data['refreshToken'],
+      );
+
+      if (access.isEmpty) {
+        debugPrint('🔴 TOKEN REFRESH: missing access token in response');
+        return false;
+      }
+
+      final resolvedRefresh = nextRefresh.isNotEmpty ? nextRefresh : refresh;
+      AppConstants.setSessionTokens(access: access, refresh: resolvedRefresh);
+      // Persist via SembastServices directly — avoid AuthNotifier ↔ NetworkServices cycle.
+      await _ref
+          .read(sembastServicesProvider)
+          .saveTokens(accessToken: access, refreshToken: resolvedRefresh);
+      debugPrint('🟢 TOKEN REFRESH: access token updated');
+      return true;
+    } catch (error) {
+      debugPrint('🔴 TOKEN REFRESH ERROR: $error');
+      return false;
+    } finally {
+      _tokenRefreshInProgress = false;
+    }
   }
 }

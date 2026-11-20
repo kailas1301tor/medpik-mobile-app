@@ -6,7 +6,7 @@ part of 'main_shell_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$mainShellNotifierHash() => r'f21c8bc8440e01fa8880ed3f54220c63037a1450';
+String _$mainShellNotifierHash() => r'b062ef01d8232a335e817507d40ceed2e07f087a';
 
 /// See also [MainShellNotifier].
 @ProviderFor(MainShellNotifier)

@@ -9,8 +9,10 @@ class OrderPaymentResult {
   const OrderPaymentResult({
     required this.outcome,
     this.message = '',
+    this.isCashOnDelivery = false,
   });
 
   final OrderPaymentOutcome outcome;
   final String message;
+  final bool isCashOnDelivery;
 }

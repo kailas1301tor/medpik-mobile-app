@@ -21,7 +21,9 @@ Map<String, dynamic> buildRazorpayCheckoutOptions(
     prefill['contact'] = data.prefill.contact.trim();
   }
   final email = data.prefill.email.trim();
-  prefill['email'] = email.isNotEmpty ? email : 'customer@medpik.app';
+  if (email.isNotEmpty) {
+    prefill['email'] = email;
+  }
   if (prefill.isNotEmpty) {
     options['prefill'] = prefill;
   }

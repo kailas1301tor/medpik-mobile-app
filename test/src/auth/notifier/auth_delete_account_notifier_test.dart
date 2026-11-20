@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medpik/data/local/sembast_services.dart';
+import 'package:medpik/providers/app_container.dart';
 import 'package:medpik/data/remote/network_base_services.dart';
 import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
@@ -70,10 +71,29 @@ class FakeDeleteAuthRepo implements AuthRepo {
 
 class FakeSembastServices extends SembastServices {
   Map<String, dynamic>? storedSession;
+  String? accessToken;
+  String? refreshToken;
+
+  @override
+  Future<void> saveTokens({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+  }
+
+  @override
+  Future<String?> getAccessToken() async => accessToken;
+
+  @override
+  Future<String?> getRefreshToken() async => refreshToken;
 
   @override
   Future<bool> clearLocalDb() async {
     storedSession = null;
+    accessToken = null;
+    refreshToken = null;
     return true;
   }
 }
@@ -99,9 +119,13 @@ void main() {
           navigatorKeyProvider.overrideWithValue(navigatorKey),
         ],
       );
+      bindAppProviderContainer(container);
     });
 
-    tearDown(() => container.dispose());
+    tearDown(() {
+      unbindAppProviderContainer(container);
+      container.dispose();
+    });
 
     AuthNotifier readNotifier() =>
         container.read(authNotifierProvider.notifier);

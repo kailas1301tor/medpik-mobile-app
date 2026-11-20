@@ -19,6 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$SplashState {
   LoaderState get loaderState => throw _privateConstructorUsedError;
   bool get hasSession => throw _privateConstructorUsedError;
+  bool get requiresForceUpdate => throw _privateConstructorUsedError;
 
   /// Create a copy of SplashState
   /// with the given fields replaced by the non-null parameter values.
@@ -34,7 +35,11 @@ abstract class $SplashStateCopyWith<$Res> {
     $Res Function(SplashState) then,
   ) = _$SplashStateCopyWithImpl<$Res, SplashState>;
   @useResult
-  $Res call({LoaderState loaderState, bool hasSession});
+  $Res call({
+    LoaderState loaderState,
+    bool hasSession,
+    bool requiresForceUpdate,
+  });
 }
 
 /// @nodoc
@@ -51,7 +56,11 @@ class _$SplashStateCopyWithImpl<$Res, $Val extends SplashState>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? loaderState = null, Object? hasSession = null}) {
+  $Res call({
+    Object? loaderState = null,
+    Object? hasSession = null,
+    Object? requiresForceUpdate = null,
+  }) {
     return _then(
       _value.copyWith(
             loaderState: null == loaderState
@@ -61,6 +70,10 @@ class _$SplashStateCopyWithImpl<$Res, $Val extends SplashState>
             hasSession: null == hasSession
                 ? _value.hasSession
                 : hasSession // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            requiresForceUpdate: null == requiresForceUpdate
+                ? _value.requiresForceUpdate
+                : requiresForceUpdate // ignore: cast_nullable_to_non_nullable
                       as bool,
           )
           as $Val,
@@ -77,7 +90,11 @@ abstract class _$$SplashStateImplCopyWith<$Res>
   ) = __$$SplashStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({LoaderState loaderState, bool hasSession});
+  $Res call({
+    LoaderState loaderState,
+    bool hasSession,
+    bool requiresForceUpdate,
+  });
 }
 
 /// @nodoc
@@ -93,7 +110,11 @@ class __$$SplashStateImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? loaderState = null, Object? hasSession = null}) {
+  $Res call({
+    Object? loaderState = null,
+    Object? hasSession = null,
+    Object? requiresForceUpdate = null,
+  }) {
     return _then(
       _$SplashStateImpl(
         loaderState: null == loaderState
@@ -103,6 +124,10 @@ class __$$SplashStateImplCopyWithImpl<$Res>
         hasSession: null == hasSession
             ? _value.hasSession
             : hasSession // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        requiresForceUpdate: null == requiresForceUpdate
+            ? _value.requiresForceUpdate
+            : requiresForceUpdate // ignore: cast_nullable_to_non_nullable
                   as bool,
       ),
     );
@@ -115,6 +140,7 @@ class _$SplashStateImpl implements _SplashState {
   const _$SplashStateImpl({
     this.loaderState = LoaderState.loading,
     this.hasSession = false,
+    this.requiresForceUpdate = false,
   });
 
   @override
@@ -123,10 +149,13 @@ class _$SplashStateImpl implements _SplashState {
   @override
   @JsonKey()
   final bool hasSession;
+  @override
+  @JsonKey()
+  final bool requiresForceUpdate;
 
   @override
   String toString() {
-    return 'SplashState(loaderState: $loaderState, hasSession: $hasSession)';
+    return 'SplashState(loaderState: $loaderState, hasSession: $hasSession, requiresForceUpdate: $requiresForceUpdate)';
   }
 
   @override
@@ -137,11 +166,14 @@ class _$SplashStateImpl implements _SplashState {
             (identical(other.loaderState, loaderState) ||
                 other.loaderState == loaderState) &&
             (identical(other.hasSession, hasSession) ||
-                other.hasSession == hasSession));
+                other.hasSession == hasSession) &&
+            (identical(other.requiresForceUpdate, requiresForceUpdate) ||
+                other.requiresForceUpdate == requiresForceUpdate));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, loaderState, hasSession);
+  int get hashCode =>
+      Object.hash(runtimeType, loaderState, hasSession, requiresForceUpdate);
 
   /// Create a copy of SplashState
   /// with the given fields replaced by the non-null parameter values.
@@ -156,12 +188,15 @@ abstract class _SplashState implements SplashState {
   const factory _SplashState({
     final LoaderState loaderState,
     final bool hasSession,
+    final bool requiresForceUpdate,
   }) = _$SplashStateImpl;
 
   @override
   LoaderState get loaderState;
   @override
   bool get hasSession;
+  @override
+  bool get requiresForceUpdate;
 
   /// Create a copy of SplashState
   /// with the given fields replaced by the non-null parameter values.

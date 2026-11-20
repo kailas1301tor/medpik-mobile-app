@@ -24,6 +24,7 @@ mixin _$HomeState {
   LoaderState get generalDataLoaderState => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
   double get compactHeaderProgress => throw _privateConstructorUsedError;
+  double get scrollOffset => throw _privateConstructorUsedError;
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.
@@ -44,6 +45,7 @@ abstract class $HomeStateCopyWith<$Res> {
     LoaderState generalDataLoaderState,
     String? errorMessage,
     double compactHeaderProgress,
+    double scrollOffset,
   });
 }
 
@@ -68,6 +70,7 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? generalDataLoaderState = null,
     Object? errorMessage = freezed,
     Object? compactHeaderProgress = null,
+    Object? scrollOffset = null,
   }) {
     return _then(
       _value.copyWith(
@@ -95,6 +98,10 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
                 ? _value.compactHeaderProgress
                 : compactHeaderProgress // ignore: cast_nullable_to_non_nullable
                       as double,
+            scrollOffset: null == scrollOffset
+                ? _value.scrollOffset
+                : scrollOffset // ignore: cast_nullable_to_non_nullable
+                      as double,
           )
           as $Val,
     );
@@ -117,6 +124,7 @@ abstract class _$$HomeStateImplCopyWith<$Res>
     LoaderState generalDataLoaderState,
     String? errorMessage,
     double compactHeaderProgress,
+    double scrollOffset,
   });
 }
 
@@ -140,6 +148,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? generalDataLoaderState = null,
     Object? errorMessage = freezed,
     Object? compactHeaderProgress = null,
+    Object? scrollOffset = null,
   }) {
     return _then(
       _$HomeStateImpl(
@@ -167,6 +176,10 @@ class __$$HomeStateImplCopyWithImpl<$Res>
             ? _value.compactHeaderProgress
             : compactHeaderProgress // ignore: cast_nullable_to_non_nullable
                   as double,
+        scrollOffset: null == scrollOffset
+            ? _value.scrollOffset
+            : scrollOffset // ignore: cast_nullable_to_non_nullable
+                  as double,
       ),
     );
   }
@@ -182,6 +195,7 @@ class _$HomeStateImpl implements _HomeState {
     this.generalDataLoaderState = LoaderState.loading,
     this.errorMessage,
     this.compactHeaderProgress = 0,
+    this.scrollOffset = 0,
   });
 
   @override
@@ -199,10 +213,13 @@ class _$HomeStateImpl implements _HomeState {
   @override
   @JsonKey()
   final double compactHeaderProgress;
+  @override
+  @JsonKey()
+  final double scrollOffset;
 
   @override
   String toString() {
-    return 'HomeState(loaderState: $loaderState, data: $data, generalData: $generalData, generalDataLoaderState: $generalDataLoaderState, errorMessage: $errorMessage, compactHeaderProgress: $compactHeaderProgress)';
+    return 'HomeState(loaderState: $loaderState, data: $data, generalData: $generalData, generalDataLoaderState: $generalDataLoaderState, errorMessage: $errorMessage, compactHeaderProgress: $compactHeaderProgress, scrollOffset: $scrollOffset)';
   }
 
   @override
@@ -220,7 +237,9 @@ class _$HomeStateImpl implements _HomeState {
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage) &&
             (identical(other.compactHeaderProgress, compactHeaderProgress) ||
-                other.compactHeaderProgress == compactHeaderProgress));
+                other.compactHeaderProgress == compactHeaderProgress) &&
+            (identical(other.scrollOffset, scrollOffset) ||
+                other.scrollOffset == scrollOffset));
   }
 
   @override
@@ -232,6 +251,7 @@ class _$HomeStateImpl implements _HomeState {
     generalDataLoaderState,
     errorMessage,
     compactHeaderProgress,
+    scrollOffset,
   );
 
   /// Create a copy of HomeState
@@ -251,6 +271,7 @@ abstract class _HomeState implements HomeState {
     final LoaderState generalDataLoaderState,
     final String? errorMessage,
     final double compactHeaderProgress,
+    final double scrollOffset,
   }) = _$HomeStateImpl;
 
   @override
@@ -265,6 +286,8 @@ abstract class _HomeState implements HomeState {
   String? get errorMessage;
   @override
   double get compactHeaderProgress;
+  @override
+  double get scrollOffset;
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.

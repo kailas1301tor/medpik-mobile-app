@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medpik/data/local/sembast_services.dart';
+import 'package:medpik/providers/app_container.dart';
 import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/src/auth/model/auth_model.dart';
 import 'package:medpik/src/auth/notifier/auth_notifier.dart';
@@ -11,6 +12,8 @@ import 'package:medpik/utils/routes/route_constants.dart';
 class FakeSembastServices extends SembastServices {
   bool isNewUserFlag = false;
   Map<String, dynamic>? storedSession;
+  String? accessToken;
+  String? refreshToken;
 
   @override
   Future<bool> isNewUser() async => isNewUserFlag;
@@ -21,12 +24,46 @@ class FakeSembastServices extends SembastServices {
   }
 
   @override
-  Future<Map<String, dynamic>?> getUserData() async => storedSession;
+  Future<Map<String, dynamic>?> getUserData() async {
+    if (storedSession == null) return null;
+    final session = Map<String, dynamic>.from(storedSession!);
+    if (accessToken != null) session['accessToken'] = accessToken;
+    if (refreshToken != null) session['refreshToken'] = refreshToken;
+    return session;
+  }
 
   @override
   Future<void> insertUserData(Map<String, dynamic> session) async {
-    storedSession = Map<String, dynamic>.from(session);
+    accessToken = convertToString(session['accessToken']);
+    refreshToken = convertToString(session['refreshToken']);
+    storedSession = Map<String, dynamic>.from(session)
+      ..remove('accessToken')
+      ..remove('refreshToken');
     isNewUserFlag = convertToBool(session['isNewUser']);
+  }
+
+  @override
+  Future<void> saveTokens({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+  }
+
+  @override
+  Future<String?> getAccessToken() async => accessToken;
+
+  @override
+  Future<String?> getRefreshToken() async => refreshToken;
+
+  @override
+  Future<bool> clearLocalDb() async {
+    storedSession = null;
+    accessToken = null;
+    refreshToken = null;
+    isNewUserFlag = false;
+    return true;
   }
 }
 
@@ -44,9 +81,13 @@ void main() {
           sembastServicesProvider.overrideWithValue(fakeSembast),
         ],
       );
+      bindAppProviderContainer(container);
     });
 
-    tearDown(() => container.dispose());
+    tearDown(() {
+      unbindAppProviderContainer(container);
+      container.dispose();
+    });
 
     AuthNotifier readNotifier() =>
         container.read(authNotifierProvider.notifier);

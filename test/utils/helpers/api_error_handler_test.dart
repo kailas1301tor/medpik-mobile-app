@@ -53,6 +53,27 @@ void main() {
     });
   });
 
+  group('handleResponseError network mapping', () {
+    test('maps transport failures to networkError', () {
+      expect(
+        handleResponseError(ApiErrorTypes.connectionTimeout),
+        LoaderState.networkError,
+      );
+      expect(
+        handleResponseError(ApiErrorTypes.receiveTimeout),
+        LoaderState.networkError,
+      );
+      expect(
+        handleResponseError(ApiErrorTypes.sendTimeout),
+        LoaderState.networkError,
+      );
+      expect(
+        handleResponseError(ApiErrorTypes.connectionError),
+        LoaderState.networkError,
+      );
+    });
+  });
+
   group('shouldReportFetchError', () {
     test('returns false for sessionRequired', () {
       const error = ResponseError(

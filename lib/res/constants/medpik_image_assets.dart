@@ -18,7 +18,20 @@ class MedpikImageAssets {
   static const String appCrest = '$_base/Medpik Crest #01.png';
   static const String primaryBackground = '$_gifBase/home_header_bg.gif';
   static const String productPlaceholder =
-      '$_base/product_placeholder_green.png';
+      '$_base/order_product_placeholder.jpg';
   static const String categoryPlaceholder =
       '$_base/category_placeholder_green.png';
+  static const String homePrescriptionUploadArt =
+      '$_gifBase/home_prescription_upload_art.gif';
+  static const String orderProductPlaceholder =
+      '$_base/order_product_placeholder.jpg';
+
+  /// Hardcoded "Offers for you" banners (until home API returns image URLs).
+  static const String homeOfferBanner01 = '$_base/home_offer_banner_01.png';
+  static const String homeOfferBanner02 = '$_base/home_offer_banner_02.png';
+  static const String homeOfferBanner03 = '$_base/home_offer_banner_03.png';
+
+  /// Hardcoded featured-brand banners (below popular products).
+  static const String homePromoBanner01 = '$_base/home_promo_banner_01.png';
+  static const String homePromoBanner02 = '$_base/home_promo_banner_02.png';
 }

@@ -1,6 +1,7 @@
 // lib/src/home/view/widget/home_shimmer_sections.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medpik/src/home/view/widget/home_product_rail.dart';
 import 'package:medpik/utils/common_widgets/common_shimmer_box.dart';
 
 class HomePrescriptionCardShimmer extends StatelessWidget {
@@ -11,9 +12,9 @@ class HomePrescriptionCardShimmer extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 12.h),
       child: CommonShimmerBox(
-        height: 132.h,
+        height: 168.h,
         width: double.infinity,
-        borderRadius: 20.r,
+        borderRadius: 24.r,
       ),
     );
   }
@@ -40,61 +41,69 @@ class HomeCategoryShimmerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
-      scrollDirection: Axis.horizontal,
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Row(
-        children: [
-          for (var i = 0; i < 5; i++) ...[
-            if (i > 0) 16.horizontalSpace,
-            SizedBox(
-              width: 72.w,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CommonShimmerBox(
-                    height: 64.r,
-                    width: 64.r,
-                    borderRadius: 32.r,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          const crossAxisCount = 4;
+          final gap = 8.w;
+          final itemWidth =
+              (constraints.maxWidth - gap * (crossAxisCount - 1)) /
+                  crossAxisCount;
+
+          return Wrap(
+            spacing: gap,
+            runSpacing: 12.h,
+            children: [
+              for (var i = 0; i < 8; i++)
+                SizedBox(
+                  width: itemWidth,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CommonShimmerBox(
+                        height: 64.r,
+                        width: 64.r,
+                        borderRadius: 32.r,
+                      ),
+                      8.verticalSpace,
+                      CommonShimmerBox(
+                        height: 12.h,
+                        width: 56.w,
+                        borderRadius: 6.r,
+                      ),
+                    ],
                   ),
-                  8.verticalSpace,
-                  CommonShimmerBox(
-                    height: 12.h,
-                    width: 56.w,
-                    borderRadius: 6.r,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
+                ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-class HomeProductGridShimmer extends StatelessWidget {
-  const HomeProductGridShimmer({super.key});
+class HomeProductRailShimmer extends StatelessWidget {
+  const HomeProductRailShimmer({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
-      child: Column(
-        children: [
-          for (var row = 0; row < 2; row++) ...[
-            if (row > 0) 12.verticalSpace,
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Expanded(child: _ProductCardShimmer()),
-                12.horizontalSpace,
-                const Expanded(child: _ProductCardShimmer()),
-              ],
+    return SizedBox(
+      height: HomeProductRail.height,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
+        itemCount: 4,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.only(right: index < 3 ? 12.w : 0),
+            child: SizedBox(
+              width: 148.w,
+              child: const _ProductCardShimmer(),
             ),
-          ],
-        ],
+          );
+        },
       ),
     );
   }

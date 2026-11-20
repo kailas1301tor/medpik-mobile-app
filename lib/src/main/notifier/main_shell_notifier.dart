@@ -1,4 +1,6 @@
 // lib/src/main/notifier/main_shell_notifier.dart
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/providers/cart_providers.dart';
 import 'package:medpik/providers/wishlist_providers.dart';
@@ -33,21 +35,35 @@ class MainShellNotifier extends _$MainShellNotifier {
     if (_didBootstrap) return;
     _didBootstrap = true;
 
-    final oneSignal = ref.read(oneSignalServiceProvider);
-    await oneSignal.initialize();
-    await oneSignal.requestNotificationPermission();
-    await oneSignal.refreshDeviceRegistration();
-    await oneSignal.registerDeviceWithBackend();
-    ref.read(homeNotifierProvider.notifier).fetchCustomerGeneralData();
+    final home = ref.read(homeNotifierProvider.notifier);
+    // Catalog / session APIs must not wait on push permission or device register.
+    home.fetchHomeFeed();
+    home.fetchCustomerGeneralData();
     // Greeting uses local session name immediately; profile refresh syncs
     // a newer display name when the API returns.
     ref.read(profileNotifierProvider.notifier).fetchProfile();
     ref.read(cartNotifierProvider.notifier).fetchCart(showLoader: true);
     ref.read(wishlistNotifierProvider.notifier).fetchWishlist(showLoader: true);
-    ref.read(homeNotifierProvider.notifier).fetchHomeFeed();
+
+    // Push setup runs in the background and never blocks product loading.
+    unawaited(_bootstrapOneSignal());
   }
 
-  void setTab(int index) => state = index;
+  Future<void> _bootstrapOneSignal() async {
+    final oneSignal = ref.read(oneSignalServiceProvider);
+    await oneSignal.initialize();
+    await oneSignal.requestNotificationPermission();
+    await oneSignal.refreshDeviceRegistration();
+    await oneSignal.registerDeviceWithBackend();
+  }
+
+  void setTab(int index) {
+    state = index;
+    // Retapping Home (or switching back to it) scrolls the feed to top.
+    if (index == 0) {
+      unawaited(ref.read(homeNotifierProvider.notifier).scrollToTop());
+    }
+  }
 
   bool handleBackPress() {
     if (state != 0) {

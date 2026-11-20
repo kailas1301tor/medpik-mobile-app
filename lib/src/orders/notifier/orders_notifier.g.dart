@@ -144,7 +144,7 @@ class _OrderDetailLoaderProviderElement extends AutoDisposeProviderElement<void>
   String get orderId => (origin as OrderDetailLoaderProvider).orderId;
 }
 
-String _$ordersNotifierHash() => r'bfc4969bbb0505876c2df42c2ec9a06ba3dd736b';
+String _$ordersNotifierHash() => r'2e8f6bde6fdf0070d4ad78a3849fac78a849f3a5';
 
 /// See also [OrdersNotifier].
 @ProviderFor(OrdersNotifier)

@@ -8,6 +8,7 @@ import 'package:medpik/data/remote/network_services.dart';
 import 'package:medpik/res/constants/app_constants.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/analytics_service.dart';
 import 'package:medpik/services/invalidate_di.dart';
 import 'package:medpik/services/onesignal_service.dart';
 import 'package:medpik/services/repo_di.dart';
@@ -167,13 +168,33 @@ class AuthNotifier extends _$AuthNotifier {
             );
           },
           (right) async {
-            final authModel = right.authModel!;
+            final authModel = right.authModel;
+            if (authModel == null ||
+                convertToString(authModel.accessToken).isEmpty) {
+              showCustomToast(
+                message: right.resolvedMessage.isNotEmpty
+                    ? right.resolvedMessage
+                    : Strings.somethingWentWrong,
+                isSuccess: false,
+              );
+              state = state.copyWith(
+                otpErrorMessage: Strings.somethingWentWrong,
+                isVerifyingOtp: false,
+              );
+              return;
+            }
+
             final saved = await _saveSession(
               authModel: authModel,
               isNewUser: right.isNewUser,
             );
 
             state = state.copyWith(authModel: saved, otpErrorMessage: null);
+            unawaited(
+              AnalyticsService.instance.logLoginSuccess(
+                isNewUser: right.isNewUser,
+              ),
+            );
 
             if (!context.mounted) {
               state = state.copyWith(isVerifyingOtp: false);

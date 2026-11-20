@@ -1,68 +1,78 @@
 // lib/src/home/view/widget/home_prescription_card.dart
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_corner/smooth_corner.dart';
+import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/src/home/view/widget/home_prescription_card_surface.dart';
+import 'package:medpik/utils/helpers/phone_launch_helper.dart';
+import 'package:medpik/utils/helpers/toast_helper.dart';
+import 'package:medpik/utils/helpers/whatsapp_launch_helper.dart';
 
 class HomePrescriptionCard extends StatelessWidget {
-  const HomePrescriptionCard({super.key, this.onUploadTap});
+  const HomePrescriptionCard({
+    super.key,
+    this.onUploadTap,
+    this.supportPhone = '',
+  });
 
   final VoidCallback? onUploadTap;
+  final String supportPhone;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final radius = BorderRadius.circular(20.r);
+    final radius = BorderRadius.circular(24.r);
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final glassSurface = isDark
-        ? colors.cardBackground.withValues(alpha: 0.92)
-        : ColorPalette.glassSurface;
-    final glassBorder = isDark
-        ? colors.primary.withValues(alpha: 0.22)
-        : ColorPalette.prescriptionGlassBorder;
-    final cardShadow = isDark
-        ? [
-            ...ColorPalette.glassCardShadow,
-            ...ColorPalette.prescriptionCardShadow,
-            ...ColorPalette.productGlassCardShadow(depth: 0.85),
-          ]
-        : [
-            ...ColorPalette.productCardShadow,
-            ...ColorPalette.prescriptionCardShadow,
-            BoxShadow(
-              color: ColorPalette.black.withValues(alpha: 0.07),
-              blurRadius: 28.r,
-              offset: Offset(0, 12.h),
-            ),
-          ];
 
     return DecoratedBox(
-      decoration: BoxDecoration(borderRadius: radius, boxShadow: cardShadow),
-      child: SmoothClipRRect(
-        smoothness: 2,
+      decoration: BoxDecoration(
         borderRadius: radius,
-        child: isDark
-            ? BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-                child: HomePrescriptionCardSurface(
-                  radius: radius,
-                  isDark: isDark,
-                  glassSurface: glassSurface,
-                  glassBorder: glassBorder,
-                  onUploadTap: onUploadTap,
-                ),
-              )
-            : HomePrescriptionCardSurface(
-                radius: radius,
-                isDark: isDark,
-                glassSurface: glassSurface,
-                glassBorder: glassBorder,
-                onUploadTap: onUploadTap,
-              ),
+        boxShadow: [
+          ...ColorPalette.productCardShadow,
+          BoxShadow(
+            color: ColorPalette.black.withValues(alpha: isDark ? 0.28 : 0.06),
+            blurRadius: 22.r,
+            offset: Offset(0, 10.h),
+          ),
+        ],
       ),
+      child: SmoothClipRRect(
+        smoothness: 1.2,
+        borderRadius: radius,
+        child: HomePrescriptionCardSurface(
+          radius: radius,
+          onUploadTap: onUploadTap,
+          onCallTap: _onCallTap,
+          onWhatsAppTap: _onWhatsAppTap,
+        ),
+      ),
+    );
+  }
+
+  String? get _resolvedPhone {
+    final phone = supportPhone.trim();
+    return phone.isEmpty ? null : phone;
+  }
+
+  Future<void> _onCallTap() async {
+    final phone = _resolvedPhone;
+    if (phone == null) {
+      showCustomErrorToast(message: Strings.supportPhoneUnavailable);
+      return;
+    }
+    await launchPhoneCall(phone);
+  }
+
+  Future<void> _onWhatsAppTap() async {
+    final phone = _resolvedPhone;
+    if (phone == null) {
+      showCustomErrorToast(message: Strings.supportPhoneUnavailable);
+      return;
+    }
+    await launchWhatsAppChat(
+      phone,
+      message: Strings.whatsappOrderPrefillMessage,
     );
   }
 }

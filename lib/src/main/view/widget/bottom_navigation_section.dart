@@ -9,6 +9,7 @@ import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/providers/cart_providers.dart';
 import 'package:medpik/providers/shell_providers.dart';
+import 'package:medpik/utils/helpers/haptic_helper.dart';
 import 'package:medpik/utils/helpers/shell_insets_helper.dart' as shell_insets;
 
 class BottomNavigationSection extends StatelessWidget {
@@ -131,7 +132,10 @@ class BottomNavTile extends StatelessWidget {
     final isSelected = index == selectedIndex;
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        AppHaptics.selection();
+        onTap();
+      },
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
         width: 64.w,

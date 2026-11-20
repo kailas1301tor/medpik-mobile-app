@@ -10,7 +10,6 @@ class OrdersShimmerWidget extends StatelessWidget {
   const OrdersShimmerWidget({super.key});
 
   static const int _itemCount = 4;
-  static const int _previewCount = 4;
 
   @override
   Widget build(BuildContext context) {
@@ -28,85 +27,93 @@ class OrdersShimmerWidget extends StatelessWidget {
       itemBuilder: (context, index) {
         return CommonContainer(
           margin: EdgeInsets.only(bottom: 12.h),
-          padding: EdgeInsets.all(16.r),
-          borderRadius: 16.r,
+          padding: EdgeInsets.all(14.r),
+          borderRadius: 24.r,
           color: colors.surface,
           side: BorderSide(color: colors.cardBorder, width: 1.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  CommonShimmerBox(
+                    height: 72.r,
+                    width: 72.r,
+                    borderRadius: 18.r,
+                  ),
+                  12.horizontalSpace,
                   Expanded(
-                    child: CommonShimmerBox(
-                      height: 16.h,
-                      width: 160.w,
-                      borderRadius: 6.r,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CommonShimmerBox(
+                          height: 10.h,
+                          width: 64.w,
+                          borderRadius: 4.r,
+                        ),
+                        6.verticalSpace,
+                        CommonShimmerBox(
+                          height: 16.h,
+                          width: 140.w,
+                          borderRadius: 6.r,
+                        ),
+                      ],
                     ),
                   ),
                   CommonShimmerBox(
                     height: 24.h,
                     width: 72.w,
-                    borderRadius: 8.r,
-                  ),
-                  8.horizontalSpace,
-                  CommonShimmerBox(
-                    height: 18.r,
-                    width: 18.r,
-                    borderRadius: 9.r,
+                    borderRadius: 999.r,
                   ),
                 ],
               ),
-              10.verticalSpace,
-              CommonShimmerBox(height: 12.h, width: 140.w, borderRadius: 6.r),
-              6.verticalSpace,
-              CommonShimmerBox(height: 12.h, width: 80.w, borderRadius: 6.r),
-              12.verticalSpace,
+              14.verticalSpace,
               Row(
-                children: List.generate(
-                  _previewCount,
-                  (previewIndex) => Padding(
-                    padding: EdgeInsets.only(
-                      right: previewIndex == _previewCount - 1 ? 0 : 8.w,
-                    ),
+                children: [
+                  Expanded(
                     child: CommonShimmerBox(
-                      height: 40.r,
-                      width: 40.r,
+                      height: 32.h,
                       borderRadius: 8.r,
                     ),
                   ),
-                ),
+                  8.horizontalSpace,
+                  Expanded(
+                    child: CommonShimmerBox(
+                      height: 32.h,
+                      borderRadius: 8.r,
+                    ),
+                  ),
+                  8.horizontalSpace,
+                  Expanded(
+                    child: CommonShimmerBox(
+                      height: 32.h,
+                      borderRadius: 8.r,
+                    ),
+                  ),
+                ],
               ),
+              12.verticalSpace,
+              CommonShimmerBox(height: 1.h, borderRadius: 1.r),
               12.verticalSpace,
               Row(
                 children: [
                   CommonShimmerBox(
-                    height: 12.h,
+                    height: 28.h,
+                    width: 88.w,
+                    borderRadius: 999.r,
+                  ),
+                  const Spacer(),
+                  CommonShimmerBox(
+                    height: 28.h,
                     width: 64.w,
                     borderRadius: 6.r,
                   ),
-                  8.horizontalSpace,
+                  10.horizontalSpace,
                   CommonShimmerBox(
-                    height: 22.h,
-                    width: 88.w,
-                    borderRadius: 8.r,
-                  ),
-                  const Spacer(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      CommonShimmerBox(
-                        height: 10.h,
-                        width: 36.w,
-                        borderRadius: 4.r,
-                      ),
-                      4.verticalSpace,
-                      CommonShimmerBox(
-                        height: 14.h,
-                        width: 56.w,
-                        borderRadius: 6.r,
-                      ),
-                    ],
+                    height: 36.r,
+                    width: 36.r,
+                    borderRadius: 18.r,
                   ),
                 ],
               ),

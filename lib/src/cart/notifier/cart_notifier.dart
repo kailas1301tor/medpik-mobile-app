@@ -8,12 +8,15 @@
 // ! keepAlive: true — cart badge, product detail, and checkout read cart across tabs.
 //
 // * Entry points: CartScreen, ProductDetail, Checkout, bottom nav badge, AuthNotifier sync.
+import 'dart:async';
+
 import 'package:either_dart/either.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/data/models/cart_item_model.dart';
 import 'package:medpik/data/models/product_model.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/analytics_service.dart';
 import 'package:medpik/services/repo_di.dart';
 import 'package:medpik/src/cart/repo/cart_repository.dart';
 import 'package:medpik/src/cart/state/cart_state.dart';
@@ -93,6 +96,9 @@ class CartNotifier extends _$CartNotifier {
           },
           (right) async {
             await fetchCart(showLoader: false);
+            unawaited(
+              AnalyticsService.instance.logAddToCart(productId: product.id),
+            );
             succeeded = true;
           },
         )

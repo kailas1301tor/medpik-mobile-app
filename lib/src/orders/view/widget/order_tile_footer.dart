@@ -16,6 +16,7 @@ class OrderTileFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final countLabel = orderCardCountLabel(order);
     final showTotal =
         orderStatusShowsTotal(order.status) &&
         order.hasKnownAmount &&
@@ -23,12 +24,15 @@ class OrderTileFooter extends StatelessWidget {
 
     return Row(
       children: [
-        _FooterPill(
-          label: orderCardCountLabel(order),
-          background: colors.background.withValues(alpha: 0.7),
-          textColor: colors.primaryText,
-        ),
-        if (order.hasPrescription) ...[
+        if (countLabel.isNotEmpty)
+          _FooterPill(
+            icon: Icons.inventory_2_outlined,
+            label: countLabel,
+            background: colors.background.withValues(alpha: 0.7),
+            textColor: colors.primaryText,
+          ),
+        if (order.hasPrescription &&
+            !countLabel.toLowerCase().contains('prescription')) ...[
           6.horizontalSpace,
           _FooterPill(
             label: Strings.prescriptionOrder,
@@ -37,7 +41,7 @@ class OrderTileFooter extends StatelessWidget {
           ),
         ],
         const Spacer(),
-        if (showTotal)
+        if (showTotal) ...[
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
@@ -46,12 +50,33 @@ class OrderTileFooter extends StatelessWidget {
                 Strings.totalLabel,
                 style: FontPalette.base400(10, color: colors.secondaryText),
               ),
+              2.verticalSpace,
               Text(
                 order.amount.toCurrency(decimalDigits: 0),
-                style: FontPalette.base700(13, color: colors.primaryText),
+                style: FontPalette.base700(16, color: colors.primaryText),
               ),
             ],
           ),
+          10.horizontalSpace,
+        ],
+        Container(
+          width: 36.r,
+          height: 36.r,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: colors.background.withValues(alpha: 0.75),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: colors.cardBorder.withValues(alpha: 0.4),
+              width: 1.w,
+            ),
+          ),
+          child: Icon(
+            Icons.chevron_right_rounded,
+            size: 22.r,
+            color: colors.primaryText,
+          ),
+        ),
       ],
     );
   }
@@ -62,11 +87,13 @@ class _FooterPill extends StatelessWidget {
     required this.label,
     required this.background,
     required this.textColor,
+    this.icon,
   });
 
   final String label;
   final Color background;
   final Color textColor;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -82,12 +109,21 @@ class _FooterPill extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-        child: Text(
-          label,
-          style: FontPalette.base600(11, color: textColor),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 14.r, color: textColor),
+              4.horizontalSpace,
+            ],
+            Text(
+              label,
+              style: FontPalette.base600(11, color: textColor),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );

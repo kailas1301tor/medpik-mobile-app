@@ -13,17 +13,31 @@ class OrderStatusBadge extends StatelessWidget {
     required this.status,
     this.label,
     this.useRecessedStyle = false,
+    this.showLeadingIcon = false,
   });
 
   final OrderStatus status;
   final String? label;
   final bool useRecessedStyle;
+  final bool showLeadingIcon;
+
+  IconData? get _leadingIcon {
+    if (!showLeadingIcon) return null;
+    return switch (orderStatusTone(status)) {
+      OrderStatusTone.success => Icons.check_circle_rounded,
+      OrderStatusTone.warning => Icons.schedule_rounded,
+      OrderStatusTone.error => Icons.error_outline_rounded,
+      OrderStatusTone.info => Icons.info_outline_rounded,
+      OrderStatusTone.neutral => null,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final (background, textColor) = orderStatusBadgeColors(status, colors);
     final displayLabel = label ?? orderStatusLabel(status);
+    final icon = _leadingIcon;
 
     if (useRecessedStyle) {
       return DecoratedBox(
@@ -52,11 +66,22 @@ class OrderStatusBadge extends StatelessWidget {
       color: background,
       borderRadius: BorderRadius.circular(999.r),
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-      child: Text(
-        displayLabel,
-        style: FontPalette.base600(11, color: textColor),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 12.r, color: textColor),
+            4.horizontalSpace,
+          ],
+          Flexible(
+            child: Text(
+              displayLabel,
+              style: FontPalette.base600(11, color: textColor),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }

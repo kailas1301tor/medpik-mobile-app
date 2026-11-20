@@ -1,4 +1,6 @@
 // lib/src/checkout/notifier/checkout_notifier.dart
+import 'dart:async';
+
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -8,6 +10,7 @@ import 'package:medpik/providers/cart_providers.dart';
 import 'package:medpik/providers/orders_providers.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
+import 'package:medpik/services/analytics_service.dart';
 import 'package:medpik/services/repo_di.dart';
 import 'package:medpik/src/checkout/repo/checkout_repository.dart';
 import 'package:medpik/src/checkout/state/checkout_state.dart';
@@ -132,10 +135,11 @@ class CheckoutNotifier extends _$CheckoutNotifier {
             }
 
             debugPrint('🟢 ORDER PLACED: $orderId');
-             ref
-                .read(cartNotifierProvider.notifier)
-                .fetchCart(showLoader: false);
-             ref.read(ordersNotifierProvider.notifier).fetchOrders();
+            unawaited(
+              AnalyticsService.instance.logPlaceOrder(source: 'checkout'),
+            );
+            ref.read(cartNotifierProvider.notifier).fetchCart(showLoader: false);
+            ref.read(ordersNotifierProvider.notifier).fetchOrders();
             state = state.copyWith(isPlacingOrder: false);
             return orderId;
           },

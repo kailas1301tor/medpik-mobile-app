@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/styles/color_palette.dart';
+import 'package:medpik/utils/helpers/haptic_helper.dart';
 
 /// Shared circular chrome for hero-overlay controls (back, wishlist, etc.).
 class CommonFloatingCircleButton extends StatelessWidget {
@@ -12,6 +13,7 @@ class CommonFloatingCircleButton extends StatelessWidget {
     this.size,
     this.margin,
     this.overlayStyle = false,
+    this.enableHaptic = false,
   });
 
   final VoidCallback onTap;
@@ -20,6 +22,8 @@ class CommonFloatingCircleButton extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
   /// High-contrast styling for controls on top of product photos.
   final bool overlayStyle;
+  /// Opt-in light haptic (e.g. wishlist). Off by default for back/chrome taps.
+  final bool enableHaptic;
 
   static bool isDark(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark;
@@ -71,7 +75,12 @@ class CommonFloatingCircleButton extends StatelessWidget {
         shape: const CircleBorder(),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: onTap,
+          onTap: () {
+            if (enableHaptic) {
+              AppHaptics.light();
+            }
+            onTap();
+          },
           customBorder: const CircleBorder(),
           child: Ink(
             width: buttonSize,

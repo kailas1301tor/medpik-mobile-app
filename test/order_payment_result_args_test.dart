@@ -5,6 +5,29 @@ import 'package:medpik/src/orders/model/order_payment_outcome.dart';
 import 'package:medpik/src/orders/model/order_payment_result_args.dart';
 
 void main() {
+  group('OrderPaymentSuccessContent', () {
+    test('uses COD order-placed copy when isCashOnDelivery', () {
+      final content = OrderPaymentSuccessContent.fromArgs(
+        const OrderPaymentResultArgs(
+          orderId: 'MPK1001',
+          isCashOnDelivery: true,
+        ),
+      );
+
+      expect(content.title, Strings.orderPlacedSuccess);
+      expect(content.message, Strings.codOrderPlacedSuccess);
+    });
+
+    test('uses payment success copy for online payments', () {
+      final content = OrderPaymentSuccessContent.fromArgs(
+        const OrderPaymentResultArgs(orderId: 'MPK1001'),
+      );
+
+      expect(content.title, Strings.paymentSuccessTitle);
+      expect(content.message, Strings.paymentSuccessMessage);
+    });
+  });
+
   group('OrderPaymentFailureContent', () {
     test('uses cancelled copy for cancelled outcome', () {
       final content = OrderPaymentFailureContent.fromArgs(

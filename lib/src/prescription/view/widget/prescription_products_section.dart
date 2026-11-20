@@ -1,5 +1,5 @@
 // lib/src/prescription/view/widget/prescription_products_section.dart
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/data/models/product_model.dart';
@@ -24,12 +24,7 @@ class PrescriptionProductsSection extends ConsumerWidget {
     final notifier = ref.read(prescriptionProductsNotifierProvider.notifier);
     final data = ref.watch(
       prescriptionProductsNotifierProvider.select(
-        (s) => Tuple4(
-          s.loaderState,
-          s.products,
-          s.isLoadingMore,
-          s.hasMore,
-        ),
+        (s) => Tuple3(s.loaderState, s.products, s.isLoadingMore),
       ),
     );
     final searchMeta = ref.watch(
@@ -41,7 +36,6 @@ class PrescriptionProductsSection extends ConsumerWidget {
     final loaderState = data.item1;
     final products = data.item2;
     final isLoadingMore = data.item3;
-    final hasMore = data.item4;
     final searchQuery = searchMeta.item1;
     final hasSearched = searchMeta.item2;
 
@@ -73,12 +67,10 @@ class PrescriptionProductsSection extends ConsumerWidget {
           showMissingProductCard: showMissingProductCard,
           searchQuery: searchQuery,
           isLoadingMore: isLoadingMore,
-          hasMore: hasMore,
           onRetry: () => notifier.fetchProducts(
             page: 1,
             search: searchQuery,
           ),
-          onLoadMore: notifier.loadMore,
         ),
       ],
     );
@@ -92,9 +84,7 @@ class _ProductsBody extends StatelessWidget {
     required this.showMissingProductCard,
     required this.searchQuery,
     required this.isLoadingMore,
-    required this.hasMore,
     required this.onRetry,
-    required this.onLoadMore,
   });
 
   final LoaderState loaderState;
@@ -102,9 +92,7 @@ class _ProductsBody extends StatelessWidget {
   final bool showMissingProductCard;
   final String searchQuery;
   final bool isLoadingMore;
-  final bool hasMore;
   final VoidCallback onRetry;
-  final VoidCallback onLoadMore;
 
   @override
   Widget build(BuildContext context) {
@@ -139,32 +127,7 @@ class _ProductsBody extends StatelessWidget {
             PrescriptionProductGrid(products: products),
             if (isLoadingMore) ...[
               12.verticalSpace,
-              const PrescriptionProductsLoadMoreShimmer(),
-            ] else if (hasMore && products.isNotEmpty) ...[
-              8.verticalSpace,
-              GestureDetector(
-                onTap: onLoadMore,
-                behavior: HitTestBehavior.opaque,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.refresh,
-                        size: 18.r,
-                        color: colors.primary,
-                      ),
-                      6.horizontalSpace,
-                      Text(
-                        Strings.loadMore,
-                        style: FontPalette.base600(14, color: colors.primary),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              Center(child: CupertinoActivityIndicator(radius: 10.r)),
             ],
           ],
         ),

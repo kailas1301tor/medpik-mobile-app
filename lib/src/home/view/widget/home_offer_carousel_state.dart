@@ -74,25 +74,11 @@ class _HomeOfferCarouselState extends State<HomeOfferCarousel> {
     super.dispose();
   }
 
-  LinearGradient _gradientFor(OfferModel offer, int index) {
-    final start = tryParseHexColor(offer.gradientColor1);
-    final end = tryParseHexColor(offer.gradientColor2);
-    if (start != null && end != null) {
-      return LinearGradient(
-        begin: Alignment.centerLeft,
-        end: Alignment.centerRight,
-        colors: [start, end],
-        stops: const [0.0, 1.0],
-      );
-    }
-
-    return switch (index % 5) {
-      0 => ColorPalette.offerLimeMagenta,
-      1 => ColorPalette.offerSlateSilver,
-      2 => ColorPalette.offerInkPurple,
-      3 => ColorPalette.offerRedBlue,
-      _ => ColorPalette.offerForestTeal,
-    };
+  /// Solid fill for text-only offers (no image). Prefer API color, else brand.
+  Color _fallbackColorFor(OfferModel offer) {
+    return tryParseHexColor(offer.gradientColor1) ??
+        tryParseHexColor(offer.gradientColor2) ??
+        ColorPalette.primaryColor;
   }
 
   @override
@@ -121,7 +107,7 @@ class _HomeOfferCarouselState extends State<HomeOfferCarousel> {
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: _OfferBannerCard(
                     offer: offer,
-                    gradient: _gradientFor(offer, offerIndex),
+                    fallbackColor: _fallbackColorFor(offer),
                     onTap: onOfferTap == null ? null : () => onOfferTap(offer),
                   ),
                 );

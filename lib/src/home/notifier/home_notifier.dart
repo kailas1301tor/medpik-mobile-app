@@ -98,15 +98,45 @@ class HomeNotifier extends _$HomeNotifier {
         });
   }
 
-  void _onScroll() {
-    if (!scrollController.hasClients) return;
+  /// Safe when the controller is briefly attached to 0/N positions (e.g. tab
+  /// rebuilds). Avoids `ScrollController.offset` which asserts length == 1.
+  double? _scrollPixels() {
+    final positions = scrollController.positions;
+    if (positions.isEmpty) return null;
+    return positions.first.pixels;
+  }
 
-    final offset = scrollController.offset;
+  void _onScroll() {
+    final offset = _scrollPixels();
+    if (offset == null) return;
+
     final progress = ((offset - _compactThreshold) / _compactFadeDistance)
         .clamp(0.0, 1.0);
 
-    if (state.compactHeaderProgress == progress) return;
-    state = state.copyWith(compactHeaderProgress: progress);
+    if (state.compactHeaderProgress == progress &&
+        state.scrollOffset == offset) {
+      return;
+    }
+    state = state.copyWith(
+      compactHeaderProgress: progress,
+      scrollOffset: offset,
+    );
+  }
+
+  /// Animates the home feed back to the top (e.g. Home bottom-nav retap).
+  Future<void> scrollToTop({
+    Duration duration = const Duration(milliseconds: 320),
+    Curve curve = Curves.easeOutCubic,
+  }) async {
+    final offset = _scrollPixels();
+    if (offset == null || offset <= 0) return;
+
+    final position = scrollController.positions.first;
+    await position.animateTo(
+      0,
+      duration: duration,
+      curve: curve,
+    );
   }
 
   Future<void> fetchHomeFeed() async {
@@ -133,9 +163,12 @@ class HomeNotifier extends _$HomeNotifier {
               deliveryHint: _resolveDeliveryHint(),
             );
             state = state.copyWith(loaderState: LoaderState.loaded, data: feed);
-            ref
-                .read(wishlistNotifierProvider.notifier)
-                .syncFromProducts(feed.featuredProducts);
+            ref.read(wishlistNotifierProvider.notifier).syncFromProducts([
+              ...feed.featuredProducts,
+              ...feed.vitaminsAndSupplements,
+              ...feed.personalCare,
+              ...feed.babyCare,
+            ]);
           },
         )
         .catchError((error) {

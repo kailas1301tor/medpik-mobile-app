@@ -13,13 +13,11 @@ class HomeCompactHeader extends StatelessWidget {
     required this.progress,
     required this.topInset,
     required this.deliveryHint,
-    required this.onSearchTap,
   });
 
   final double progress;
   final double topInset;
   final String deliveryHint;
-  final VoidCallback onSearchTap;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +60,9 @@ class HomeCompactHeader extends StatelessWidget {
                 children: [
                   HomeHeaderLocationRow(deliveryHint: deliveryHint),
                   10.verticalSpace,
-                  HomeHeaderSearchRow(onSearchTap: onSearchTap),
+                  // Search is overlaid by [HomeFloatingSearchBar]; reserve
+                  // the same slot so the compact chrome wraps behind it.
+                  SizedBox(height: 50.h),
                 ],
               ),
             ),

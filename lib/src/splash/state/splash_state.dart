@@ -9,5 +9,6 @@ sealed class SplashState with _$SplashState {
   const factory SplashState({
     @Default(LoaderState.loading) LoaderState loaderState,
     @Default(false) bool hasSession,
+    @Default(false) bool requiresForceUpdate,
   }) = _SplashState;
 }

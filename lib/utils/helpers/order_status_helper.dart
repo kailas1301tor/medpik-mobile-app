@@ -371,7 +371,11 @@ String orderCardCountLabel(OrderModel order) {
   if (rxCount > 0) {
     return '$rxCount ${Strings.prescriptionsLabel}';
   }
-  return '0 ${Strings.itemsLabel}';
+  if (order.hasPrescription || order.previewImageUrls.isNotEmpty) {
+    // Avoid "0 items" when we clearly have Rx / preview media.
+    return Strings.prescriptionOrder;
+  }
+  return '';
 }
 
 int orderLifecycleIndex(OrderStatus status) {
