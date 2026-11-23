@@ -23,6 +23,7 @@ class CommonCachedNetworkImage extends StatelessWidget {
     this.memCacheWidth,
     this.memCacheHeight,
     this.memCacheMax = 300,
+    this.filterQuality = FilterQuality.low,
     this.showBorder = true,
   });
 
@@ -36,6 +37,7 @@ class CommonCachedNetworkImage extends StatelessWidget {
   final int? memCacheWidth;
   final int? memCacheHeight;
   final int memCacheMax;
+  final FilterQuality filterQuality;
   final bool showBorder;
 
   @override
@@ -90,7 +92,7 @@ class CommonCachedNetworkImage extends StatelessWidget {
         fadeInDuration: const Duration(milliseconds: 120),
         fadeOutDuration: Duration.zero,
         useOldImageOnUrlChange: true,
-        filterQuality: FilterQuality.low,
+        filterQuality: filterQuality,
         placeholder: (context, url) => effectivePlaceholder,
         errorWidget: (context, url, error) => fallback,
       ),

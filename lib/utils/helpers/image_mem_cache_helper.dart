@@ -61,4 +61,19 @@ abstract final class ImageMemCacheHelper {
     }
     return null;
   }
+
+  /// Full-bleed banner decode size: match layout, cap DPR at 2× to limit RAM.
+  static ({int width, int height}) bannerDecodeSize({
+    required double logicalWidth,
+    required double logicalHeight,
+    required double devicePixelRatio,
+    int min = 48,
+    int max = 1080,
+  }) {
+    final dpr = devicePixelRatio.clamp(1.0, 2.0);
+    return (
+      width: dimension(logicalWidth, dpr, min: min, max: max),
+      height: dimension(logicalHeight, dpr, min: min, max: max),
+    );
+  }
 }

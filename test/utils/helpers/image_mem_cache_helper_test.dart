@@ -69,4 +69,29 @@ void main() {
       expect(result.height, isNull);
     });
   });
+
+  group('ImageMemCacheHelper.bannerDecodeSize', () {
+    test('caps device pixel ratio at 2x', () {
+      final result = ImageMemCacheHelper.bannerDecodeSize(
+        logicalWidth: 360,
+        logicalHeight: 160,
+        devicePixelRatio: 3,
+      );
+
+      expect(result.width, 720);
+      expect(result.height, 320);
+    });
+
+    test('clamps to max', () {
+      final result = ImageMemCacheHelper.bannerDecodeSize(
+        logicalWidth: 800,
+        logicalHeight: 400,
+        devicePixelRatio: 2,
+        max: 1080,
+      );
+
+      expect(result.width, 1080);
+      expect(result.height, 800);
+    });
+  });
 }

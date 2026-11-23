@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
+import 'package:medpik/utils/helpers/image_mem_cache_helper.dart';
 
 class HomePromoBannerCarousel extends StatefulWidget {
   const HomePromoBannerCarousel({
@@ -113,13 +114,26 @@ class _HomePromoBannerCarouselState extends State<HomePromoBannerCarousel> {
                   padding: EdgeInsets.symmetric(horizontal: 4.w),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(radius),
-                    child: CommonCachedNetworkImage(
-                      imageUrl: _urls[index],
-                      width: double.infinity,
-                      height: height,
-                      fit: BoxFit.cover,
-                      borderRadius: 20,
-                      showBorder: false,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final dpr = MediaQuery.devicePixelRatioOf(context);
+                        final decode = ImageMemCacheHelper.bannerDecodeSize(
+                          logicalWidth: constraints.maxWidth,
+                          logicalHeight: constraints.maxHeight,
+                          devicePixelRatio: dpr,
+                        );
+                        return CommonCachedNetworkImage(
+                          imageUrl: _urls[index],
+                          width: constraints.maxWidth,
+                          height: constraints.maxHeight,
+                          fit: BoxFit.cover,
+                          borderRadius: 20,
+                          showBorder: false,
+                          memCacheWidth: decode.width,
+                          memCacheHeight: decode.height,
+                          filterQuality: FilterQuality.medium,
+                        );
+                      },
                     ),
                   ),
                 );

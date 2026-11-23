@@ -37,13 +37,26 @@ class _OfferImageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CommonCachedNetworkImage(
-      imageUrl: imageUrl,
-      width: double.infinity,
-      height: double.infinity,
-      fit: BoxFit.cover,
-      borderRadius: 20,
-      showBorder: false,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final dpr = MediaQuery.devicePixelRatioOf(context);
+        final decode = ImageMemCacheHelper.bannerDecodeSize(
+          logicalWidth: constraints.maxWidth,
+          logicalHeight: constraints.maxHeight,
+          devicePixelRatio: dpr,
+        );
+        return CommonCachedNetworkImage(
+          imageUrl: imageUrl,
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+          fit: BoxFit.cover,
+          borderRadius: 20,
+          showBorder: false,
+          memCacheWidth: decode.width,
+          memCacheHeight: decode.height,
+          filterQuality: FilterQuality.medium,
+        );
+      },
     );
   }
 }

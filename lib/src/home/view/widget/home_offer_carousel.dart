@@ -10,6 +10,7 @@ import 'package:medpik/res/styles/font_palette.dart';
 import 'package:medpik/src/home/model/home_model.dart';
 import 'package:medpik/utils/common_widgets/common_cached_network_image.dart';
 import 'package:medpik/utils/helpers/hex_color_helper.dart';
+import 'package:medpik/utils/helpers/image_mem_cache_helper.dart';
 
 part 'home_offer_carousel_state.dart';
 part 'home_offer_carousel_autoscroll.dart';
