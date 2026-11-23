@@ -50,3 +50,52 @@ class RenderHitTestHeightLimit extends RenderProxyBox {
     return super.hitTest(result, position: position);
   }
 }
+
+/// Skips hit testing in the top [skipHeight] of [child], then defers to the child.
+///
+/// Lets a sheet [CustomScrollView] paint over a hero gallery while still allowing
+/// the gallery [PageView] underneath to receive horizontal swipes. [IgnorePointer]
+/// on a spacer sliver is not enough — [Scrollable] uses opaque hit testing.
+class HitTestSkipTop extends SingleChildRenderObjectWidget {
+  const HitTestSkipTop({
+    super.key,
+    required this.skipHeight,
+    super.child,
+  });
+
+  final double skipHeight;
+
+  @override
+  RenderHitTestSkipTop createRenderObject(BuildContext context) {
+    return RenderHitTestSkipTop(skipHeight: skipHeight);
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    RenderHitTestSkipTop renderObject,
+  ) {
+    renderObject.skipHeight = skipHeight;
+  }
+}
+
+class RenderHitTestSkipTop extends RenderProxyBox {
+  RenderHitTestSkipTop({required double skipHeight}) : _skipHeight = skipHeight;
+
+  double _skipHeight;
+
+  double get skipHeight => _skipHeight;
+
+  set skipHeight(double value) {
+    if (_skipHeight == value) return;
+    _skipHeight = value;
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (position.dy < _skipHeight) {
+      return false;
+    }
+    return super.hitTest(result, position: position);
+  }
+}

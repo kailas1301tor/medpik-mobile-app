@@ -15,6 +15,7 @@ import 'package:medpik/src/product_detail/view/widget/product_detail_safety_sect
 import 'package:medpik/src/product_detail/view/widget/product_detail_storage_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_title_section.dart';
 import 'package:medpik/src/product_detail/view/widget/product_detail_uses_section.dart';
+import 'package:medpik/utils/common_widgets/hit_test_height_limit.dart';
 import 'package:medpik/utils/helpers/product_detail_content_resolver.dart';
 
 class ProductDetailContentWidget extends StatelessWidget {
@@ -60,7 +61,8 @@ class ProductDetailContentWidget extends StatelessWidget {
     );
 
     // Gallery stays behind; curved sheet paints on top and scrolls over it.
-    // IgnorePointer on the hero spacer so PageView still receives horizontal swipes.
+    // HitTestSkipTop lets PageView receive swipes — Scrollable is opaque and
+    // IgnorePointer on the spacer alone does not pass hits through.
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -79,95 +81,96 @@ class ProductDetailContentWidget extends StatelessWidget {
           ),
         ),
         Positioned.fill(
-          child: CustomScrollView(
-            controller: scrollController,
-            physics: const ClampingScrollPhysics(),
-            slivers: [
-              SliverToBoxAdapter(
-                child: IgnorePointer(
+          child: HitTestSkipTop(
+            skipHeight: sheetTopInset,
+            child: CustomScrollView(
+              controller: scrollController,
+              physics: const ClampingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(
                   child: SizedBox(height: sheetTopInset),
                 ),
-              ),
-              // Curved sheet — fills remaining viewport when short; grows when tall.
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: DecoratedBox(
-                  decoration: ShapeDecoration(
-                    color: colors.surface,
-                    shape: SmoothRectangleBorder(
-                      smoothness: 1.0,
-                      borderRadius: topRadius,
-                    ),
-                    shadows: [
-                      BoxShadow(
-                        color: ColorPalette.black.withValues(alpha: 0.14),
-                        blurRadius: 20,
-                        offset: Offset(0, -6.h),
-                      ),
-                    ],
-                  ),
-                  child: ClipPath(
-                    clipper: ShapeBorderClipper(
+                // Curved sheet — fills remaining viewport when short; grows when tall.
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: DecoratedBox(
+                    decoration: ShapeDecoration(
+                      color: colors.surface,
                       shape: SmoothRectangleBorder(
                         smoothness: 1.0,
                         borderRadius: topRadius,
                       ),
+                      shadows: [
+                        BoxShadow(
+                          color: ColorPalette.black.withValues(alpha: 0.14),
+                          blurRadius: 20,
+                          offset: Offset(0, -6.h),
+                        ),
+                      ],
                     ),
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        20.w,
-                        24.h,
-                        20.w,
-                        footerClearance,
+                    child: ClipPath(
+                      clipper: ShapeBorderClipper(
+                        shape: SmoothRectangleBorder(
+                          smoothness: 1.0,
+                          borderRadius: topRadius,
+                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ProductDetailTitleSection(detail: detail),
-                          if (display.showPackagings)
-                            ProductDetailPackagingSection(
-                              packagings: detail.packagings,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          20.w,
+                          24.h,
+                          20.w,
+                          footerClearance,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ProductDetailTitleSection(detail: detail),
+                            if (display.showPackagings)
+                              ProductDetailPackagingSection(
+                                packagings: detail.packagings,
+                              ),
+                            ProductDetailQuantitySection(
+                              productId: detail.product.id,
                             ),
-                          ProductDetailQuantitySection(
-                            productId: detail.product.id,
-                          ),
-                          if (display.showAbout) ...[
+                            if (display.showAbout) ...[
+                              24.verticalSpace,
+                              ProductDetailAboutSection(detail: detail),
+                            ],
+                            if (display.showComposition) ...[
+                              24.verticalSpace,
+                              ProductDetailCompositionSection(
+                                composition: display.composition,
+                              ),
+                            ],
+                            if (display.showUses) ...[
+                              24.verticalSpace,
+                              ProductDetailUsesSection(uses: display.uses),
+                            ],
+                            if (display.showBenefits) ...[
+                              24.verticalSpace,
+                              ProductDetailBenefitsSection(detail: detail),
+                            ],
                             24.verticalSpace,
-                            ProductDetailAboutSection(detail: detail),
-                          ],
-                          if (display.showComposition) ...[
+                            ProductDetailHowToUseSection(
+                              howToUse: display.howToUse,
+                            ),
                             24.verticalSpace,
-                            ProductDetailCompositionSection(
-                              composition: display.composition,
+                            ProductDetailSafetySection(
+                              safetyBlocks: display.safetyBlocks,
+                            ),
+                            24.verticalSpace,
+                            ProductDetailStorageSection(
+                              storageBody: display.storageBody,
                             ),
                           ],
-                          if (display.showUses) ...[
-                            24.verticalSpace,
-                            ProductDetailUsesSection(uses: display.uses),
-                          ],
-                          if (display.showBenefits) ...[
-                            24.verticalSpace,
-                            ProductDetailBenefitsSection(detail: detail),
-                          ],
-                          24.verticalSpace,
-                          ProductDetailHowToUseSection(
-                            howToUse: display.howToUse,
-                          ),
-                          24.verticalSpace,
-                          ProductDetailSafetySection(
-                            safetyBlocks: display.safetyBlocks,
-                          ),
-                          24.verticalSpace,
-                          ProductDetailStorageSection(
-                            storageBody: display.storageBody,
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

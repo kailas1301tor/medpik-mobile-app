@@ -6,9 +6,6 @@ import 'package:medpik/res/styles/color_palette.dart';
 import 'package:medpik/res/styles/font_palette.dart';
 
 /// Outlined pill CTA used for Call / WhatsApp on the home prescription card.
-///
-/// Colors are fixed to the light card surface so dark mode theme tokens
-/// do not invert the fill/text against the white card.
 class HomePrescriptionCardOutlineButton extends StatelessWidget {
   const HomePrescriptionCardOutlineButton({
     super.key,
@@ -21,12 +18,13 @@ class HomePrescriptionCardOutlineButton extends StatelessWidget {
   final String iconAsset;
   final VoidCallback? onTap;
 
-  static const _labelColor = Color(0xFF1D1D1F);
-
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final radius = BorderRadius.circular(100.r);
     final borderColor = ColorPalette.primaryColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fill = isDark ? colors.cardBackground : ColorPalette.white;
 
     return Material(
       color: ColorPalette.transparent,
@@ -39,7 +37,7 @@ class HomePrescriptionCardOutlineButton extends StatelessWidget {
           height: 34.h,
           padding: EdgeInsets.symmetric(horizontal: 8.w),
           decoration: BoxDecoration(
-            color: ColorPalette.white,
+            color: fill,
             borderRadius: radius,
             border: Border.all(color: borderColor, width: 1),
           ),
@@ -58,7 +56,7 @@ class HomePrescriptionCardOutlineButton extends StatelessWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: FontPalette.base600(10, color: _labelColor),
+                  style: FontPalette.base600(10, color: colors.primaryText),
                 ),
               ),
             ],

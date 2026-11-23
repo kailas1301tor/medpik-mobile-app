@@ -2,15 +2,16 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:medpik/utils/helpers/connectivity_result_helper.dart';
 
 export 'package:medpik/utils/helpers/debounce_helper.dart';
 export 'package:medpik/utils/helpers/throttle_helper.dart';
 export 'package:medpik/utils/helpers/toast_helper.dart';
 
-/// Check if the device has an active internet connection.
+/// Check if the device reports a network interface (not reachability).
 Future<bool> isInternetAvailable() async {
   final connectivityResult = await Connectivity().checkConnectivity();
-  return !connectivityResult.contains(ConnectivityResult.none);
+  return isOnlineFromConnectivityResults(connectivityResult);
 }
 
 /// Execute a callback after the current frame.

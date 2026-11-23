@@ -212,10 +212,12 @@ class NetworkServices extends NetWorkBaseServices {
 
   // ── Internet Check (singleton Connectivity) ────────────────────────────
 
+  /// Cheap preflight using the interface-based connectivity cache.
+  /// Reachability failures are still surfaced via Dio → networkError.
   Future<void> _assertInternetAvailable() async {
     final isConnected = _ref.read(connectivityServiceProvider).isConnected;
     if (!isConnected) {
-      debugPrint('🔴 No internet connection (cached check)');
+      debugPrint('🔴 No network interface (cached check)');
       throw ApiExceptions.noInternet();
     }
   }

@@ -23,16 +23,15 @@ class HomePrescriptionCardSurface extends StatelessWidget {
   final VoidCallback? onCallTap;
   final VoidCallback? onWhatsAppTap;
 
-  // Branded light card — keep ink colors stable in dark mode too.
-  static const _titleColor = Color(0xFF1D1D1F);
-  static const _bodyColor = Color(0xFF86868B);
-
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: ColorPalette.white,
+        color: colors.cardBackground,
         borderRadius: radius,
+        border: Border.all(color: colors.cardBorder, width: 1),
       ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(14.w, 14.h, 8.w, 14.h),
@@ -48,19 +47,28 @@ class HomePrescriptionCardSurface extends StatelessWidget {
                   children: [
                     Text(
                       Strings.orderYourMedicines,
-                      style: FontPalette.base700(16, color: _titleColor),
+                      style: FontPalette.base700(
+                        16,
+                        color: colors.primaryText,
+                      ),
                     ),
                     4.verticalSpace,
                     Text.rich(
                       TextSpan(
-                        style: FontPalette.base400(11, color: _bodyColor),
+                        style: FontPalette.base400(
+                          11,
+                          color: colors.secondaryText,
+                        ),
                         children: [
                           const TextSpan(
                             text: Strings.uploadPrescriptionSubtitle,
                           ),
                           TextSpan(
                             text: Strings.uploadPrescriptionSubtitleEmphasis,
-                            style: FontPalette.base600(11, color: _titleColor),
+                            style: FontPalette.base600(
+                              11,
+                              color: colors.primaryText,
+                            ),
                           ),
                         ],
                       ),

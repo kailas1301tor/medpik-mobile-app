@@ -212,4 +212,18 @@ class HomeNotifier extends _$HomeNotifier {
       data: data.copyWith(greeting: greeting, userName: userName),
     );
   }
+
+  /// Clears the header badge after notifications are marked read.
+  void clearInAppNotificationCount() {
+    final data = state.data;
+    if (data == null || data.inAppNotificationCount == 0) return;
+    final current = data.results.data ?? const HomeDataModel();
+    state = state.copyWith(
+      data: data.copyWith(
+        results: HomeResultsModel(
+          data: current.copyWith(inAppNotificationCount: 0),
+        ),
+      ),
+    );
+  }
 }

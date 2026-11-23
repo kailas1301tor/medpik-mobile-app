@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
+import 'package:medpik/utils/helpers/connectivity_result_helper.dart';
 
 class ConnectivityService {
   final Connectivity _connectivity = Connectivity();
@@ -10,6 +12,7 @@ class ConnectivityService {
 
   Timer? _debounce;
   bool _isConnected = true;
+  bool _hasEmittedInitial = false;
 
   Stream<bool> get connectionStream => _controller.stream;
   bool get isConnected => _isConnected;
@@ -21,45 +24,40 @@ class ConnectivityService {
   void initialize() {
     checkConnection();
 
-    _subscription = _connectivity.onConnectivityChanged.listen((results) {
-      // Debounce to allow network to stabilize
+    _subscription = _connectivity.onConnectivityChanged.listen((_) {
+      // Debounce, then re-query so we use the settled interface list.
       _debounce?.cancel();
-      _debounce = Timer(const Duration(milliseconds: 600), () async {
-        final status = await _verifyConnection();
-        _updateStatus(status);
+      _debounce = Timer(const Duration(milliseconds: 600), () {
+        unawaited(checkConnection());
       });
     });
   }
 
   Future<void> checkConnection() async {
-    final initialStatus = await _verifyConnection();
-    _updateStatus(initialStatus);
-  }
-
-  Future<bool> _verifyConnection({int retry = 2}) async {
-    while (retry > 0) {
-      try {
-        final response = await http
-            .get(Uri.parse("https://clients3.google.com/generate_204"))
-            .timeout(const Duration(seconds: 2));
-
-        if (response.statusCode == 204) return true;
-      } catch (_) {
-        // ignore and retry
-      }
-
-      retry--;
-      await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      final results = await _connectivity.checkConnectivity();
+      _updateStatus(isOnlineFromConnectivityResults(results));
+    } catch (error) {
+      debugPrint('🔴 CONNECTIVITY CHECK ERROR: $error');
+      // Fail open — let real API/Dio errors surface network issues.
+      _updateStatus(true);
     }
-
-    return false;
   }
 
   void _updateStatus(bool connected) {
-    if (!_controller.isClosed && _isConnected != connected) {
-      _isConnected = connected;
-      _controller.add(connected);
-    }
+    if (_controller.isClosed) return;
+
+    final shouldEmit = !_hasEmittedInitial || _isConnected != connected;
+    _isConnected = connected;
+    if (!shouldEmit) return;
+
+    _hasEmittedInitial = true;
+    _controller.add(connected);
+    debugPrint(
+      connected
+          ? '🟢 CONNECTIVITY: online (interface)'
+          : '🟡 CONNECTIVITY: offline (no interface)',
+    );
   }
 
   void dispose() {

@@ -56,6 +56,11 @@ class _HomePrescriptionCardArtState extends State<HomePrescriptionCardArt>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final halo = isDark
+        ? ColorPalette.primaryColor.withValues(alpha: 0.16)
+        : ColorPalette.prescriptionBannerBg.withValues(alpha: 0.85);
+
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -64,7 +69,7 @@ class _HomePrescriptionCardArtState extends State<HomePrescriptionCardArt>
           height: 108.r,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: ColorPalette.prescriptionBannerBg.withValues(alpha: 0.85),
+            color: halo,
           ),
         ),
         FadeTransition(

@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:medpik/res/constants/string_constants.dart';
 import 'package:medpik/res/enums/enums.dart';
 import 'package:medpik/services/repo_di.dart';
+import 'package:medpik/src/home/notifier/home_notifier.dart';
 import 'package:medpik/src/notifications/repo/notifications_repository.dart';
 import 'package:medpik/src/notifications/state/notifications_state.dart';
 import 'package:medpik/utils/helpers/api_error_handler.dart';
@@ -119,6 +120,9 @@ class NotificationsNotifier extends _$NotificationsNotifier {
                 .map((n) => n.copyWith(isRead: true))
                 .toList();
             state = state.copyWith(notifications: updated);
+            ref
+                .read(homeNotifierProvider.notifier)
+                .clearInAppNotificationCount();
             showCustomToast(
               message: "All notifications marked as read",
               isSuccess: true,
